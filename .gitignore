@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/SFManagement/.vs
+/SFManagement/bin/Debug/net7.0
+/SFManagement/obj
