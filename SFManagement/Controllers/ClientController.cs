@@ -1,36 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
+using SFManagement.Services;
 
 namespace SFManagement.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ClientController : ControllerBase
+    public class ClientController : BaseApiController<Client>
     {
         private readonly ILogger<ClientController> _logger;
 
-        public ClientController(ILogger<ClientController> logger)
+        public ClientController(ClientService service, ILogger<ClientController> logger) : base(service)
         {
             _logger = logger;
         }
-
-        [HttpGet]
-        public List<Client> Get() => new List<Client>();
-
-        [HttpGet]
-        [Route("{id}")]
-        public Client Get(Guid id) => new Client();
-
-        [HttpDelete]
-        [Route("{id}")]
-        public Client Delete(Guid id) => new Client();
-
-        [HttpPost]
-        [Route("")]
-        public Client Post(Client model) => model;
-
-        [HttpPut]
-        [Route("{id}")]
-        public Client Put(Guid id, Client model) => model;
     }
 }

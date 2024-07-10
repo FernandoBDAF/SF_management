@@ -1,7 +1,9 @@
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.Models.Validators;
-using System;
+using SFManagement.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer("Data Source=(localdb)\\mssqllocaldb;Initial Catalog=SFManagementDb;Integrated Security=true;", o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
 builder.Services.AddScoped<IValidator<Client>, ClientValidator>();
+
+builder.Services.AddScoped<ClientService, BaseService<Client>>();
 
 var app = builder.Build();
 
