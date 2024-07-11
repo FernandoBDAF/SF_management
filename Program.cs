@@ -17,9 +17,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 builder.Services.AddScoped<IValidator<Client>, ClientValidator>();
+builder.Services.AddScoped<IValidator<Bank>, BankValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();
+builder.Services.AddScoped<BankService>();
+builder.Services.AddScoped<BaseService<Bank>, BankService>();
+builder.Services.AddScoped<BankTransactionService>();
+builder.Services.AddScoped<BaseService<BankTransaction>, BankTransactionService>();
+
 
 var app = builder.Build();
 

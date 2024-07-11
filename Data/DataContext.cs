@@ -10,5 +10,7 @@ namespace SFManagement.Data
         }
 
         public DbSet<Client> Clients { get; set; }
+
+        public DbSet<Bank> Banks { get; set; }
     }
 }
