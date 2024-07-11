@@ -14,11 +14,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer("Data Source=(localdb)\\mssqllocaldb;Initial Catalog=SFManagementDb;Integrated Security=true;", o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 builder.Services.AddScoped<IValidator<Client>, ClientValidator>();
 
-builder.Services.AddScoped<ClientService, BaseService<Client>>();
+builder.Services.AddScoped<ClientService>();
+builder.Services.AddScoped<BaseService<Client>, ClientService>();
 
 var app = builder.Build();
 
