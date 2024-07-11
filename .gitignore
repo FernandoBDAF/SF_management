@@ -8,3 +8,6 @@
 /.vs/SF_management/v17
 /SFManagement/bin/Debug/net8.0
 /.vs/VSWorkspaceState.json
+/bin/Debug/net8.0
+/.vs
+/obj
