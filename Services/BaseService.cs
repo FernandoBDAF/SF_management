@@ -28,9 +28,12 @@ namespace SFManagement.Services
             return obj;
         }
 
-        public virtual async Task<Entity> Update(Entity obj)
+        public virtual async Task<Entity> Update(Guid id, Entity obj)
         {
-            obj.UpdatedAt = DateTime.Now;
+            var entity = await Get(id);
+
+            entity.UpdatedAt = DateTime.Now;
+            
             _entity.Update(obj);
 
             await context.SaveChangesAsync();

@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using SFManagement;
 using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.Models.Validators;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<BaseService<Bank>, BankService>();
 builder.Services.AddScoped<BankTransactionService>();
 builder.Services.AddScoped<BaseService<BankTransaction>, BankTransactionService>();
 
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 var app = builder.Build();
 
