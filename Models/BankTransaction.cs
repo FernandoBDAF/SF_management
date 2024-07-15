@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFManagement.Models
@@ -18,5 +17,14 @@ namespace SFManagement.Models
         public virtual required Bank Bank { get; set; }
 
         public BankTransactionType BankTransactionType { get; set; }
+
+        public DateTime Date { get; set; }
+
+        public string? FitId { get; set; }
+
+        [ForeignKey("Ofx")]
+        public Guid? OfxId { get; set; }
+
+        public virtual Ofx? Ofx { get; set; }
     }
 }

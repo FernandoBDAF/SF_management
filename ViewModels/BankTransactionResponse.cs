@@ -5,7 +5,11 @@
         public Guid BankId { get; set; }
 
         public decimal Value { get; set; }
+        
+        public DateTime Date { get; set; }
 
+        public string? FitId { get; set; }
+     
         public string? Description { get; set; }
     }
 }

@@ -16,6 +16,9 @@ namespace SFManagement
 
             CreateMap<Client, ClientResponse>();
             CreateMap<ClientRequest, Client>();
+
+            CreateMap<Ofx, OfxResponse>();
+            CreateMap<OfxRequest, Ofx>();
         }
     }
 }

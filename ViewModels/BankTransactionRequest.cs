@@ -9,6 +9,10 @@ namespace SFManagement.ViewModels
         public decimal Value { get; set; }
 
         public string? Description { get; set; }
+       
+        public DateTime Date { get; set; }
+
+        public string? FitId { get; set; }
 
         public BankTransactionType BankTransactionType { get; set; }
     }
