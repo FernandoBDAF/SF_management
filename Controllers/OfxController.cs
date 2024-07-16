@@ -21,7 +21,6 @@ namespace SFManagement.Controllers
             _mapper = mapper;
         }
 
-
         public override async Task<OfxResponse> Post(OfxRequest model)
         {
             return _mapper.Map<OfxResponse>(await _ofxService.Add(model.PostFile, model.BankId));
