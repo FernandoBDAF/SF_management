@@ -4,6 +4,14 @@ namespace SFManagement.Models
 {
     public class Ofx : BaseDomain
     {
+        public Ofx() { }
+
+        public Ofx(List<BankTransaction> transactions, Guid bankId)
+        {
+            BankId = bankId;
+            BankTransactions = transactions;
+        }
+
         [ForeignKey("Bank")]
         public Guid BankId { get; set; }
 

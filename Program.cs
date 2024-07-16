@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using SFManagement;
 using SFManagement.Data;
 using SFManagement.Models;
-using SFManagement.Models.Validators;
 using SFManagement.Services;
+using SFManagement.ViewModels;
+using SFManagement.ViewModels.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +18,10 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
-builder.Services.AddScoped<IValidator<Client>, ClientValidator>();
-builder.Services.AddScoped<IValidator<Bank>, BankValidator>();
+builder.Services.AddScoped<IValidator<ClientRequest>, ClientRequestValidator>();
+builder.Services.AddScoped<IValidator<BankRequest>, BankRequestValidator>();
+builder.Services.AddScoped<IValidator<BankTransactionRequest>, BankTransactionRequestValidator>();
+builder.Services.AddScoped<IValidator<OfxRequest>, OfxRequestValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();

@@ -28,5 +28,7 @@ namespace SFManagement.Models
         public string? Email { get; set; }
 
         public DateTime? Birthday { get; set; }
+
+        public virtual List<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
     }
 }

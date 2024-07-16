@@ -14,6 +14,12 @@ namespace SFManagement.ViewModels
 
         public string? FitId { get; set; }
 
+        public int? ClientId { get; set; }
+
         public BankTransactionType BankTransactionType { get; set; }
+
+        public BankTransactionTag? Tag { get; set; }
+
+        public string? TagDescription { get; set; }
     }
 }
