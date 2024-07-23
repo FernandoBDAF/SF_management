@@ -23,6 +23,13 @@ namespace SFManagement.Services
             }
 
             var ofx = new Ofx(ParseOfxContent(fileContent, bankId), bankId);
+            var toExcluded = new List<BankTransaction>();
+
+            foreach (var bankTransaction in ofx.BankTransactions)
+                if (context.BankTransactions.Any(x => x.FitId == bankTransaction.FitId))
+                    toExcluded.Add(bankTransaction);
+
+            ofx.BankTransactions = ofx.BankTransactions.Where(x => !toExcluded.Any(te => te.FitId == x.FitId)).ToList();
 
             await context.Ofxs.AddAsync(ofx);
             await context.SaveChangesAsync();

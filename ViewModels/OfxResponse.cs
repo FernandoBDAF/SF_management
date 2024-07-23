@@ -2,7 +2,7 @@
 {
     public class OfxResponse : BaseResponse
     {
-        public int BankId { get; set; }
+        public Guid BankId { get; set; }
 
         public string? FileName { get; set; }
 

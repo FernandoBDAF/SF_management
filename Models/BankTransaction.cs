@@ -3,6 +3,7 @@ using SFManagement.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace SFManagement.Models
 {
@@ -14,20 +15,24 @@ namespace SFManagement.Models
         {
             BankId = bankId;
 
-            var dtposted = reader.GetAttribute("DTPOSTED");
-            if (!string.IsNullOrEmpty(dtposted) && DateTime.TryParseExact(dtposted, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            XElement el = (XElement)XNode.ReadFrom(reader);
+
+            var dtposted = el.Element("DTPOSTED")?.Value;
+            if (!string.IsNullOrEmpty(dtposted) && DateTime.TryParseExact(dtposted.Substring(0, 14), "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             {
                 Date = date;
             }
 
-            var trnamt = reader.GetAttribute("TRNAMT");
-            if (!string.IsNullOrEmpty(trnamt) && decimal.TryParse(trnamt, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var value))
+            var trnamt = el.Element("TRNAMT")?.Value;
+            if (!string.IsNullOrEmpty(trnamt) && decimal.TryParse(trnamt, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var value))
             {
                 Value = value;
                 BankTransactionType = BankTransactionType = Value > decimal.Zero ? BankTransactionType.Income : BankTransactionType.Expense;
+                Value = Value > decimal.Zero ? Value : decimal.Negate(Value);
             }
 
-            Description = reader.GetAttribute("MEMO");
+            Description = el.Element("MEMO")?.Value;
+            FitId = el.Element("FITID")?.Value;
             BankId = bankId;
 
             //TODO: Colocar operação que não tenha cliente vinculado aparece vinculada para empresa (RECEITA ou DESPESA)
@@ -55,7 +60,7 @@ namespace SFManagement.Models
         public virtual Ofx? Ofx { get; set; }
 
         [ForeignKey("Client")]
-        public int? ClientId { get; set; }
+        public Guid? ClientId { get; set; }
 
         public virtual Client? Client { get; set; }
 

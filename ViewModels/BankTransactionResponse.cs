@@ -1,4 +1,6 @@
-﻿namespace SFManagement.ViewModels
+﻿using SFManagement.Enums;
+
+namespace SFManagement.ViewModels
 {
     public class BankTransactionResponse : BaseResponse
     {
@@ -13,5 +15,13 @@
         public string? Description { get; set; }
 
         public bool IsValid { get; set; }
+
+        public Guid? ClientId { get; set; }
+
+        public DateTime? ImportedFromOfxFileAt { get; set; }
+
+        public BankTransactionTag? Tag { get; set; }
+
+        public string? TagDescription { get; set; }
     }
 }

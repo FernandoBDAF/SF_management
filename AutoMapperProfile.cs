@@ -11,7 +11,7 @@ namespace SFManagement
             CreateMap<Bank, BankResponse>();
             CreateMap<BankRequest, Bank>();
 
-            CreateMap<BankTransaction, BankResponse>();
+            CreateMap<BankTransaction, BankTransactionResponse>();
             CreateMap<BankTransactionRequest, BankTransaction>();
 
             CreateMap<Client, ClientResponse>();
