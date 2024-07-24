@@ -11,19 +11,17 @@ namespace SFManagement.Models
     {
         public BankTransaction() { }
 
-        public BankTransaction(XmlReader reader, Guid bankId)
+        public BankTransaction(XElement el, Guid bankId)
         {
             BankId = bankId;
 
-            XElement el = (XElement)XNode.ReadFrom(reader);
-
-            var dtposted = el.Element("DTPOSTED")?.Value;
-            if (!string.IsNullOrEmpty(dtposted) && DateTime.TryParseExact(dtposted.Substring(0, 14), "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            var dtposted = el.Element("DTPOSTED")?.Value.Replace("</DTPOSTED>", string.Empty);
+            if (!string.IsNullOrEmpty(dtposted) && DateTime.TryParseExact(dtposted, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             {
                 Date = date;
             }
 
-            var trnamt = el.Element("TRNAMT")?.Value;
+            var trnamt = el.Element("TRNAMT")?.Value.Replace("</TRNAMT>", string.Empty);
             if (!string.IsNullOrEmpty(trnamt) && decimal.TryParse(trnamt, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var value))
             {
                 Value = value;
@@ -31,8 +29,8 @@ namespace SFManagement.Models
                 Value = Value > decimal.Zero ? Value : decimal.Negate(Value);
             }
 
-            Description = el.Element("MEMO")?.Value;
-            FitId = el.Element("FITID")?.Value;
+            Description = el.Element("MEMO")?.Value.Replace("</MEMO>", string.Empty);
+            FitId = el.Element("FITID")?.Value.Replace("</FITID>", string.Empty);
             BankId = bankId;
 
             //TODO: Colocar operação que não tenha cliente vinculado aparece vinculada para empresa (RECEITA ou DESPESA)

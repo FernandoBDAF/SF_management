@@ -1,6 +1,8 @@
-﻿using SFManagement.Data;
+﻿using Microsoft.AspNetCore.Http;
+using SFManagement.Data;
 using SFManagement.Models;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace SFManagement.Services
 {
@@ -15,14 +17,7 @@ namespace SFManagement.Services
         {
             await Task.Yield();
 
-            string fileContent;
-
-            using (var stream = new StreamReader(formFile.OpenReadStream()))
-            {
-                fileContent = await stream.ReadToEndAsync();
-            }
-
-            var ofx = new Ofx(ParseOfxContent(fileContent, bankId), bankId);
+            var ofx = new Ofx(ParseOfxContent(formFile, bankId), bankId);
             var toExcluded = new List<BankTransaction>();
 
             foreach (var bankTransaction in ofx.BankTransactions)
@@ -37,30 +32,74 @@ namespace SFManagement.Services
             return ofx;
         }
 
-        private List<BankTransaction> ParseOfxContent(string fileContent, Guid bankId)
+        private List<BankTransaction> ParseOfxContent(IFormFile formFile, Guid bankId)
         {
-            var list = new List<BankTransaction>();
-
-            using (var stringReader = new StringReader(fileContent))
+            using (var stream = new StreamReader(formFile.OpenReadStream()))
             {
-                using (var xmlReader = XmlReader.Create(stringReader))
+                var lines = new List<string?>();
+
+                while (stream.Peek() >= 0)
                 {
-                    while (xmlReader.Read())
-                    {
-                        if (xmlReader.IsStartElement())
-                        {
-                            switch (xmlReader.Name)
-                            {
-                                case "STMTTRN":
-                                    list.Add(new BankTransaction(xmlReader, bankId));
-                                    break;
-                            }
-                        }
-                    }
+                    lines.Add(stream.ReadLine());
                 }
+
+                var tags = lines.Where(x => x.Contains("<STMTTRN>") || x.Contains("<TRNTYPE>") || x.Contains("<DTPOSTED>") || x.Contains("<TRNAMT>") || x.Contains("<FITID>") || x.Contains("<CHECKNUM>") || x.Contains("<MEMO>"));
+
+                XElement rootElement = new XElement("root");
+                XElement son = null;
+
+                foreach (var l in tags)
+                {
+                    if (l.IndexOf("<STMTTRN>") != -1)
+                    {
+                        son = new XElement("STMTTRN");
+                        rootElement.Add(son);
+
+                        continue;
+                    }
+
+                    var tagName = GetTagName(l);
+                    var elSon = new XElement(tagName);
+
+                    elSon.Value = GetTagValue(l);
+
+                    son?.Add(elSon);
+                }
+
+
+                var list = new List<BankTransaction>();
+
+                foreach (var element in rootElement.Descendants("STMTTRN"))
+                {
+                    list.Add(new BankTransaction(element, bankId));
+                }
+
+                return list;
+            }
+        }
+
+        private string GetTagName(string line)
+        {
+            int pos_init = line.IndexOf("<") + 1;
+            int pos_end = line.IndexOf(">");
+
+            pos_end = pos_end - pos_init;
+
+            return line.Substring(pos_init, pos_end);
+        }
+
+        private string GetTagValue(string line)
+        {
+            int pos_init = line.IndexOf(">") + 1;
+
+            string retValue = line.Substring(pos_init).Trim();
+
+            if (retValue.IndexOf("[") != -1)
+            {
+                retValue = retValue.Substring(0, 8);
             }
 
-            return list;
+            return retValue;
         }
     }
 }
