@@ -21,7 +21,7 @@ namespace SFManagement.Services
             var toExcluded = new List<BankTransaction>();
 
             foreach (var bankTransaction in ofx.BankTransactions)
-                if (context.BankTransactions.Any(x => x.FitId == bankTransaction.FitId))
+                if (context.BankTransactions.Any(x => x.FitId == bankTransaction.FitId && x.BankId == bankId))
                     toExcluded.Add(bankTransaction);
 
             ofx.BankTransactions = ofx.BankTransactions.Where(x => !toExcluded.Any(te => te.FitId == x.FitId)).ToList();

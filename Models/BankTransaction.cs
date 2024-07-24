@@ -62,7 +62,7 @@ namespace SFManagement.Models
 
         public virtual Client? Client { get; set; }
 
-        public DateTime? ImportedFromOfxFileAt { get; set; }
+        public DateTime? ApprovedAt { get; set; }
 
         public BankTransactionTag? Tag { get; set; }
 
@@ -72,7 +72,7 @@ namespace SFManagement.Models
         {
             get
             {
-                return (!OfxId.HasValue || (OfxId.HasValue && ImportedFromOfxFileAt.HasValue));
+                return (!OfxId.HasValue || (OfxId.HasValue && ApprovedAt.HasValue));
             }
         }
     }
