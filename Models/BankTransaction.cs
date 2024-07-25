@@ -68,6 +68,13 @@ namespace SFManagement.Models
 
         public string? TagDescription { get; set; }
 
+        [ForeignKey("LinkedTo")]
+        public Guid? LinkedToId { get; set; }
+
+        public virtual BankTransaction LinkedTo { get; set; }
+
+        public virtual BankTransaction WasLinked { get; set; }
+
         public bool IsValid
         {
             get

@@ -16,5 +16,10 @@ namespace SFManagement.Data
         public DbSet<BankTransaction> BankTransactions { get; set; }
 
         public DbSet<Ofx> Ofxs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

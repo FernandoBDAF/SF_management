@@ -23,5 +23,7 @@ namespace SFManagement.ViewModels
         public BankTransactionTag? Tag { get; set; }
 
         public string? TagDescription { get; set; }
+
+        public Guid? LinkedTo { get; set; }
     }
 }
