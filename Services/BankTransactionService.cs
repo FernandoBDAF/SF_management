@@ -15,10 +15,10 @@ namespace SFManagement.Services
             var bankTransaction = _entity.FirstOrDefault(x => x.Id == bankTransactionId);
 
             if (bankTransaction == null)
-                throw new Exception("Não foi encontrado nenhuma transação.");
+                throw new AppException("Não foi encontrado nenhuma transação.");
 
             if (bankTransaction.ApprovedAt.HasValue)
-                throw new Exception("Transação já aprovada.");
+                throw new AppException("Transação já aprovada.");
 
             bankTransaction.ApprovedAt = DateTime.Now;
 
@@ -34,20 +34,20 @@ namespace SFManagement.Services
             var fromBankTransaction = _entity.FirstOrDefault(x => x.Id == fromBankTransactionId);
 
             if (fromBankTransaction == null)
-                throw new Exception("Não foi encontrado nenhuma transação de destino.");
+                throw new AppException("Não foi encontrado nenhuma transação de destino.");
             if (string.IsNullOrEmpty(fromBankTransaction.FitId))
-                throw new Exception("Não é uma transação de destino válida (Não é uma transação oriunda de arquivo OFX.)");
+                throw new AppException("Não é uma transação de destino válida (Não é uma transação oriunda de arquivo OFX.)");
             if (await context.BankTransactions.AnyAsync(x => x.LinkedToId == fromBankTransaction.Id))
-                throw new Exception("Esta transação OFX já foi vinculada a uma transação manual.");
+                throw new AppException("Esta transação OFX já foi vinculada a uma transação manual.");
 
             var toBankTransaction = _entity.FirstOrDefault(x => x.Id == toBankTransactionId);
 
             if (toBankTransaction == null)
-                throw new Exception("Não foi encontrado nenhuma transação de início.");
+                throw new AppException("Não foi encontrado nenhuma transação de início.");
             if (!string.IsNullOrEmpty(toBankTransaction.FitId))
-                throw new Exception("Não é uma transação de início válida (Não é uma transação manual.)");
+                throw new AppException("Não é uma transação de início válida (Não é uma transação manual.)");
             if (toBankTransaction.LinkedToId.HasValue)
-                throw new Exception("Esta transação manual já foi vinculada a uma transação OFX.");
+                throw new AppException("Esta transação manual já foi vinculada a uma transação OFX.");
 
 
             toBankTransaction.LinkedToId = fromBankTransaction.Id;
