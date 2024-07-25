@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SFManagement.Data;
 
@@ -11,9 +12,11 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240722203754_UpdateBankTransactionWithClientId")]
+    partial class UpdateBankTransactionWithClientId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,9 +57,6 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("BankId")
                         .HasColumnType("uniqueidentifier");
 
@@ -81,8 +81,8 @@ namespace SFManagement.Migrations
                     b.Property<string>("FitId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("LinkedToId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime?>("ImportedFromOfxFileAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid?>("OfxId")
                         .HasColumnType("uniqueidentifier");
@@ -105,10 +105,6 @@ namespace SFManagement.Migrations
                     b.HasIndex("BankId");
 
                     b.HasIndex("ClientId");
-
-                    b.HasIndex("LinkedToId")
-                        .IsUnique()
-                        .HasFilter("[LinkedToId] IS NOT NULL");
 
                     b.HasIndex("OfxId");
 
@@ -214,10 +210,6 @@ namespace SFManagement.Migrations
                         .WithMany("BankTransactions")
                         .HasForeignKey("ClientId");
 
-                    b.HasOne("SFManagement.Models.BankTransaction", "LinkedTo")
-                        .WithOne("WasLinked")
-                        .HasForeignKey("SFManagement.Models.BankTransaction", "LinkedToId");
-
                     b.HasOne("SFManagement.Models.Ofx", "Ofx")
                         .WithMany("BankTransactions")
                         .HasForeignKey("OfxId");
@@ -225,8 +217,6 @@ namespace SFManagement.Migrations
                     b.Navigation("Bank");
 
                     b.Navigation("Client");
-
-                    b.Navigation("LinkedTo");
 
                     b.Navigation("Ofx");
                 });
@@ -245,12 +235,6 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Bank", b =>
                 {
                     b.Navigation("BankTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.BankTransaction", b =>
-                {
-                    b.Navigation("WasLinked")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SFManagement.Models.Client", b =>

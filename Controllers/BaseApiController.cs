@@ -1,24 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
 using SFManagement.Services;
+using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    public class BaseApiController<T> : ControllerBase where T : BaseDomain
+    public class BaseApiController<TEntity, TRequest, TResponse> : ControllerBase where TEntity : BaseDomain where TRequest : class where TResponse : BaseResponse
     {
-        private readonly BaseService<T> _service;
+        private readonly BaseService<TEntity> _service;
+        private readonly IMapper _mapper;
 
-        public BaseApiController(BaseService<T> service)
+        public BaseApiController(BaseService<TEntity> service, IMapper mapper)
         {
             _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public virtual async Task<List<T>> Get() => await _service.List();
+        public virtual async Task<List<TResponse>> Get() => _mapper.Map<List<TResponse>>(await _service.List());
 
         [HttpGet]
         [Route("{id}")]
-        public virtual async Task<T?> Get(Guid id) => await _service.Get(id);
+        public virtual async Task<TResponse?> Get(Guid id) => _mapper.Map<TResponse>(await _service.Get(id));
 
         [HttpDelete]
         [Route("{id}")]
@@ -26,10 +30,10 @@ namespace SFManagement.Controllers
 
         [HttpPost]
         [Route("")]
-        public virtual async Task<T> Post(T model) => await _service.Add(model);
+        public virtual async Task<TResponse> Post(TRequest model) => _mapper.Map<TResponse>(await _service.Add(_mapper.Map<TEntity>(model)));
 
         [HttpPut]
         [Route("{id}")]
-        public virtual async Task<T> Put(T model) => await _service.Update(model);
+        public virtual async Task<TResponse> Put(Guid id, TRequest model) => _mapper.Map<TResponse>(await _service.Update(id, _mapper.Map<TEntity>(model)));
     }
 }

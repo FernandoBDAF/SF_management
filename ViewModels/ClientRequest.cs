@@ -1,9 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
-
-namespace SFManagement.Models
+﻿namespace SFManagement.ViewModels
 {
-    public class Client : BaseDomain
+    public class ClientRequest : BaseResponse
     {
         public string? Name { get; set; }
 
@@ -28,7 +25,5 @@ namespace SFManagement.Models
         public string? Email { get; set; }
 
         public DateTime? Birthday { get; set; }
-
-        public virtual List<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
     }
 }
