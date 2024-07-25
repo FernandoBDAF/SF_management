@@ -49,6 +49,7 @@ namespace SFManagement.Services
             if (toBankTransaction.LinkedToId.HasValue)
                 throw new AppException("Esta transação manual já foi vinculada a uma transação OFX.");
 
+            //TODO: Validações de transações entre clientes diferentes ou entre empresa e cliente.
 
             toBankTransaction.LinkedToId = fromBankTransaction.Id;
 
@@ -59,6 +60,6 @@ namespace SFManagement.Services
             return (fromBankTransaction, toBankTransaction);
         }
 
-        public async Task<List<BankTransaction>> ListByClientId(Guid? clientId) => await context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId && ((string.IsNullOrEmpty(x.FitId) && !x.ApprovedAt.HasValue) || (!string.IsNullOrEmpty(x.FitId) && x.ApprovedAt.HasValue))).ToListAsync();
+        public async Task<List<BankTransaction>> ListByClientId(Guid? clientId) => await context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId && ((string.IsNullOrEmpty(x.FitId) && !x.LinkedToId.HasValue) || (!string.IsNullOrEmpty(x.FitId) && x.ApprovedAt.HasValue))).ToListAsync();
     }
 }
