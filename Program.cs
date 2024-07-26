@@ -46,6 +46,11 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     app.UseDeveloperExceptionPage();
 }
 
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    serviceScope.ServiceProvider.GetService<DataContext>().Database.Migrate();
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
