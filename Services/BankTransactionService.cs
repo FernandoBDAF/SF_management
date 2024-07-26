@@ -60,6 +60,6 @@ namespace SFManagement.Services
             return (fromBankTransaction, toBankTransaction);
         }
 
-        public async Task<List<BankTransaction>> ListByClientId(Guid? clientId) => await context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId && ((string.IsNullOrEmpty(x.FitId) && !x.LinkedToId.HasValue) || (!string.IsNullOrEmpty(x.FitId) && x.ApprovedAt.HasValue))).ToListAsync();
+        public async Task<List<BankTransaction>> ListByClientIdAndBankId(Guid? clientId, Guid? bankId) => await context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId && (bankId == null || x.BankId == bankId) && ((string.IsNullOrEmpty(x.FitId) && !x.LinkedToId.HasValue) || (!string.IsNullOrEmpty(x.FitId) && x.ApprovedAt.HasValue))).ToListAsync();
     }
 }

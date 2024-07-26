@@ -31,6 +31,6 @@ namespace SFManagement.Controllers
 
         [HttpGet]
         [Route("list/{clientId}")]
-        public async Task<List<BankTransactionResponse>> ListByClienteId(Guid? clientId) => _mapper.Map<List<BankTransactionResponse>>(await _bankTransactionService.ListByClientId(clientId));
+        public async Task<List<BankTransactionResponse>> ListByClienteId(Guid? clientId, Guid? bankId) => _mapper.Map<List<BankTransactionResponse>>(await _bankTransactionService.ListByClientIdAndBankId(clientId, bankId));
     }
 }
