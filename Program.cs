@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using SFManagement;
 using SFManagement.Data;
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IValidator<ClientRequest>, ClientRequestValidator>();
 builder.Services.AddScoped<IValidator<BankRequest>, BankRequestValidator>();
 builder.Services.AddScoped<IValidator<BankTransactionRequest>, BankTransactionRequestValidator>();
 builder.Services.AddScoped<IValidator<OfxRequest>, OfxRequestValidator>();
+builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();
@@ -89,8 +91,21 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
-
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    try
+    {
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
+        await ApplicationDbContextSeed.SeedEssentialsAsync(userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+    }
+}
 
 app.Run();

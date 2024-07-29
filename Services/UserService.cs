@@ -17,5 +17,36 @@ namespace SFManagement.Services
             _roleManager = roleManager;
             _jwt = jwt.Value;
         }
+
+        public async Task<ApplicationUser> RegisterAsync(ViewModels.RegisterRequest model)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = model.Username,
+                Email = model.Email,
+                Name = model.Name,
+            };
+
+            var userWithSameEmail = await _userManager.FindByEmailAsync(model.Email);
+
+            if (userWithSameEmail == null)
+            {
+                var result = await _userManager.CreateAsync(user, model.Password);
+                
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, Authorization.default_role.ToString());
+                    return user;
+                }
+                else
+                {
+                    throw new AppException(result.Errors.ToString());
+                }
+            }
+            else
+            {
+                throw new AppException($"Email {user.Email} is already registered.");
+            }
+        }
     }
 }
