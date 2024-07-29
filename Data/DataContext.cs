@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Models;
 
 namespace SFManagement.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
