@@ -12,8 +12,14 @@ namespace SFManagement.Controllers
     [Route("[controller]")]
     public class BankController : BaseApiController<Bank, BankRequest, BankResponse>
     {
-        public BankController(BaseService<Bank> service, IMapper mapper) : base(service, mapper)
+        private readonly BankService _bankService;
+
+        public BankController(BaseService<Bank> service, IMapper mapper, BankService bankService) : base(service, mapper)
         {
+            _bankService = bankService;
         }
+
+        [Route("balance/{id}")]
+        public async Task<BalanceResponse> Balance(Guid bankId) => await _bankService.GetBalance(bankId);
     }
 }
