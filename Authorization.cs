@@ -1,9 +1,12 @@
-﻿namespace SFManagement
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SFManagement
 {
     public class Authorization
     {
         public enum Roles
         {
+            [Display(Name = "ALL")]
             ALL,
         }
 

@@ -56,6 +56,8 @@ builder.Services.AddScoped<IValidator<BankRequest>, BankRequestValidator>();
 builder.Services.AddScoped<IValidator<BankTransactionRequest>, BankTransactionRequestValidator>();
 builder.Services.AddScoped<IValidator<OfxRequest>, OfxRequestValidator>();
 builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
+builder.Services.AddScoped<IValidator<TokenRequest>, TokenRequestValidator>();
+builder.Services.AddScoped<IValidator<AddRoleRequest>, AddRoleRequestValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();

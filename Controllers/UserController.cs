@@ -24,5 +24,9 @@ namespace SFManagement.Controllers
         [AllowAnonymous]
         [HttpPost("token")]
         public async Task<AuthenticationModel> TokenAsync(TokenRequest model) => await _userService.GetTokenAsync(model);
+
+        [AllowAnonymous]
+        [HttpPost("addrole")]
+        public async Task<string> AddRoleAsync(AddRoleRequest model) => await _userService.AddRoleAsync(model);
     }
 }

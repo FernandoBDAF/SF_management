@@ -115,5 +115,29 @@ namespace SFManagement.Services
 
             return new JwtSecurityToken(issuer: _jwt.Issuer, audience: _jwt.Audience, claims: claims, expires: DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes), signingCredentials: signingCredentials);
         }
+
+        public async Task<string> AddRoleAsync(AddRoleRequest model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                return $"No accounts registered with {model.Email}";
+            }
+
+            if (await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                var roleExists = Enum.GetValues(typeof(Authorization.Roles)).Cast<Authorization.Roles>().Any(x => x.ToName<Authorization.Roles>().ToLower() == model.Role.ToLower());
+
+                if (roleExists)
+                {
+                    var validRole = Enum.GetValues(typeof(Authorization.Roles)).Cast<Authorization.Roles>().Where(x => x.ToString().ToLower() == model.Role.ToLower()).FirstOrDefault();
+                    await _userManager.AddToRoleAsync(user, validRole.ToString());
+                    return $"Added {model.Role} to user {model.Email}.";
+                }
+            }
+
+            return $"Incorrect credentials for user {model.Email}.";
+        }
     }
 }
