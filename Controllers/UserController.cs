@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
 using SFManagement.Services;
+using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
@@ -18,6 +19,10 @@ namespace SFManagement.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ApplicationUser> RegisterAsync(ViewModels.RegisterRequest model) => await _userService.RegisterAsync(model);
+        public async Task<ApplicationUser> RegisterAsync(RegisterRequest model) => await _userService.RegisterAsync(model);
+
+        [AllowAnonymous]
+        [HttpPost("token")]
+        public async Task<AuthenticationModel> TokenAsync(TokenRequest model) => await _userService.GetTokenAsync(model);
     }
 }
