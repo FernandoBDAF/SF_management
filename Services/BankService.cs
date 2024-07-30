@@ -17,5 +17,7 @@ namespace SFManagement.Services
             
             return new BalanceResponse(bank.BankTransactions);
         }
+
+        //TODO: Criar um endpoint com datas.
     }
 }
