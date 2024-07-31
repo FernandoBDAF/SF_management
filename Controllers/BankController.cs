@@ -19,6 +19,7 @@ namespace SFManagement.Controllers
             _bankService = bankService;
         }
 
+        [HttpGet]
         [Route("balance/{id}")]
         public async Task<BalanceResponse> Balance(Guid bankId) => await _bankService.GetBalance(bankId);
     }
