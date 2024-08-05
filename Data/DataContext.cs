@@ -19,6 +19,8 @@ namespace SFManagement.Data
 
         public DbSet<Ofx> Ofxs { get; set; }
 
+        public DbSet<Manager> Managers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
