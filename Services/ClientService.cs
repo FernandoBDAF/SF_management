@@ -16,5 +16,7 @@ namespace SFManagement.Services
             var client = (await context.Clients.Include(x => x.BankTransactions).FirstOrDefaultAsync(x => x.Id == clientId));
             return new BalanceResponse(client.BankTransactions);
         }
+
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.ViewModels;
 using System.Data.Entity;
 
 namespace SFManagement.Services
@@ -61,5 +62,7 @@ namespace SFManagement.Services
         }
 
         public async Task<List<BankTransaction>> ListByClientIdAndBankId(Guid? clientId, Guid? bankId) => await context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId && (bankId == null || x.BankId == bankId) && ((string.IsNullOrEmpty(x.FitId) && !x.LinkedToId.HasValue) || (!string.IsNullOrEmpty(x.FitId) && x.ApprovedAt.HasValue))).ToListAsync();
+
+
     }
 }

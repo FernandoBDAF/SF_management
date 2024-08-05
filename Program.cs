@@ -67,6 +67,7 @@ builder.Services.AddScoped<BankTransactionService>();
 builder.Services.AddScoped<BaseService<BankTransaction>, BankTransactionService>();
 builder.Services.AddScoped<OfxService>();
 builder.Services.AddScoped<BaseService<Ofx>, OfxService>();
+builder.Services.AddScoped<TransactionService, TransactionService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
