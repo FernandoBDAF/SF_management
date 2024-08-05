@@ -1,11 +1,17 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using SFManagement;
 using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.Services;
+using SFManagement.Settings;
 using SFManagement.ViewModels;
 using SFManagement.ViewModels.Validators;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +22,42 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+
 builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<DataContext>();
+builder.Services.AddScoped<UserService>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = false;
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+    };
+});
 
 builder.Services.AddScoped<IValidator<ClientRequest>, ClientRequestValidator>();
 builder.Services.AddScoped<IValidator<BankRequest>, BankRequestValidator>();
 builder.Services.AddScoped<IValidator<BankTransactionRequest>, BankTransactionRequestValidator>();
 builder.Services.AddScoped<IValidator<OfxRequest>, OfxRequestValidator>();
+builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
+builder.Services.AddScoped<IValidator<TokenRequest>, TokenRequestValidator>();
+builder.Services.AddScoped<IValidator<AddRoleRequest>, AddRoleRequestValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();
@@ -53,11 +89,25 @@ using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>(
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
-
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    try
+    {
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
+        await ApplicationDbContextSeed.SeedEssentialsAsync(userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+    }
+}
 
 app.Run();
