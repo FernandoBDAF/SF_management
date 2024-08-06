@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Models;
@@ -20,6 +19,8 @@ namespace SFManagement.Data
         public DbSet<Ofx> Ofxs { get; set; }
 
         public DbSet<Manager> Managers { get; set; }
+
+        public DbSet<Wallet> Wallets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
