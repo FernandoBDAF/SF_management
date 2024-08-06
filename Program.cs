@@ -58,6 +58,7 @@ builder.Services.AddScoped<IValidator<OfxRequest>, OfxRequestValidator>();
 builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
 builder.Services.AddScoped<IValidator<TokenRequest>, TokenRequestValidator>();
 builder.Services.AddScoped<IValidator<AddRoleRequest>, AddRoleRequestValidator>();
+builder.Services.AddScoped<IValidator<ManagerRequest>, ManagerValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();
@@ -68,6 +69,7 @@ builder.Services.AddScoped<BaseService<BankTransaction>, BankTransactionService>
 builder.Services.AddScoped<OfxService>();
 builder.Services.AddScoped<BaseService<Ofx>, OfxService>();
 builder.Services.AddScoped<TransactionService, TransactionService>();
+builder.Services.AddScoped<BaseService<Manager>, ManagerService>();
 builder.Services.AddScoped<ManagerService, ManagerService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

@@ -4,8 +4,6 @@ namespace SFManagement.ViewModels
 {
     public class ManagerResponse : BaseResponse
     {
-        public Guid Id { get; set; }
-
         public string? Name { get; set; }
 
         [Precision(18, 2)]

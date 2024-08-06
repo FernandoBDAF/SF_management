@@ -19,6 +19,9 @@ namespace SFManagement
 
             CreateMap<Ofx, OfxResponse>();
             CreateMap<OfxRequest, Ofx>();
+
+            CreateMap<Manager, ManagerResponse>();
+            CreateMap<ManagerRequest, Manager>();
         }
     }
 }
