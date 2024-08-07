@@ -15,7 +15,7 @@ namespace SFManagement.Models
         public decimal InitialRate { get; set; }
 
         [ForeignKey("Manager")]
-        public int ManagerId { get; set; }
+        public Guid ManagerId { get; set; }
 
         public virtual Manager Manager { get; set; }
     }
