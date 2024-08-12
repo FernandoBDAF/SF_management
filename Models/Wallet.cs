@@ -22,5 +22,7 @@ namespace SFManagement.Models
         public virtual Manager Manager { get; set; }
 
         public virtual List<Nickname> Nicknames { get; set; } = new List<Nickname>();
+
+        public virtual List<WalletTransaction> Transactions { get; set; } = new List<WalletTransaction>();
     }
 }
