@@ -20,6 +20,8 @@ namespace SFManagement.Data
 
         public DbSet<Manager> Managers { get; set; }
 
+        public DbSet<Nickname> Nicknames { get; set; }
+
         public DbSet<Wallet> Wallets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

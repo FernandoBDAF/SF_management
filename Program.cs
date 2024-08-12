@@ -59,6 +59,8 @@ builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator
 builder.Services.AddScoped<IValidator<TokenRequest>, TokenRequestValidator>();
 builder.Services.AddScoped<IValidator<AddRoleRequest>, AddRoleRequestValidator>();
 builder.Services.AddScoped<IValidator<ManagerRequest>, ManagerValidator>();
+builder.Services.AddScoped<IValidator<WalletRequest>, WalletValidator>();
+builder.Services.AddScoped<IValidator<NicknameRequest>, NicknameValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();
@@ -68,9 +70,13 @@ builder.Services.AddScoped<BankTransactionService>();
 builder.Services.AddScoped<BaseService<BankTransaction>, BankTransactionService>();
 builder.Services.AddScoped<OfxService>();
 builder.Services.AddScoped<BaseService<Ofx>, OfxService>();
-builder.Services.AddScoped<TransactionService, TransactionService>();
+builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<BaseService<Manager>, ManagerService>();
-builder.Services.AddScoped<ManagerService, ManagerService>();
+builder.Services.AddScoped<ManagerService>();
+builder.Services.AddScoped<BaseService<Wallet>, WalletService>();
+builder.Services.AddScoped<WalletService>();
+builder.Services.AddScoped<BaseService<Nickname>, NicknameService>();
+builder.Services.AddScoped<NicknameService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

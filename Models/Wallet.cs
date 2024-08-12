@@ -17,6 +17,10 @@ namespace SFManagement.Models
         [ForeignKey("Manager")]
         public Guid ManagerId { get; set; }
 
+        public string? Name { get; set; }
+
         public virtual Manager Manager { get; set; }
+
+        public virtual List<Nickname> Nicknames { get; set; } = new List<Nickname>();
     }
 }

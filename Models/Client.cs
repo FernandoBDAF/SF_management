@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
-
-namespace SFManagement.Models
+﻿namespace SFManagement.Models
 {
     public class Client : BaseDomain
     {
@@ -30,5 +27,7 @@ namespace SFManagement.Models
         public DateTime? Birthday { get; set; }
 
         public virtual List<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
+
+        public virtual List<Nickname> Nicknames { get; set; } = new List<Nickname>();
     }
 }

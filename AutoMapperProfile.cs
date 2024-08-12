@@ -22,6 +22,12 @@ namespace SFManagement
 
             CreateMap<Manager, ManagerResponse>();
             CreateMap<ManagerRequest, Manager>();
+
+            CreateMap<Wallet, WalletResponse>();
+            CreateMap<WalletRequest, Wallet>();
+
+            CreateMap<Nickname, NicknameResponse>();
+            CreateMap<NicknameRequest, Nickname>();
         }
     }
 }
