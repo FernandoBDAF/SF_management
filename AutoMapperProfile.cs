@@ -28,6 +28,9 @@ namespace SFManagement
 
             CreateMap<Nickname, NicknameResponse>();
             CreateMap<NicknameRequest, Nickname>();
+
+            CreateMap<WalletTransaction, WalletTransactionResponse>();
+            CreateMap<WalletTransactionRequest, WalletTransaction>();
         }
     }
 }

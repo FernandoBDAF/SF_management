@@ -61,6 +61,7 @@ builder.Services.AddScoped<IValidator<AddRoleRequest>, AddRoleRequestValidator>(
 builder.Services.AddScoped<IValidator<ManagerRequest>, ManagerValidator>();
 builder.Services.AddScoped<IValidator<WalletRequest>, WalletValidator>();
 builder.Services.AddScoped<IValidator<NicknameRequest>, NicknameValidator>();
+builder.Services.AddScoped<IValidator<WalletTransactionRequest>, WalletTransactionValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();
@@ -77,6 +78,8 @@ builder.Services.AddScoped<BaseService<Wallet>, WalletService>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<BaseService<Nickname>, NicknameService>();
 builder.Services.AddScoped<NicknameService>();
+builder.Services.AddScoped<BaseService<WalletTransaction>, WalletTransactionService>();
+builder.Services.AddScoped<WalletTransactionService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
