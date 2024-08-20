@@ -24,6 +24,8 @@ namespace SFManagement.Data
 
         public DbSet<Wallet> Wallets { get; set; }
 
+        public DbSet<WalletTransaction> WalletTransactions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

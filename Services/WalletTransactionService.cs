@@ -1,12 +1,51 @@
-﻿using SFManagement.Data;
+﻿using AutoMapper;
+using SFManagement.Data;
+using SFManagement.Enums;
 using SFManagement.Models;
+using SFManagement.ViewModels;
 
 namespace SFManagement.Services
 {
     public class WalletTransactionService : BaseService<WalletTransaction>
     {
-        public WalletTransactionService(DataContext context) : base(context)
+        private readonly ExcelService _excelService;
+        private readonly IMapper _mapper;
+
+        public WalletTransactionService(DataContext context, ExcelService excelService, IMapper mapper) : base(context)
         {
+            _excelService = excelService;
+            _mapper = mapper;
+        }
+
+        public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ImportBuyTransactionsRequest request)
+        {
+            var wallet = await context.Wallets.FindAsync(request.WalletId);
+            if (wallet == null)
+            {
+                throw new Exception("Wallet not found");
+            }
+
+            var walletTransactions = new List<WalletTransaction>();
+
+            var rows = _excelService.ReadExcelFile(request.File, new List<(int, string)> { (1, "Nickname"), (2, "Value"), (3, "Wallet"), (7, "CreatedAt"), (8, "Description") });
+
+            foreach (var row in rows)
+            {
+                var walletTransaction = new WalletTransaction
+                {
+                    WalletId = wallet.Id,
+                    Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
+                    Value = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
+                    Description = row.FirstOrDefault(x => x.Name == "Description").Value,
+                    WalletTransactionType = WalletTransactionType.Income
+                };
+                walletTransactions.Add(walletTransaction);
+            }
+
+            //await context.WalletTransactions.AddRangeAsync(walletTransactions);
+            //await context.SaveChangesAsync();
+
+            return _mapper.Map<List<WalletTransactionResponse>>(walletTransactions);
         }
     }
 }

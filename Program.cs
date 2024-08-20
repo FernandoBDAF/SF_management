@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml;
 using SFManagement;
 using SFManagement.Data;
 using SFManagement.Models;
@@ -62,6 +63,7 @@ builder.Services.AddScoped<IValidator<ManagerRequest>, ManagerValidator>();
 builder.Services.AddScoped<IValidator<WalletRequest>, WalletValidator>();
 builder.Services.AddScoped<IValidator<NicknameRequest>, NicknameValidator>();
 builder.Services.AddScoped<IValidator<WalletTransactionRequest>, WalletTransactionValidator>();
+builder.Services.AddScoped<IValidator<ImportBuyTransactionsRequest>, ImportBuyTransactionsRequestValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();
@@ -80,8 +82,11 @@ builder.Services.AddScoped<BaseService<Nickname>, NicknameService>();
 builder.Services.AddScoped<NicknameService>();
 builder.Services.AddScoped<BaseService<WalletTransaction>, WalletTransactionService>();
 builder.Services.AddScoped<WalletTransactionService>();
+builder.Services.AddScoped<ExcelService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 var app = builder.Build();
 

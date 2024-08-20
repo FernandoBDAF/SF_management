@@ -12,8 +12,15 @@ namespace SFManagement.Controllers
     [Route("[controller]")]
     public class WalletTransactionController : BaseApiController<WalletTransaction, WalletTransactionRequest, WalletTransactionResponse>
     {
-        public WalletTransactionController(BaseService<WalletTransaction> service, IMapper mapper) : base(service, mapper)
+        private readonly WalletTransactionService _walletTransactionService;
+
+        public WalletTransactionController(BaseService<WalletTransaction> service, IMapper mapper, WalletTransactionService walletTransactionService) : base(service, mapper)
         {
+            _walletTransactionService = walletTransactionService;
         }
+
+        [HttpPost]
+        [Route("import-buy-transactions")]
+        public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ImportBuyTransactionsRequest request) => await _walletTransactionService.ImportBuyTransactions(request);
     }
 }
