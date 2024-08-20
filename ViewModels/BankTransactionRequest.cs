@@ -14,7 +14,7 @@ namespace SFManagement.ViewModels
 
         public string? FitId { get; set; }
 
-        public int? ClientId { get; set; }
+        public Guid? ClientId { get; set; }
 
         public BankTransactionType BankTransactionType { get; set; }
 
