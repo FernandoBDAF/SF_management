@@ -1,6 +1,6 @@
 ﻿namespace SFManagement.ViewModels
 {
-    public class ImportSellTransactionsRequest
+    public class ImportBuySellTransactionsRequest
     {
         public IFormFile File { get; set; }
 

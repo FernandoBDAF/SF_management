@@ -63,7 +63,7 @@ builder.Services.AddScoped<IValidator<ManagerRequest>, ManagerValidator>();
 builder.Services.AddScoped<IValidator<WalletRequest>, WalletValidator>();
 builder.Services.AddScoped<IValidator<NicknameRequest>, NicknameValidator>();
 builder.Services.AddScoped<IValidator<WalletTransactionRequest>, WalletTransactionValidator>();
-builder.Services.AddScoped<IValidator<ImportBuyTransactionsRequest>, ImportBuyTransactionsRequestValidator>();
+builder.Services.AddScoped<IValidator<ImportBuySellTransactionsRequest>, ImportBuyTransactionsRequestValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();

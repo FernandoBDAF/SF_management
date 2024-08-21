@@ -2,7 +2,7 @@
 
 namespace SFManagement.ViewModels.Validators
 {
-    public class ImportBuyTransactionsRequestValidator : AbstractValidator<ImportBuyTransactionsRequest>
+    public class ImportBuyTransactionsRequestValidator : AbstractValidator<ImportBuySellTransactionsRequest>
     {
         public ImportBuyTransactionsRequestValidator()
         {

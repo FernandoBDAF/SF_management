@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.Services;
 using SFManagement.ViewModels;
@@ -21,10 +22,10 @@ namespace SFManagement.Controllers
 
         [HttpPost]
         [Route("import-buy-transactions")]
-        public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ImportBuyTransactionsRequest request) => await _walletTransactionService.ImportBuyTransactions(request);
+        public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ImportBuySellTransactionsRequest request) => await _walletTransactionService.ImportBuySellTransactions(request, WalletTransactionType.Income);
 
         [HttpPost]
         [Route("import-sell-transactions")]
-        public async Task<List<WalletTransactionResponse>> ImportSellTransactions(ImportSellTransactionsRequest request) => await _walletTransactionService.ImportSellTransactions(request);
+        public async Task<List<WalletTransactionResponse>> ImportSellTransactions(ImportBuySellTransactionsRequest request) => await _walletTransactionService.ImportBuySellTransactions(request, WalletTransactionType.Expense);
     }
 }
