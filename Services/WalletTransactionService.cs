@@ -29,7 +29,7 @@ namespace SFManagement.Services
 
             var walletTransactions = new List<WalletTransaction>();
 
-            var rows = _excelService.ReadExcelFile(request.File, new List<(int, string)> { (1, "Nickname"), (2, "Value"), (3, "Wallet"), (7, "CreatedAt"), (8, "Description") });
+            var rows = _excelService.ReadExcelFile(request.File, new List<(int, string)> { (1, "Nickname"), (2, "Value"), (3, "Wallet"), (6, "CreatedAt"), (8, "Description") });
 
             foreach (var row in rows)
             {
@@ -47,7 +47,10 @@ namespace SFManagement.Services
                     NicknameId = nickname?.Id
                 };
 
-                walletTransactions.Add(walletTransaction);
+                if (!context.WalletTransactions.Any(x => x.Date == walletTransaction.Date && x.Value == walletTransaction.Value && x.WalletTransactionType == walletTransaction.WalletTransactionType && x.WalletId == walletTransaction.WalletId))
+                {
+                    walletTransactions.Add(walletTransaction);
+                }
             }
 
             await context.WalletTransactions.AddRangeAsync(walletTransactions);
