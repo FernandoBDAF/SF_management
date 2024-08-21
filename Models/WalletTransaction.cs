@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
 
@@ -23,11 +24,21 @@ namespace SFManagement.Models
 
         public virtual Wallet Wallet { get; set; }
 
+        [ForeignKey("Nickname")]
+        public Guid? NicknameId { get; set; }
+
+        public virtual Nickname Nickname { get; set; }
+
+        [ForeignKey("Client")]
+        public Guid? ClientId { get; set; }
+
+        public virtual Client Client { get; set; }
+
         public bool IsValid
         {
             get
             {
-                return ApprovedAt.HasValue;
+                return ApprovedAt.HasValue && NicknameId.HasValue;
             }
         }
     }

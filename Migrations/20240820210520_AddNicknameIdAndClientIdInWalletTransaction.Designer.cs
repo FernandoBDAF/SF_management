@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SFManagement.Data;
 
@@ -11,9 +12,11 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240820210520_AddNicknameIdAndClientIdInWalletTransaction")]
+    partial class AddNicknameIdAndClientIdInWalletTransaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -526,7 +529,7 @@ namespace SFManagement.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("NicknameId")
+                    b.Property<Guid>("NicknameId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -682,7 +685,9 @@ namespace SFManagement.Migrations
 
                     b.HasOne("SFManagement.Models.Nickname", "Nickname")
                         .WithMany()
-                        .HasForeignKey("NicknameId");
+                        .HasForeignKey("NicknameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SFManagement.Models.Wallet", "Wallet")
                         .WithMany("Transactions")

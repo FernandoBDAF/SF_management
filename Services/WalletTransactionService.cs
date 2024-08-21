@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.ViewModels;
+using System.Data.Entity;
 
 namespace SFManagement.Services
 {
@@ -31,19 +33,25 @@ namespace SFManagement.Services
 
             foreach (var row in rows)
             {
+                var nicknameValue = row.FirstOrDefault(x => x.Name == "Nickname").Value;
+
+                var nickname = context.Nicknames.FirstOrDefault(x => x.Name == nicknameValue && x.WalletId == request.WalletId);
+
                 var walletTransaction = new WalletTransaction
                 {
                     WalletId = wallet.Id,
                     Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
                     Value = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
-                    WalletTransactionType = WalletTransactionType.Income
+                    WalletTransactionType = WalletTransactionType.Income,
+                    NicknameId = nickname?.Id
                 };
+
                 walletTransactions.Add(walletTransaction);
             }
 
-            //await context.WalletTransactions.AddRangeAsync(walletTransactions);
-            //await context.SaveChangesAsync();
+            await context.WalletTransactions.AddRangeAsync(walletTransactions);
+            await context.SaveChangesAsync();
 
             return _mapper.Map<List<WalletTransactionResponse>>(walletTransactions);
         }
