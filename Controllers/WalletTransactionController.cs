@@ -27,5 +27,9 @@ namespace SFManagement.Controllers
         [HttpPost]
         [Route("import-sell-transactions")]
         public async Task<List<WalletTransactionResponse>> ImportSellTransactions(ImportBuySellTransactionsRequest request) => await _walletTransactionService.ImportBuySellTransactions(request, WalletTransactionType.Expense);
+
+        [HttpPost]
+        [Route("import-transfer-transactions")]
+        public async Task<List<WalletTransactionResponse>> ImportTransferTransactions(ImportTransferTransactionRequest request) => await _walletTransactionService.ImportTransferTransactions(request);
     }
 }
