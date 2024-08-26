@@ -33,7 +33,7 @@ namespace SFManagement.Models
         public Guid? ClientId { get; set; }
 
         public virtual Client Client { get; set; }
-
+        
         public bool IsValid
         {
             get
