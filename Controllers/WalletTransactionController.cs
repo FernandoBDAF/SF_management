@@ -31,5 +31,9 @@ namespace SFManagement.Controllers
         [HttpPost]
         [Route("import-transfer-transactions")]
         public async Task<List<WalletTransactionResponse>> ImportTransferTransactions(ImportTransferTransactionRequest request) => await _walletTransactionService.ImportTransferTransactions(request);
+
+        [HttpPost]
+        [Route("approve/{walletTransactionId}")]
+        public async Task<WalletTransactionResponse> ApproveTransaction(int walletTransactionId) => await _walletTransactionService.ApproveTransaction(walletTransactionId);
     }
 }

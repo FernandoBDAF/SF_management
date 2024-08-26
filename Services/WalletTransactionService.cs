@@ -24,7 +24,7 @@ namespace SFManagement.Services
             var wallet = await context.Wallets.FindAsync(request.WalletId);
             if (wallet == null)
             {
-                throw new Exception("Wallet not found");
+                throw new AppException("Wallet not found");
             }
 
             var walletTransactions = new List<WalletTransaction>();
@@ -64,7 +64,7 @@ namespace SFManagement.Services
             var wallet = await context.Wallets.FindAsync(request.WalletId);
             if (wallet == null)
             {
-                throw new Exception("Wallet not found");
+                throw new AppException("Wallet not found");
             }
 
             var walletTransactions = new List<WalletTransaction>();
@@ -101,6 +101,22 @@ namespace SFManagement.Services
             await context.SaveChangesAsync();
 
             return _mapper.Map<List<WalletTransactionResponse>>(walletTransactions);
+        }
+
+        public async Task<WalletTransactionResponse> ApproveTransaction(int walletTransactionId)
+        {
+            var walletTransaction = await base.Get(walletTransactionId);
+            if (wallet == null)
+            {
+                throw new AppException("Wallet transaction not found");
+            }
+
+            walletTransaction.ApprovedAt = DateTime.Now;
+
+            await context.WalletTransactions.Add(walletTransaction);
+            await context.SaveChangesAsync();
+
+            return _mapper.Map<WalletTransactionResponse>(walletTransaction);
         }
     }
 }
