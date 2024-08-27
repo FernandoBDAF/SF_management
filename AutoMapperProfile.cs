@@ -31,6 +31,9 @@ namespace SFManagement
 
             CreateMap<WalletTransaction, WalletTransactionResponse>();
             CreateMap<WalletTransactionRequest, WalletTransaction>();
+
+            CreateMap<Excel, ExcelResponse>();
+            CreateMap<ExcelRequest, Excel>();
         }
     }
 }

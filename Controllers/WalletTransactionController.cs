@@ -34,6 +34,6 @@ namespace SFManagement.Controllers
 
         [HttpPost]
         [Route("approve/{walletTransactionId}")]
-        public async Task<WalletTransactionResponse> ApproveTransaction(int walletTransactionId) => await _walletTransactionService.ApproveTransaction(walletTransactionId);
+        public async Task<WalletTransactionResponse> ApproveTransaction(Guid walletTransactionId) => await _walletTransactionService.ApproveTransaction(walletTransactionId);
     }
 }

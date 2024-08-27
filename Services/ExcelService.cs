@@ -1,13 +1,15 @@
 ﻿using OfficeOpenXml;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
-using System.IO;
+using SFManagement.Data;
+using SFManagement.Models;
 
 namespace SFManagement.Services
 {
-    public class ExcelService
+    public class ExcelService : BaseService<Excel>
     {
+        public ExcelService(DataContext context) : base(context)
+        {
+        }
+
         public List<List<(string Value, string Name)>> ReadExcelFile(IFormFile file, List<(int Column, string Name)> fields)
         {
             var rows = new List<List<(string Value, string Name)>>();

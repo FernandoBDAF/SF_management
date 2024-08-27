@@ -33,7 +33,12 @@ namespace SFManagement.Models
         public Guid? ClientId { get; set; }
 
         public virtual Client Client { get; set; }
-        
+
+        [ForeignKey("Excel")]
+        public Guid? ExcelId { get; set; }
+
+        public virtual Excel Excel { get; set; }
+
         public bool IsValid
         {
             get

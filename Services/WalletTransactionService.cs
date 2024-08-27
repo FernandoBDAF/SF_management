@@ -103,17 +103,17 @@ namespace SFManagement.Services
             return _mapper.Map<List<WalletTransactionResponse>>(walletTransactions);
         }
 
-        public async Task<WalletTransactionResponse> ApproveTransaction(int walletTransactionId)
+        public async Task<WalletTransactionResponse> ApproveTransaction(Guid walletTransactionId)
         {
             var walletTransaction = await base.Get(walletTransactionId);
-            if (wallet == null)
+            if (walletTransaction == null)
             {
                 throw new AppException("Wallet transaction not found");
             }
 
             walletTransaction.ApprovedAt = DateTime.Now;
 
-            await context.WalletTransactions.Add(walletTransaction);
+            context.WalletTransactions.Update(walletTransaction);
             await context.SaveChangesAsync();
 
             return _mapper.Map<WalletTransactionResponse>(walletTransaction);
