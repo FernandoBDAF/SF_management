@@ -1,0 +1,35 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SFManagement.Enums;
+using SFManagement.Models;
+using SFManagement.Services;
+using SFManagement.ViewModels;
+
+namespace SFManagement.Controllers
+{
+    [Authorize]
+    [ApiController]
+    [Route("[controller]")]
+    public class ExcelController : BaseApiController<Excel, ExcelRequest, ExcelResponse>
+    {
+        private readonly ExcelService _excelService;
+
+        public ExcelController(BaseService<Excel> service, IMapper mapper, ExcelService excelService) : base(service, mapper)
+        {
+            _excelService = excelService;
+        }
+
+        [HttpPost]
+        [Route("import-buy-transactions")]
+        public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ExcelRequest request) => await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Income);
+
+        [HttpPost]
+        [Route("import-sell-transactions")]
+        public async Task<List<WalletTransactionResponse>> ImportSellTransactions(ExcelRequest request) => await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Expense);
+
+        [HttpPost]
+        [Route("import-transfer-transactions")]
+        public async Task<List<WalletTransactionResponse>> ImportTransferTransactions(ExcelRequest request) => await _excelService.ImportTransferTransactions(request);
+    }
+}

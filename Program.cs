@@ -83,6 +83,7 @@ builder.Services.AddScoped<BaseService<Nickname>, NicknameService>();
 builder.Services.AddScoped<NicknameService>();
 builder.Services.AddScoped<BaseService<WalletTransaction>, WalletTransactionService>();
 builder.Services.AddScoped<WalletTransactionService>();
+builder.Services.AddScoped<BaseService<Excel>, ExcelService>();
 builder.Services.AddScoped<ExcelService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
