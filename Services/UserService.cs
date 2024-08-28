@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
-
+using System.Data.Entity;
 
 namespace SFManagement.Services
 {
@@ -28,14 +28,7 @@ namespace SFManagement.Services
 			_mapper = mapper;
 		}
 
-		public async Task<List<UserResponse>> List()
-		{
-
-            var users = await _userManager.Users.ToListAsync();
-			return _mapper.Map<List<UserResponse>>(users);
-
-
-		}
+		public async Task<List<UserResponse>> List() => _mapper.Map<List<UserResponse>>(await _userManager.Users.ToListAsync());
 
 		public async Task<ApplicationUser> RegisterAsync(ViewModels.RegisterRequest model)
         {
