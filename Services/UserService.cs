@@ -7,6 +7,8 @@ using SFManagement.ViewModels;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
+
 
 namespace SFManagement.Services
 {
@@ -15,15 +17,27 @@ namespace SFManagement.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly JWT _jwt;
+		private readonly IMapper _mapper;
 
-        public UserService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IOptions<JWT> jwt)
-        {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _jwt = jwt.Value;
-        }
 
-        public async Task<ApplicationUser> RegisterAsync(ViewModels.RegisterRequest model)
+		public UserService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IOptions<JWT> jwt, IMapper mapper)
+		{
+			_userManager = userManager;
+			_roleManager = roleManager;
+			_jwt = jwt.Value;
+			_mapper = mapper;
+		}
+
+		public async Task<List<UserResponse>> List()
+		{
+
+            var users = await _userManager.Users.ToListAsync();
+			return _mapper.Map<List<UserResponse>>(users);
+
+
+		}
+
+		public async Task<ApplicationUser> RegisterAsync(ViewModels.RegisterRequest model)
         {
             var user = new ApplicationUser
             {

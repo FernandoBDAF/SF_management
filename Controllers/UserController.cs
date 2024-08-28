@@ -18,7 +18,10 @@ namespace SFManagement.Controllers
             _userService = userService;
         }
 
-        [HttpPost("register")]
+        [HttpGet]
+        public async Task<List<UserResponse>> GetAsync() => await _userService.List();
+
+		[HttpPost("register")]
         public async Task<ApplicationUser> RegisterAsync(RegisterRequest model) => await _userService.RegisterAsync(model);
 
         [AllowAnonymous]

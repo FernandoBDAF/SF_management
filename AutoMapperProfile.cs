@@ -34,6 +34,8 @@ namespace SFManagement
 
             CreateMap<Excel, ExcelResponse>();
             CreateMap<ExcelRequest, Excel>();
-        }
+
+            CreateMap<ApplicationUser, UserResponse>();
+		}
     }
 }
