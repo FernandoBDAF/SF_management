@@ -14,12 +14,13 @@ namespace SFManagement.Services
         {
         }
 
-		public async override Task<List<Ofx>> List()
-		{
+        public override async Task<List<Ofx>> List()
+        {
+            await Task.Yield();
             return context.Ofxs.Include(x => x.Bank).Where(x => !x.DeletedAt.HasValue).ToList();
-		}
+        }
 
-		public async Task<Ofx> Add(IFormFile formFile, Guid bankId)
+        public async Task<Ofx> Add(IFormFile formFile, Guid bankId)
         {
             await Task.Yield();
 

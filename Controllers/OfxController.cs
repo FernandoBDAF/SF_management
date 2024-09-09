@@ -24,10 +24,7 @@ namespace SFManagement.Controllers
         }
 
         [HttpGet]
-        public override async Task<List<OfxResponse>> Get()
-        {
-            return _mapper.Map<List<OfxResponse>>(await _ofxService.List());
-        }
+        public override async Task<List<OfxResponse>> Get() => _mapper.Map<List<Ofx>, List<OfxResponse>>(await _ofxService.List());
 
         public override async Task<OfxResponse> Post(OfxRequest model)
         {

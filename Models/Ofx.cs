@@ -15,7 +15,7 @@ namespace SFManagement.Models
         [ForeignKey("Bank")]
         public Guid BankId { get; set; }
 
-        public virtual Bank? Bank { get; set; }
+        public virtual Bank Bank { get; set; }
 
         public string? FileName { get; set; }
 
