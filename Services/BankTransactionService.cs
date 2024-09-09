@@ -38,7 +38,7 @@ namespace SFManagement.Services
                 throw new AppException("Não foi encontrado nenhuma transação de destino.");
             if (string.IsNullOrEmpty(fromBankTransaction.FitId))
                 throw new AppException("Não é uma transação de destino válida (Não é uma transação oriunda de arquivo OFX.)");
-            if (await context.BankTransactions.AnyAsync(x => x.LinkedToId == fromBankTransaction.Id))
+            if (context.BankTransactions.Any(x => x.LinkedToId == fromBankTransaction.Id))
                 throw new AppException("Esta transação OFX já foi vinculada a uma transação manual.");
 
             var toBankTransaction = _entity.FirstOrDefault(x => x.Id == toBankTransactionId);

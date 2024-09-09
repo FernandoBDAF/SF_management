@@ -18,7 +18,9 @@ namespace SFManagement.ViewModels
 
         public Guid? ClientId { get; set; }
 
-        public DateTime? ApprovedAt { get; set; }
+		public BankTransactionType BankTransactionType { get; set; }
+
+		public DateTime? ApprovedAt { get; set; }
 
         public BankTransactionTag? Tag { get; set; }
 

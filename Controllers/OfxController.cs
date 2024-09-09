@@ -23,6 +23,12 @@ namespace SFManagement.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public override async Task<List<OfxResponse>> Get()
+        {
+            return _mapper.Map<List<OfxResponse>>(await _ofxService.List());
+        }
+
         public override async Task<OfxResponse> Post(OfxRequest model)
         {
             return _mapper.Map<OfxResponse>(await _ofxService.Add(model.PostFile, model.BankId));

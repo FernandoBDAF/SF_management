@@ -4,8 +4,8 @@
     {
         public Guid BankId { get; set; }
 
-        public string? FileName { get; set; }
+        public string BankName { get; set; }
 
-        public byte[]? File { get; set; }
+        public string? FileName { get; set; }
     }
 }
