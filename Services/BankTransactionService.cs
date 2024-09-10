@@ -1,7 +1,6 @@
-﻿using SFManagement.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SFManagement.Data;
 using SFManagement.Models;
-using SFManagement.ViewModels;
-using System.Data.Entity;
 
 namespace SFManagement.Services
 {
@@ -11,9 +10,10 @@ namespace SFManagement.Services
         {
         }
 
-		public List<BankTransaction> List() => _entity.Include(x => x.Bank).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToList();
+        public override async Task<List<BankTransaction>> List() => context.BankTransactions.Include(x => x.Bank).Include(x => x.Client).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToList();
+        
 
-		public async Task<BankTransaction> Approve(Guid bankTransactionId)
+        public async Task<BankTransaction> Approve(Guid bankTransactionId)
         {
             var bankTransaction = _entity.FirstOrDefault(x => x.Id == bankTransactionId);
 

@@ -11,7 +11,9 @@ namespace SFManagement
             CreateMap<Bank, BankResponse>();
             CreateMap<BankRequest, Bank>();
 
-            CreateMap<BankTransaction, BankTransactionResponse>().ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name));
+            CreateMap<BankTransaction, BankTransactionResponse>()
+                    .ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name))
+                    .ForMember(dest => dest.ClientName, act => act.MapFrom(src => src.Client.Name));
             CreateMap<BankTransactionRequest, BankTransaction>();
 
             CreateMap<Client, ClientResponse>();

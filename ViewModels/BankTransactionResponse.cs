@@ -29,5 +29,7 @@ namespace SFManagement.ViewModels
         public bool IsValid { get; set; }
 
         public string BankName { get; set; }
+
+        public string ClientName { get; set; }
     }
 }
