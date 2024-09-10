@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
-using System.Data.Entity;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -15,8 +15,7 @@ namespace SFManagement.Services
 
         public override async Task<List<Ofx>> List()
         {
-            await Task.Yield();
-            return context.Ofxs.Include(x => x.Bank).Where(x => !x.DeletedAt.HasValue).ToList();
+            return await context.Ofxs.Include(x => x.Bank).Where(x => !x.DeletedAt.HasValue).ToListAsync();
         }
 
         public async Task<Ofx> Add(IFormFile formFile, Guid bankId)

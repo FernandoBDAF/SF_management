@@ -56,7 +56,13 @@ namespace SFManagement.Services
 
             toBankTransaction.LinkedToId = fromBankTransaction.Id;
 
+            toBankTransaction.ApprovedAt = DateTime.Now;
+
             context.BankTransactions.Update(toBankTransaction);
+
+            fromBankTransaction.ApprovedAt = DateTime.Now;
+
+            context.BankTransactions.Update(fromBankTransaction);
 
             await context.SaveChangesAsync();
 
