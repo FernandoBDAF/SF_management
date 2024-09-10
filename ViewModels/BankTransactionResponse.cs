@@ -27,5 +27,7 @@ namespace SFManagement.ViewModels
 		public BankTransactionType BankTransactionType { get; set; }
 
         public bool IsValid { get; set; }
+
+        public string BankName { get; set; }
     }
 }
