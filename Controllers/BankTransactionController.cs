@@ -22,7 +22,10 @@ namespace SFManagement.Controllers
             _mapper = mapper;
         }
 
-        [HttpPut]
+        [HttpGet]
+		public override async Task<List<BankTransactionResponse>> Get() => _mapper.Map<List<BankTransactionResponse>>( _bankTransactionService.List());
+
+		[HttpPut]
         [Route("approve/{bankTransactionId}")]
         public async Task<BankTransactionResponse> Approve(Guid bankTransactionId) => _mapper.Map<BankTransactionResponse>(await _bankTransactionService.Approve(bankTransactionId));
 

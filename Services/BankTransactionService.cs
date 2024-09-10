@@ -11,7 +11,9 @@ namespace SFManagement.Services
         {
         }
 
-        public async Task<BankTransaction> Approve(Guid bankTransactionId)
+		public List<BankTransaction> List() => _entity.Include(x => x.Bank).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToList();
+
+		public async Task<BankTransaction> Approve(Guid bankTransactionId)
         {
             var bankTransaction = _entity.FirstOrDefault(x => x.Id == bankTransactionId);
 
