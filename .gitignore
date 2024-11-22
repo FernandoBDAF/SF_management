@@ -12,3 +12,5 @@
 /.vs
 /obj
 /.github/.vs
+/bin/
+.idea

@@ -7,6 +7,8 @@ namespace SFManagement.ViewModels.Validators
         public WalletTransactionValidator()
         {
             RuleFor(x => x.Value).NotEmpty();
+            RuleFor(x => x.Coins).NotEmpty();
+            RuleFor(x => x.ExchangeRate).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
             RuleFor(x => x.Date).NotEmpty();
             RuleFor(x => x.ApprovedAt).NotEmpty();

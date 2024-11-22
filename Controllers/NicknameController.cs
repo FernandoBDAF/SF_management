@@ -12,8 +12,16 @@ namespace SFManagement.Controllers
     [Route("[controller]")]
     public class NicknameController : BaseApiController<Nickname, NicknameRequest, NicknameResponse>
     {
-        public NicknameController(BaseService<Nickname> service, IMapper mapper) : base(service, mapper)
+        private readonly NicknameService _nicknameService;
+        
+        private readonly IMapper _mapper;
+        public NicknameController(BaseService<Nickname> service, IMapper mapper, NicknameService nicknameService) : base(service, mapper)
         {
+            _nicknameService = nicknameService;
+            _mapper = mapper;
         }
+        
+        [HttpGet("/client/{clientId}")]
+        public async Task<List<NicknameResponse>> GetNicknames(Guid clientId) => _mapper.Map<List<NicknameResponse>>(await _nicknameService.GetByClientId(clientId));
     }
 }

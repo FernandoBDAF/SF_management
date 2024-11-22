@@ -5,6 +5,10 @@ namespace SFManagement.ViewModels
     public class WalletTransactionRequest
     {
         public decimal Value { get; set; }
+        
+        public decimal Coins { get; set; }
+        
+        public decimal ExchangeRate { get; set; }
 
         public string? Description { get; set; }
 

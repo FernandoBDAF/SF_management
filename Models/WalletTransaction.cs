@@ -10,6 +10,12 @@ namespace SFManagement.Models
     {
         [Precision(18, 2)]
         public decimal Value { get; set; }
+        
+        [Precision(18, 2)]
+        public decimal ExchangeRate { get; set; }
+        
+        [Precision(18, 2)]
+        public decimal Coins { get; set; }
 
         public string? Description { get; set; }
 
