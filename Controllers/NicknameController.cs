@@ -21,7 +21,7 @@ namespace SFManagement.Controllers
             _mapper = mapper;
         }
         
-        [HttpGet("/client/{clientId}")]
+        [HttpGet("/nickname-client/{clientId}")]
         public async Task<List<NicknameResponse>> GetNicknames(Guid clientId) => _mapper.Map<List<NicknameResponse>>(await _nicknameService.GetByClientId(clientId));
     }
 }
