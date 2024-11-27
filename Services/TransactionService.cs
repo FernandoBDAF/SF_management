@@ -21,23 +21,28 @@ namespace SFManagement.Services
                 Show = quantity
             };
 
-            var query = _context.BankTransactions.Where(x => x.ClientId == clientId);
+            var bankTransactionsQuery = _context.BankTransactions.Where(x => x.ClientId == clientId);
+            var walletTransactionsQuery = _context.WalletTransactions.Where(x => x.ClientId == clientId);
 
             if (startDate.HasValue)
             {
-                query = query.Where(x => x.Date >= startDate.Value);
+                bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date >= startDate.Value);
+                walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
-                query = query.Where(x => x.Date <= endDate.Value);
+                bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date <= endDate.Value);
+                walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date <= endDate.Value);
             }
 
-            response.Total = await query.CountAsync();
+            response.Total = bankTransactionsQuery.Count() + walletTransactionsQuery.Count();
+            
+            var allTransactions = new List<TransactionResponse>();
+            allTransactions.AddRange((bankTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((walletTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
 
-            query = query.Skip(page * quantity).Take(quantity);
-
-            response.Data.AddRange((await query.ToListAsync()).Select(x => new TransactionResponse(x)));
+            response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
 
             return response;
         }
