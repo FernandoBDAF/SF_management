@@ -18,13 +18,13 @@ namespace SFManagement.Services
 
         public async Task<List<WalletTransactionResponse>> ImportBuySellTransactions(ExcelRequest request, WalletTransactionType walletTransactionType)
         {
-            var wallet = await context.Wallets.FindAsync(request.WalletId);
-            if (wallet == null)
+            var manager = await context.Managers.FindAsync(request.ManagerId);
+            if (manager == null)
             {
-                throw new AppException("Wallet not found");
+                throw new AppException("Manager not found");
             }
 
-            var excel = new Excel { CreatedAt = DateTime.Now, WalletId = request.WalletId };
+            var excel = new Excel { CreatedAt = DateTime.Now, ManagerId = request.ManagerId };
 
             var rows = this.ReadExcelFile(request.PostFile, new List<(int, string)> { (1, "Nickname"), (2, "Value"), (3, "Wallet"), (6, "CreatedAt"), (8, "Description") });
 
@@ -32,16 +32,12 @@ namespace SFManagement.Services
             {
                 var nicknameValue = row.FirstOrDefault(x => x.Name == "Nickname").Value;
 
-                var nickname = context.Nicknames.FirstOrDefault(x => x.Name == nicknameValue && x.WalletId == request.WalletId);
-
                 var walletTransaction = new WalletTransaction
                 {
-                    WalletId = wallet.Id,
                     Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
                     Value = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
-                    NicknameId = nickname?.Id
                 };
 
                 if (!context.WalletTransactions.Any(x => x.Date == walletTransaction.Date && x.Value == walletTransaction.Value && x.WalletTransactionType == walletTransaction.WalletTransactionType && x.WalletId == walletTransaction.WalletId))
@@ -63,13 +59,13 @@ namespace SFManagement.Services
 
         public async Task<List<WalletTransactionResponse>> ImportTransferTransactions(ExcelRequest request)
         {
-            var wallet = await context.Wallets.FindAsync(request.WalletId);
-            if (wallet == null)
+            var manager = await context.Managers.FindAsync(request.ManagerId);
+            if (manager == null)
             {
-                throw new AppException("Wallet not found");
+                throw new AppException("Manager not found");
             }
 
-            var excel = new Excel { CreatedAt = DateTime.Now, WalletId = request.WalletId };
+            var excel = new Excel { CreatedAt = DateTime.Now, ManagerId = request.ManagerId };
 
             var rows = this.ReadExcelFile(request.PostFile, new List<(int, string)> { (1, "From"), (2, "To"), (3, "CreatedAt"), (4, "Value"), (5, "Description") });
 
@@ -78,19 +74,14 @@ namespace SFManagement.Services
                 var walletTransactionValue = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value);
                 var walletTransactionType = walletTransactionValue > 0 ? WalletTransactionType.Income : WalletTransactionType.Expense;
 
-                var nicknameValue = walletTransactionType == WalletTransactionType.Income ? row.FirstOrDefault(x => x.Name == "From").Value : row.FirstOrDefault(x => x.Name == "To").Value;
-                var nickname = context.Nicknames.FirstOrDefault(x => x.Name == nicknameValue && x.WalletId == request.WalletId);
-
                 walletTransactionValue = walletTransactionValue > 0 ? walletTransactionValue : decimal.Negate(walletTransactionValue);
 
                 var walletTransaction = new WalletTransaction
                 {
-                    WalletId = wallet.Id,
                     Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
                     Value = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
-                    NicknameId = nickname?.Id
                 };
 
                 if (!context.WalletTransactions.Any(x => x.Date == walletTransaction.Date && x.Value == walletTransaction.Value && x.WalletTransactionType == walletTransaction.WalletTransactionType && x.WalletId == walletTransaction.WalletId))

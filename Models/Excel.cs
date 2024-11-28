@@ -4,10 +4,10 @@ namespace SFManagement.Models
 {
     public class Excel : BaseDomain
     {
-        [ForeignKey("Wallet")]
-        public Guid WalletId { get; set; }
+        [ForeignKey("Manager")]
+        public Guid ManagerId { get; set; }
 
-        public virtual Wallet Wallet { get; set; }
+        public virtual Manager Manager { get; set; }
 
         public ICollection<WalletTransaction> WalletTransactions { get; set; } = new HashSet<WalletTransaction>();
     }
