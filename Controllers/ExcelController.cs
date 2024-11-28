@@ -31,5 +31,10 @@ namespace SFManagement.Controllers
         [HttpPost]
         [Route("import-transfer-transactions")]
         public async Task<List<WalletTransactionResponse>> ImportTransferTransactions(ExcelRequest request) => await _excelService.ImportTransferTransactions(request);
+
+        [HttpPut]
+        [Route("{from}/reconciliation/{to}")]
+        public async Task<List<WalletTransactionResponse>> Reconciliation(Guid from, Guid to) => await _excelService.Reconciliation(from, to);
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Data.Entity;
+using AutoMapper;
 using OfficeOpenXml;
 using SFManagement.Data;
 using SFManagement.Enums;
@@ -35,7 +36,7 @@ namespace SFManagement.Services
                 var walletTransaction = new WalletTransaction
                 {
                     Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
-                    Value = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
+                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
                 };
@@ -79,7 +80,7 @@ namespace SFManagement.Services
                 var walletTransaction = new WalletTransaction
                 {
                     Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
-                    Value = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
+                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
                 };
@@ -90,7 +91,7 @@ namespace SFManagement.Services
                 }
             }
 
-            if(excel.WalletTransactions.Count == 0)
+            if (excel.WalletTransactions.Count == 0)
             {
                 throw new AppException("No transactions found");
             }
@@ -129,6 +130,62 @@ namespace SFManagement.Services
             }
 
             return rows;
+        }
+
+        public async Task<List<WalletTransactionResponse>> Reconciliation(Guid from, Guid to)
+        {
+            var list = new List<WalletTransaction>();
+
+            var walletTransactionFrom = context.WalletTransactions.FirstOrDefault(x => x.Id == from);
+            if (walletTransactionFrom == null)
+            {
+                throw new AppException("From not found");
+            }
+            if (walletTransactionFrom.WalletId != null)
+            {
+                throw new AppException("Já vinculado com algum lançamento manual");
+            }
+            if (walletTransactionFrom.NicknameId != null)
+            {
+                throw new AppException("Já vinculado com algum lançamento manual");
+            }
+
+            var walletTransactionTo = context.WalletTransactions.FirstOrDefault(x => x.Id == to);
+            if (walletTransactionTo == null)
+            {
+                throw new AppException("To not found");
+            }
+            if (walletTransactionTo.LinkedToId.HasValue)
+            {
+                throw new AppException("Esta transação manual já foi vinculada a uma transação OFX.");
+            }
+
+            if (walletTransactionTo.WalletTransactionType != walletTransactionFrom.WalletTransactionType)
+            {
+                throw new AppException("Transações de tipos diferentes.");
+            }
+
+            if (walletTransactionTo.Coins != walletTransactionFrom.Coins)
+            {
+                throw new AppException("Transações de valores de fichas diferentes.");
+            }
+
+            walletTransactionTo.LinkedToId = walletTransactionFrom.Id;
+            walletTransactionTo.ApprovedAt = DateTime.Now;
+
+            context.WalletTransactions.Update(walletTransactionTo);
+
+            walletTransactionFrom.ApprovedAt = DateTime.Now;
+            walletTransactionFrom.NicknameId = walletTransactionTo.NicknameId;
+            walletTransactionFrom.WalletId = walletTransactionTo.WalletId;
+
+            context.WalletTransactions.Update(walletTransactionTo);
+
+            list.AddRange(walletTransactionFrom, walletTransactionTo);
+
+            await context.SaveChangesAsync();
+
+            return _mapper.Map<List<WalletTransactionResponse>>(list);
         }
     }
 }

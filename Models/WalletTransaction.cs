@@ -45,6 +45,13 @@ namespace SFManagement.Models
 
         public virtual Excel Excel { get; set; }
 
+        [ForeignKey("LinkedTo")]
+        public Guid? LinkedToId { get; set; }
+
+        public virtual WalletTransaction LinkedTo { get; set; }
+
+        public virtual WalletTransaction WasLinked { get; set; }
+
         public bool IsValid
         {
             get
