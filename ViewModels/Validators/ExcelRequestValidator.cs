@@ -6,7 +6,7 @@ namespace SFManagement.ViewModels.Validators
     {
         public ExcelRequestValidator()
         {
-            RuleFor(x => x.WalletId).NotEmpty();
+            RuleFor(x => x.ManagerId).NotEmpty();
 
             RuleFor(x => x.PostFile).Must((file) =>
             {

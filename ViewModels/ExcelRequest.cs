@@ -2,7 +2,7 @@
 {
     public class ExcelRequest
     {
-        public Guid WalletId { get; set; }
+        public Guid ManagerId { get; set; }
 
         public IFormFile PostFile { get; set; }
     }

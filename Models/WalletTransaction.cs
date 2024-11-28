@@ -26,7 +26,7 @@ namespace SFManagement.Models
         public WalletTransactionType WalletTransactionType { get; set; }
 
         [ForeignKey("Wallet")]
-        public Guid WalletId { get; set; }
+        public Guid? WalletId { get; set; }
 
         public virtual Wallet Wallet { get; set; }
 

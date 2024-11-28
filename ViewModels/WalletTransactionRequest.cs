@@ -18,7 +18,7 @@ namespace SFManagement.ViewModels
 
         public WalletTransactionType WalletTransactionType { get; set; }
 
-        public Guid WalletId { get; set; }
+        public Guid? WalletId { get; set; }
 
         public Guid? NicknameId { get; set; }
 
