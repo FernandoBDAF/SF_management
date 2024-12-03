@@ -2,6 +2,8 @@
 {
     public class ExcelResponse : BaseResponse
     {
-        public Guid WalletId { get; set; }
+        public Guid ManagerId { get; set; }
+        
+        // public string FileName { get; set; }
     }
 }

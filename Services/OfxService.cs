@@ -13,6 +13,12 @@ namespace SFManagement.Services
         {
         }
 
+        public override async Task<Ofx> Get(Guid id)
+        {
+            var query = await context.Ofxs.Include(x => x.BankTransactions).Include(x => x.Bank).FirstOrDefaultAsync(x => x.Id == id);
+            return query;
+        }
+
         public override async Task<List<Ofx>> List()
         {
             return await context.Ofxs.Include(x => x.Bank).Where(x => !x.DeletedAt.HasValue).ToListAsync();
@@ -22,7 +28,7 @@ namespace SFManagement.Services
         {
             await Task.Yield();
 
-            var ofx = new Ofx(ParseOfxContent(formFile, bankId), bankId);
+            var ofx = new Ofx(ParseOfxContent(formFile, bankId), bankId, formFile.FileName);
             var toExcluded = new List<BankTransaction>();
 
             foreach (var bankTransaction in ofx.BankTransactions)

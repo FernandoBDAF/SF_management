@@ -23,5 +23,9 @@ namespace SFManagement.ViewModels
         public Guid? NicknameId { get; set; }
 
         public Guid? ClientId { get; set; }
+        
+        public Guid? ExcelId { get; set; }
+        
+        public Guid? LinkedToId { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace SFManagement
             CreateMap<Client, ClientResponse>();
             CreateMap<ClientRequest, Client>();
 
-            CreateMap<Ofx, OfxResponse>().ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name));
+            CreateMap<Ofx, OfxResponse>();
             CreateMap<OfxRequest, Ofx>();
 
 

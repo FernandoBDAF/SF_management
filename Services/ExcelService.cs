@@ -1,10 +1,12 @@
 ﻿using System.Data.Entity;
+using System.Globalization;
 using AutoMapper;
 using OfficeOpenXml;
 using SFManagement.Data;
 using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.ViewModels;
+
 
 namespace SFManagement.Services
 {
@@ -32,11 +34,11 @@ namespace SFManagement.Services
             foreach (var row in rows)
             {
                 var nicknameValue = row.FirstOrDefault(x => x.Name == "Nickname").Value;
-
+                var createdAtValue = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
                 var walletTransaction = new WalletTransaction
                 {
-                    Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
-                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
+                    Date = DateTime.ParseExact(createdAtValue, "M/d/yy H:mm", CultureInfo.InvariantCulture),
+                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("en-US")),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
                 };
