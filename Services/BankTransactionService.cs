@@ -12,6 +12,27 @@ namespace SFManagement.Services
 
         public override async Task<List<BankTransaction>> List() => context.BankTransactions.Include(x => x.Bank).Include(x => x.Client).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToList();
         
+        public override async Task<BankTransaction> Update(Guid id, BankTransaction obj)
+        {
+            var entity = await Get(id);
+
+            if (entity == null)
+            {
+                throw new KeyNotFoundException();
+            }
+            
+            entity.ClientId = obj.ClientId;
+
+            entity.ApprovedAt = DateTime.Now;
+
+            entity.UpdatedAt = DateTime.Now;
+            
+            _entity.Update(entity);
+
+            await context.SaveChangesAsync();
+
+            return entity;
+        }
 
         public async Task<BankTransaction> Approve(Guid bankTransactionId)
         {
