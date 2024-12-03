@@ -30,6 +30,10 @@ namespace SFManagement.Controllers
         public async Task<BankTransactionResponse> Approve(Guid bankTransactionId) => _mapper.Map<BankTransactionResponse>(await _bankTransactionService.Approve(bankTransactionId));
 
         [HttpPut]
+        [Route("unapprove/{bankTransactionId}")]
+        public async Task<BankTransactionResponse> Unapprove(Guid bankTransactionId) => _mapper.Map<BankTransactionResponse>(await _bankTransactionService.Unapprove(bankTransactionId));
+
+        [HttpPut]
         [Route("link/{fromBankTransactionId}/{toBankTransactionId}")]
         public async Task<BankTransactionResponse> Link(Guid fromBankTransactionId, Guid toBankTransactionId) => _mapper.Map<BankTransactionResponse>(await _bankTransactionService.Link(fromBankTransactionId, toBankTransactionId));
 

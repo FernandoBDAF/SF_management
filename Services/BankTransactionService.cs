@@ -11,28 +11,7 @@ namespace SFManagement.Services
         }
 
         public override async Task<List<BankTransaction>> List() => context.BankTransactions.Include(x => x.Bank).Include(x => x.Client).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToList();
-        
-        public override async Task<BankTransaction> Update(Guid id, BankTransaction obj)
-        {
-            var entity = await Get(id);
 
-            if (entity == null)
-            {
-                throw new KeyNotFoundException();
-            }
-            
-            entity.ClientId = obj.ClientId;
-
-            entity.ApprovedAt = DateTime.Now;
-
-            entity.UpdatedAt = DateTime.Now;
-            
-            _entity.Update(entity);
-
-            await context.SaveChangesAsync();
-
-            return entity;
-        }
 
         public async Task<BankTransaction> Approve(Guid bankTransactionId)
         {
@@ -92,6 +71,42 @@ namespace SFManagement.Services
 
         public async Task<List<BankTransaction>> ListByClientIdAndBankId(Guid? clientId, Guid? bankId) => await context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId && (bankId == null || x.BankId == bankId) && ((string.IsNullOrEmpty(x.FitId) && !x.LinkedToId.HasValue) || (!string.IsNullOrEmpty(x.FitId) && x.ApprovedAt.HasValue))).ToListAsync();
 
+        public async Task<BankTransaction> Unapprove(Guid bankTransactionId)
+        {
+            var bankTransaction = _entity.FirstOrDefault(x => x.Id == bankTransactionId);
 
+            if (bankTransaction == null)
+                throw new AppException("Não foi encontrado nenhuma transação.");
+
+            if (!bankTransaction.ApprovedAt.HasValue)
+                throw new AppException("Transação não está aprovada.");
+
+            bankTransaction.ApprovedAt = null;
+
+            if (!string.IsNullOrEmpty(bankTransaction.FitId))
+            {
+                var to = _entity.FirstOrDefault(x => x.LinkedToId == bankTransactionId);
+
+                if (to == null)
+                    throw new AppException("Não foi encontrado nenhuma transação que tem link com essa transação.");
+
+                to.ApprovedAt = null;
+            }
+            else if (bankTransaction.LinkedToId.HasValue)
+            {
+                var to = _entity.FirstOrDefault(x => x.Id == bankTransaction.LinkedToId);
+
+                if (to == null)
+                    throw new AppException("Não foi encontrado nenhuma transação que tem link com essa transação.");
+
+                to.ApprovedAt = null;
+            }
+
+            context.BankTransactions.Update(bankTransaction);
+
+            await context.SaveChangesAsync();
+
+            return bankTransaction;
+        }
     }
 }
