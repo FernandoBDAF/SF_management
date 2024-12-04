@@ -10,11 +10,11 @@ namespace SFManagement.Services
         {
         }
 
-        public async Task<List<Tag>> List(Guid id)
+        public override async Task<List<Tag>> List()
         {
             var list = new List<Tag>();
 
-            var query = await context.Tags.Where(x => x.Id == id && !x.ParentId.HasValue).OrderBy(x => x.ParentId).ToListAsync();
+            var query = await context.Tags.Where(x => !x.ParentId.HasValue).OrderBy(x => x.ParentId).ToListAsync();
 
             foreach (var tag in query)
             {
@@ -42,7 +42,7 @@ namespace SFManagement.Services
                 list.Add(new Tag
                 {
                     Id = item.Id,
-                    Description = $"{levelDescription} {item.Description}"
+                    Description = $"{levelDescription} {item.Description}",
                 });
 
                 list.AddRange(await GetChildren(item.Id, level + 1));
