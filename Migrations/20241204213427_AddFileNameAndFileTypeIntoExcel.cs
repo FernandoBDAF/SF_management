@@ -1,0 +1,38 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace SFManagement.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddFileNameAndFileTypeIntoExcel : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<string>(
+                name: "FileName",
+                table: "Excels",
+                type: "nvarchar(max)",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "FileType",
+                table: "Excels",
+                type: "nvarchar(max)",
+                nullable: true);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "FileName",
+                table: "Excels");
+
+            migrationBuilder.DropColumn(
+                name: "FileType",
+                table: "Excels");
+        }
+    }
+}

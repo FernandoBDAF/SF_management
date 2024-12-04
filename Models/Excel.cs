@@ -8,10 +8,10 @@ namespace SFManagement.Models
         public Guid ManagerId { get; set; }
 
         public virtual Manager Manager { get; set; }
-        
-        // public string FileName { get; set; }
-        
-        // public string FileType (compra, venda, transferencia)
+
+        public string? FileName { get; set; }
+
+        public string? FileType { get; set; }
 
         public ICollection<WalletTransaction> WalletTransactions { get; set; } = new HashSet<WalletTransaction>();
     }

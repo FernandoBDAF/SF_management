@@ -27,7 +27,13 @@ namespace SFManagement.Services
                 throw new AppException("Manager not found");
             }
 
-            var excel = new Excel { CreatedAt = DateTime.Now, ManagerId = request.ManagerId };
+            var excel = new Excel
+            {
+                CreatedAt = DateTime.Now,
+                ManagerId = request.ManagerId,
+                FileName = request.PostFile.FileName,
+                FileType = walletTransactionType == WalletTransactionType.Income ? "Compra" : "Venda"
+            };
 
             var rows = this.ReadExcelFile(request.PostFile, new List<(int, string)> { (1, "Nickname"), (2, "Value"), (3, "Wallet"), (6, "CreatedAt"), (8, "Description") });
 
@@ -68,7 +74,13 @@ namespace SFManagement.Services
                 throw new AppException("Manager not found");
             }
 
-            var excel = new Excel { CreatedAt = DateTime.Now, ManagerId = request.ManagerId };
+            var excel = new Excel
+            {
+                CreatedAt = DateTime.Now,
+                ManagerId = request.ManagerId,
+                FileName = request.PostFile.FileName,
+                FileType = "Transferência"
+            };
 
             var rows = this.ReadExcelFile(request.PostFile, new List<(int, string)> { (1, "From"), (2, "To"), (3, "CreatedAt"), (4, "Value"), (5, "Description") });
 
