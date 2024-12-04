@@ -31,5 +31,7 @@ namespace SFManagement.ViewModels
         public string BankName { get; set; }
 
         public string ClientName { get; set; }
+
+        public Guid? TagId { get; set; }
     }
 }

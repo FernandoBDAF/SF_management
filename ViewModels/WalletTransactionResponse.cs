@@ -27,5 +27,7 @@ namespace SFManagement.ViewModels
         public Guid? ExcelId { get; set; }
         
         public Guid? LinkedToId { get; set; }
+
+        public Guid? TagId { get; set; }
     }
 }

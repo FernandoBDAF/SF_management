@@ -10,10 +10,10 @@ namespace SFManagement.Models
     {
         [Precision(18, 2)]
         public decimal Value { get; set; }
-        
+
         [Precision(18, 2)]
         public decimal ExchangeRate { get; set; }
-        
+
         [Precision(18, 2)]
         public decimal Coins { get; set; }
 
@@ -51,6 +51,11 @@ namespace SFManagement.Models
         public virtual WalletTransaction LinkedTo { get; set; }
 
         public virtual WalletTransaction WasLinked { get; set; }
+
+        [ForeignKey("Tag")]
+        public Guid? TagId { get; set; }
+
+        public virtual Tag Tag { get; set; }
 
         public bool IsValid
         {

@@ -63,8 +63,6 @@ namespace SFManagement.Models
 
         public DateTime? ApprovedAt { get; set; }
 
-        public BankTransactionTag? Tag { get; set; }
-
         public string? TagDescription { get; set; }
 
         [ForeignKey("LinkedTo")]
@@ -73,6 +71,11 @@ namespace SFManagement.Models
         public virtual BankTransaction LinkedTo { get; set; }
 
         public virtual BankTransaction WasLinked { get; set; }
+
+        [ForeignKey("Tag")]
+        public Guid? TagId { get; set; }
+
+        public virtual Tag Tag { get; set; }
 
         public bool IsValid
         {
