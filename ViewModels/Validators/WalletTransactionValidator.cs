@@ -11,9 +11,16 @@ namespace SFManagement.ViewModels.Validators
             RuleFor(x => x.ExchangeRate).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
             RuleFor(x => x.Date).NotEmpty();
-            RuleFor(x => x.ApprovedAt).NotEmpty();
             RuleFor(x => x.WalletTransactionType).NotEmpty();
             RuleFor(x => x.WalletId).NotEmpty();
+
+            //RuleFor(x => x).Custom((walletTransaction, context) =>
+            //{
+            //    if (!walletTransaction.TagId.HasValue && !walletTransaction.ClientId.HasValue)
+            //    {
+            //        context.AddFailure($"Need send TagId or ClientId.");
+            //    }
+            //});
         }
     }
 }

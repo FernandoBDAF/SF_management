@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -52,20 +53,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddScoped<IValidator<ClientRequest>, ClientRequestValidator>();
-builder.Services.AddScoped<IValidator<BankRequest>, BankRequestValidator>();
-builder.Services.AddScoped<IValidator<BankTransactionRequest>, BankTransactionRequestValidator>();
-builder.Services.AddScoped<IValidator<OfxRequest>, OfxRequestValidator>();
-builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
-builder.Services.AddScoped<IValidator<TokenRequest>, TokenRequestValidator>();
-builder.Services.AddScoped<IValidator<AddRoleRequest>, AddRoleRequestValidator>();
-builder.Services.AddScoped<IValidator<ManagerRequest>, ManagerValidator>();
-builder.Services.AddScoped<IValidator<WalletRequest>, WalletValidator>();
-builder.Services.AddScoped<IValidator<NicknameRequest>, NicknameValidator>();
-builder.Services.AddScoped<IValidator<WalletTransactionRequest>, WalletTransactionValidator>();
-builder.Services.AddScoped<IValidator<ImportBuySellTransactionsRequest>, ImportBuyTransactionsRequestValidator>();
-builder.Services.AddScoped<IValidator<ExcelRequest>, ExcelRequestValidator>();
-builder.Services.AddScoped<IValidator<TagRequest>, TagRequestValidator>();
+builder.Services.AddFluentValidation(config =>
+{
+    config.RegisterValidatorsFromAssemblyContaining<WalletTransactionValidator>();
+});
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();
