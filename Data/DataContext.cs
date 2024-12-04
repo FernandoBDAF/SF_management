@@ -28,6 +28,8 @@ namespace SFManagement.Data
 
         public DbSet<Excel> Excels { get; set; }
 
+        public DbSet<Tag> Tags { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
