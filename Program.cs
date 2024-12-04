@@ -86,6 +86,9 @@ builder.Services.AddScoped<BaseService<WalletTransaction>, WalletTransactionServ
 builder.Services.AddScoped<WalletTransactionService>();
 builder.Services.AddScoped<BaseService<Excel>, ExcelService>();
 builder.Services.AddScoped<ExcelService>();
+builder.Services.AddScoped<BaseService<Tag>, TagService>();
+builder.Services.AddScoped<TagService>();
+
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
