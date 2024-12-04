@@ -65,6 +65,7 @@ builder.Services.AddScoped<IValidator<NicknameRequest>, NicknameValidator>();
 builder.Services.AddScoped<IValidator<WalletTransactionRequest>, WalletTransactionValidator>();
 builder.Services.AddScoped<IValidator<ImportBuySellTransactionsRequest>, ImportBuyTransactionsRequestValidator>();
 builder.Services.AddScoped<IValidator<ExcelRequest>, ExcelRequestValidator>();
+builder.Services.AddScoped<IValidator<TagRequest>, TagRequestValidator>();
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<BaseService<Client>, ClientService>();

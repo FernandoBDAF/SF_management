@@ -38,6 +38,9 @@ namespace SFManagement
             CreateMap<Excel, ExcelResponse>();
             CreateMap<ExcelRequest, Excel>();
 
+            CreateMap<Tag, TagResponse>();
+            CreateMap<TagRequest, Tag>();
+
             CreateMap<ApplicationUser, UserResponse>();
 		}
     }

@@ -11,6 +11,6 @@ namespace SFManagement.Models
         
         public virtual Tag? Parent { get; set; }
 
-        public virtual IEnumerable<Tag> Children { get; set; } = new HashSet<Tag>();
+        public virtual List<Tag> Children { get; set; } = new List<Tag>();
     }
 }
