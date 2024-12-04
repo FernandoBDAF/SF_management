@@ -12,7 +12,6 @@ namespace SFManagement.Services
 
         public override async Task<List<BankTransaction>> List() => context.BankTransactions.Include(x => x.Bank).Include(x => x.Client).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToList();
 
-
         public async Task<BankTransaction> Approve(Guid bankTransactionId)
         {
             var bankTransaction = _entity.FirstOrDefault(x => x.Id == bankTransactionId);
@@ -51,8 +50,6 @@ namespace SFManagement.Services
                 throw new AppException("Não é uma transação de início válida (Não é uma transação manual.)");
             if (toBankTransaction.LinkedToId.HasValue)
                 throw new AppException("Esta transação manual já foi vinculada a uma transação OFX.");
-
-            //TODO: Validações de transações entre clientes diferentes ou entre empresa e cliente.
 
             toBankTransaction.LinkedToId = fromBankTransaction.Id;
 

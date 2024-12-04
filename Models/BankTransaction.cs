@@ -33,8 +33,6 @@ namespace SFManagement.Models
             FitId = el.Element("FITID")?.Value.Replace("</FITID>", string.Empty);
             BankId = bankId;
             CreatedAt = DateTime.Now;
-
-            //TODO: Colocar operação que não tenha cliente vinculado aparece vinculada para empresa (RECEITA ou DESPESA)
         }
 
         [Precision(18, 2)]
