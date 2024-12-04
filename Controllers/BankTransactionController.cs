@@ -27,7 +27,7 @@ namespace SFManagement.Controllers
 
         [HttpPut]
         [Route("approve/{bankTransactionId}")]
-        public async Task<BankTransactionResponse> Approve(Guid bankTransactionId) => _mapper.Map<BankTransactionResponse>(await _bankTransactionService.Approve(bankTransactionId));
+        public async Task<BankTransactionResponse> Approve(Guid bankTransactionId, [FromBody] BankTransactionApproveRequest model) => _mapper.Map<BankTransactionResponse>(await _bankTransactionService.Approve(bankTransactionId, model));
 
         [HttpPut]
         [Route("unapprove/{bankTransactionId}")]

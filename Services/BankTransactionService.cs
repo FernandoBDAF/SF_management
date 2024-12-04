@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.ViewModels;
 
 namespace SFManagement.Services
 {
@@ -12,7 +13,7 @@ namespace SFManagement.Services
 
         public override async Task<List<BankTransaction>> List() => context.BankTransactions.Include(x => x.Bank).Include(x => x.Client).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToList();
 
-        public async Task<BankTransaction> Approve(Guid bankTransactionId)
+        public async Task<BankTransaction> Approve(Guid bankTransactionId, ViewModels.BankTransactionApproveRequest model)
         {
             var bankTransaction = _entity.FirstOrDefault(x => x.Id == bankTransactionId);
 
@@ -23,6 +24,14 @@ namespace SFManagement.Services
                 throw new AppException("Transação já aprovada.");
 
             bankTransaction.ApprovedAt = DateTime.Now;
+
+            if (!model.TagId.HasValue && !model.ClientId.HasValue)
+            {
+                throw new AppException($"Need send TagId or ClientId.");
+            }
+
+            bankTransaction.TagId = model.TagId;
+            bankTransaction.ClientId = model.ClientId;
 
             context.BankTransactions.Update(bankTransaction);
 

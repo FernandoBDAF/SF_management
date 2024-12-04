@@ -17,7 +17,7 @@ namespace SFManagement.Services
             _mapper = mapper;
         }
 
-        public async Task<WalletTransactionResponse> ApproveTransaction(Guid walletTransactionId)
+        public async Task<WalletTransactionResponse> ApproveTransaction(Guid walletTransactionId, WalletTransactionApproveRequest model)
         {
             var walletTransaction = await base.Get(walletTransactionId);
             if (walletTransaction == null)
@@ -26,6 +26,14 @@ namespace SFManagement.Services
             }
 
             walletTransaction.ApprovedAt = DateTime.Now;
+
+            if (!model.TagId.HasValue && !model.ClientId.HasValue)
+            {
+                throw new AppException($"Need send TagId or ClientId.");
+            }
+
+            walletTransaction.TagId = model.TagId;
+            walletTransaction.ClientId = model.ClientId;
 
             context.WalletTransactions.Update(walletTransaction);
             await context.SaveChangesAsync();

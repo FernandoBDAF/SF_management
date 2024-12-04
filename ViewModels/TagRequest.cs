@@ -1,6 +1,6 @@
 ﻿namespace SFManagement.ViewModels
 {
-    public class TagRequest : BaseResponse
+    public class TagRequest
     {
         public string? Description { get; set; }
 
