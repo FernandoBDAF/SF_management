@@ -15,7 +15,7 @@ namespace SFManagement.Services
         {
             var bank = await context.Banks.Include(x => x.BankTransactions).FirstOrDefaultAsync(x => x.Id == bankId);
 
-            return new BalanceResponse(decimal.Zero, bank.BankTransactions);
+            return new BalanceResponse(decimal.Zero, bank.BankTransactions, new List<WalletTransaction>());
         }
 
         //TODO: Criar um endpoint com datas.
