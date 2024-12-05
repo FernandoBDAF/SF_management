@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
-using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.ViewModels;
-using System.Data.Entity;
 
 namespace SFManagement.Services
 {
@@ -26,12 +23,7 @@ namespace SFManagement.Services
             }
 
             walletTransaction.ApprovedAt = DateTime.Now;
-
-            if (!model.TagId.HasValue && !model.ClientId.HasValue)
-            {
-                throw new AppException($"Need send TagId or ClientId.");
-            }
-
+            walletTransaction.NicknameId = model.NicknameId;
             walletTransaction.TagId = model.TagId;
             walletTransaction.ClientId = model.ClientId;
 
