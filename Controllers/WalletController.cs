@@ -12,8 +12,15 @@ namespace SFManagement.Controllers
     [Route("[controller]")]
     public class WalletController : BaseApiController<Wallet, WalletRequest, WalletResponse>
     {
-        public WalletController(BaseService<Wallet> service, IMapper mapper) : base(service, mapper)
+        public WalletService _walletService;
+
+        public WalletController(WalletService walletService, BaseService<Wallet> service, IMapper mapper) : base(service, mapper)
         {
+            _walletService = walletService;
         }
+
+        [HttpGet]
+        [Route("balance/{walletId}")]
+        public async Task<BalanceResponse> Balance(Guid walletId) => await _walletService.GetBalance(walletId);
     }
 }

@@ -4,6 +4,13 @@ namespace SFManagement.ViewModels
 {
     public class BalanceResponse
     {
+        public BalanceResponse(IEnumerable<BankTransaction> bankTransactions)
+        {
+            Value = bankTransactions.Where(x => !x.DeletedAt.HasValue
+                                                && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)))
+                                .Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+        }
+
         public BalanceResponse(decimal initialValue, IEnumerable<BankTransaction> bankTransactions, IEnumerable<WalletTransaction> walletTransactions)
         {
             Value = bankTransactions.Where(x => !x.DeletedAt.HasValue
@@ -17,6 +24,15 @@ namespace SFManagement.ViewModels
                                 .Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Income ? x.Value : decimal.Negate(x.Value));
         }
 
-        public decimal? Value { get; set; }
+        public BalanceResponse(decimal initialCredits, decimal initialBalance, IEnumerable<WalletTransaction> walletTransactions)
+        {
+            Coins += initialCredits;
+            Coins += walletTransactions.Where(x => !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)))
+                                       .Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Income ? x.Coins : decimal.Negate(x.Coins));
+        }
+
+        public decimal Value { get; set; }
+
+        public decimal Coins { get; set; }
     }
 }
