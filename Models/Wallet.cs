@@ -24,5 +24,7 @@ namespace SFManagement.Models
         public virtual List<Nickname> Nicknames { get; set; } = new List<Nickname>();
 
         public virtual List<WalletTransaction> Transactions { get; set; } = new List<WalletTransaction>();
+
+        public virtual List<ClosingWallet> ClosingWallets { get; set; } = new List<ClosingWallet>();
     }
 }

@@ -30,6 +30,12 @@ namespace SFManagement.Data
 
         public DbSet<Tag> Tags { get; set; }
 
+        public DbSet<ClosingManager> ClosingManagers { get; set; }
+
+        public DbSet<ClosingWallet> ClosingWallets { get; set; }
+
+        public DbSet<ClosingNickname> ClosingNicknames { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

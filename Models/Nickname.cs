@@ -15,5 +15,7 @@ namespace SFManagement.Models
         public Guid ClientId { get; set; }
 
         public virtual Client Client { get; set; }
+
+        public virtual List<ClosingNickname> ClosingNicknames { get; set; } = new List<ClosingNickname>();
     }
 }
