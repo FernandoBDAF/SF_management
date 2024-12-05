@@ -13,7 +13,7 @@ namespace SFManagement.ViewModels.Validators
             RuleFor(x => x.Value).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
 
-            RuleFor(x => x).CustomAsync(async (bankTransaction, context, cancellation) =>
+            RuleFor(x => x).Custom(async (bankTransaction, context) =>
             {
                 if (!bankTransaction.TagId.HasValue && !bankTransaction.ClientId.HasValue)
                 {
