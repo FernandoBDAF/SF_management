@@ -25,5 +25,7 @@
         public string? Email { get; set; }
 
         public DateTime? Birthday { get; set; }
+
+        public decimal InitialValue { get; set; }
     }
 }

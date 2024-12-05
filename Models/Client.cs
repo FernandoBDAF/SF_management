@@ -1,4 +1,6 @@
-﻿namespace SFManagement.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace SFManagement.Models
 {
     public class Client : BaseDomain
     {
@@ -29,5 +31,8 @@
         public virtual List<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
 
         public virtual List<Nickname> Nicknames { get; set; } = new List<Nickname>();
+
+        [Precision(18, 2)]
+        public decimal InitialValue { get; set; }
     }
 }

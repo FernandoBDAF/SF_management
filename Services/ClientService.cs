@@ -14,7 +14,7 @@ namespace SFManagement.Services
         public async Task<BalanceResponse> GetBalance(Guid clientId)
         {
             var client = (await context.Clients.Include(x => x.BankTransactions).FirstOrDefaultAsync(x => x.Id == clientId));
-            return new BalanceResponse(client.BankTransactions);
+            return new BalanceResponse(client.InitialValue, client.BankTransactions);
         }
 
 
