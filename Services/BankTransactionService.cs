@@ -24,12 +24,6 @@ namespace SFManagement.Services
                 throw new AppException("Transação já aprovada.");
 
             bankTransaction.ApprovedAt = DateTime.Now;
-
-            if (!model.TagId.HasValue && !model.ClientId.HasValue)
-            {
-                throw new AppException($"Need send TagId or ClientId.");
-            }
-
             bankTransaction.TagId = model.TagId;
             bankTransaction.ClientId = model.ClientId;
 
