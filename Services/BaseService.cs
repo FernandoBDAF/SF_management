@@ -19,7 +19,7 @@ namespace SFManagement.Services
 
         public virtual async Task<Entity?> Get(Guid id) => await _entity.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
 
-        public virtual async Task<Entity> Add(Entity obj)
+        public virtual async Task<Entity> Add(Entity obj) 
         {
             obj.CreatedAt = DateTime.Now;
             await _entity.AddAsync(obj);

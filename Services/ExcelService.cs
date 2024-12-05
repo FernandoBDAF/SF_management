@@ -1,6 +1,6 @@
-﻿using System.Data.Entity;
-using System.Globalization;
+﻿using System.Globalization;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using SFManagement.Data;
 using SFManagement.Enums;
@@ -18,6 +18,9 @@ namespace SFManagement.Services
         {
             _mapper = mapper;
         }
+
+        public override async Task<Excel?> Get(Guid id) => await _entity.Include(x => x.WalletTransactions)
+                                                                        .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
 
         public async Task<List<WalletTransactionResponse>> ImportBuySellTransactions(ExcelRequest request, WalletTransactionType walletTransactionType)
         {

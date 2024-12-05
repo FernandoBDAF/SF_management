@@ -1,4 +1,6 @@
-﻿namespace SFManagement.ViewModels
+﻿using SFManagement.Models;
+
+namespace SFManagement.ViewModels
 {
     public class ExcelResponse : BaseResponse
     {
@@ -7,5 +9,7 @@
         public string? FileName { get; set; }
 
         public string? FileType { get; set; }
+
+        public ICollection<WalletTransactionResponse> WalletTransactions { get; set; } = new HashSet<WalletTransactionResponse>();
     }
 }
