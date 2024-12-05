@@ -31,6 +31,11 @@ namespace SFManagement.ViewModels
                                        .Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Income ? x.Coins : decimal.Negate(x.Coins));
         }
 
+        public BalanceResponse(List<Wallet> wallets)
+        {
+            Coins = wallets.Sum(x => new BalanceResponse(x.IntialCredits, x.IntialBalance, x.Transactions).Coins);
+        }
+
         public decimal Value { get; set; }
 
         public decimal Coins { get; set; }
