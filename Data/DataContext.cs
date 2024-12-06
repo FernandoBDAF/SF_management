@@ -8,8 +8,11 @@ namespace SFManagement.Data
 {
     public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
         {
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public DbSet<Client> Clients { get; set; }
@@ -79,7 +82,14 @@ namespace SFManagement.Data
             {
                 if (auditableEntity.State == EntityState.Added)
                 {
-                    if (auditableEntity.Entity.CreatedAt == new DateTime())
+                    var user = _httpContextAccessor.HttpContext?.User;
+
+                    if (user != null)
+                    {
+                        auditableEntity.Entity.CreatorId = Guid.Parse(user.Claims.FirstOrDefault(c => c.Type == "uid")?.Value);
+                    }
+
+                    if (auditableEntity.Entity.CreatedAt == new DateTime() || auditableEntity.Entity.CreatedAt == null)
                         auditableEntity.Entity.CreatedAt = DateTime.Now;
                 }
                 else if (auditableEntity.State == EntityState.Modified)
@@ -88,14 +98,14 @@ namespace SFManagement.Data
                     {
                         auditableEntity.Property(p => p.UpdatedAt).IsModified = false;
 
-                        if (auditableEntity.Entity.DeletedAt == new DateTime())
+                        if (auditableEntity.Entity.DeletedAt == new DateTime() || auditableEntity.Entity.DeletedAt == null)
                         {
                             auditableEntity.Entity.DeletedAt = DateTime.Now;
                         }
                     }
                     else
                     {
-                        if (auditableEntity.Entity.UpdatedAt == new DateTime())
+                        if (auditableEntity.Entity.UpdatedAt == new DateTime() || auditableEntity.Entity.UpdatedAt == null)
                         {
                             auditableEntity.Entity.UpdatedAt = DateTime.Now;
                         }

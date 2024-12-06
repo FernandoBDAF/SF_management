@@ -46,8 +46,8 @@ namespace SFManagement.Services
                 var createdAtValue = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
                 var walletTransaction = new WalletTransaction
                 {
-                    Date = DateTime.ParseExact(createdAtValue, "M/d/yy H:mm", CultureInfo.InvariantCulture),
-                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("en-US")),
+                    Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
+                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
                 };

@@ -17,7 +17,6 @@ namespace SFManagement.Services
             this.context = context;
             _entity = context.Set<Entity>();
             _httpContextAccessor = httpContextAccessor;
-
         }
 
         public virtual async Task<List<Entity>> List() => await _entity.Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
