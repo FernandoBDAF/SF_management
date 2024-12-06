@@ -4,6 +4,8 @@
     {
         public Guid NicknameId { get; set; }
 
+        public NicknameResponse Nickname { get; set; }
+
         public Guid ClosingManagerId { get; set; }
 
         public decimal Balance { get; set; }

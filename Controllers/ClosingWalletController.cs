@@ -12,8 +12,17 @@ namespace SFManagement.Controllers
     [Route("[controller]")]
     public class ClosingWalletController : BaseApiController<ClosingWallet, ClosingWalletRequest, ClosingWalletResponse>
     {
-        public ClosingWalletController(BaseService<ClosingWallet> service, IMapper mapper) : base(service, mapper)
+        private readonly ClosingWalletService _closingWalletService;
+        private readonly IMapper _mapper;
+
+        public ClosingWalletController(BaseService<ClosingWallet> service, IMapper mapper, ClosingWalletService closingWalletService) : base(service, mapper)
         {
+            _closingWalletService = closingWalletService;
+            _mapper = mapper;
         }
+
+        [HttpGet]
+        [Route("closing-manager/{closingManagerId}")]
+        public async Task<List<ClosingWalletResponse>> GetByClosingManagerId(Guid closingManagerId) => _mapper.Map<List<ClosingWalletResponse>>(await _closingWalletService.GetByClosingManagerId(closingManagerId));
     }
 }

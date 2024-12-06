@@ -5,6 +5,14 @@ namespace SFManagement.Models
 {
     public class ClosingWallet : BaseDomain
     {
+        public ClosingWallet() { }
+
+        public ClosingWallet(Wallet wallet)
+        {
+            WalletId = wallet.Id;
+            ReturnRake = decimal.Zero;
+        }
+
         [ForeignKey("ClosingManager")]
         public Guid ClosingManagerId { get; set; }
 

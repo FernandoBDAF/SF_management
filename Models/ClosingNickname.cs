@@ -5,6 +5,18 @@ namespace SFManagement.Models
 {
     public class ClosingNickname : BaseDomain
     {
+        public ClosingNickname() { }
+
+        public ClosingNickname(Nickname nickname)
+        {
+            NicknameId = nickname.Id;
+            Balance = decimal.Zero;
+            Rake = decimal.Zero;
+            Rakeback = decimal.Zero;
+            FatherNicknameId = null;
+            FatherPercentual = decimal.Zero;
+        }
+
         [ForeignKey("Nickname")]
         public Guid NicknameId { get; set; }
 

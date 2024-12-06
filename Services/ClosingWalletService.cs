@@ -1,4 +1,5 @@
-﻿using SFManagement.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SFManagement.Data;
 using SFManagement.Models;
 
 namespace SFManagement.Services
@@ -8,5 +9,7 @@ namespace SFManagement.Services
         public ClosingWalletService(DataContext context) : base(context)
         {
         }
+
+        public async Task<List<ClosingWallet>> GetByClosingManagerId(Guid closingManagerId) => await _entity.Where(x => !x.DeletedAt.HasValue && x.ClosingManagerId == closingManagerId).ToListAsync();
     }
 }

@@ -6,6 +6,8 @@
 
         public Guid WalletId { get; set; }
 
+        public WalletResponse Wallet { get; set; }
+
         public Guid ClosingManagerId { get; set; }
     }
 }
