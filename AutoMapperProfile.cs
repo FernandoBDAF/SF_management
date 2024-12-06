@@ -41,6 +41,9 @@ namespace SFManagement
             CreateMap<Tag, TagResponse>();
             CreateMap<TagRequest, Tag>();
 
+            CreateMap<ClosingManager, ClosingWalletResponse>();
+            CreateMap<ClosingWalletRequest, ClosingWallet>();
+
             CreateMap<ApplicationUser, UserResponse>();
 		}
     }
