@@ -44,6 +44,9 @@ namespace SFManagement
             CreateMap<ClosingManager, ClosingWalletResponse>();
             CreateMap<ClosingWalletRequest, ClosingWallet>();
 
+            CreateMap<ClosingNickname, ClosingNicknameResponse>();
+            CreateMap<ClosingNicknameRequest, ClosingNickname>();
+
             CreateMap<ApplicationUser, UserResponse>();
 		}
     }
