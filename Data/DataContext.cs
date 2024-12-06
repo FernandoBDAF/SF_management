@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFManagement.Models;
 
 namespace SFManagement.Data
@@ -41,6 +43,69 @@ namespace SFManagement.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            SetDefaultProperties();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        public override EntityEntry<TEntity> Update<TEntity>(TEntity entity)
+        {
+            SetPropertyReflection(entity, "EditedAt");
+            return base.Update(entity);
+        }
+
+        public override EntityEntry<TEntity> Add<TEntity>(TEntity entity)
+        {
+            SetPropertyReflection(entity, "CreatedAt");
+            return base.Update(entity);
+        }
+
+        public override EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
+        {
+            SetPropertyReflection(entity, "ExcludedAt");
+            return base.Update(entity);
+        }
+
+        private void SetPropertyReflection(object entity, string propertyName)
+        {
+        }
+
+        private void SetDefaultProperties()
+        {
+            foreach (var auditableEntity in ChangeTracker.Entries<BaseDomain>())
+            {
+                if (auditableEntity.State == EntityState.Added)
+                {
+                    if (auditableEntity.Entity.CreatedAt == new DateTime())
+                        auditableEntity.Entity.CreatedAt = DateTime.Now;
+                }
+                else if (auditableEntity.State == EntityState.Modified)
+                {
+                    if (auditableEntity.Entity.DeletedAt.HasValue)
+                    {
+                        auditableEntity.Property(p => p.UpdatedAt).IsModified = false;
+
+                        if (auditableEntity.Entity.DeletedAt == new DateTime())
+                        {
+                            auditableEntity.Entity.DeletedAt = DateTime.Now;
+                        }
+                    }
+                    else
+                    {
+                        if (auditableEntity.Entity.UpdatedAt == new DateTime())
+                        {
+                            auditableEntity.Entity.UpdatedAt = DateTime.Now;
+                        }
+                    }
+                }
+                else
+                {
+                    auditableEntity.Property(p => p.CreatedAt).IsModified = false;
+                }
+            }
         }
     }
 }
