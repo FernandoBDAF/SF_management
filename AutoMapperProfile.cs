@@ -47,7 +47,10 @@ namespace SFManagement
             CreateMap<ClosingNickname, ClosingNicknameResponse>();
             CreateMap<ClosingNicknameRequest, ClosingNickname>();
 
+            CreateMap<ClosingManager, ClosingManagerResponse>();
+            CreateMap<ClosingManagerRequest, ClosingManager>();
+
             CreateMap<ApplicationUser, UserResponse>();
-		}
+        }
     }
 }

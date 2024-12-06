@@ -83,6 +83,8 @@ builder.Services.AddScoped<BaseService<ClosingWallet>, ClosingWalletService>();
 builder.Services.AddScoped<ClosingWalletService>();
 builder.Services.AddScoped<BaseService<ClosingNickname>, ClosingNicknameService>();
 builder.Services.AddScoped<ClosingNicknameService>();
+builder.Services.AddScoped<BaseService<ClosingManager>, ClosingManagerService>();
+builder.Services.AddScoped<ClosingManagerService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
