@@ -7,7 +7,7 @@ namespace SFManagement.Services
 {
     public class WalletService : BaseService<Wallet>
     {
-        public WalletService(DataContext context) : base(context)
+        public WalletService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

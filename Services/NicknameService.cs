@@ -11,7 +11,7 @@ namespace SFManagement.Services
 {
     public class NicknameService : BaseService<Nickname>
     {
-        public NicknameService(DataContext context) : base(context)
+        public NicknameService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

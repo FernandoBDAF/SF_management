@@ -6,7 +6,7 @@ namespace SFManagement.Services
 {
     public class ClosingWalletService : BaseService<ClosingWallet>
     {
-        public ClosingWalletService(DataContext context) : base(context)
+        public ClosingWalletService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

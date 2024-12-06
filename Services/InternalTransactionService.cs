@@ -6,7 +6,7 @@ namespace SFManagement.Services
 {
     public class InternalTransactionService : BaseService<InternalTransaction>
     {
-        public InternalTransactionService(DataContext context) : base(context)
+        public InternalTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

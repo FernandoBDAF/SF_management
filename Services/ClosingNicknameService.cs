@@ -6,7 +6,7 @@ namespace SFManagement.Services
 {
     public class ClosingNicknameService : BaseService<ClosingNickname>
     {
-        public ClosingNicknameService(DataContext context) : base(context)
+        public ClosingNicknameService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
             

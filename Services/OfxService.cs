@@ -9,7 +9,7 @@ namespace SFManagement.Services
 {
     public class OfxService : BaseService<Ofx>
     {
-        public OfxService(DataContext context) : base(context)
+        public OfxService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

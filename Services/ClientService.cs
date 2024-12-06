@@ -7,7 +7,7 @@ namespace SFManagement.Services
 {
     public class ClientService : BaseService<Client>
     {
-        public ClientService(DataContext context) : base(context)
+        public ClientService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

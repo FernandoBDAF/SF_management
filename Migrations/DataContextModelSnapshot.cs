@@ -251,7 +251,7 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Banks");
+                    b.ToTable("Banks", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.BankTransaction", b =>
@@ -323,7 +323,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("BankTransactions");
+                    b.ToTable("BankTransactions", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.Client", b =>
@@ -386,7 +386,7 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.ClosingManager", b =>
@@ -420,7 +420,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("ClosingManagers");
+                    b.ToTable("ClosingManagers", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.ClosingNickname", b =>
@@ -472,7 +472,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("NicknameId");
 
-                    b.ToTable("ClosingNicknames");
+                    b.ToTable("ClosingNicknames", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.ClosingWallet", b =>
@@ -509,7 +509,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("WalletId");
 
-                    b.ToTable("ClosingWallets");
+                    b.ToTable("ClosingWallets", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.Excel", b =>
@@ -543,7 +543,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Excels");
+                    b.ToTable("Excels", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.InternalTransaction", b =>
@@ -589,7 +589,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("InternalTransactions");
+                    b.ToTable("InternalTransactions", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.Manager", b =>
@@ -615,7 +615,7 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Managers");
+                    b.ToTable("Managers", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.Nickname", b =>
@@ -652,7 +652,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("WalletId");
 
-                    b.ToTable("Nicknames");
+                    b.ToTable("Nicknames", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.Ofx", b =>
@@ -686,7 +686,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("BankId");
 
-                    b.ToTable("Ofxs");
+                    b.ToTable("Ofxs", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.Tag", b =>
@@ -717,7 +717,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.Wallet", b =>
@@ -760,7 +760,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Wallets");
+                    b.ToTable("Wallets", (string)null);
                 });
 
             modelBuilder.Entity("SFManagement.Models.WalletTransaction", b =>
@@ -839,7 +839,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("WalletId");
 
-                    b.ToTable("WalletTransactions");
+                    b.ToTable("WalletTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

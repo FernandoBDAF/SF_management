@@ -7,7 +7,7 @@ namespace SFManagement.Services
 {
     public class BankService : BaseService<Bank>
     {
-        public BankService(DataContext context) : base(context)
+        public BankService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

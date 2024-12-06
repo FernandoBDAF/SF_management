@@ -7,7 +7,7 @@ namespace SFManagement.Services
 {
     public class ManagerService : BaseService<Manager>
     {
-        public ManagerService(DataContext context) : base(context)
+        public ManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

@@ -9,7 +9,7 @@ namespace SFManagement.Services
     {
         private readonly IMapper _mapper;
 
-        public WalletTransactionService(DataContext context, IMapper mapper) : base(context)
+        public WalletTransactionService(DataContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
             _mapper = mapper;
         }

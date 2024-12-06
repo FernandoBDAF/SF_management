@@ -6,7 +6,7 @@ namespace SFManagement.Services
 {
     public class ClosingManagerService : BaseService<ClosingManager>
     {
-        public ClosingManagerService(DataContext context) : base(context)
+        public ClosingManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
         }
 

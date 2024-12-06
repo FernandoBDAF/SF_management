@@ -14,7 +14,7 @@ namespace SFManagement.Services
     {
         private readonly IMapper _mapper;
 
-        public ExcelService(DataContext context, IMapper mapper) : base(context)
+        public ExcelService(DataContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
             _mapper = mapper;
         }
