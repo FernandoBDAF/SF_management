@@ -1,4 +1,5 @@
-﻿using SFManagement.Enums;
+﻿using Microsoft.EntityFrameworkCore;
+using SFManagement.Enums;
 
 namespace SFManagement.ViewModels
 {
@@ -6,8 +7,14 @@ namespace SFManagement.ViewModels
     {
         public decimal Value { get; set; }
 
+        public decimal? Coins { get; set; }
+
+        public decimal? ExchangeRate { get; set; }
+
         public Guid ClientId { get; set; }
 
         public InternalTransactionType InternalTransactionType { get; set; }
+
+        public Guid? TransferId { get; set; }
     }
 }

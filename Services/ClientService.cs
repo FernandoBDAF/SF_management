@@ -15,9 +15,10 @@ namespace SFManagement.Services
         {
             var client = (await context.Clients.Include(x => x.BankTransactions)
                                                .Include(x => x.WalletTransactions)
+                                               .Include(x => x.InternalTransactions)
                                                .FirstOrDefaultAsync(x => x.Id == clientId));
 
-            return new BalanceResponse(client.InitialValue, client.BankTransactions, client.WalletTransactions);
+            return new BalanceResponse(client.InitialValue, client.BankTransactions, client.WalletTransactions, client.InternalTransactions);
         }
 
 

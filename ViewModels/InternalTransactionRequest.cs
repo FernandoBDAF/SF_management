@@ -6,6 +6,10 @@ namespace SFManagement.ViewModels
     {
         public decimal Value { get; set; }
 
+        public decimal? Coins { get; set; }
+
+        public decimal? ExchangeRate { get; set; }
+
         public Guid ClientId { get; set; }
 
         public InternalTransactionType InternalTransactionType { get; set; }
