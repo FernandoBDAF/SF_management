@@ -50,6 +50,9 @@ namespace SFManagement
             CreateMap<ClosingManager, ClosingManagerResponse>();
             CreateMap<ClosingManagerRequest, ClosingManager>();
 
+            CreateMap<InternalTransaction, InternalTransactionResponse>();
+            CreateMap<InternalTransactionRequest, InternalTransaction>();
+
             CreateMap<ApplicationUser, UserResponse>();
         }
     }

@@ -32,6 +32,8 @@ namespace SFManagement.Models
 
         public virtual List<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
 
+        public virtual List<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
+
         public virtual List<Nickname> Nicknames { get; set; } = new List<Nickname>();
 
         [Precision(18, 2)]

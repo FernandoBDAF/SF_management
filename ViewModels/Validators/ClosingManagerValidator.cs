@@ -1,9 +1,8 @@
 ﻿using FluentValidation;
-using SFManagement.Models;
 
 namespace SFManagement.ViewModels.Validators
 {
-    public class ClosingManagerValidator : AbstractValidator<ClosingManager>
+    public class ClosingManagerValidator : AbstractValidator<ClosingManagerRequest>
     {
         public ClosingManagerValidator()
         {

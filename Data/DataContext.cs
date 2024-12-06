@@ -36,6 +36,8 @@ namespace SFManagement.Data
 
         public DbSet<ClosingNickname> ClosingNicknames { get; set; }
 
+        public DbSet<InternalTransaction> InternalTransactions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
