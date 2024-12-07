@@ -9,5 +9,7 @@
         public DateTime? UpdatedAt { get; set; }
 
         public DateTime? DeletedAt { get; set; }
+        
+        public Guid? CreatorId { get; set; }
     }
 }

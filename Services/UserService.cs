@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 
 namespace SFManagement.Services
 {

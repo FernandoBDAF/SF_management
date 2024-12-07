@@ -23,6 +23,8 @@ namespace SFManagement.ViewModels
         public TransactionResponse(WalletTransaction walletTransaction)
         {
             Id = walletTransaction.Id;
+            WalletId = walletTransaction.WalletId;
+            NicknameId = walletTransaction.NicknameId;
             Date = walletTransaction.Date;
             Description = walletTransaction.Description;
             Type = walletTransaction.ToString();
@@ -33,6 +35,10 @@ namespace SFManagement.ViewModels
         }
 
         public Guid Id { get; set; }
+        
+        public Guid? WalletId { get; set; }
+        
+        public Guid? NicknameId { get; set; }
 
         public string? Type { get; set; }
 

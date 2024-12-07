@@ -24,7 +24,7 @@ namespace SFManagement.ViewModels
 
             Value += walletTransactions.Where(x => !x.DeletedAt.HasValue
                                             && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)))
-                                .Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+                                .Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
 
             Value += internalTransactions.Where(x => !x.DeletedAt.HasValue)
                                          .Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));

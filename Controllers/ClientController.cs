@@ -30,6 +30,9 @@ namespace SFManagement.Controllers
         [HttpGet]
         [Route("transactions/{clientId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
         public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, DateTime? startDate = null, DateTime? endDate = null, int quantity = 100, int page = 0) => await _transactionService.GetTransactions(clientId, startDate, endDate, quantity, page);
-
+        
+        [HttpPut]
+        [Route("initial-balance/{clientId}")]
+        public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request) => await _clientService.UpdateInitialValue(clientId, request);
     }
 }
