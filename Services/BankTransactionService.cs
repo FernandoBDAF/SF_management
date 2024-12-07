@@ -85,12 +85,18 @@ namespace SFManagement.Services
 
             if (!string.IsNullOrEmpty(bankTransaction.FitId))
             {
+                bankTransaction.ClientId = null;
                 var to = _entity.FirstOrDefault(x => x.LinkedToId == bankTransactionId);
 
-                if (to == null)
-                    throw new AppException("Não foi encontrado nenhuma transação que tem link com essa transação.");
+                if (to != null)
+                {
+                    to.ApprovedAt = null;
+                    
+                    to.LinkedToId = null;
+                    
+                    context.BankTransactions.Update(to);
+                }
 
-                to.ApprovedAt = null;
             }
             else if (bankTransaction.LinkedToId.HasValue)
             {
@@ -100,6 +106,12 @@ namespace SFManagement.Services
                     throw new AppException("Não foi encontrado nenhuma transação que tem link com essa transação.");
 
                 to.ApprovedAt = null;
+
+                to.ClientId = null;
+                
+                bankTransaction.LinkedToId = null;
+                
+                context.BankTransactions.Update(to);
             }
 
             context.BankTransactions.Update(bankTransaction);
