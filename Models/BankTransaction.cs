@@ -61,6 +61,11 @@ namespace SFManagement.Models
 
         public virtual Client? Client { get; set; }
 
+        [ForeignKey("Manager")]
+        public Guid? ManagerId { get; set; }
+        
+        public virtual Manager Manager { get; set; }
+
         public DateTime? ApprovedAt { get; set; }
 
         public string? TagDescription { get; set; }

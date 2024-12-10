@@ -25,5 +25,7 @@ namespace SFManagement.ViewModels
         public Guid? ClientId { get; set; }
 
         public Guid? TagId { get; set; }
+
+        public Guid? ManagerId { get; set; }
     }
 }

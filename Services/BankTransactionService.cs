@@ -26,6 +26,7 @@ namespace SFManagement.Services
             bankTransaction.ApprovedAt = DateTime.Now;
             bankTransaction.TagId = model.TagId;
             bankTransaction.ClientId = model.ClientId;
+            bankTransaction.ManagerId = model.ManagerId;
 
             context.BankTransactions.Update(bankTransaction);
 

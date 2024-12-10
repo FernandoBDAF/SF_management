@@ -35,6 +35,11 @@ namespace SFManagement.Models
 
         public virtual Nickname Nickname { get; set; }
 
+        [ForeignKey("Manager")]
+        public Guid? ManagerId { get; set; }
+
+        public virtual Manager Manager { get; set; }
+
         [ForeignKey("Client")]
         public Guid? ClientId { get; set; }
 

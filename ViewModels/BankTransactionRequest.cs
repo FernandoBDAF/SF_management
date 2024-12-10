@@ -19,5 +19,7 @@ namespace SFManagement.ViewModels
         public BankTransactionType BankTransactionType { get; set; }
 
         public Guid? TagId { get; set; }
+
+        public Guid? ManagerId { get; set; }
     }
 }

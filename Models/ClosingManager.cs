@@ -39,5 +39,27 @@ namespace SFManagement.Models
 
             return rakeBruto;
         }
+
+        //public static BankTransaction CreateRakeAccountAdminRelease(int accountAdminClientId, 
+        //                                                            decimal rakeBruto, 
+        //                                                            int accountAdminClosureId, 
+        //                                                            string accountAdminName, 
+        //                                                            DateTime closureEnd)
+        //{
+        //    return new BankTransaction
+        //    {
+        //        ExpirationDate = closureEnd,
+        //        History = $"{accountAdminName} - Rake",
+        //        PaymentDate = closureEnd,
+        //        ReleaseType = Enums.ReleaseType.Expense,
+        //        Value = rakeBruto,
+        //        CreateInClientTimeline = true,
+        //        IsForFinance = true,
+        //        Confirmed = closureEnd,
+        //        ClientId = accountAdminClientId,
+        //        AccountAdminClosureId = accountAdminClosureId,
+        //        CreatedAt = closureEnd
+        //    };
+        //}
     }
 }

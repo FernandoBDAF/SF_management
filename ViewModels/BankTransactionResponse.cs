@@ -33,5 +33,7 @@ namespace SFManagement.ViewModels
         public string ClientName { get; set; }
 
         public Guid? TagId { get; set; }
+
+        public Guid? ManagerId { get; set; }
     }
 }

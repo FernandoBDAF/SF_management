@@ -1,4 +1,6 @@
-﻿namespace SFManagement.ViewModels
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace SFManagement.ViewModels
 {
     public class ClosingManagerRequest
     {

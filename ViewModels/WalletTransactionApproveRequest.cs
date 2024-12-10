@@ -8,6 +8,8 @@
 
         public Guid? NicknameId { get; set; }
 
+        public Guid? ManagerId { get; set; }
+
         public decimal ExchangeRate { get; set; }
 
         public decimal Value { get; set; }

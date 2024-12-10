@@ -26,6 +26,7 @@ namespace SFManagement.Services
             walletTransaction.NicknameId = model.NicknameId;
             walletTransaction.TagId = model.TagId;
             walletTransaction.ClientId = model.ClientId;
+            walletTransaction.ManagerId = model.ManagerId;
 
             context.WalletTransactions.Update(walletTransaction);
             await context.SaveChangesAsync();
