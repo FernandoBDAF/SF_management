@@ -13,5 +13,7 @@
         public virtual List<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
 
         public virtual List<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
+
+        public virtual List<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
     }
 }

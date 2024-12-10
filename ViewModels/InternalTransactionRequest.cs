@@ -10,7 +10,9 @@ namespace SFManagement.ViewModels
 
         public decimal? ExchangeRate { get; set; }
 
-        public Guid ClientId { get; set; }
+        public Guid? ClientId { get; set; }
+
+        public Guid? ManagerId { get; set; }
 
         public InternalTransactionType InternalTransactionType { get; set; }
     }

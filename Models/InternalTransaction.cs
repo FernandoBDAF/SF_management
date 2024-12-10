@@ -17,9 +17,14 @@ namespace SFManagement.Models
         public decimal? ExchangeRate { get; set; }
 
         [ForeignKey("Client")]
-        public Guid ClientId { get; set; }
+        public Guid? ClientId { get; set; }
 
         public virtual Client Client { get; set; }
+
+        [ForeignKey("Manager")]
+        public Guid? ManagerId { get; set; }
+
+        public virtual Manager Manager { get; set; }
 
         public InternalTransactionType InternalTransactionType { get; set; }
 
