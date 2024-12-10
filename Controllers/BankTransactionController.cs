@@ -35,7 +35,7 @@ namespace SFManagement.Controllers
 
         [HttpPut]
         [Route("link/{fromBankTransactionId}/{toBankTransactionId}")]
-        public async Task<BankTransactionResponse> Link(Guid fromBankTransactionId, Guid toBankTransactionId) => _mapper.Map<BankTransactionResponse>(await _bankTransactionService.Link(fromBankTransactionId, toBankTransactionId));
+        public async Task<(BankTransactionResponse from, BankTransactionResponse to)> Link(Guid fromBankTransactionId, Guid toBankTransactionId) => _mapper.Map<(BankTransactionResponse from, BankTransactionResponse to)>(await _bankTransactionService.Link(fromBankTransactionId, toBankTransactionId));
 
         [HttpGet]
         [Route("list/{clientId}/{bankId}")]
