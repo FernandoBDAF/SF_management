@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFManagement.ViewModels
 {
@@ -18,5 +19,7 @@ namespace SFManagement.ViewModels
         public decimal RakeBruto { get; set; }
 
         public decimal TotalBalance { get; set; }
+
+        public decimal TotalRakeDiscounts { get; set; }
     }
 }

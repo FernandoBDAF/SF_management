@@ -29,5 +29,9 @@ namespace SFManagement.Models
         public InternalTransactionType InternalTransactionType { get; set; }
 
         public Guid? TransferId { get; set; }
+
+        public DateTime Date { get; set; }
+
+        public string? Description { get; set; }
     }
 }

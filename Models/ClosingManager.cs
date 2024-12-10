@@ -24,6 +24,9 @@ namespace SFManagement.Models
         [Precision(18, 2)]
         public decimal TotalBalance { get; set; }
 
+        [Precision(18, 2)]
+        public decimal TotalRakeDiscounts { get; set; }
+
         public List<ClosingWallet> ClosingWallets { get; set; } = new List<ClosingWallet>();
 
         public List<ClosingNickname> ClosingNicknames { get; set; } = new List<ClosingNickname>();
@@ -40,26 +43,52 @@ namespace SFManagement.Models
             return rakeBruto;
         }
 
-        //public static BankTransaction CreateRakeAccountAdminRelease(int accountAdminClientId, 
-        //                                                            decimal rakeBruto, 
-        //                                                            int accountAdminClosureId, 
-        //                                                            string accountAdminName, 
-        //                                                            DateTime closureEnd)
-        //{
-        //    return new BankTransaction
-        //    {
-        //        ExpirationDate = closureEnd,
-        //        History = $"{accountAdminName} - Rake",
-        //        PaymentDate = closureEnd,
-        //        ReleaseType = Enums.ReleaseType.Expense,
-        //        Value = rakeBruto,
-        //        CreateInClientTimeline = true,
-        //        IsForFinance = true,
-        //        Confirmed = closureEnd,
-        //        ClientId = accountAdminClientId,
-        //        AccountAdminClosureId = accountAdminClosureId,
-        //        CreatedAt = closureEnd
-        //    };
-        //}
+        public static InternalTransaction CreateRakeInternalTransaction(Guid managerId, decimal rakeBruto, string managerName, DateTime closureEnd)
+        {
+            return new InternalTransaction
+            {
+                Date = closureEnd,
+                Description = $"{managerName} - Rake",
+                InternalTransactionType = Enums.InternalTransactionType.Expense,
+                Value = rakeBruto,
+                ManagerId = managerId,
+            };
+        }
+
+        public static List<InternalTransaction> CreateRakeNicknameReleases(List<ClosingNickname> closingNicknames, string managerName, DateTime closureEnd)
+        {
+            var list = new List<InternalTransaction>();
+
+            foreach (var closingNickname in closingNicknames)
+            {
+                var rakeback = closingNickname.Rake * (closingNickname.Rakeback / 100);
+
+                if (closingNickname.FatherNicknameId.HasValue)
+                {
+                    var rakebackParent = closingNickname.Rake * (closingNickname.FatherPercentual / 100);
+                    rakeback = closingNickname.Rake * ((closingNickname.Rakeback - closingNickname.FatherPercentual) / 100);
+
+                    list.Add(new InternalTransaction
+                    {
+                        Date = closureEnd,
+                        Description = $"{managerName} - Rakeback (PAI) - {closingNickname.Nickname.Name}",
+                        Value = rakebackParent,
+                        ClientId = closingNickname.FatherNicknameId,
+                        InternalTransactionType = Enums.InternalTransactionType.Income
+                    });
+                }
+
+                list.Add(new InternalTransaction
+                {
+                    Date = closureEnd,
+                    Description = $"{managerName} - Rakeback - {closingNickname.Nickname.Name}",
+                    InternalTransactionType = Enums.InternalTransactionType.Income,
+                    Value = rakeback,
+                    ClientId = closingNickname.Nickname.ClientId,
+                });
+            }
+
+            return list;
+        }
     }
 }

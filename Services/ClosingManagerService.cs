@@ -25,6 +25,8 @@ namespace SFManagement.Services
         {
             var closingManager = await _entity.Include(x => x.ClosingNicknames).ThenInclude(x => x.Nickname)
                                               .Include(x => x.ClosingWallets)
+                                              .Include(x => x.Manager)
+                                              .ThenInclude(x => x.InternalTransactions)
                                               .FirstOrDefaultAsync(x => x.Id == closingManagerId);
 
             if (closingManager == null)
@@ -41,6 +43,21 @@ namespace SFManagement.Services
             closingManager.RakeBruto = ClosingManager.CalcRake(closingManager.ClosingNicknames, closingManager.ClosingWallets);
             closingManager.TotalBalance = closingManager.ClosingNicknames.Sum(x => x.Balance);
 
+            closingManager.Manager.InternalTransactions.Add(ClosingManager.CreateRakeInternalTransaction(closingManager.ManagerId, 
+                                                                                                         closingManager.RakeBruto, 
+                                                                                                         closingManager.Manager?.Name, 
+                                                                                                         closingManager.CalculatedAt.Value));
+            var nicknameDiscounts = ClosingManager.CreateRakeNicknameReleases(closingManager.ClosingNicknames, closingManager.Manager.Name, closingManager.CalculatedAt.Value);
+
+            closingManager.TotalRakeDiscounts = nicknameDiscounts.Sum(x => x.Value);
+
+            closingManager.Manager.InternalTransactions.AddRange(nicknameDiscounts);
+
+            closingManager.DoneAt = DateTime.Now;
+
+            //TODO: ADD WALLET TRANSCTION FLOW.
+
+            await context.SaveChangesAsync();
 
             return closingManager;
         }
