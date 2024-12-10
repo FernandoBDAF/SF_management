@@ -12,40 +12,28 @@ namespace SFManagement.Services
 
         public override async Task<List<Tag>> List()
         {
-            var list = new List<Tag>();
+            // var list = new List<Tag>();
 
-            var query = await context.Tags.Where(x => !x.ParentId.HasValue).OrderBy(x => x.ParentId).ToListAsync();
+            var query = await context.Tags.Where(x => !x.ParentId.HasValue).Include(x => x.Children).ThenInclude(x => x.Children).ToListAsync();
 
-            foreach (var tag in query)
-            {
-                list.Add(tag);
-                list.AddRange(await GetChildren(tag.Id));
-            }
+            // foreach (var tag in query)
+            // {
+            //     tag.Children.AddRange(await GetChildren(tag.Id));
+            //     list.Add(tag);
+            // }
 
-            return list;
+            return query;
         }
 
-        private async Task<List<Tag>> GetChildren(Guid tagId, int level = 1)
+        private async Task<List<Tag>> GetChildren(Guid tagId)
         {
             var list = new List<Tag>();
             var chd = await context.Tags.Where(x => x.ParentId == tagId).ToListAsync();
 
-            foreach (var item in chd)
+            foreach (var tag in chd)
             {
-                var levelDescription = "";
-
-                for (int i = 0; i < level; i++)
-                {
-                    levelDescription += "-";
-                }
-
-                list.Add(new Tag
-                {
-                    Id = item.Id,
-                    Description = $"{levelDescription} {item.Description}",
-                });
-
-                list.AddRange(await GetChildren(item.Id, level + 1));
+                tag.Children.AddRange(await GetChildren(tag.Id));
+                list.Add(tag);
             }
 
             return list;
