@@ -34,6 +34,10 @@ namespace SFManagement.Services
                 InternalTransactionType = Enums.InternalTransactionType.Expense
             };
 
+            await _entity.AddAsync(toInternalTransaction);
+            await _entity.AddAsync(fromInternalTransaction);
+
+            await context.SaveChangesAsync();
 
             return (toInternalTransaction, fromInternalTransaction);
         }
