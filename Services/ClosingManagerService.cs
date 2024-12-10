@@ -20,5 +20,29 @@ namespace SFManagement.Services
 
             return await base.Add(obj);
         }
+
+        public async Task<ClosingManager> Done(Guid closingManagerId)
+        {
+            var closingManager = await _entity.Include(x => x.ClosingNicknames).ThenInclude(x => x.Nickname)
+                                              .Include(x => x.ClosingWallets)
+                                              .FirstOrDefaultAsync(x => x.Id == closingManagerId);
+
+            if (closingManager == null)
+            {
+                throw new AppException("Not found closing manager.");
+            }
+
+            if (closingManager.DoneAt.HasValue)
+            {
+                throw new AppException("Closing manager closed.");
+            }
+
+            closingManager.CalculatedAt = DateTime.Now;
+            closingManager.RakeBruto = ClosingManager.CalcRake(closingManager.ClosingNicknames, closingManager.ClosingWallets);
+            closingManager.TotalBalance = closingManager.ClosingNicknames.Sum(x => x.Balance);
+
+
+            return closingManager;
+        }
     }
 }

@@ -12,8 +12,17 @@ namespace SFManagement.Controllers
     [Route("[controller]")]
     public class ClosingManagerController : BaseApiController<ClosingManager, ClosingManagerRequest, ClosingManagerResponse>
     {
-        public ClosingManagerController(BaseService<ClosingManager> service, IMapper mapper) : base(service, mapper)
+        private readonly ClosingManagerService _closingManagerService;
+        private readonly IMapper _mapper;
+
+        public ClosingManagerController(ClosingManagerService closingManagerService, BaseService<ClosingManager> service, IMapper mapper) : base(service, mapper)
         {
+            _mapper = mapper;
+            _closingManagerService = closingManagerService;
         }
+
+        [HttpPut]
+        [Route("done/{closingManagerId}")]
+        public async Task<ClosingManagerResponse> Done(Guid closingManagerId) => _mapper.Map<ClosingManagerResponse>(await _closingManagerService.Done(closingManagerId));
     }
 }
