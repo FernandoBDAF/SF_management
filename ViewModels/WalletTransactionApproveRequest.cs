@@ -8,7 +8,7 @@
 
         public Guid? NicknameId { get; set; }
 
-        public Guid? ManagerId { get; set; }
+        public Guid? WalletId { get; set; }
 
         public decimal ExchangeRate { get; set; }
 

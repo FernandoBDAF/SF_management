@@ -26,7 +26,9 @@ namespace SFManagement.Services
             walletTransaction.NicknameId = model.NicknameId;
             walletTransaction.TagId = model.TagId;
             walletTransaction.ClientId = model.ClientId;
-            walletTransaction.ManagerId = model.ManagerId;
+            walletTransaction.WalletId = model.WalletId;
+            walletTransaction.ExchangeRate = model.ExchangeRate;
+            walletTransaction.Value = model.Value;
 
             context.WalletTransactions.Update(walletTransaction);
             await context.SaveChangesAsync();
@@ -36,15 +38,54 @@ namespace SFManagement.Services
 
         public async Task<WalletTransaction> UnApproveTransaction(Guid walletTransactionId)
         {
-            var walletTransaction = await base.Get(walletTransactionId);
+            var walletTransaction = _entity.FirstOrDefault(x => x.Id == walletTransactionId);
+
             if (walletTransaction == null)
-            {
-                throw new AppException("Wallet transaction not found");
-            }
+                throw new AppException("Não foi encontrado nenhuma transação.");
+
+            if (!walletTransaction.ApprovedAt.HasValue)
+                throw new AppException("Transação não está aprovada.");
 
             walletTransaction.ApprovedAt = null;
 
+            if (walletTransaction.ExcelId.HasValue)
+            {
+                walletTransaction.ClientId = null;
+                walletTransaction.WalletId = null;
+                walletTransaction.ExchangeRate = 0;
+                walletTransaction.Value = 0;
+                var to = _entity.FirstOrDefault(x => x.LinkedToId == walletTransactionId);
+
+                if (to != null)
+                {
+                    to.ApprovedAt = null;
+                    
+                    to.LinkedToId = null;
+                    
+                    context.WalletTransactions.Update(to);
+                }
+
+            }
+            else if (walletTransaction.LinkedToId.HasValue)
+            {
+                var to = _entity.FirstOrDefault(x => x.Id == walletTransaction.LinkedToId);
+
+                if (to == null)
+                    throw new AppException("Não foi encontrado nenhuma transação que tem link com essa transação.");
+
+                to.ApprovedAt = null;
+                to.ClientId = null;
+                to.WalletId = null;
+                to.ExchangeRate = 0;
+                to.Value = 0;
+                
+                walletTransaction.LinkedToId = null;
+                
+                context.WalletTransactions.Update(to);
+            }
+
             context.WalletTransactions.Update(walletTransaction);
+
             await context.SaveChangesAsync();
 
             return walletTransaction;

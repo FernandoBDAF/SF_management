@@ -34,7 +34,8 @@ namespace SFManagement.Models
         public Guid? NicknameId { get; set; }
 
         public virtual Nickname Nickname { get; set; }
-
+        
+        // se ja temos walletId e wallet obrigatoriamente eh ligado a manager, precisamos disso?
         [ForeignKey("Manager")]
         public Guid? ManagerId { get; set; }
 

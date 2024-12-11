@@ -14,7 +14,7 @@ namespace SFManagement.ViewModels.Validators
 
             RuleFor(x => x).Custom((obj, context) =>
             {
-                if(obj.TagId == null && obj.ClientId == null && obj.ManagerId == null)
+                if(obj.TagId == null && obj.ClientId == null && obj.WalletId == null)
                 {
                     context.AddFailure($"Need send TagId or ClientId or ManagerId.");
                 }

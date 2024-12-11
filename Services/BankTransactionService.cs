@@ -11,7 +11,7 @@ namespace SFManagement.Services
         {
         }
 
-        public override async Task<List<BankTransaction>> List() => context.BankTransactions.Include(x => x.Bank).Include(x => x.Client).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToList();
+        public override async Task<List<BankTransaction>> List() => await context.BankTransactions.Include(x => x.Bank).Include(x => x.Client).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
 
         public async Task<BankTransaction> Approve(Guid bankTransactionId, ViewModels.BankTransactionApproveRequest model)
         {
