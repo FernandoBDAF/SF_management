@@ -47,6 +47,8 @@ namespace SFManagement.Services
                 throw new AppException("Transação não está aprovada.");
 
             walletTransaction.ApprovedAt = null;
+            
+            walletTransaction.TagId = null;
 
             if (walletTransaction.ExcelId.HasValue)
             {
@@ -54,6 +56,7 @@ namespace SFManagement.Services
                 walletTransaction.WalletId = null;
                 walletTransaction.ExchangeRate = 0;
                 walletTransaction.Value = 0;
+                walletTransaction.TagId = null;
                 var to = _entity.FirstOrDefault(x => x.LinkedToId == walletTransactionId);
 
                 if (to != null)
@@ -78,6 +81,7 @@ namespace SFManagement.Services
                 to.WalletId = null;
                 to.ExchangeRate = 0;
                 to.Value = 0;
+                to.TagId = null;
                 
                 walletTransaction.LinkedToId = null;
                 

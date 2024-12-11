@@ -83,6 +83,8 @@ namespace SFManagement.Services
                 throw new AppException("Transação não está aprovada.");
 
             bankTransaction.ApprovedAt = null;
+            
+            bankTransaction.TagId = null;
 
             if (!string.IsNullOrEmpty(bankTransaction.FitId))
             {
@@ -94,6 +96,8 @@ namespace SFManagement.Services
                     to.ApprovedAt = null;
                     
                     to.LinkedToId = null;
+                    
+                    to.TagId = null;
                     
                     context.BankTransactions.Update(to);
                 }
@@ -109,6 +113,8 @@ namespace SFManagement.Services
                 to.ApprovedAt = null;
 
                 to.ClientId = null;
+                
+                to.TagId = null;
                 
                 bankTransaction.LinkedToId = null;
                 
