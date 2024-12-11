@@ -12,31 +12,28 @@ namespace SFManagement.Services
 
         public override async Task<List<Tag>> List()
         {
-            // var list = new List<Tag>();
+            var query = await context.Tags.Where(x => !x.ParentId.HasValue).ToListAsync();
 
-            var query = await context.Tags.Where(x => !x.ParentId.HasValue).Include(x => x.Children).ThenInclude(x => x.Children).ToListAsync();
-
-            // foreach (var tag in query)
-            // {
-            //     tag.Children.AddRange(await GetChildren(tag.Id));
-            //     list.Add(tag);
-            // }
+            foreach (var tag in query)
+            {
+                await GetChildren(tag);
+            }
 
             return query;
         }
 
-        private async Task<List<Tag>> GetChildren(Guid tagId)
+        private async Task<List<Tag>> GetChildren(Tag tag)
         {
-            var list = new List<Tag>();
-            var chd = await context.Tags.Where(x => x.ParentId == tagId).ToListAsync();
+            var chds = await context.Tags.Where(x => x.ParentId == tag.Id).ToListAsync();
 
-            foreach (var tag in chd)
+            foreach (var chd in chds)
             {
-                tag.Children.AddRange(await GetChildren(tag.Id));
-                list.Add(tag);
+                await GetChildren(chd);
             }
+            
+            // tag.Children.AddRange(chds);
 
-            return list;
+            return null;
         }
     }
 }
