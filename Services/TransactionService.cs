@@ -141,9 +141,9 @@ namespace SFManagement.Services
         public async Task<TableResponse<TransactionResponse>> GetInternalTransactions(Guid tagId, DateTime? startDate, DateTime? endDate, int quantity, int page)
         {
             //TODO: BALANCE
-            //TODO: FILTER TAGID
-            //TODO: BALANCE TAG
-            
+            //TODO: SERVIÇO TAG: FILTER TAGID
+            //TODO: SERVIÇO TAG: BALANCE TAG
+
             var response = new TableResponse<TransactionResponse>()
             {
                 Page = page,
