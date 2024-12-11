@@ -1,7 +1,7 @@
-﻿using SFManagement.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.ViewModels;
-using System.Data.Entity;
 
 namespace SFManagement.Services
 {

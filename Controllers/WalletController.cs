@@ -12,15 +12,22 @@ namespace SFManagement.Controllers
     [Route("[controller]")]
     public class WalletController : BaseApiController<Wallet, WalletRequest, WalletResponse>
     {
-        public WalletService _walletService;
+        private WalletService _walletService;
 
-        public WalletController(WalletService walletService, BaseService<Wallet> service, IMapper mapper) : base(service, mapper)
+        private readonly TransactionService _transactionService;
+
+        public WalletController(WalletService walletService, BaseService<Wallet> service, IMapper mapper, TransactionService transactionService) : base(service, mapper)
         {
             _walletService = walletService;
+            _transactionService = transactionService;
         }
 
         [HttpGet]
         [Route("balance/{walletId}")]
         public async Task<BalanceResponse> Balance(Guid walletId) => await _walletService.GetBalance(walletId);
+
+        [HttpGet]
+        [Route("transactions/{walletId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
+        public async Task<TableResponse<TransactionResponse>> Transactions(Guid walletId, DateTime? startDate = null, DateTime? endDate = null, int? quantity = 100, int? page = 0) => await _transactionService.GetWalletTransactions(walletId, startDate, endDate, quantity.Value, page.Value);
     }
 }

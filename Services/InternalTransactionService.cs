@@ -10,7 +10,7 @@ namespace SFManagement.Services
         {
         }
 
-        public async Task<(InternalTransaction To, InternalTransaction From)> Transfer(Guid toId, Guid fromId, InternalTransactionTransferRequest obj)
+        public async Task<List<InternalTransaction>> Transfer(Guid toId, Guid fromId, InternalTransactionTransferRequest obj)
         {
             var transferId = Guid.NewGuid();
 
@@ -39,7 +39,7 @@ namespace SFManagement.Services
 
             await context.SaveChangesAsync();
 
-            return (toInternalTransaction, fromInternalTransaction);
+            return new List<InternalTransaction> { toInternalTransaction, fromInternalTransaction };
         }
     }
 }

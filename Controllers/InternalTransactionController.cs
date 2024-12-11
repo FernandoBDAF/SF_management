@@ -26,6 +26,6 @@ namespace SFManagement.Controllers
 
         [HttpPost]
         [Route("transfer/{toId}/{fromId}")]
-        public async Task<(InternalTransactionResponse to, InternalTransactionResponse from)> Transfer(Guid toId, Guid fromId, [FromBody] InternalTransactionTransferRequest model) => _mapper.Map<(InternalTransactionResponse to, InternalTransactionResponse from)>(await _internalTransactionService.Transfer(toId, fromId, model));
+        public async Task<List<InternalTransactionResponse>> Transfer(Guid toId, Guid fromId, [FromBody] InternalTransactionTransferRequest model) => _mapper.Map<List<InternalTransactionResponse>>(await _internalTransactionService.Transfer(toId, fromId, model));
     }
 }
