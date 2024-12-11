@@ -22,5 +22,7 @@ namespace SFManagement.ViewModels
         public DateTime Date { get; set; }
 
         public string? Description { get; set; }
+
+        public Guid? TagId { get; set; }
     }
 }

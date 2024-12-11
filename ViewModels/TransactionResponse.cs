@@ -8,6 +8,16 @@ namespace SFManagement.ViewModels
     {
         public TransactionResponse() { }
 
+        public TransactionResponse(InternalTransaction internalTransaction)
+        {
+            Id = internalTransaction.Id;
+            Date = internalTransaction.Date;
+            Description = internalTransaction.Description;
+            Type = internalTransaction.ToString();
+            Value = internalTransaction.Value;
+            InternalTransactionType = internalTransaction.InternalTransactionType;
+        }
+
         public TransactionResponse(BankTransaction bankTransaction)
         {
             Id = bankTransaction.Id;
@@ -17,9 +27,8 @@ namespace SFManagement.ViewModels
             Value = bankTransaction.Value;
             BankTransactionType = bankTransaction.BankTransactionType;
             BankId = bankTransaction.BankId;
-            Description = bankTransaction.Description;
         }
-        
+
         public TransactionResponse(WalletTransaction walletTransaction)
         {
             Id = walletTransaction.Id;
@@ -35,9 +44,9 @@ namespace SFManagement.ViewModels
         }
 
         public Guid Id { get; set; }
-        
+
         public Guid? WalletId { get; set; }
-        
+
         public Guid? NicknameId { get; set; }
 
         public string? Type { get; set; }
@@ -48,15 +57,17 @@ namespace SFManagement.ViewModels
         public decimal Value { get; set; }
 
         public DateTime Date { get; set; }
-        
+
         public BankTransactionType BankTransactionType { get; set; }
-        
+
         public WalletTransactionType WalletTransactionType { get; set; }
-        
+
+        public InternalTransactionType InternalTransactionType { get; set; }
+
         public Guid BankId { get; set; }
-        
+
         public decimal ExchangeRate { get; set; }
-        
+
         public decimal Coins { get; set; }
 
     }

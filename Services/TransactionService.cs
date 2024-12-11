@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
+using SFManagement.Models;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services
@@ -21,7 +22,7 @@ namespace SFManagement.Services
                 Show = quantity
             };
 
-            var walletTransactionsQuery = _context.WalletTransactions.Where(x => x.WalletId == walletId);
+            var walletTransactionsQuery = _context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.WalletId == walletId);
 
             if (startDate.HasValue)
             {
@@ -51,7 +52,7 @@ namespace SFManagement.Services
                 Show = quantity
             };
 
-            var bankTransactionsQuery = _context.BankTransactions.Where(x => x.BankId == bankId);
+            var bankTransactionsQuery = _context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.BankId == bankId);
 
             if (startDate.HasValue)
             {
@@ -81,7 +82,7 @@ namespace SFManagement.Services
                 Show = quantity
             };
 
-            var walletTransactionsQuery = _context.WalletTransactions.Include(x => x.Wallet).Where(x => x.Wallet != null && x.Wallet.ManagerId == managerId);
+            var walletTransactionsQuery = _context.WalletTransactions.Include(x => x.Wallet).Where(x => !x.DeletedAt.HasValue && x.Wallet != null && x.Wallet.ManagerId == managerId);
 
             if (startDate.HasValue)
             {
@@ -111,8 +112,8 @@ namespace SFManagement.Services
                 Show = quantity
             };
 
-            var bankTransactionsQuery = _context.BankTransactions.Where(x => x.ClientId == clientId);
-            var walletTransactionsQuery = _context.WalletTransactions.Where(x => x.ClientId == clientId);
+            var bankTransactionsQuery = _context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId);
+            var walletTransactionsQuery = _context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId);
 
             if (startDate.HasValue)
             {
@@ -130,6 +131,36 @@ namespace SFManagement.Services
 
             var allTransactions = new List<TransactionResponse>();
             allTransactions.AddRange((bankTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((walletTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
+
+            response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
+
+            return response;
+        }
+
+        public async Task<TableResponse<TransactionResponse>> GetInternalTransactions(Guid tagId, DateTime? startDate, DateTime? endDate, int quantity, int page)
+        {
+            var response = new TableResponse<TransactionResponse>()
+            {
+                Page = page,
+                Show = quantity
+            };
+
+            var walletTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.TagId == tagId);
+
+            if (startDate.HasValue)
+            {
+                walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date <= endDate.Value);
+            }
+
+            response.Total = walletTransactionsQuery.Count();
+
+            var allTransactions = new List<TransactionResponse>();
             allTransactions.AddRange((walletTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
 
             response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();

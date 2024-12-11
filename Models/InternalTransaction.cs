@@ -33,5 +33,10 @@ namespace SFManagement.Models
         public DateTime Date { get; set; }
 
         public string? Description { get; set; }
+
+        [ForeignKey("Tag")]
+        public Guid? TagId { get; set; }
+
+        public virtual Tag Tag { get; set; }
     }
 }

@@ -19,5 +19,7 @@ namespace SFManagement.ViewModels
         public string? Description { get; set; }
 
         public InternalTransactionType InternalTransactionType { get; set; }
+
+        public Guid? TagId { get; set; }
     }
 }
