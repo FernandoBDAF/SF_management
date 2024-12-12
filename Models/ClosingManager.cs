@@ -52,6 +52,7 @@ namespace SFManagement.Models
                 InternalTransactionType = Enums.InternalTransactionType.Expense,
                 Value = rakeBruto,
                 ManagerId = managerId,
+                ApprovedAt = DateTime.Now
             };
         }
 
@@ -74,7 +75,8 @@ namespace SFManagement.Models
                         Description = $"{managerName} - Rakeback (PAI) - {closingNickname.Nickname.Name}",
                         Value = rakebackParent,
                         ClientId = closingNickname.FatherNicknameId,
-                        InternalTransactionType = Enums.InternalTransactionType.Income
+                        InternalTransactionType = Enums.InternalTransactionType.Income,
+                        ApprovedAt = DateTime.Now
                     });
                 }
 
@@ -85,6 +87,7 @@ namespace SFManagement.Models
                     InternalTransactionType = Enums.InternalTransactionType.Income,
                     Value = rakeback,
                     ClientId = closingNickname.Nickname.ClientId,
+                    ApprovedAt = DateTime.Now
                 });
             }
 

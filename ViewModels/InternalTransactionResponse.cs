@@ -28,5 +28,8 @@ namespace SFManagement.ViewModels
         public Guid? WalletId { get; set; }
 
         public Guid? BankId { get; set; }
+
+        public DateTime? ApprovedAt { get; set; }
+
     }
 }

@@ -41,5 +41,50 @@ namespace SFManagement.Services
 
             return new List<InternalTransaction> { toInternalTransaction, fromInternalTransaction };
         }
+
+        public async Task<InternalTransaction> Approve(Guid internalTransactionId, ViewModels.InternalTransactionApproveRequest model)
+        {
+            var internalTransaction = _entity.FirstOrDefault(x => x.Id == internalTransactionId);
+
+            if (internalTransaction == null)
+                throw new AppException("Não foi encontrado nenhuma transação.");
+
+            if (internalTransaction.ApprovedAt.HasValue)
+                throw new AppException("Transação já aprovada.");
+
+            internalTransaction.ApprovedAt = DateTime.Now;
+            internalTransaction.TagId = model.TagId;
+            internalTransaction.ClientId = model.ClientId;
+            internalTransaction.ManagerId = model.ManagerId;
+            internalTransaction.BankId = model.BankId;
+            
+
+            context.InternalTransactions.Update(internalTransaction);
+
+            await context.SaveChangesAsync();
+
+            return internalTransaction;
+        }
+
+
+        public async Task<InternalTransaction> Unapprove(Guid internalTransactionId)
+        {
+            var internalTransaction = _entity.FirstOrDefault(x => x.Id == internalTransactionId);
+
+            if (internalTransaction == null)
+                throw new AppException("Não foi encontrado nenhuma transação.");
+
+            if (!internalTransaction.ApprovedAt.HasValue)
+                throw new AppException("Transação não está aprovada.");
+
+            internalTransaction.ApprovedAt = null;
+
+            context.InternalTransactions.Update(internalTransaction);
+
+            await context.SaveChangesAsync();
+
+            return internalTransaction;
+        }
+
     }
 }

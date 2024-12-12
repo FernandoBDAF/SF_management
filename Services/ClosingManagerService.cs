@@ -63,7 +63,8 @@ namespace SFManagement.Services
                     InternalTransactionType = totalBalance > decimal.Zero ? Enums.InternalTransactionType.Income : Enums.InternalTransactionType.Expense,
                     Description = $"Fechamento balanço clube {wallet.Name}",
                     Coins = totalBalance > decimal.Zero ? totalBalance : decimal.Negate(totalBalance),
-                    Date = DateTime.Now
+                    Date = DateTime.Now,
+                    ApprovedAt = DateTime.Now
                 });
             }
 

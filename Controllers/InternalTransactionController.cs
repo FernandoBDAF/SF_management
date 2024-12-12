@@ -24,5 +24,14 @@ namespace SFManagement.Controllers
         [HttpPost]
         [Route("transfer/{toId}/{fromId}")]
         public async Task<List<InternalTransactionResponse>> Transfer(Guid toId, Guid fromId, [FromBody] InternalTransactionTransferRequest model) => _mapper.Map<List<InternalTransactionResponse>>(await _internalTransactionService.Transfer(toId, fromId, model));
+
+
+        [HttpPut]
+        [Route("approve/{internalTransactionId}")]
+        public async Task<InternalTransactionResponse> Approve(Guid internalTransactionId, [FromBody] InternalTransactionApproveRequest model) => _mapper.Map<InternalTransactionResponse>(await _internalTransactionService.Approve(internalTransactionId, model));
+
+        [HttpPut]
+        [Route("unapprove/{internalTransactionId}")]
+        public async Task<InternalTransactionResponse> Unapprove(Guid internalTransactionId) => _mapper.Map<InternalTransactionResponse>(await _internalTransactionService.Unapprove(internalTransactionId));
     }
 }
