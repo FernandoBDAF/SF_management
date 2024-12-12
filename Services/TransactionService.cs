@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
+using SFManagement.Models;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services
@@ -162,7 +163,7 @@ namespace SFManagement.Services
                 Show = quantity
             };
 
-            var walletTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.TagId == tagId);
+            var walletTransactionsQuery = _context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.TagId == tagId);
             var internalTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.TagId == tagId);
             var bankTransactionsQuery = _context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.TagId == tagId);
 
@@ -186,6 +187,38 @@ namespace SFManagement.Services
             var allTransactions = new List<TransactionResponse>();
             allTransactions.AddRange((await bankTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
             allTransactions.AddRange((await walletTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await internalTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+
+            response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
+
+            return response;
+        }
+
+        public async Task<TableResponse<TransactionResponse>> GetClosingManagerTransactions (Guid closingManagerTransactionId, DateTime? startDate, DateTime? endDate, int quantity, int page)
+        {
+            var response = new TableResponse<TransactionResponse>()
+            {
+                Page = page,
+                Show = quantity
+            };
+
+            var closingManager = await _context.ClosingManagers.FirstOrDefaultAsync(x => x.Id == closingManagerTransactionId);
+
+            var internalTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == closingManager.ManagerId);
+
+            if (startDate.HasValue)
+            {
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date <= endDate.Value);
+            }
+            
+            response.Total = await internalTransactionsQuery.CountAsync();
+
+            var allTransactions = new List<TransactionResponse>();
             allTransactions.AddRange((await internalTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
 
             response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
