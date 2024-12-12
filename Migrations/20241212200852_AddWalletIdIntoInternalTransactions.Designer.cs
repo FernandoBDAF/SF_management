@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SFManagement.Data;
 
@@ -11,9 +12,11 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241212200852_AddWalletIdIntoInternalTransactions")]
+    partial class AddWalletIdIntoInternalTransactions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -575,9 +578,6 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BankId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
@@ -627,8 +627,6 @@ namespace SFManagement.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BankId");
 
                     b.HasIndex("ClientId");
 
@@ -1050,10 +1048,6 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.InternalTransaction", b =>
                 {
-                    b.HasOne("SFManagement.Models.Bank", "Bank")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("BankId");
-
                     b.HasOne("SFManagement.Models.Client", "Client")
                         .WithMany("InternalTransactions")
                         .HasForeignKey("ClientId");
@@ -1069,8 +1063,6 @@ namespace SFManagement.Migrations
                     b.HasOne("SFManagement.Models.Wallet", "Wallet")
                         .WithMany("InternalTransactions")
                         .HasForeignKey("WalletId");
-
-                    b.Navigation("Bank");
 
                     b.Navigation("Client");
 
@@ -1179,8 +1171,6 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Bank", b =>
                 {
                     b.Navigation("BankTransactions");
-
-                    b.Navigation("InternalTransactions");
                 });
 
             modelBuilder.Entity("SFManagement.Models.BankTransaction", b =>

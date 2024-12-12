@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.ViewModels;
@@ -23,21 +24,25 @@ namespace SFManagement.Services
             };
 
             var walletTransactionsQuery = _context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.WalletId == walletId);
+            var internalTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.WalletId == walletId);
 
             if (startDate.HasValue)
             {
                 walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date >= startDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
                 walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date <= endDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date <= endDate.Value);
             }
 
-            response.Total = walletTransactionsQuery.Count();
+            response.Total = (await walletTransactionsQuery.CountAsync()) + (await internalTransactionsQuery.CountAsync());
 
             var allTransactions = new List<TransactionResponse>();
-            allTransactions.AddRange((walletTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await walletTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await internalTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
 
             response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
 
@@ -53,21 +58,25 @@ namespace SFManagement.Services
             };
 
             var bankTransactionsQuery = _context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.BankId == bankId);
+            var internalTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.BankId == bankId);
 
             if (startDate.HasValue)
             {
                 bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date >= startDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
                 bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date <= endDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date <= endDate.Value);
             }
 
-            response.Total = bankTransactionsQuery.Count();
+            response.Total = await bankTransactionsQuery.CountAsync() + await internalTransactionsQuery.CountAsync();
 
             var allTransactions = new List<TransactionResponse>();
             allTransactions.AddRange((await bankTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await internalTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
 
             response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
 
@@ -82,22 +91,26 @@ namespace SFManagement.Services
                 Show = quantity
             };
 
-            var walletTransactionsQuery = _context.WalletTransactions.Include(x => x.Wallet).Where(x => !x.DeletedAt.HasValue && x.Wallet != null && x.Wallet.ManagerId == managerId);
+            var walletTransactionsQuery = _context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.Wallet != null && x.Wallet.ManagerId == managerId);
+            var internalTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == managerId);
 
             if (startDate.HasValue)
             {
                 walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date >= startDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
                 walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date <= endDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date <= endDate.Value);
             }
 
-            response.Total = walletTransactionsQuery.Count();
+            response.Total = await walletTransactionsQuery.CountAsync() + await internalTransactionsQuery.CountAsync();
 
             var allTransactions = new List<TransactionResponse>();
-            allTransactions.AddRange((walletTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await walletTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await internalTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
 
             response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
 
@@ -114,36 +127,37 @@ namespace SFManagement.Services
 
             var bankTransactionsQuery = _context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId);
             var walletTransactionsQuery = _context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId);
+            var internalTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId);
+
 
             if (startDate.HasValue)
             {
                 bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date >= startDate.Value);
                 walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date >= startDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
                 bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date <= endDate.Value);
                 walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date <= endDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date <= endDate.Value);
             }
 
-            response.Total = bankTransactionsQuery.Count() + walletTransactionsQuery.Count();
+            response.Total = await bankTransactionsQuery.CountAsync() + await internalTransactionsQuery.CountAsync() + await walletTransactionsQuery.CountAsync() + await internalTransactionsQuery.CountAsync();
 
             var allTransactions = new List<TransactionResponse>();
-            allTransactions.AddRange((bankTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
-            allTransactions.AddRange((walletTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await bankTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await walletTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await internalTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
 
             response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
 
             return response;
         }
 
-        public async Task<TableResponse<TransactionResponse>> GetInternalTransactions(Guid tagId, DateTime? startDate, DateTime? endDate, int quantity, int page)
+        public async Task<TableResponse<TransactionResponse>> GetTagTransactions(Guid tagId, DateTime? startDate, DateTime? endDate, int quantity, int page)
         {
-            //TODO: BALANCE
-            //TODO: SERVIÇO TAG: FILTER TAGID
-            //TODO: SERVIÇO TAG: BALANCE TAG
-
             var response = new TableResponse<TransactionResponse>()
             {
                 Page = page,
@@ -151,21 +165,30 @@ namespace SFManagement.Services
             };
 
             var walletTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.TagId == tagId);
+            var internalTransactionsQuery = _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.TagId == tagId);
+            var bankTransactionsQuery = _context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.TagId == tagId);
+
 
             if (startDate.HasValue)
             {
+                bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date >= startDate.Value);
                 walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date >= startDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
+                bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date <= endDate.Value);
                 walletTransactionsQuery = walletTransactionsQuery.Where(x => x.Date <= endDate.Value);
+                internalTransactionsQuery = internalTransactionsQuery.Where(x => x.Date <= endDate.Value);
             }
 
-            response.Total = walletTransactionsQuery.Count();
+            response.Total = await bankTransactionsQuery.CountAsync() + await internalTransactionsQuery.CountAsync() + await walletTransactionsQuery.CountAsync() + await internalTransactionsQuery.CountAsync();
 
             var allTransactions = new List<TransactionResponse>();
-            allTransactions.AddRange((walletTransactionsQuery.ToList()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await bankTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await walletTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
+            allTransactions.AddRange((await internalTransactionsQuery.ToListAsync()).Select(x => new TransactionResponse(x)));
 
             response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
 

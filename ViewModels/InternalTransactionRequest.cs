@@ -21,5 +21,9 @@ namespace SFManagement.ViewModels
         public InternalTransactionType InternalTransactionType { get; set; }
 
         public Guid? TagId { get; set; }
+
+        public Guid? WalletId { get; set; }
+
+        public Guid? BankId { get; set; }
     }
 }

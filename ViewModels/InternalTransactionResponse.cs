@@ -24,5 +24,9 @@ namespace SFManagement.ViewModels
         public string? Description { get; set; }
 
         public Guid? TagId { get; set; }
+
+        public Guid? WalletId { get; set; }
+
+        public Guid? BankId { get; set; }
     }
 }

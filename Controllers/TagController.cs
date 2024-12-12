@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
@@ -15,13 +14,23 @@ namespace SFManagement.Controllers
     {
         private readonly TagService _tagService;
         private readonly IMapper _mapper;
+        private TransactionService _transactionService;
 
-        public TagController(TagService tagService, BaseService<Tag> service, IMapper mapper) : base(service, mapper)
+        public TagController(TagService tagService, BaseService<Tag> service, IMapper mapper, TransactionService transactionService) : base(service, mapper)
         {
             _tagService = tagService;
             _mapper = mapper;
+            _transactionService = transactionService;
         }
 
         public override async Task<List<TagResponse>> Get() => _mapper.Map<List<TagResponse>>(await _tagService.List());
+
+        [HttpGet]
+        [Route("balance/{tagId}")]
+        public async Task<BalanceResponse> Balance(Guid tagId) => await _tagService.GetBalance(tagId);
+
+        [HttpGet]
+        [Route("transactions/{tagId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
+        public async Task<TableResponse<TransactionResponse>> InternalTransactions(Guid tagId, DateTime? startDate = null, DateTime? endDate = null, int? quantity = 100, int? page = 0) => await _transactionService.GetTagTransactions(tagId, startDate, endDate, quantity.Value, page.Value);
     }
 }

@@ -26,6 +26,11 @@ namespace SFManagement.Models
 
         public virtual Manager Manager { get; set; }
 
+        [ForeignKey("Wallet")]
+        public Guid? WalletId { get; set; }
+
+        public virtual Wallet Wallet { get; set; }
+
         public InternalTransactionType InternalTransactionType { get; set; }
 
         public Guid? TransferId { get; set; }
@@ -38,5 +43,10 @@ namespace SFManagement.Models
         public Guid? TagId { get; set; }
 
         public virtual Tag Tag { get; set; }
+
+        [ForeignKey("Bank")]
+        public Guid? BankId { get; set; }
+
+        public virtual Bank Bank { get; set; }
     }
 }

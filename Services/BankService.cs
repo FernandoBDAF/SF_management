@@ -13,9 +13,9 @@ namespace SFManagement.Services
 
         public async Task<BalanceResponse> GetBalance(Guid bankId)
         {
-            var bank = await context.Banks.Include(x => x.BankTransactions).FirstOrDefaultAsync(x => x.Id == bankId);
+            var bank = await context.Banks.Include(x => x.BankTransactions).Include(x => x.InternalTransactions).Include(x => x.InternalTransactions).FirstOrDefaultAsync(x => x.Id == bankId);
 
-            return new BalanceResponse(bank.BankTransactions);
+            return new BalanceResponse(bank.BankTransactions, bank.InternalTransactions);
         }
 
         //TODO: Criar um endpoint com datas.

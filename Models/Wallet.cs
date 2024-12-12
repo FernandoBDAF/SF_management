@@ -26,5 +26,7 @@ namespace SFManagement.Models
         public virtual List<WalletTransaction> Transactions { get; set; } = new List<WalletTransaction>();
 
         public virtual List<ClosingWallet> ClosingWallets { get; set; } = new List<ClosingWallet>();
+
+        public virtual List<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
     }
 }

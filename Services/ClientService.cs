@@ -9,7 +9,7 @@ namespace SFManagement.Services
     public class ClientService : BaseService<Client>
     {
         private readonly IMapper _mapper;
-        
+
         public ClientService(DataContext context, IHttpContextAccessor httpContextAccessor, IMapper mapper) : base(context, httpContextAccessor)
         {
             _mapper = mapper;
@@ -24,17 +24,17 @@ namespace SFManagement.Services
 
             return new BalanceResponse(client.InitialValue, client.BankTransactions, client.WalletTransactions, client.InternalTransactions);
         }
-        
+
         public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
         {
             var client = await context.Clients.FindAsync(clientId);
 
             client.InitialValue = request.InitialValue ?? client.InitialValue;
-            
+
             await context.SaveChangesAsync();
 
             return _mapper.Map<ClientResponse>(client);
         }
-        
+
     }
 }

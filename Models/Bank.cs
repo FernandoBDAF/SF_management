@@ -7,5 +7,7 @@
         public string? Name { get; set; }
 
         public virtual ICollection<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
+
+        public virtual ICollection<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
     }
 }
