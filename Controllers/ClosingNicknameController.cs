@@ -24,6 +24,6 @@ namespace SFManagement.Controllers
 
         [HttpGet]
         [Route("closing-manager/{closingManagerId}")]
-        public async Task<List<ClosingNicknameResponse>> GetByClosingManagerId(Guid closingManagerId) => _mapper.Map<List<ClosingNicknameResponse>>(await _closingNicknameService.GetByClosingManagerId(closingManagerId));
+        public async Task<List<IGrouping<Guid, ClosingNicknameResponse>>> GetByClosingManagerId(Guid closingManagerId) => _mapper.Map<List<IGrouping<Guid, ClosingNicknameResponse>>>(await _closingNicknameService.GetByClosingManagerId(closingManagerId));
     }
 }
