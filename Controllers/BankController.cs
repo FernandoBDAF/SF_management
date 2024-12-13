@@ -28,5 +28,9 @@ namespace SFManagement.Controllers
         [HttpGet]
         [Route("transactions/{bankId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
         public async Task<TableResponse<TransactionResponse>> Transactions(Guid bankId, DateTime? startDate = null, DateTime? endDate = null, int? quantity = 100, int? page = 0) => await _transactionService.GetBankTransactions(bankId, startDate, endDate, quantity.Value, page.Value);
+
+        [HttpGet]
+        [Route("transactions/{bankId}/{quantity?}/{page?}")]
+        public async Task<TableResponse<TransactionResponse>> Transactions(Guid bankId, int? quantity = 100, int? page = 0) => await _transactionService.GetBankTransactions(bankId, null, null, quantity.Value, page.Value);
     }
 }
