@@ -21,7 +21,9 @@ namespace SFManagement.Services
                 ExchangeRate = obj.ExchangeRate,
                 ClientId = toId,
                 TransferId = transferId,
-                InternalTransactionType = Enums.InternalTransactionType.Income
+                InternalTransactionType = Enums.InternalTransactionType.Income,
+                Date = obj.Date,
+                Description = obj.Description
             };
 
             var fromInternalTransaction = new InternalTransaction()
@@ -31,7 +33,9 @@ namespace SFManagement.Services
                 ExchangeRate = obj.ExchangeRate,
                 ClientId = fromId,
                 TransferId = transferId,
-                InternalTransactionType = Enums.InternalTransactionType.Expense
+                InternalTransactionType = Enums.InternalTransactionType.Expense,
+                Date = obj.Date,
+                Description = obj.Description
             };
 
             await _entity.AddAsync(toInternalTransaction);
