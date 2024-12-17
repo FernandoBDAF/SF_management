@@ -1,4 +1,5 @@
-﻿using SFManagement.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.ViewModels;
 
@@ -61,7 +62,7 @@ namespace SFManagement.Services
             internalTransaction.ClientId = model.ClientId;
             internalTransaction.ManagerId = model.ManagerId;
             internalTransaction.BankId = model.BankId;
-            
+
 
             context.InternalTransactions.Update(internalTransaction);
 
@@ -90,5 +91,30 @@ namespace SFManagement.Services
             return internalTransaction;
         }
 
+
+        public override async Task Delete(Guid id)
+        {
+            var obj = await _entity.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
+
+            if (obj != null)
+            {
+                obj.DeletedAt = DateTime.Now;
+
+                if (obj.TransferId.HasValue)
+                {
+                    var anotherTransaction = await _entity.FirstOrDefaultAsync(x => x.Id == obj.TransferId && !x.DeletedAt.HasValue);
+
+                    if (anotherTransaction != null)
+                    {
+                        anotherTransaction.DeletedAt = DateTime.Now;
+                        _entity.Update(anotherTransaction);
+                    }
+                }
+
+                _entity.Update(obj);
+
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }
