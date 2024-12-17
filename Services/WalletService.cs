@@ -19,7 +19,7 @@ namespace SFManagement.Services
         public async Task<BalanceResponse> GetBalance(Guid walletId)
         {
             var wallet = (await context.Wallets.Include(x => x.Transactions).Include(x => x.InternalTransactions).FirstOrDefaultAsync(x => x.Id == walletId));
-            return new BalanceResponse(wallet.IntialCredits, wallet.IntialBalance, wallet.Transactions, wallet.InternalTransactions);
+            return new BalanceResponse(wallet.IntialCoins, wallet.InitialValue, wallet.Transactions, wallet.InternalTransactions);
         }
     }
 }

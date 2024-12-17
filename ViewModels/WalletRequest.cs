@@ -10,10 +10,10 @@ namespace SFManagement.ViewModels
 
         public Guid ManagerId { get; set; }
 
-        public decimal IntialCredits { get; set; }
+        public decimal InitialCoins { get; set; }
 
-        public decimal IntialBalance { get; set; }
+        public decimal InitialValue { get; set; }
 
-        public decimal InitialRate { get; set; }
+        public decimal InitialExchangeRate { get; set; }
     }
 }

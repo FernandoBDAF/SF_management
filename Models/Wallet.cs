@@ -6,13 +6,13 @@ namespace SFManagement.Models
     public class Wallet : BaseDomain
     {
         [Precision(18, 2)]
-        public decimal IntialCredits { get; set; }
+        public decimal IntialCoins { get; set; }
 
         [Precision(18, 2)]
-        public decimal IntialBalance { get; set; }
+        public decimal InitialValue { get; set; }
 
         [Precision(18, 2)]
-        public decimal InitialRate { get; set; }
+        public decimal InitialExchangeRate { get; set; }
 
         [ForeignKey("Manager")]
         public Guid ManagerId { get; set; }
