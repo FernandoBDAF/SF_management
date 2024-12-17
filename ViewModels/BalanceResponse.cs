@@ -4,12 +4,13 @@ namespace SFManagement.ViewModels
 {
     public class BalanceResponse
     {
-        public BalanceResponse(IEnumerable<BankTransaction> bankTransactions, IEnumerable<InternalTransaction> internalTransaction)
+        public BalanceResponse(IEnumerable<BankTransaction> bankTransactions, IEnumerable<InternalTransaction> internalTransaction, decimal initialValue)
         {
             Value = bankTransactions.Where(x => !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
 
             Value += internalTransaction.Where(x => !x.DeletedAt.HasValue).Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
 
+            Value += initialValue;
         }
 
         public BalanceResponse(decimal initialValue,

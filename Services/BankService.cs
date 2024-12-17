@@ -15,7 +15,7 @@ namespace SFManagement.Services
         {
             var bank = await context.Banks.Include(x => x.BankTransactions).Include(x => x.InternalTransactions).Include(x => x.InternalTransactions).FirstOrDefaultAsync(x => x.Id == bankId);
 
-            return new BalanceResponse(bank.BankTransactions, bank.InternalTransactions);
+            return new BalanceResponse(bank.BankTransactions, bank.InternalTransactions, bank.InitialValue);
         }
     }
 }
