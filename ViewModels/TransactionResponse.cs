@@ -16,6 +16,9 @@ namespace SFManagement.ViewModels
             Type = internalTransaction.ToString();
             Value = internalTransaction.Value;
             InternalTransactionType = internalTransaction.InternalTransactionType;
+            TagId = internalTransaction.TagId;
+            ClientId = internalTransaction.ClientId;
+            ApprovedAt = internalTransaction.ApprovedAt;
         }
 
         public TransactionResponse(BankTransaction bankTransaction)
@@ -27,6 +30,10 @@ namespace SFManagement.ViewModels
             Value = bankTransaction.Value;
             BankTransactionType = bankTransaction.BankTransactionType;
             BankId = bankTransaction.BankId;
+            TagId = bankTransaction.TagId;
+            ClientId = bankTransaction.ClientId;
+            ApprovedAt = bankTransaction.ApprovedAt;
+            OfxId = bankTransaction.OfxId;
         }
 
         public TransactionResponse(WalletTransaction walletTransaction)
@@ -41,6 +48,10 @@ namespace SFManagement.ViewModels
             WalletTransactionType = walletTransaction.WalletTransactionType;
             Coins = walletTransaction.Coins;
             ExchangeRate = walletTransaction.ExchangeRate;
+            TagId = walletTransaction.TagId;
+            ClientId = walletTransaction.ClientId;
+            ApprovedAt = walletTransaction.ApprovedAt;
+            ExcelId = walletTransaction.ExcelId;
         }
 
         public Guid Id { get; set; }
@@ -70,5 +81,14 @@ namespace SFManagement.ViewModels
 
         public decimal Coins { get; set; }
 
+        public Guid? TagId { get; set; }
+
+        public Guid? ClientId { get; set; }
+
+        public DateTime? ApprovedAt { get; set; }
+
+        public Guid? ExcelId { get; set; }
+
+        public Guid? OfxId { get; set; }
     }
 }
