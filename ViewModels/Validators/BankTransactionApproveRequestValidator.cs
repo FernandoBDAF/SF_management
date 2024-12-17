@@ -12,6 +12,11 @@ namespace SFManagement.ViewModels.Validators
                 {
                     context.AddFailure($"Need send TagId or ClientId or ManagerId.");
                 }
+
+                if (obj.ClientId != null && obj.ManagerId != null)
+                {
+                    context.AddFailure($"I have to choose client or manager.");
+                }
             });
 
         }
