@@ -1,4 +1,6 @@
-﻿namespace SFManagement.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace SFManagement.Models
 {
     public class Manager : BaseDomain
     {
@@ -15,5 +17,14 @@
         public virtual List<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
 
         public virtual List<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
+
+        [Precision(18, 2)]
+        public decimal InitialValue { get; set; }
+
+        [Precision(18, 2)]
+        public decimal InitialExchangeRate { get; set; }
+
+        [Precision(18, 2)]
+        public decimal InitialCoins { get; set; }
     }
 }

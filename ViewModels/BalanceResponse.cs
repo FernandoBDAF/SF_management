@@ -51,9 +51,10 @@ namespace SFManagement.ViewModels
                                          .Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Coins ?? decimal.Zero : decimal.Negate(x.Coins ?? decimal.Zero));
         }
 
-        public BalanceResponse(List<Wallet> wallets)
+        public BalanceResponse(List<Wallet> wallets, decimal initialCoins, decimal initialExchangeRate, decimal initialValue)
         {
-            Coins = wallets.Sum(x => new BalanceResponse(x.IntialCredits, x.IntialBalance, x.Transactions, x.InternalTransactions).Coins);
+            Coins = wallets.Sum(x => new BalanceResponse(x.IntialCoins, x.InitialValue, x.Transactions, x.InternalTransactions).Coins);
+            Coins += initialCoins;
         }
 
         public decimal Value { get; set; }
