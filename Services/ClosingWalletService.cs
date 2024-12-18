@@ -10,6 +10,6 @@ namespace SFManagement.Services
         {
         }
 
-        public async Task<List<ClosingWallet>> GetByClosingManagerId(Guid closingManagerId) => await _entity.Where(x => !x.DeletedAt.HasValue && x.ClosingManagerId == closingManagerId).ToListAsync();
+        public async Task<List<ClosingWallet>> GetByClosingManagerId(Guid closingManagerId) => await _entity.Where(x => !x.DeletedAt.HasValue && x.ClosingManagerId == closingManagerId).Include(x=> x.Wallet).ToListAsync();
     }
 }

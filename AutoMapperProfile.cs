@@ -19,6 +19,9 @@ namespace SFManagement
             CreateMap<Client, ClientResponse>();
             CreateMap<ClientRequest, Client>();
 
+            CreateMap<ClosingNickname, ClosingNicknameResponse>();
+            CreateMap<ClosingNicknameRequest, ClosingNickname>();
+
             CreateMap<Ofx, OfxResponse>();
             CreateMap<OfxRequest, Ofx>();
 
