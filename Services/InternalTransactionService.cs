@@ -102,7 +102,7 @@ namespace SFManagement.Services
 
                 if (obj.TransferId.HasValue)
                 {
-                    var anotherTransaction = await _entity.FirstOrDefaultAsync(x => x.Id == obj.TransferId && !x.DeletedAt.HasValue);
+                    var anotherTransaction = await _entity.FirstOrDefaultAsync(x => x.TransferId == obj.TransferId && !x.DeletedAt.HasValue);
 
                     if (anotherTransaction != null)
                     {
