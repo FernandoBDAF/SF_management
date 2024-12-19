@@ -22,7 +22,7 @@ namespace SFManagement.Services
                                                .Include(x => x.InternalTransactions)
                                                .FirstOrDefaultAsync(x => x.Id == clientId));
 
-            return new BalanceResponse(client.InitialValue, client.BankTransactions, client.WalletTransactions, client.InternalTransactions);
+            return new BalanceResponse(client);
         }
 
         public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)

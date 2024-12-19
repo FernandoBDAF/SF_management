@@ -15,7 +15,7 @@ namespace SFManagement.Services
         {
             var tag = (await context.Tags.Include(x => x.BankTransactions).Include(x => x.WalletTransactions).Include(x => x.InternalTransactions).FirstOrDefaultAsync(x => x.Id == tagId));
 
-            return new BalanceResponse(tag.BankTransactions, tag.WalletTransactions, tag.InternalTransactions);
+            return new BalanceResponse(tag);
         }
 
         public override async Task<List<Tag>> List()

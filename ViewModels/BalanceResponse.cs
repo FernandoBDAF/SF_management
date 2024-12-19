@@ -1,4 +1,5 @@
-﻿using SFManagement.Models;
+﻿using Azure;
+using SFManagement.Models;
 
 namespace SFManagement.ViewModels
 {
@@ -13,44 +14,48 @@ namespace SFManagement.ViewModels
             Value += initialValue;
         }
 
-        public BalanceResponse(decimal initialValue, IEnumerable<BankTransaction> bankTransactions, IEnumerable<WalletTransaction> walletTransactions, IEnumerable<InternalTransaction> internalTransactions)
+        public BalanceResponse(Client client)
         {
-            Value = bankTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue)
-                                                && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)))
-                                .Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+            Value = client.InitialValue;
 
-            Value += initialValue;
+            Value = client.BankTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
 
-            Value += walletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue)
-                                                                         && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)))
-                                .Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
+            Value += client.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
 
-            Value += internalTransactions.Where(x => !x.DeletedAt.HasValue)
-                                         .Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+            Value += client.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => !x.Coins.HasValue && x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
         }
 
-        public BalanceResponse(IEnumerable<BankTransaction> bankTransactions, IEnumerable<WalletTransaction> walletTransactions, IEnumerable<InternalTransaction> internalTransactions)
+        public BalanceResponse(Tag tag)
         {
-            Value = bankTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+            Value = tag.BankTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
 
-            Value += walletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
+            Value += tag.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
 
-            Value += internalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+            Value += tag.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => !x.Coins.HasValue && x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
         }
 
-        public BalanceResponse(decimal initialCredits, decimal initialBalance, IEnumerable<WalletTransaction> walletTransactions, IEnumerable<InternalTransaction> internalTransactions)
+        public BalanceResponse(Wallet wallet)
         {
-            Coins += initialCredits;
-            Coins += walletTransactions.Where(x => !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)))
-                                       .Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Income ? x.Coins : decimal.Negate(x.Coins));
-            Coins += internalTransactions.Where(x => !x.DeletedAt.HasValue)
-                                         .Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Coins ?? decimal.Zero : decimal.Negate(x.Coins ?? decimal.Zero));
+            Coins += wallet.IntialCoins;
+
+            Coins += wallet.Transactions.Where(x => !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Income ? x.Coins : decimal.Negate(x.Coins));
+
+            Coins += wallet.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Coins ?? decimal.Zero : decimal.Negate(x.Coins ?? decimal.Zero));
         }
 
-        public BalanceResponse(List<Wallet> wallets, decimal initialCoins, decimal initialExchangeRate, decimal initialValue)
+        public BalanceResponse(Manager manager)
         {
-            Coins = wallets.Sum(x => new BalanceResponse(x.IntialCoins, x.InitialValue, x.Transactions, x.InternalTransactions).Coins);
-            Coins += initialCoins;
+            Coins = manager.Wallets.Sum(x => new BalanceResponse(x).Coins);
+            
+            Coins += manager.InitialCoins;
+
+            Coins += manager.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Coins ?? decimal.Zero : decimal.Negate(x.Coins ?? decimal.Zero));
+
+            Value += manager.InitialValue;
+            
+            Value += manager.BankTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+
+            Value += manager.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => !x.Coins.HasValue && x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
         }
 
         public decimal Value { get; set; }
