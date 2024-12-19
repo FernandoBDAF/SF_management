@@ -31,5 +31,7 @@ namespace SFManagement.ViewModels
         public Guid? TagId { get; set; }
 
         public Guid? ManagerId { get; set; }
+
+        public string? ExcelNickname { get; set; }
     }
 }

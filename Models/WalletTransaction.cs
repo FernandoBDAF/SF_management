@@ -63,6 +63,8 @@ namespace SFManagement.Models
 
         public virtual Tag Tag { get; set; }
 
+        public string? ExcelNickname { get; set; }
+
         public bool IsValid
         {
             get

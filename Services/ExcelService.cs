@@ -50,6 +50,7 @@ namespace SFManagement.Services
                     Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
+                    ExcelNickname = nicknameValue
                 };
 
                 if (!context.WalletTransactions.Any(x => x.Date == walletTransaction.Date && x.Value == walletTransaction.Value && x.WalletTransactionType == walletTransaction.WalletTransactionType && x.WalletId == walletTransaction.WalletId))
