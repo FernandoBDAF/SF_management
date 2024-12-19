@@ -10,10 +10,35 @@ namespace SFManagement.Services
         {
         }
 
-        public async Task<List<IGrouping<Guid,ClosingNickname>>> GetByClosingManagerId(Guid closingManagerId) => await _entity
+        public async Task<List<IGrouping<Guid, ClosingNickname>>> GetByClosingManagerId(Guid closingManagerId) => await _entity
             .Where(x => !x.DeletedAt.HasValue && x.ClosingManagerId == closingManagerId)
             .Include(x => x.Nickname)
             .GroupBy(x => x.Nickname.WalletId)
             .ToListAsync();
+
+
+
+        public override async Task<ClosingNickname> Update(Guid id, ClosingNickname obj)
+        {
+            var existing = await context.ClosingNicknames.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (existing == null)
+            {
+                throw new AppException("Not found closing nickname.");
+            }
+
+            existing.FatherNicknameId = obj.FatherNicknameId;
+            existing.Rake = obj.Rake;
+            existing.Balance = obj.Balance;
+            existing.Rakeback = obj.Rakeback;
+            existing.FatherPercentual = obj.FatherPercentual;
+
+            context.Update(existing);
+
+            await context.SaveChangesAsync();
+
+            return existing;
+        }
+
     }
 }
