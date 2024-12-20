@@ -62,7 +62,6 @@ namespace SFManagement.ViewModels
                 var lastTransaction = manager.WalletTransactions.OrderByDescending(x => x.Date).FirstOrDefault();
                 
                 AverateRate = lastTransaction.AverateRate;
-                Profit = lastTransaction.Profit;
             }
         }
 
@@ -71,7 +70,5 @@ namespace SFManagement.ViewModels
         public decimal Coins { get; set; }
 
         public decimal AverateRate { get; set; }
-
-        public decimal Profit { get; set; }
     }
 }
