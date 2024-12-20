@@ -46,20 +46,32 @@ namespace SFManagement.ViewModels
         public BalanceResponse(Manager manager)
         {
             Coins = manager.Wallets.Sum(x => new BalanceResponse(x).Coins);
-            
+
             Coins += manager.InitialCoins;
 
             Coins += manager.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Coins ?? decimal.Zero : decimal.Negate(x.Coins ?? decimal.Zero));
 
             Value += manager.InitialValue;
-            
+
             Value += manager.BankTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
 
             Value += manager.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => !x.Coins.HasValue && x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+
+            if (manager.WalletTransactions.Any(x => !x.DeletedAt.HasValue))
+            {
+                var lastTransaction = manager.WalletTransactions.OrderByDescending(x => x.Date).FirstOrDefault();
+                
+                AverateRate = lastTransaction.AverateRate;
+                Profit = lastTransaction.Profit;
+            }
         }
 
         public decimal Value { get; set; }
 
         public decimal Coins { get; set; }
+
+        public decimal AverateRate { get; set; }
+
+        public decimal Profit { get; set; }
     }
 }

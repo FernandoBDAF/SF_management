@@ -50,6 +50,8 @@ namespace SFManagement.Services
             context.WalletTransactions.Update(walletTransaction);
             await context.SaveChangesAsync();
 
+            walletTransaction = await ExecuteFinanceCalc(walletTransaction);
+
             return _mapper.Map<WalletTransactionResponse>(walletTransaction);
         }
 
@@ -184,6 +186,8 @@ namespace SFManagement.Services
 
                 var queryWalletTransactions = context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == obj.ManagerId).OrderByDescending(x => !x.DeletedAt.HasValue).ThenBy(x => x.WalletTransactionType);
 
+                obj = await CalcFinance(queryWalletTransactions, manager, obj);
+
                 context.WalletTransactions.Update(obj);
 
                 foreach (var walletTransaction in await queryWalletTransactions.Where(x => x.Date >= obj.Date && x.Id != obj.Id).ToListAsync())
@@ -209,7 +213,8 @@ namespace SFManagement.Services
                 }
                 else
                 {
-                    decimal balanceCoins = await queryWalletTransactions.Where(x => x.Date < obj.Date && x.Id != obj.Id).SumAsync(x => x.Coins);
+                    var balanceCoins = await queryWalletTransactions.Where(x => x.Date < obj.Date && x.Id != obj.Id).SumAsync(x => x.Coins);
+
                     obj.AverateRate = (balanceCoins + obj.Coins) / ((balanceCoins * lastTransaction.ExchangeRate) + (obj.Coins * obj.ExchangeRate));
                 }
             }
