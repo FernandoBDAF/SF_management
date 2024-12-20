@@ -11,6 +11,8 @@ namespace SFManagement.Models
         public string? RefreshToken { get; set; }
 
         public DateTime RefreshTokenExpiryTime { get; set; }
+
+        //TODO: ADD CLIENT RELATIONSHIP
     }
 }
  
