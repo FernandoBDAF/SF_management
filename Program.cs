@@ -1,9 +1,8 @@
-using FluentValidation;
+using System.Text;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using SFManagement;
@@ -11,9 +10,7 @@ using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.Services;
 using SFManagement.Settings;
-using SFManagement.ViewModels;
 using SFManagement.ViewModels.Validators;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +36,7 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(o =>
 {
     o.RequireHttpsMetadata = false;
-    o.SaveToken = false;
+    o.SaveToken = true;
     o.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -47,7 +44,6 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero,
-
         ValidIssuer = builder.Configuration["JWT:Issuer"],
         ValidAudience = builder.Configuration["JWT:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
@@ -88,9 +84,7 @@ builder.Services.AddScoped<BaseService<ClosingManager>, ClosingManagerService>()
 builder.Services.AddScoped<ClosingManagerService>();
 builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
 builder.Services.AddScoped<InternalTransactionService>();
-
 builder.Services.AddScoped<UserResolverService>();
-
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

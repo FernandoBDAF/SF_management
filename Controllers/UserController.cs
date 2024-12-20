@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
 using SFManagement.Services;
@@ -27,6 +29,10 @@ namespace SFManagement.Controllers
         [AllowAnonymous]
         [HttpPost("token")]
         public async Task<AuthenticationModel> TokenAsync(TokenRequest model) => await _userService.GetTokenAsync(model);
+
+        [HttpPost]
+        [Route("refresh-token")]
+        public async Task<AuthenticationModel> RefreshToken(TokenRequest model) => await _userService.RefreshToken(model);
 
         [AllowAnonymous]
         [HttpPost("addrole")]
