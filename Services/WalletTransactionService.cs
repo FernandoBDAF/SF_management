@@ -184,7 +184,7 @@ namespace SFManagement.Services
             {
                 var manager = await context.Managers.FirstOrDefaultAsync(x => x.Id == obj.ManagerId);
 
-                var queryWalletTransactions = context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == obj.ManagerId).OrderByDescending(x => !x.DeletedAt.HasValue).ThenBy(x => x.WalletTransactionType);
+                var queryWalletTransactions = context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)) && x.ManagerId == obj.ManagerId).OrderByDescending(x => !x.DeletedAt.HasValue).ThenBy(x => x.WalletTransactionType);
 
                 obj = await CalcFinance(queryWalletTransactions, manager, obj);
 
