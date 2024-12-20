@@ -203,9 +203,9 @@ namespace SFManagement.Services
 
         public async Task<WalletTransaction> CalcFinance(IOrderedQueryable<WalletTransaction> queryWalletTransactions, Manager manager, WalletTransaction obj)
         {
-            var lastTransaction = await queryWalletTransactions.FirstOrDefaultAsync(x => x.Date < obj.Date && x.Id != obj.Id);
+            var lastTransaction = await queryWalletTransactions.FirstOrDefaultAsync(x => x.Date <= obj.Date && x.Id != obj.Id);
 
-            if (obj.WalletTransactionType == Enums.WalletTransactionType.Income)
+            if (obj.WalletTransactionType == Enums.WalletTransactionType.Expense)
             {
                 if (lastTransaction == null)
                 {
@@ -213,12 +213,12 @@ namespace SFManagement.Services
                 }
                 else
                 {
-                    var balanceCoins = await queryWalletTransactions.Where(x => x.Date < obj.Date && x.Id != obj.Id).SumAsync(x => x.Coins);
+                    var balanceCoins = await queryWalletTransactions.Where(x => x.Date <= obj.Date && x.Id != obj.Id).SumAsync(x => x.Coins) + manager.InitialCoins;
 
-                    obj.AverateRate = (balanceCoins + obj.Coins) / ((balanceCoins * lastTransaction.ExchangeRate) + (obj.Coins * obj.ExchangeRate));
+                    obj.AverateRate = ((balanceCoins * lastTransaction.AverateRate) + (obj.Coins * obj.ExchangeRate)) / (balanceCoins + obj.Coins);
                 }
             }
-            else if (obj.WalletTransactionType == Enums.WalletTransactionType.Expense)
+            else if (obj.WalletTransactionType == Enums.WalletTransactionType.Income)
             {
                 if (lastTransaction == null)
                 {
