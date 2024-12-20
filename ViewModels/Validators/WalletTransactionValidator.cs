@@ -10,6 +10,7 @@ namespace SFManagement.ViewModels.Validators
             RuleFor(x => x.Date).NotEmpty();
             RuleFor(x => x.WalletTransactionType).NotEmpty();
             RuleFor(x => x.WalletId).NotEmpty();
+            RuleFor(x => x.ManagerId).NotEmpty();
         }
     }
 }

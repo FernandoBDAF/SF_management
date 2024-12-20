@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Data.Entity;
+using System.Security.Claims;
 using AutoMapper;
 using SFManagement.Data;
 using SFManagement.Models;
@@ -15,6 +16,14 @@ namespace SFManagement.Services
         {
             _mapper = mapper;
             _user = httpContextAccessor.HttpContext?.User;
+        }
+
+        public override async Task<WalletTransaction> Add(WalletTransaction obj)
+        {
+            obj = await base.Add(obj);
+            obj = await CalcAverateRate(obj);
+
+            return obj;
         }
 
         public async Task<WalletTransactionResponse> ApproveTransaction(Guid walletTransactionId, WalletTransactionApproveRequest model)
@@ -165,6 +174,26 @@ namespace SFManagement.Services
             await context.SaveChangesAsync();
 
             return (fromWalletTransaction, toWalletTransaction);
+        }
+
+        public async Task<WalletTransaction> CalcAverateRate(WalletTransaction obj)
+        {
+            if (obj.ManagerId.HasValue)
+            {
+                var manager = await context.Managers.Include(x => x.WalletTransactions).FirstOrDefaultAsync(x => x.Id == obj.ManagerId);
+
+                if (obj.WalletTransactionType == Enums.WalletTransactionType.Income)
+                {
+                }
+                else if (obj.WalletTransactionType == Enums.WalletTransactionType.Expense)
+                {
+                    var lastTransaction = manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.Date < obj.Date).OrderByDescending(x => x.Date).FirstOrDefault();
+
+                    obj.AverateRate = lastTransaction != null ? lastTransaction.AverateRate : manager.InitialExchangeRate;
+                    obj.Profit = (obj.ExchangeRate - obj.AverateRate) * obj.Coins;
+                }
+            }
+            return obj;
         }
     }
 }

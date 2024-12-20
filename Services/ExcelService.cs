@@ -13,10 +13,12 @@ namespace SFManagement.Services
     public class ExcelService : BaseService<Excel>
     {
         private readonly IMapper _mapper;
+        private readonly WalletTransactionService _walletTransactionService;
 
-        public ExcelService(DataContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
+        public ExcelService(DataContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor, WalletTransactionService walletTransactionService) : base(context, httpContextAccessor)
         {
             _mapper = mapper;
+            _walletTransactionService = walletTransactionService;
         }
 
         public override async Task<Excel?> Get(Guid id) => await _entity.Include(x => x.WalletTransactions)
@@ -62,7 +64,8 @@ namespace SFManagement.Services
                     Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR")),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
-                    ExcelNickname = nicknameValue
+                    ExcelNickname = nicknameValue,
+                    ManagerId = excel.ManagerId
                 };
 
                 if (!context.WalletTransactions.Any(x => x.Date == walletTransaction.Date && x.Value == walletTransaction.Value && x.WalletTransactionType == walletTransaction.WalletTransactionType && x.WalletId == walletTransaction.WalletId))
@@ -78,6 +81,11 @@ namespace SFManagement.Services
 
             await context.Excels.AddAsync(excel);
             await context.SaveChangesAsync();
+
+            foreach (var walletTransaction in excel.WalletTransactions)
+            {
+                await _walletTransactionService.CalcAverateRate(walletTransaction);
+            }
 
             return _mapper.Map<List<WalletTransactionResponse>>(excel.WalletTransactions);
         }
@@ -128,6 +136,7 @@ namespace SFManagement.Services
                     Coins = walletTransactionValue,
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
+                    ManagerId = excel.ManagerId
                 };
 
                 if (!context.WalletTransactions.Any(x => x.Date == walletTransaction.Date && x.Value == walletTransaction.Value && x.WalletTransactionType == walletTransaction.WalletTransactionType && x.WalletId == walletTransaction.WalletId))
@@ -143,6 +152,11 @@ namespace SFManagement.Services
 
             await context.Excels.AddAsync(excel);
             await context.SaveChangesAsync();
+
+            foreach (var walletTransaction in excel.WalletTransactions)
+            {
+                await _walletTransactionService.CalcAverateRate(walletTransaction);
+            }
 
             return _mapper.Map<List<WalletTransactionResponse>>(excel.WalletTransactions);
         }

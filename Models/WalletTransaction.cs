@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Cryptography;
 
 namespace SFManagement.Models
 {
@@ -16,6 +14,12 @@ namespace SFManagement.Models
 
         [Precision(18, 2)]
         public decimal Coins { get; set; }
+
+        [Precision(18, 2)]
+        public decimal AverateRate { get; set; }
+
+        [Precision(18, 2)]
+        public decimal Profit { get; set; }
 
         public string? Description { get; set; }
 
