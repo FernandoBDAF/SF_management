@@ -10,6 +10,10 @@ namespace SFManagement.ViewModels
         
         public decimal ExchangeRate { get; set; }
 
+        public decimal AverateRate { get; set; }
+
+        public decimal Profit { get; set; }
+
         public string? Description { get; set; }
 
         public DateTime Date { get; set; }

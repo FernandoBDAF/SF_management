@@ -21,7 +21,7 @@ namespace SFManagement.Services
         public override async Task<WalletTransaction> Add(WalletTransaction obj)
         {
             obj = await base.Add(obj);
-            obj = await CalcAverateRate(obj);
+            obj = await ExecuteFinanceCalc(obj);
 
             return obj;
         }
@@ -176,23 +176,57 @@ namespace SFManagement.Services
             return (fromWalletTransaction, toWalletTransaction);
         }
 
-        public async Task<WalletTransaction> CalcAverateRate(WalletTransaction obj)
+        public async Task<WalletTransaction> ExecuteFinanceCalc(WalletTransaction obj)
         {
             if (obj.ManagerId.HasValue)
             {
-                var manager = await context.Managers.Include(x => x.WalletTransactions).FirstOrDefaultAsync(x => x.Id == obj.ManagerId);
+                var manager = await context.Managers.FirstOrDefaultAsync(x => x.Id == obj.ManagerId);
 
-                if (obj.WalletTransactionType == Enums.WalletTransactionType.Income)
+                var queryWalletTransactions = context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == obj.ManagerId).OrderByDescending(x => !x.DeletedAt.HasValue).ThenBy(x => x.WalletTransactionType);
+
+                context.WalletTransactions.Update(obj);
+
+                foreach (var walletTransaction in await queryWalletTransactions.Where(x => x.Date >= obj.Date && x.Id != obj.Id).ToListAsync())
                 {
+                    context.WalletTransactions.Update(await CalcFinance(queryWalletTransactions, manager, walletTransaction));
                 }
-                else if (obj.WalletTransactionType == Enums.WalletTransactionType.Expense)
-                {
-                    var lastTransaction = manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.Date < obj.Date).OrderByDescending(x => x.Date).FirstOrDefault();
 
-                    obj.AverateRate = lastTransaction != null ? lastTransaction.AverateRate : manager.InitialExchangeRate;
-                    obj.Profit = (obj.ExchangeRate - obj.AverateRate) * obj.Coins;
+                await context.SaveChangesAsync();
+            }
+
+            return obj;
+        }
+
+        public async Task<WalletTransaction> CalcFinance(IOrderedQueryable<WalletTransaction> queryWalletTransactions, Manager manager, WalletTransaction obj)
+        {
+            var lastTransaction = await queryWalletTransactions.FirstOrDefaultAsync(x => x.Date < obj.Date && x.Id != obj.Id);
+
+            if (obj.WalletTransactionType == Enums.WalletTransactionType.Income)
+            {
+                if (lastTransaction == null)
+                {
+                    obj.AverateRate = (manager.InitialCoins + obj.Coins) / ((manager.InitialCoins * manager.InitialExchangeRate) + (obj.Coins * obj.ExchangeRate));
+                }
+                else
+                {
+                    decimal balanceCoins = await queryWalletTransactions.Where(x => x.Date < obj.Date && x.Id != obj.Id).SumAsync(x => x.Coins);
+                    obj.AverateRate = (balanceCoins + obj.Coins) / ((balanceCoins * lastTransaction.ExchangeRate) + (obj.Coins * obj.ExchangeRate));
                 }
             }
+            else if (obj.WalletTransactionType == Enums.WalletTransactionType.Expense)
+            {
+                if (lastTransaction == null)
+                {
+                    obj.AverateRate = manager.InitialExchangeRate;
+                }
+                else
+                {
+                    obj.AverateRate = lastTransaction.AverateRate;
+                }
+
+                obj.Profit = (obj.ExchangeRate - obj.AverateRate) * obj.Coins;
+            }
+
             return obj;
         }
     }

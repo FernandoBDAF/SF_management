@@ -84,7 +84,7 @@ namespace SFManagement.Services
 
             foreach (var walletTransaction in excel.WalletTransactions)
             {
-                await _walletTransactionService.CalcAverateRate(walletTransaction);
+                await _walletTransactionService.ExecuteFinanceCalc(walletTransaction);
             }
 
             return _mapper.Map<List<WalletTransactionResponse>>(excel.WalletTransactions);
@@ -155,7 +155,7 @@ namespace SFManagement.Services
 
             foreach (var walletTransaction in excel.WalletTransactions)
             {
-                await _walletTransactionService.CalcAverateRate(walletTransaction);
+                await _walletTransactionService.ExecuteFinanceCalc(walletTransaction);
             }
 
             return _mapper.Map<List<WalletTransactionResponse>>(excel.WalletTransactions);
