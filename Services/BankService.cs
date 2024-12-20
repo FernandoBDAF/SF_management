@@ -17,5 +17,26 @@ namespace SFManagement.Services
 
             return new BalanceResponse(bank.BankTransactions, bank.InternalTransactions, bank.InitialValue);
         }
+
+
+        public override async Task<Bank> Update(Guid id, Bank obj)
+        {
+            var existing = await context.Banks.FirstOrDefaultAsync(x => x.Id == id);
+
+            if(existing == null)
+            {
+                throw new AppException("Not found bank");
+            }
+
+            existing.InitialValue = obj.InitialValue;
+            existing.Code = obj.Code;
+            existing.Name = obj.Name;
+
+            context.Banks.Update(existing);
+
+            await context.SaveChangesAsync();
+
+            return obj;
+        }
     }
 }

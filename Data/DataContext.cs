@@ -78,25 +78,39 @@ namespace SFManagement.Data
 
         private void SetDefaultProperties()
         {
+            Guid userId = Guid.Empty;
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user != null && user.Claims.Count() > 0 && user.Claims != null && user.Claims.Any(c => c.Type == "uid"))
+            {
+                Guid.TryParse(user.Claims.FirstOrDefault(c => c.Type == "uid").Value, out userId);
+            }
+
             foreach (var auditableEntity in ChangeTracker.Entries<BaseDomain>())
             {
                 if (auditableEntity.State == EntityState.Added)
                 {
-                    var user = _httpContextAccessor.HttpContext?.User;
 
-                    if (user != null)
+                    if (userId != Guid.Empty)
                     {
-                        auditableEntity.Entity.CreatorId = Guid.Parse(user.Claims.FirstOrDefault(c => c.Type == "uid")?.Value);
+                        auditableEntity.Entity.CreatorId = userId;
                     }
 
                     if (auditableEntity.Entity.CreatedAt == new DateTime() || auditableEntity.Entity.CreatedAt == null)
+                    { 
                         auditableEntity.Entity.CreatedAt = DateTime.Now;
+                    }
                 }
                 else if (auditableEntity.State == EntityState.Modified)
                 {
                     if (auditableEntity.Entity.DeletedAt.HasValue)
                     {
                         auditableEntity.Property(p => p.UpdatedAt).IsModified = false;
+
+                        if (userId != Guid.Empty)
+                        {
+                            auditableEntity.Entity.DeleteId = userId;
+                        }
 
                         if (auditableEntity.Entity.DeletedAt == new DateTime() || auditableEntity.Entity.DeletedAt == null)
                         {
@@ -105,6 +119,11 @@ namespace SFManagement.Data
                     }
                     else
                     {
+                        if (userId != Guid.Empty)
+                        {
+                            auditableEntity.Entity.EditorId = userId;
+                        }
+
                         if (auditableEntity.Entity.UpdatedAt == new DateTime() || auditableEntity.Entity.UpdatedAt == null)
                         {
                             auditableEntity.Entity.UpdatedAt = DateTime.Now;
