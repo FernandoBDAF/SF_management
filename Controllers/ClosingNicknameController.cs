@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFManagement.Models;
 using SFManagement.ViewModels;
 using SFManagement.Services;
 
@@ -9,12 +10,11 @@ namespace SFManagement.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class ClosingNicknameController : ControllerBase
+    public class ClosingNicknameController : BaseApiController<ClosingNickname, ClosingNicknameRequest, ClosingNicknameResponse>
     {
         private readonly ClosingNicknameService _closingNicknameService;
         private readonly IMapper _mapper;
-
-        public ClosingNicknameController(ClosingNicknameService closingNicknameService, IMapper mapper)
+        public ClosingNicknameController(BaseService<ClosingNickname> service, ClosingNicknameService closingNicknameService, IMapper mapper) : base(service, mapper)
         {
             _closingNicknameService = closingNicknameService;
             _mapper = mapper;
