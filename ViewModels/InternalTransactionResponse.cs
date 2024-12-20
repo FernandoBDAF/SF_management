@@ -31,5 +31,7 @@ namespace SFManagement.ViewModels
 
         public DateTime? ApprovedAt { get; set; }
 
+        public Guid? ApprovedBy { get; set; }
+
     }
 }

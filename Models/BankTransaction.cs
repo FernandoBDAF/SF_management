@@ -82,6 +82,8 @@ namespace SFManagement.Models
 
         public virtual Tag Tag { get; set; }
 
+        public Guid? ApprovedBy { get; set; }
+
         public bool IsValid
         {
             get

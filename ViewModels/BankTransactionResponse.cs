@@ -17,14 +17,14 @@ namespace SFManagement.ViewModels
         public Guid? OfxId { get; set; }
 
         public Guid? ClientId { get; set; }
-		
+
         public DateTime? ApprovedAt { get; set; }
-        
+
         public string? TagDescription { get; set; }
-        
+
         public Guid? LinkedToId { get; set; }
 
-		public BankTransactionType BankTransactionType { get; set; }
+        public BankTransactionType BankTransactionType { get; set; }
 
         public bool IsValid { get; set; }
 
@@ -35,5 +35,7 @@ namespace SFManagement.ViewModels
         public Guid? TagId { get; set; }
 
         public Guid? ManagerId { get; set; }
+
+        public Guid? ApprovedBy { get; set; }
     }
 }

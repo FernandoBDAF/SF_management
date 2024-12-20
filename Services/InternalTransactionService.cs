@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.ViewModels;
@@ -7,8 +8,11 @@ namespace SFManagement.Services
 {
     public class InternalTransactionService : BaseService<InternalTransaction>
     {
+        private readonly ClaimsPrincipal _user;
+
         public InternalTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
+            _user = httpContextAccessor.HttpContext?.User;
         }
 
         public async Task<List<InternalTransaction>> Transfer(Guid toId, Guid fromId, InternalTransactionTransferRequest obj)
@@ -52,10 +56,14 @@ namespace SFManagement.Services
             var internalTransaction = _entity.FirstOrDefault(x => x.Id == internalTransactionId);
 
             if (internalTransaction == null)
+            {
                 throw new AppException("Não foi encontrado nenhuma transação.");
+            }
 
             if (internalTransaction.ApprovedAt.HasValue)
+            {
                 throw new AppException("Transação já aprovada.");
+            }
 
             internalTransaction.ApprovedAt = DateTime.Now;
             internalTransaction.TagId = model.TagId;
@@ -63,6 +71,10 @@ namespace SFManagement.Services
             internalTransaction.ManagerId = model.ManagerId;
             internalTransaction.BankId = model.BankId;
 
+            if (_user != null)
+            {
+                internalTransaction.ApprovedBy = Guid.Parse(_user.Claims.FirstOrDefault(c => c.Type == "uid").Value);
+            }
 
             context.InternalTransactions.Update(internalTransaction);
 
@@ -71,16 +83,19 @@ namespace SFManagement.Services
             return internalTransaction;
         }
 
-
         public async Task<InternalTransaction> Unapprove(Guid internalTransactionId)
         {
             var internalTransaction = _entity.FirstOrDefault(x => x.Id == internalTransactionId);
 
             if (internalTransaction == null)
+            {
                 throw new AppException("Não foi encontrado nenhuma transação.");
+            }
 
             if (!internalTransaction.ApprovedAt.HasValue)
+            {
                 throw new AppException("Transação não está aprovada.");
+            }
 
             internalTransaction.ApprovedAt = null;
 
@@ -90,7 +105,6 @@ namespace SFManagement.Services
 
             return internalTransaction;
         }
-
 
         public override async Task Delete(Guid id)
         {

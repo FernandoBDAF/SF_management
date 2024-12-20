@@ -50,5 +50,7 @@ namespace SFManagement.Models
         public virtual Bank Bank { get; set; }
 
         public DateTime? ApprovedAt { get; set; }
+
+        public Guid? ApprovedBy { get; set; }
     }
 }
