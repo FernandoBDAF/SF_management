@@ -33,5 +33,8 @@ namespace SFManagement.ViewModels
         public Guid? ManagerId { get; set; }
 
         public string? ExcelNickname { get; set; }
+
+        public Guid? ApprovedBy { get; set; }
+
     }
 }

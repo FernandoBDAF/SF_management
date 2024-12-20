@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.ViewModels;
@@ -8,10 +9,12 @@ namespace SFManagement.Services
     public class WalletTransactionService : BaseService<WalletTransaction>
     {
         private readonly IMapper _mapper;
+        private readonly ClaimsPrincipal _user;
 
         public WalletTransactionService(DataContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
             _mapper = mapper;
+            _user = httpContextAccessor.HttpContext?.User;
         }
 
         public async Task<WalletTransactionResponse> ApproveTransaction(Guid walletTransactionId, WalletTransactionApproveRequest model)
@@ -30,6 +33,11 @@ namespace SFManagement.Services
             walletTransaction.ExchangeRate = model.ExchangeRate;
             walletTransaction.Value = model.Value;
 
+            if (_user != null)
+            {
+                walletTransaction.ApprovedBy = Guid.Parse(_user.Claims.FirstOrDefault(c => c.Type == "uid").Value);
+            }
+
             context.WalletTransactions.Update(walletTransaction);
             await context.SaveChangesAsync();
 
@@ -41,13 +49,17 @@ namespace SFManagement.Services
             var walletTransaction = _entity.FirstOrDefault(x => x.Id == walletTransactionId);
 
             if (walletTransaction == null)
+            {
                 throw new AppException("Não foi encontrado nenhuma transação.");
+            }
 
             if (!walletTransaction.ApprovedAt.HasValue)
+            {
                 throw new AppException("Transação não está aprovada.");
+            }
 
             walletTransaction.ApprovedAt = null;
-            
+            walletTransaction.ApprovedBy = null;
             walletTransaction.TagId = null;
 
             if (walletTransaction.ExcelId.HasValue)
@@ -62,9 +74,9 @@ namespace SFManagement.Services
                 if (to != null)
                 {
                     to.ApprovedAt = null;
-                    
+                    to.ApprovedBy = null;
                     to.LinkedToId = null;
-                    
+
                     context.WalletTransactions.Update(to);
                 }
 
@@ -74,17 +86,20 @@ namespace SFManagement.Services
                 var to = _entity.FirstOrDefault(x => x.Id == walletTransaction.LinkedToId);
 
                 if (to == null)
+                {
                     throw new AppException("Não foi encontrado nenhuma transação que tem link com essa transação.");
+                }
 
                 to.ApprovedAt = null;
+                to.ApprovedBy = null;
                 to.ClientId = null;
                 to.WalletId = null;
                 to.ExchangeRate = 0;
                 to.Value = 0;
                 to.TagId = null;
-                
+
                 walletTransaction.LinkedToId = null;
-                
+
                 context.WalletTransactions.Update(to);
             }
 
@@ -100,28 +115,50 @@ namespace SFManagement.Services
             var fromWalletTransaction = _entity.FirstOrDefault(x => x.Id == fromWalletTransactionId);
 
             if (fromWalletTransaction == null)
+            {
                 throw new AppException("Não foi encontrado nenhuma transação de destino.");
+            }
             if (!fromWalletTransaction.ExcelId.HasValue)
+            {
                 throw new AppException("Não é uma transação de destino válida (Não é uma transação oriunda de arquivo EXCEL.)");
+            }
             if (context.WalletTransactions.Any(x => x.LinkedToId == fromWalletTransaction.Id))
+            {
                 throw new AppException("Esta transação EXCEL já foi vinculada a uma transação manual.");
+            }
 
             var toWalletTransaction = _entity.FirstOrDefault(x => x.Id == toWalletTransactionId);
 
             if (toWalletTransaction == null)
+            {
                 throw new AppException("Não foi encontrado nenhuma transação de início.");
+            }
             if (toWalletTransaction.ExcelId.HasValue)
+            {
                 throw new AppException("Não é uma transação de início válida (Não é uma transação manual.)");
+            }
             if (toWalletTransaction.LinkedToId.HasValue)
+            {
                 throw new AppException("Esta transação manual já foi vinculada a uma transação EXCEL.");
+            }
 
             toWalletTransaction.LinkedToId = fromWalletTransaction.Id;
+
+            if (_user != null)
+            {
+                toWalletTransaction.ApprovedBy = Guid.Parse(_user.Claims.FirstOrDefault(c => c.Type == "uid").Value);
+            }
 
             toWalletTransaction.ApprovedAt = DateTime.Now;
 
             context.WalletTransactions.Update(toWalletTransaction);
 
             fromWalletTransaction.ApprovedAt = DateTime.Now;
+
+            if (_user != null)
+            {
+                fromWalletTransaction.ApprovedBy = Guid.Parse(_user.Claims.FirstOrDefault(c => c.Type == "uid").Value);
+            }
 
             context.WalletTransactions.Update(fromWalletTransaction);
 
