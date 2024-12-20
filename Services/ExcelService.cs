@@ -39,15 +39,27 @@ namespace SFManagement.Services
             };
 
             var rows = this.ReadExcelFile(request.PostFile, new List<(int, string)> { (1, "Nickname"), (2, "Value"), (3, "Wallet"), (6, "CreatedAt"), (8, "Description") });
-
+            
             foreach (var row in rows)
             {
                 var nicknameValue = row.FirstOrDefault(x => x.Name == "Nickname").Value;
                 var createdAtValue = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
+                string[] formats = { "d/M/yyyy H:mm", "d/M/yy H:mm", "d/M/yy HH:mm", "d/M/yyyy HH:mm" };
+                DateTime parsedDate;
+
+                if (DateTime.TryParseExact(createdAtValue, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                {
+                    parsedDate = parsedDate; // Assign the successfully parsed DateTime
+                }
+                else
+                {
+                    throw new FormatException($"Unable to parse date: {createdAtValue}");
+                }
+                
                 var walletTransaction = new WalletTransaction
                 {
-                    Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
-                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
+                    Date = parsedDate,
+                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR")),
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
                     ExcelNickname = nicknameValue
@@ -90,15 +102,30 @@ namespace SFManagement.Services
 
             foreach (var row in rows)
             {
-                var walletTransactionValue = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value);
+                var walletTransactionValue = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR"));
                 var walletTransactionType = walletTransactionValue > 0 ? WalletTransactionType.Income : WalletTransactionType.Expense;
 
                 walletTransactionValue = walletTransactionValue > 0 ? walletTransactionValue : decimal.Negate(walletTransactionValue);
+                
+                //parse date
+                var createdAtValue = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
+                string[] formats = { "d/M/yyyy H:mm", "d/M/yy H:mm", "d/M/yy HH:mm", "d/M/yyyy HH:mm" };
+                DateTime parsedDate;
+
+                if (DateTime.TryParseExact(createdAtValue, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                {
+                    parsedDate = parsedDate; // Assign the successfully parsed DateTime
+                }
+                else
+                {
+                    throw new FormatException($"Unable to parse date: {createdAtValue}");
+                }
+                //
 
                 var walletTransaction = new WalletTransaction
                 {
-                    Date = DateTime.Parse(row.FirstOrDefault(x => x.Name == "CreatedAt").Value),
-                    Coins = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value),
+                    Date = parsedDate,
+                    Coins = walletTransactionValue,
                     Description = row.FirstOrDefault(x => x.Name == "Description").Value,
                     WalletTransactionType = walletTransactionType,
                 };
