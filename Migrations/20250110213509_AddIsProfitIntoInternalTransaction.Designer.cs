@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SFManagement.Data;
 
@@ -11,9 +12,11 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250110213509_AddIsProfitIntoInternalTransaction")]
+    partial class AddIsProfitIntoInternalTransaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -749,9 +752,6 @@ namespace SFManagement.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ManagerType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -1199,7 +1199,7 @@ namespace SFManagement.Migrations
                         .HasForeignKey("ClientId");
 
                     b.HasOne("SFManagement.Models.ClosingManager", "ClosingManager")
-                        .WithMany("InternalTransactions")
+                        .WithMany()
                         .HasForeignKey("ClosingManagerId");
 
                     b.HasOne("SFManagement.Models.Manager", "Manager")
@@ -1351,8 +1351,6 @@ namespace SFManagement.Migrations
                     b.Navigation("ClosingNicknames");
 
                     b.Navigation("ClosingWallets");
-
-                    b.Navigation("InternalTransactions");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Excel", b =>

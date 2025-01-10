@@ -52,5 +52,11 @@ namespace SFManagement.Models
         public DateTime? ApprovedAt { get; set; }
 
         public Guid? ApprovedBy { get; set; }
+
+        public Guid? ClosingManagerId { get; set; }
+
+        public virtual ClosingManager ClosingManager { get; set; }
+
+        public bool IsProfit { get; set; }
     }
 }

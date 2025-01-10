@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SFManagement.Enums;
 
 namespace SFManagement.Models
 {
     public class Manager : BaseDomain
     {
         public string? Name { get; set; }
+
+        public ManagerType ManagerType { get; set; }
 
         public virtual List<Wallet> Wallets { get; set; } = new List<Wallet>();
 

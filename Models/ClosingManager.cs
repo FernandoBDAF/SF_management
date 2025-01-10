@@ -31,6 +31,8 @@ namespace SFManagement.Models
 
         public List<ClosingNickname> ClosingNicknames { get; set; } = new List<ClosingNickname>();
 
+        public List<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
+
         public static decimal CalcRake(List<ClosingNickname> closingNicknames, List<ClosingWallet> closingWallets)
         {
             var rakeBruto = decimal.Zero;
@@ -43,7 +45,7 @@ namespace SFManagement.Models
             return rakeBruto;
         }
 
-        public static InternalTransaction CreateRakeInternalTransaction(Guid managerId, decimal rakeBruto, string managerName, DateTime closureEnd)
+        public static InternalTransaction CreateRakeInternalTransaction(Guid managerId, decimal rakeBruto, string managerName, DateTime closureEnd, Guid closingManagerId)
         {
             return new InternalTransaction
             {
@@ -52,11 +54,13 @@ namespace SFManagement.Models
                 InternalTransactionType = Enums.InternalTransactionType.Expense,
                 Value = rakeBruto,
                 ManagerId = managerId,
-                ApprovedAt = DateTime.Now
+                ApprovedAt = DateTime.Now,
+                ClosingManagerId = closingManagerId,
+                IsProfit = true
             };
         }
 
-        public static List<InternalTransaction> CreateRakeNicknameReleases(List<ClosingNickname> closingNicknames, string managerName, DateTime closureEnd)
+        public static List<InternalTransaction> CreateRakeNicknameReleases(List<ClosingNickname> closingNicknames, string managerName, DateTime closureEnd, Guid closingManagerId)
         {
             var list = new List<InternalTransaction>();
 
@@ -76,7 +80,9 @@ namespace SFManagement.Models
                         Value = rakebackParent,
                         ClientId = closingNickname.FatherNicknameId,
                         InternalTransactionType = Enums.InternalTransactionType.Income,
-                        ApprovedAt = DateTime.Now
+                        ApprovedAt = DateTime.Now,
+                        ClosingManagerId = closingManagerId,
+                        IsProfit = true
                     });
                 }
 
@@ -87,7 +93,9 @@ namespace SFManagement.Models
                     InternalTransactionType = Enums.InternalTransactionType.Income,
                     Value = rakeback,
                     ClientId = closingNickname.Nickname.ClientId,
-                    ApprovedAt = DateTime.Now
+                    ApprovedAt = DateTime.Now,
+                    ClosingManagerId = closingManagerId,
+                    IsProfit = true
                 });
             }
 

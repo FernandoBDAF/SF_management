@@ -36,6 +36,10 @@ namespace SFManagement.Controllers
         public async Task<BalanceResponse> Balance(Guid managerId) => await _managerService.GetBalance(managerId);
 
         [HttpGet]
+        [Route("profit/{managerId}")]
+        public async Task<ProfitResponse> Profit(Guid managerId, DateTime? start, DateTime? end) => await _managerService.GetProfit(managerId, start, end);
+
+        [HttpGet]
         [Route("transactions/{managerId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
         public async Task<TableResponse<TransactionResponse>> Transactions(Guid managerId, DateTime? startDate = null, DateTime? endDate = null, int quantity = 100, int page = 0) => await _transactionService.GetManagerTransactions(managerId, startDate, endDate, quantity, page);
 

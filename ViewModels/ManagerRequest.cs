@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SFManagement.Enums;
 
 namespace SFManagement.ViewModels
 {
@@ -7,6 +8,8 @@ namespace SFManagement.ViewModels
         public Guid Id { get; set; }
 
         public string? Name { get; set; }
+
+        public ManagerType ManagerType { get; set; }
 
         public decimal InitialValue { get; set; }
 

@@ -44,9 +44,9 @@ namespace SFManagement.Services
             closingManager.RakeBruto = ClosingManager.CalcRake(closingManager.ClosingNicknames, closingManager.ClosingWallets);
             closingManager.TotalBalance = closingManager.ClosingNicknames.Sum(x => x.Balance);
 
-            closingManager.Manager.InternalTransactions.Add(ClosingManager.CreateRakeInternalTransaction(closingManager.ManagerId, closingManager.RakeBruto, closingManager.Manager?.Name, closingManager.CalculatedAt.Value));
+            closingManager.Manager.InternalTransactions.Add(ClosingManager.CreateRakeInternalTransaction(closingManager.ManagerId, closingManager.RakeBruto, closingManager.Manager?.Name, closingManager.End, closingManagerId));
 
-            var nicknameDiscounts = ClosingManager.CreateRakeNicknameReleases(closingManager.ClosingNicknames, closingManager.Manager.Name, closingManager.CalculatedAt.Value);
+            var nicknameDiscounts = ClosingManager.CreateRakeNicknameReleases(closingManager.ClosingNicknames, closingManager.Manager.Name, closingManager.End, closingManager.Id);
 
             closingManager.TotalRakeDiscounts = nicknameDiscounts.Sum(x => x.Value);
 
@@ -63,8 +63,9 @@ namespace SFManagement.Services
                     InternalTransactionType = totalBalance > decimal.Zero ? Enums.InternalTransactionType.Income : Enums.InternalTransactionType.Expense,
                     Description = $"Fechamento balanço clube {wallet.Name}",
                     Coins = totalBalance > decimal.Zero ? totalBalance : decimal.Negate(totalBalance),
-                    Date = DateTime.Now,
-                    ApprovedAt = DateTime.Now
+                    Date = closingManager.End,
+                    ApprovedAt = DateTime.Now,
+                    ClosingManagerId = closingManagerId
                 });
             }
 
