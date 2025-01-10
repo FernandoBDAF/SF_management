@@ -209,7 +209,7 @@ namespace SFManagement.Services
             {
                 if (lastTransaction == null)
                 {
-                    obj.AverateRate = (manager.InitialCoins + obj.Coins) / ((manager.InitialCoins * manager.InitialExchangeRate) + (obj.Coins * obj.ExchangeRate));
+                    obj.AverateRate = ((manager.InitialCoins * manager.InitialExchangeRate) + (obj.Coins * obj.ExchangeRate)) / (manager.InitialCoins + obj.Coins);
                 }
                 else
                 {
