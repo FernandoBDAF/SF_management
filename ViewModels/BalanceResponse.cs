@@ -27,9 +27,9 @@ namespace SFManagement.ViewModels
 
         public BalanceResponse(Tag tag)
         {
-            Value = tag.BankTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
+            Value = tag.BankTransactions.Where(x => !x.DeletedAt.HasValue && (x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
 
-            Value += tag.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
+            Value += tag.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
 
             Value += tag.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => !x.Coins.HasValue && x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
         }
@@ -55,6 +55,8 @@ namespace SFManagement.ViewModels
 
             Value += manager.BankTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.BankTransactionType == Enums.BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
 
+            Value += manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && (!x.ClientId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
+
             Value += manager.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => !x.Coins.HasValue && x.InternalTransactionType == Enums.InternalTransactionType.Income ? x.Value : decimal.Negate(x.Value));
 
             var walletTransactions = manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)));
@@ -62,7 +64,7 @@ namespace SFManagement.ViewModels
             if (walletTransactions.Any())
             {
                 var lastTransaction = walletTransactions.OrderByDescending(x => x.Date).FirstOrDefault();
-                
+
                 AverateRate = lastTransaction.AverateRate;
             }
             else

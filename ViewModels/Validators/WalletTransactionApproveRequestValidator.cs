@@ -16,7 +16,7 @@ namespace SFManagement.ViewModels.Validators
             {
                 if(obj.TagId == null && obj.ClientId == null && obj.WalletId == null)
                 {
-                    context.AddFailure($"Need send TagId or ClientId or ManagerId.");
+                    context.AddFailure($"Need send TagId or ClientId or WalletId.");
                 }
             });
         }
