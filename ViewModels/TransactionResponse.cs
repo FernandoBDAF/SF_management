@@ -52,6 +52,7 @@ namespace SFManagement.ViewModels
             ClientId = walletTransaction.ClientId;
             ApprovedAt = walletTransaction.ApprovedAt;
             ExcelId = walletTransaction.ExcelId;
+            Profit = walletTransaction.Profit;
         }
 
         public Guid Id { get; set; }
@@ -90,5 +91,7 @@ namespace SFManagement.ViewModels
         public Guid? ExcelId { get; set; }
 
         public Guid? OfxId { get; set; }
+        
+        public decimal Profit { get; set; }
     }
 }
