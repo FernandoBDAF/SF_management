@@ -39,7 +39,7 @@ namespace SFManagement.Models
 
             foreach (var closingWallet in closingWallets)
             {
-                rakeBruto += (closingNicknames.Where(x => x.Nickname.WalletId == closingWallet.Id).Sum(x => x.Rake)) * (closingWallet.ReturnRake / 100);
+                rakeBruto += (closingNicknames.Where(x => x.Nickname.WalletId == closingWallet.WalletId).Sum(x => x.Rake)) * (closingWallet.ReturnRake / 100);
             }
 
             return rakeBruto;
