@@ -60,7 +60,7 @@ namespace SFManagement.Models
             };
         }
 
-        public static List<InternalTransaction> CreateRakeNicknameReleases(List<ClosingNickname> closingNicknames, string managerName, DateTime closureEnd, Guid closingManagerId)
+        public static List<InternalTransaction> CreateRakeNicknameReleases(Guid managerId, List<ClosingNickname> closingNicknames, string managerName, DateTime closureEnd, Guid closingManagerId)
         {
             var list = new List<InternalTransaction>();
 
@@ -79,6 +79,7 @@ namespace SFManagement.Models
                         Description = $"{managerName} - Rakeback (PAI) - {closingNickname.Nickname.Name}",
                         Value = rakebackParent,
                         ClientId = closingNickname.FatherNicknameId,
+                        ManagerId = managerId,
                         InternalTransactionType = Enums.InternalTransactionType.Income,
                         ApprovedAt = DateTime.Now,
                         ClosingManagerId = closingManagerId,

@@ -46,7 +46,7 @@ namespace SFManagement.Services
 
             closingManager.Manager.InternalTransactions.Add(ClosingManager.CreateRakeInternalTransaction(closingManager.ManagerId, closingManager.RakeBruto, closingManager.Manager?.Name, closingManager.End, closingManagerId));
 
-            var nicknameDiscounts = ClosingManager.CreateRakeNicknameReleases(closingManager.ClosingNicknames, closingManager.Manager.Name, closingManager.End, closingManager.Id);
+            var nicknameDiscounts = ClosingManager.CreateRakeNicknameReleases(closingManager.ManagerId, closingManager.ClosingNicknames, closingManager.Manager.Name, closingManager.End, closingManager.Id);
 
             closingManager.TotalRakeDiscounts = nicknameDiscounts.Sum(x => x.Value);
 
@@ -65,7 +65,8 @@ namespace SFManagement.Services
                     Coins = totalBalance > decimal.Zero ? totalBalance : decimal.Negate(totalBalance),
                     Date = closingManager.End,
                     ApprovedAt = DateTime.Now,
-                    ClosingManagerId = closingManagerId
+                    ClosingManagerId = closingManagerId,
+                    ManagerId = closingManager.ManagerId
                 });
             }
 
