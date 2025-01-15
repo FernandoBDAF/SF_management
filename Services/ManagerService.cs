@@ -13,13 +13,13 @@ namespace SFManagement.Services
 
         public async Task<BalanceResponse> GetBalance(Guid managerId)
         {
-            var manager = (await context.Managers.Include(x => x.Wallets).ThenInclude(x => x.Transactions).Include(x => x.InternalTransactions).Include(x => x.WalletTransactions).FirstOrDefaultAsync(x => x.Id == managerId));
+            var manager = (await context.Managers.Include(x => x.BankTransactions).Include(x => x.Wallets).ThenInclude(x => x.Transactions).Include(x => x.InternalTransactions).Include(x => x.WalletTransactions).FirstOrDefaultAsync(x => x.Id == managerId));
             return new BalanceResponse(manager);
         }
 
         public async Task<ProfitResponse> GetProfit(Guid managerId, DateTime? start, DateTime? end)
         {
-            var manager = (await context.Managers.Include(x => x.ClosingManagers).ThenInclude(x => x.InternalTransactions).Include(x => x.Wallets).ThenInclude(x => x.Transactions).Include(x => x.InternalTransactions).Include(x => x.WalletTransactions).FirstOrDefaultAsync(x => x.Id == managerId));
+            var manager = (await context.Managers.Include(x => x.BankTransactions).Include(x => x.ClosingManagers).ThenInclude(x => x.InternalTransactions).Include(x => x.Wallets).ThenInclude(x => x.Transactions).Include(x => x.InternalTransactions).Include(x => x.WalletTransactions).FirstOrDefaultAsync(x => x.Id == managerId));
 
             if (start.HasValue && end.HasValue)
             {
