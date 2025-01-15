@@ -71,7 +71,8 @@ namespace SFManagement.Services
                         Date = closingManager.End,
                         ApprovedAt = DateTime.Now,
                         ClosingManagerId = closingManagerId,
-                        ManagerId = closingManager.ManagerId
+                        ManagerId = closingManager.ManagerId,
+                        ExchangeRate = 1
                     });
                 }
             }
