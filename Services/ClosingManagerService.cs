@@ -44,7 +44,10 @@ namespace SFManagement.Services
             closingManager.RakeBruto = ClosingManager.CalcRake(closingManager.ClosingNicknames, closingManager.ClosingWallets);
             closingManager.TotalBalance = closingManager.ClosingNicknames.Sum(x => x.Balance);
 
-            closingManager.Manager.InternalTransactions.Add(ClosingManager.CreateRakeInternalTransaction(closingManager.ManagerId, closingManager.RakeBruto, closingManager.Manager?.Name, closingManager.End, closingManagerId));
+            if (closingManager.RakeBruto != decimal.Zero)
+            {
+                closingManager.Manager.InternalTransactions.Add(ClosingManager.CreateRakeInternalTransaction(closingManager.ManagerId, closingManager.RakeBruto, closingManager.Manager?.Name, closingManager.End, closingManagerId));
+            }
 
             var nicknameDiscounts = ClosingManager.CreateRakeNicknameReleases(closingManager.ManagerId, closingManager.ClosingNicknames, closingManager.Manager.Name, closingManager.End, closingManager.Id);
 
@@ -58,16 +61,19 @@ namespace SFManagement.Services
             {
                 var totalBalance = closingManager.ClosingNicknames.Where(x => x.Nickname.WalletId == wallet.Id).Sum(x => x.Balance);
 
-                wallet.InternalTransactions.Add(new InternalTransaction()
+                if (totalBalance != decimal.Zero)
                 {
-                    InternalTransactionType = totalBalance > decimal.Zero ? Enums.InternalTransactionType.Income : Enums.InternalTransactionType.Expense,
-                    Description = $"Fechamento balanço clube {wallet.Name}",
-                    Coins = totalBalance > decimal.Zero ? totalBalance : decimal.Negate(totalBalance),
-                    Date = closingManager.End,
-                    ApprovedAt = DateTime.Now,
-                    ClosingManagerId = closingManagerId,
-                    ManagerId = closingManager.ManagerId
-                });
+                    wallet.InternalTransactions.Add(new InternalTransaction()
+                    {
+                        InternalTransactionType = totalBalance > decimal.Zero ? Enums.InternalTransactionType.Income : Enums.InternalTransactionType.Expense,
+                        Description = $"Fechamento balanço clube {wallet.Name}",
+                        Coins = totalBalance > decimal.Zero ? totalBalance : decimal.Negate(totalBalance),
+                        Date = closingManager.End,
+                        ApprovedAt = DateTime.Now,
+                        ClosingManagerId = closingManagerId,
+                        ManagerId = closingManager.ManagerId
+                    });
+                }
             }
 
             await context.SaveChangesAsync();

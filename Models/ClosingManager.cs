@@ -73,31 +73,37 @@ namespace SFManagement.Models
                     var rakebackParent = closingNickname.Rake * (closingNickname.FatherPercentual / 100);
                     rakeback = closingNickname.Rake * ((closingNickname.Rakeback - closingNickname.FatherPercentual) / 100);
 
+                    if (rakebackParent != decimal.Zero)
+                    {
+                        list.Add(new InternalTransaction
+                        {
+                            Date = closureEnd,
+                            Description = $"{managerName} - Rakeback (PAI) - {closingNickname.Nickname.Name}",
+                            Value = rakebackParent,
+                            ClientId = closingNickname.FatherNicknameId,
+                            ManagerId = managerId,
+                            InternalTransactionType = Enums.InternalTransactionType.Income,
+                            ApprovedAt = DateTime.Now,
+                            ClosingManagerId = closingManagerId,
+                            IsProfit = true
+                        });
+                    }
+                }
+
+                if (rakeback != decimal.Zero)
+                {
                     list.Add(new InternalTransaction
                     {
                         Date = closureEnd,
-                        Description = $"{managerName} - Rakeback (PAI) - {closingNickname.Nickname.Name}",
-                        Value = rakebackParent,
-                        ClientId = closingNickname.FatherNicknameId,
-                        ManagerId = managerId,
+                        Description = $"{managerName} - Rakeback - {closingNickname.Nickname.Name}",
                         InternalTransactionType = Enums.InternalTransactionType.Income,
+                        Value = rakeback,
+                        ClientId = closingNickname.Nickname.ClientId,
                         ApprovedAt = DateTime.Now,
                         ClosingManagerId = closingManagerId,
                         IsProfit = true
                     });
                 }
-
-                list.Add(new InternalTransaction
-                {
-                    Date = closureEnd,
-                    Description = $"{managerName} - Rakeback - {closingNickname.Nickname.Name}",
-                    InternalTransactionType = Enums.InternalTransactionType.Income,
-                    Value = rakeback,
-                    ClientId = closingNickname.Nickname.ClientId,
-                    ApprovedAt = DateTime.Now,
-                    ClosingManagerId = closingManagerId,
-                    IsProfit = true
-                });
             }
 
             return list;
