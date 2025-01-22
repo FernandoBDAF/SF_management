@@ -190,6 +190,8 @@ namespace SFManagement.Services
 
         public async Task CalcAvgRate(Manager manager, DateTime date)
         {
+            //TODO: SETAR O AVG RATE PARA CLIENTES ZERADOS.
+
             var queryWalletTransactions = context.WalletTransactions.AsNoTracking().Where(x => !x.DeletedAt.HasValue && x.ClientId.HasValue && x.ManagerId == manager.Id);
 
             var queryWalletTransactionsCurrentDate = queryWalletTransactions.Where(x => x.Date.Date == date.Date);
