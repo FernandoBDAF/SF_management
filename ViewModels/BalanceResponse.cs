@@ -43,7 +43,7 @@ namespace SFManagement.ViewModels
             Coins += wallet.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => x.InternalTransactionType == Enums.InternalTransactionType.Income ? decimal.Negate(x.Coins ?? decimal.Zero) : x.Coins ?? decimal.Zero);
         }
 
-        public BalanceResponse(Manager manager)
+        public BalanceResponse(Manager manager, AvgRate avgRate)
         {
             Coins = manager.Wallets.Sum(x => new BalanceResponse(x).Coins);
 
@@ -61,11 +61,9 @@ namespace SFManagement.ViewModels
 
             var walletTransactions = manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)));
 
-            if (walletTransactions.Any())
+            if (avgRate != null)
             {
-                var lastTransaction = walletTransactions.OrderByDescending(x => x.Date).FirstOrDefault();
-
-                AverateRate = lastTransaction.AverateRate;
+                AverateRate = avgRate.Value;
             }
             else
             {

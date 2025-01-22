@@ -21,6 +21,8 @@ namespace SFManagement.Models
 
         public virtual List<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
 
+        public virtual List<AvgRate> AvgRates { get; set; } = new List<AvgRate>();
+
         [Precision(18, 2)]
         public decimal InitialValue { get; set; }
 

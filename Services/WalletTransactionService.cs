@@ -182,57 +182,50 @@ namespace SFManagement.Services
         {
             if (obj.ManagerId.HasValue)
             {
-                var manager = await context.Managers.FirstOrDefaultAsync(x => x.Id == obj.ManagerId);
-
-                var queryWalletTransactions = context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)) && x.ManagerId == obj.ManagerId).OrderByDescending(x => !x.DeletedAt.HasValue).ThenBy(x => x.WalletTransactionType);
-
-                obj = await CalcFinance(queryWalletTransactions, manager, obj);
-
-                context.WalletTransactions.Update(obj);
-
-                foreach (var walletTransaction in await queryWalletTransactions.Where(x => x.Date >= obj.Date && x.Id != obj.Id).ToListAsync())
-                {
-                    context.WalletTransactions.Update(await CalcFinance(queryWalletTransactions, manager, walletTransaction));
-                }
-
-                await context.SaveChangesAsync();
+                await CalcFinance(await context.Managers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == obj.ManagerId), obj.Date);
             }
 
             return obj;
         }
 
-        public async Task<WalletTransaction> CalcFinance(IOrderedQueryable<WalletTransaction> queryWalletTransactions, Manager manager, WalletTransaction obj)
+        public async Task CalcFinance(Manager manager, DateTime date)
         {
-            var lastTransaction = await queryWalletTransactions.FirstOrDefaultAsync(x => x.Date <= obj.Date && x.Id != obj.Id);
+            var queryWalletTransactions = context.WalletTransactions.AsNoTracking().Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)) && x.ManagerId == manager.Id);
 
-            if (obj.WalletTransactionType == Enums.WalletTransactionType.Expense)
+            var queryWalletTransactionsCurrentDate = queryWalletTransactions.Where(x => x.Date.Date == date.Date);
+
+            var lastAvg = await context.AvgRates.AsNoTracking().OrderByDescending(x => x.Date).Where(x => x.Date.Date < date.Date).FirstOrDefaultAsync();
+            lastAvg = lastAvg ?? new AvgRate();
+
+            var currentAvg = await context.AvgRates.FirstOrDefaultAsync(x => x.Date.Date == date.Date && !x.DeletedAt.HasValue && x.ManagerId == manager.Id);
+            currentAvg = currentAvg ?? new AvgRate { Date = date.Date };
+
+            var balanceCoins = await queryWalletTransactions.Where(x => x.Date.Date <= date.Date).SumAsync(x => x.Coins) + manager.InitialCoins;
+
+            if (lastAvg == null)
             {
-                if (lastTransaction == null)
-                {
-                    obj.AverateRate = ((manager.InitialCoins * manager.InitialExchangeRate) + (obj.Coins * obj.ExchangeRate)) / (manager.InitialCoins + obj.Coins);
-                }
-                else
-                {
-                    var balanceCoins = await queryWalletTransactions.Where(x => x.Date <= obj.Date && x.Id != obj.Id).SumAsync(x => x.Coins) + manager.InitialCoins;
-
-                    obj.AverateRate = ((balanceCoins * lastTransaction.AverateRate) + (obj.Coins * obj.ExchangeRate)) / (balanceCoins + obj.Coins);
-                }
+                currentAvg.Value = (manager.InitialCoins * manager.InitialExchangeRate) / (manager.InitialCoins);
             }
-            else if (obj.WalletTransactionType == Enums.WalletTransactionType.Income)
+            else
             {
-                if (lastTransaction == null)
-                {
-                    obj.AverateRate = manager.InitialExchangeRate;
-                }
-                else
-                {
-                    obj.AverateRate = lastTransaction.AverateRate;
-                }
-
-                obj.Profit = (obj.ExchangeRate - obj.AverateRate) * obj.Coins;
+                currentAvg.Value = (balanceCoins * lastAvg.Value) / (balanceCoins);
             }
 
-            return obj;
+            if (currentAvg.Id == Guid.Empty)
+            {
+                await context.AvgRates.AddAsync(currentAvg);
+            }
+            else
+            {
+                context.AvgRates.Update(currentAvg);
+            }
+
+            await context.SaveChangesAsync();
+
+            foreach (var group in queryWalletTransactions.GroupBy(x => x.Date.Date).Where(x => x.Key > date))
+            {
+                await CalcFinance(manager, group.Key);
+            }
         }
     }
 }

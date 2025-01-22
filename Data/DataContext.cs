@@ -43,6 +43,8 @@ namespace SFManagement.Data
 
         public DbSet<InternalTransaction> InternalTransactions { get; set; }
 
+        public DbSet<AvgRate> AvgRates { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
