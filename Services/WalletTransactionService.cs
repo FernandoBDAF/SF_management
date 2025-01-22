@@ -190,7 +190,7 @@ namespace SFManagement.Services
 
         public async Task CalcAvgRate(Manager manager, DateTime date)
         {
-            var queryWalletTransactions = context.WalletTransactions.AsNoTracking().Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)) && x.ManagerId == manager.Id);
+            var queryWalletTransactions = context.WalletTransactions.AsNoTracking().Where(x => !x.DeletedAt.HasValue && x.ManagerId == manager.Id);
 
             var queryWalletTransactionsCurrentDate = queryWalletTransactions.Where(x => x.Date.Date == date.Date);
 

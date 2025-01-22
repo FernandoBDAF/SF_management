@@ -58,6 +58,9 @@ namespace SFManagement
             CreateMap<InternalTransactionRequest, InternalTransaction>();
 
             CreateMap<ApplicationUser, UserResponse>();
+
+            CreateMap<AvgRate, AvgRateResponse>();
+            CreateMap<AvgRateRequest, AvgRate>();
         }
     }
 }
