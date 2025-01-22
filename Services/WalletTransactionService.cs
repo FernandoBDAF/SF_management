@@ -182,13 +182,13 @@ namespace SFManagement.Services
         {
             if (obj.ManagerId.HasValue)
             {
-                await CalcFinance(await context.Managers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == obj.ManagerId), obj.Date);
+                await CalcAvgRate(await context.Managers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == obj.ManagerId), obj.Date);
             }
 
             return obj;
         }
 
-        public async Task CalcFinance(Manager manager, DateTime date)
+        public async Task CalcAvgRate(Manager manager, DateTime date)
         {
             var queryWalletTransactions = context.WalletTransactions.AsNoTracking().Where(x => !x.DeletedAt.HasValue && (!x.TagId.HasValue) && ((!x.ApprovedAt.HasValue) || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue)) && x.ManagerId == manager.Id);
 
@@ -200,15 +200,18 @@ namespace SFManagement.Services
             var currentAvg = await context.AvgRates.FirstOrDefaultAsync(x => x.Date.Date == date.Date && !x.DeletedAt.HasValue && x.ManagerId == manager.Id);
             currentAvg = currentAvg ?? new AvgRate { Date = date.Date };
 
-            var balanceCoins = await queryWalletTransactions.Where(x => x.Date.Date <= date.Date).SumAsync(x => x.Coins) + manager.InitialCoins;
+            var currentBalanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Income && x.Date.Date == date.Date).SumAsync(x => x.Coins);
+            var currentBalanceTotal = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Income && x.Date.Date == date.Date).SumAsync(x => x.Coins * x.ExchangeRate);
+
+            var balanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Income && x.Date.Date < date.Date).SumAsync(x => x.Coins) + manager.InitialCoins;
 
             if (lastAvg == null)
             {
-                currentAvg.Value = (manager.InitialCoins * manager.InitialExchangeRate) / (manager.InitialCoins);
+                currentAvg.Value = ((manager.InitialCoins * manager.InitialExchangeRate) + currentBalanceTotal) / (manager.InitialCoins + currentBalanceCoins);
             }
             else
             {
-                currentAvg.Value = (balanceCoins * lastAvg.Value) / (balanceCoins);
+                currentAvg.Value = ((balanceCoins * lastAvg.Value) + currentBalanceTotal) / (balanceCoins + currentBalanceCoins);
             }
 
             if (currentAvg.Id == Guid.Empty)
@@ -222,9 +225,9 @@ namespace SFManagement.Services
 
             await context.SaveChangesAsync();
 
-            foreach (var group in queryWalletTransactions.GroupBy(x => x.Date.Date).Where(x => x.Key > date))
+            foreach (var group in queryWalletTransactions.Where(x => x.Date > date).OrderBy(x => x.Date).GroupBy(x => x.Date.Date))
             {
-                await CalcFinance(manager, group.Key);
+                await CalcAvgRate(manager, group.Key);
             }
         }
     }
