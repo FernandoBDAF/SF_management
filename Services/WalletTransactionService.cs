@@ -192,7 +192,7 @@ namespace SFManagement.Services
         {
             //TODO: SETAR O AVG RATE PARA CLIENTES ZERADOS.
 
-            var queryWalletTransactions = context.WalletTransactions.AsNoTracking().Where(x => !x.DeletedAt.HasValue && x.ClientId.HasValue && x.ManagerId == manager.Id);
+            var queryWalletTransactions = context.WalletTransactions.AsNoTracking().Where(x => !x.DeletedAt.HasValue && x.ManagerId == manager.Id);
 
             var queryWalletTransactionsCurrentDate = queryWalletTransactions.Where(x => x.Date.Date == date.Date);
 
@@ -202,10 +202,10 @@ namespace SFManagement.Services
             var currentAvg = await context.AvgRates.FirstOrDefaultAsync(x => x.Date.Date == date.Date && !x.DeletedAt.HasValue && x.ManagerId == manager.Id);
             currentAvg = currentAvg ?? new AvgRate { Date = date.Date, ManagerId = manager.Id };
 
-            var currentBalanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date == date.Date).SumAsync(x => x.Coins);
-            var currentBalanceTotal = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date == date.Date).SumAsync(x => x.Coins * x.ExchangeRate);
+            var currentBalanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date == date.Date && x.ClientId.HasValue).SumAsync(x => x.Coins);
+            var currentBalanceTotal = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date == date.Date && x.ClientId.HasValue).SumAsync(x => x.Coins * x.ExchangeRate);
 
-            var balanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date < date.Date).SumAsync(x => x.Coins) + manager.InitialCoins;
+            var balanceCoins = (await queryWalletTransactions.Where(x => x.Date.Date < date.Date).ToListAsync()).Sum(x => x.WalletTransactionType == Enums.WalletTransactionType.Income ? decimal.Negate(x.Coins) : x.Coins) + manager.InitialCoins;
 
             if (lastAvg.Id == Guid.Empty)
             {
