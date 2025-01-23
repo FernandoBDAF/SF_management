@@ -233,9 +233,12 @@ namespace SFManagement.Services
 
             await context.SaveChangesAsync();
 
-            foreach (var group in queryWalletTransactions.Where(x => x.Date > date).OrderBy(x => x.Date).GroupBy(x => x.Date.Date))
+
+            var nextWalletTransaction = queryWalletTransactions.Where(x => x.Date > date).OrderBy(x => x.Date).FirstOrDefault();
+
+            if (nextWalletTransaction != null)
             {
-                await CalcAvgRate(manager, group.Key);
+                await CalcAvgRate(manager, nextWalletTransaction.Date);
             }
         }
     }
