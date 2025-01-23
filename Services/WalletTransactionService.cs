@@ -200,20 +200,26 @@ namespace SFManagement.Services
             lastAvg = lastAvg ?? new AvgRate();
 
             var currentAvg = await context.AvgRates.FirstOrDefaultAsync(x => x.Date.Date == date.Date && !x.DeletedAt.HasValue && x.ManagerId == manager.Id);
-            currentAvg = currentAvg ?? new AvgRate { Date = date.Date };
+            currentAvg = currentAvg ?? new AvgRate { Date = date.Date, ManagerId = manager.Id };
 
-            var currentBalanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Income && x.Date.Date == date.Date).SumAsync(x => x.Coins);
-            var currentBalanceTotal = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Income && x.Date.Date == date.Date).SumAsync(x => x.Coins * x.ExchangeRate);
+            var currentBalanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date == date.Date).SumAsync(x => x.Coins);
+            var currentBalanceTotal = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date == date.Date).SumAsync(x => x.Coins * x.ExchangeRate);
 
-            var balanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Income && x.Date.Date < date.Date).SumAsync(x => x.Coins) + manager.InitialCoins;
+            var balanceCoins = await queryWalletTransactions.Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date < date.Date).SumAsync(x => x.Coins) + manager.InitialCoins;
 
-            if (lastAvg == null)
+            if (lastAvg.Id == Guid.Empty)
             {
-                currentAvg.Value = ((manager.InitialCoins * manager.InitialExchangeRate) + currentBalanceTotal) / (manager.InitialCoins + currentBalanceCoins);
+                if ((manager.InitialCoins + currentBalanceCoins) > decimal.Zero)
+                {
+                    currentAvg.Value = ((manager.InitialCoins * manager.InitialExchangeRate) + currentBalanceTotal) / (manager.InitialCoins + currentBalanceCoins);
+                }
             }
             else
             {
-                currentAvg.Value = ((balanceCoins * lastAvg.Value) + currentBalanceTotal) / (balanceCoins + currentBalanceCoins);
+                if ((balanceCoins + currentBalanceCoins) > decimal.Zero)
+                {
+                    currentAvg.Value = ((balanceCoins * lastAvg.Value) + currentBalanceTotal) / (balanceCoins + currentBalanceCoins);
+                }
             }
 
             if (currentAvg.Id == Guid.Empty)
