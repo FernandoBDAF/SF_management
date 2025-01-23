@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
 using SFManagement.Services;
@@ -6,6 +7,7 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
+    [Authorize]
     public class AvgRateController : BaseApiController<AvgRate, AvgRateRequest, AvgRateResponse>
     {
         private readonly AvgRateService _avgService;
