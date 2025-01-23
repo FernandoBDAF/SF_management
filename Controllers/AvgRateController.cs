@@ -8,18 +8,31 @@ namespace SFManagement.Controllers
 {
     public class AvgRateController : BaseApiController<AvgRate, AvgRateRequest, AvgRateResponse>
     {
-        private readonly AvgService _avgService;
+        private readonly AvgRateService _avgService;
+        private readonly WalletTransactionService _walletTransactionService;
 
-        public AvgRateController(BaseService<AvgRate> service, IMapper mapper, AvgService avgService) : base(service, mapper)
+        public AvgRateController(BaseService<AvgRate> service, IMapper mapper, AvgRateService avgService, WalletTransactionService walletTransactionService) : base(service, mapper)
         {
             _avgService = avgService;
+            _walletTransactionService = walletTransactionService;
         }
 
-        [HttpGet]
+        [HttpPut]
         [Route("reset/{managerId}")]
         public async Task Reset(Guid managerId)
         {
             await _avgService.Reset(managerId);
+            await _walletTransactionService.SetExchangeRate(managerId);
+            await _walletTransactionService.CalcProfits(managerId);
+        }
+
+        [HttpPut]
+        [Route("{managerId}/{referenceDate}")]
+        public async Task Calc(Guid managerId, DateTime referenceDate)
+        {
+            await _avgService.Calc(managerId, referenceDate);
+            await _walletTransactionService.SetExchangeRate(managerId);
+            await _walletTransactionService.CalcProfits(managerId);
         }
     }
 }

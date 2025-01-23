@@ -87,8 +87,8 @@ builder.Services.AddScoped<ClosingManagerService>();
 builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
 builder.Services.AddScoped<InternalTransactionService>();
 builder.Services.AddScoped<UserResolverService>();
-builder.Services.AddScoped<BaseService<AvgRate>, AvgService>();
-builder.Services.AddScoped<AvgService>();
+builder.Services.AddScoped<BaseService<AvgRate>, AvgRateService>();
+builder.Services.AddScoped<AvgRateService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

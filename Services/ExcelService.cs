@@ -82,11 +82,6 @@ namespace SFManagement.Services
             await context.Excels.AddAsync(excel);
             await context.SaveChangesAsync();
 
-            foreach (var walletTransaction in excel.WalletTransactions)
-            {
-                await _walletTransactionService.ExecuteFinanceCalc(walletTransaction);
-            }
-
             return _mapper.Map<List<WalletTransactionResponse>>(excel.WalletTransactions);
         }
 
@@ -152,11 +147,6 @@ namespace SFManagement.Services
 
             await context.Excels.AddAsync(excel);
             await context.SaveChangesAsync();
-
-            foreach (var walletTransaction in excel.WalletTransactions)
-            {
-                await _walletTransactionService.ExecuteFinanceCalc(walletTransaction);
-            }
 
             return _mapper.Map<List<WalletTransactionResponse>>(excel.WalletTransactions);
         }

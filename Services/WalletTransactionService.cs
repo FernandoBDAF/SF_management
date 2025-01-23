@@ -21,8 +21,6 @@ namespace SFManagement.Services
         public override async Task<WalletTransaction> Add(WalletTransaction obj)
         {
             obj = await base.Add(obj);
-            obj = await ExecuteFinanceCalc(obj);
-
             return obj;
         }
 
@@ -49,8 +47,6 @@ namespace SFManagement.Services
 
             context.WalletTransactions.Update(walletTransaction);
             await context.SaveChangesAsync();
-
-            walletTransaction = await ExecuteFinanceCalc(walletTransaction);
 
             return _mapper.Map<WalletTransactionResponse>(walletTransaction);
         }
@@ -178,20 +174,8 @@ namespace SFManagement.Services
             return (fromWalletTransaction, toWalletTransaction);
         }
 
-        public async Task<WalletTransaction> ExecuteFinanceCalc(WalletTransaction obj)
-        {
-            if (obj.ManagerId.HasValue)
-            {
-                await CalcAvgRate(await context.Managers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == obj.ManagerId), obj.Date);
-            }
-
-            return obj;
-        }
-
         public async Task CalcAvgRate(Manager manager, DateTime date)
         {
-            //TODO: SETAR O AVG RATE PARA CLIENTES ZERADOS.
-
             var queryWalletTransactions = context.WalletTransactions.AsNoTracking().Where(x => !x.DeletedAt.HasValue && x.ManagerId == manager.Id);
 
             var queryWalletTransactionsCurrentDate = queryWalletTransactions.Where(x => x.Date.Date == date.Date);
@@ -240,6 +224,39 @@ namespace SFManagement.Services
             {
                 await CalcAvgRate(manager, nextWalletTransaction.Date);
             }
+        }
+
+        public async Task SetExchangeRate(Guid managerId)
+        {
+            var walletTransactions = await context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == managerId && !x.ClientId.HasValue).ToListAsync();
+
+            foreach (var group in walletTransactions.GroupBy(x => x.Date.Date))
+            {
+                var avgRate = await context.AvgRates.OrderByDescending(x => x.Date).FirstOrDefaultAsync(x => x.Date.Date <= group.Key.Date && x.ManagerId == managerId);
+
+                foreach (var walletTransaction in group)
+                {
+                    walletTransaction.ExchangeRate = avgRate.Value;
+                    walletTransaction.Value = walletTransaction.Coins * walletTransaction.ExchangeRate;
+
+                    context.WalletTransactions.Update(walletTransaction);
+                }
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task CalcProfits(Guid managerId)
+        {
+            foreach (var walletTransaction in await context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.WalletTransactionType == Enums.WalletTransactionType.Income && x.ManagerId == managerId).ToListAsync())
+            {
+                var avgRate = await context.AvgRates.OrderByDescending(x => x.Date).FirstOrDefaultAsync(x => x.Date.Date <= walletTransaction.Date.Date && x.ManagerId == walletTransaction.ManagerId);
+
+                walletTransaction.Profit = (walletTransaction.ExchangeRate - avgRate.Value) * walletTransaction.Coins;
+
+                await context.SaveChangesAsync();
+            }
+
         }
     }
 }
