@@ -65,14 +65,15 @@ namespace SFManagement.Services
                 {
                     wallet.InternalTransactions.Add(new InternalTransaction()
                     {
-                        InternalTransactionType = totalBalance > decimal.Zero ? Enums.InternalTransactionType.Income : Enums.InternalTransactionType.Expense,
+                        InternalTransactionType = totalBalance > decimal.Zero ? Enums.InternalTransactionType.Expense : Enums.InternalTransactionType.Income,
                         Description = $"Fechamento balanço clube {wallet.Name}",
                         Coins = totalBalance > decimal.Zero ? totalBalance : decimal.Negate(totalBalance),
                         Date = closingManager.End,
                         ApprovedAt = DateTime.Now,
                         ClosingManagerId = closingManagerId,
                         ManagerId = closingManager.ManagerId,
-                        ExchangeRate = 1
+                        ExchangeRate = 1,
+                        Value = totalBalance > decimal.Zero ? totalBalance : decimal.Negate(totalBalance)
                     });
                 }
             }
