@@ -19,7 +19,7 @@ namespace SFManagement.Controllers
             _walletTransactionService = walletTransactionService;
         }
 
-        [HttpPut]
+        [HttpGet]
         [Route("reset/{managerId}")]
         public async Task Reset(Guid managerId)
         {
@@ -28,7 +28,7 @@ namespace SFManagement.Controllers
             await _walletTransactionService.CalcProfits(managerId);
         }
 
-        [HttpPut]
+        [HttpGet]
         [Route("{managerId}/{referenceDate}")]
         public async Task Calc(Guid managerId, DateTime referenceDate)
         {
