@@ -1,0 +1,26 @@
+name: "Cleanup Artifacts"
+
+on:
+  workflow_dispatch: # This allows manual triggering
+
+jobs:
+  delete-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete all artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const response = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            for (const artifact of response.data.artifacts) {
+              console.log('Deleting artifact:', artifact.name);
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+              });
+            }
