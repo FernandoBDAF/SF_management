@@ -28,17 +28,12 @@ jobs:
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
-      - name: Zip artifact for deployment
-        run: |
-          cd ${{env.DOTNET_ROOT}}/myapp
-          zip -r ../myapp.zip ./*
-
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp.zip
-          retention-days: 1
+          path: ${{env.DOTNET_ROOT}}/myapp
+          retention-days: 1 # Only keep artifacts for 1 day
 
   deploy:
     runs-on: windows-latest
@@ -69,8 +64,3 @@ jobs:
           app-name: "sfmanagement-api-hmg"
           slot-name: "Production"
           package: .
-
-      - name: Unzip artifact for deployment
-        run: |
-          unzip myapp.zip
-          rm myapp.zip
