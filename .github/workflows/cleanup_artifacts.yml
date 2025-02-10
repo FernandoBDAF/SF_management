@@ -1,7 +1,13 @@
-name: "Cleanup Artifacts"
+name: Cleanup Artifacts
 
 on:
-  workflow_dispatch: # This allows manual triggering
+  workflow_dispatch:
+  push:
+    branches:
+      - none # This ensures it won't run automatically on pushes
+
+permissions:
+  actions: write # Add permissions explicitly
 
 jobs:
   delete-artifacts:
