@@ -11,11 +11,16 @@ namespace SFManagement.Services
         {
         }
 
-        public async Task<BalanceResponse> GetBalance(Guid bankId)
+        public async Task<BalanceResponse> GetBalance(Guid bankId, DateTime? date)
         {
-            var bank = await context.Banks.Include(x => x.BankTransactions).Include(x => x.InternalTransactions).Include(x => x.InternalTransactions).FirstOrDefaultAsync(x => x.Id == bankId);
+            var now = DateTime.Now;
+            if (!date.HasValue || date.Value.Year == 1)
+            {
+                date = now;
+            }
+            var bank = await context.Banks.Include(x => x.BankTransactions).Include(x => x.InternalTransactions).FirstOrDefaultAsync(x => x.Id == bankId);
 
-            return new BalanceResponse(bank.BankTransactions, bank.InternalTransactions, bank.InitialValue);
+            return new BalanceResponse(bank.BankTransactions,bank.InternalTransactions, bank.InitialValue, date);
         }
 
 

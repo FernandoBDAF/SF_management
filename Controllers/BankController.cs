@@ -23,7 +23,11 @@ namespace SFManagement.Controllers
 
         [HttpGet]
         [Route("balance/{bankId}")]
-        public async Task<BalanceResponse> Balance(Guid bankId) => await _bankService.GetBalance(bankId);
+        public async Task<BalanceResponse> Balance(Guid bankId) => await _bankService.GetBalance(bankId, null);
+        
+        [HttpPost]
+        [Route("balance/{bankId}")]
+        public async Task<BalanceResponse> Balance(Guid bankId, BalanceRequest request) => await _bankService.GetBalance(bankId, request.Date);
 
         [HttpGet]
         [Route("transactions/{bankId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
