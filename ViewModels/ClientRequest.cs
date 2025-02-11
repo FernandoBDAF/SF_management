@@ -27,5 +27,7 @@
         public DateTime? Birthday { get; set; }
 
         public decimal? InitialValue { get; set; }
+        
+        public DateTime? Date { get; set; }
     }
 }

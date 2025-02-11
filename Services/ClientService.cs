@@ -15,14 +15,19 @@ namespace SFManagement.Services
             _mapper = mapper;
         }
 
-        public async Task<BalanceResponse> GetBalance(Guid clientId)
+        public async Task<BalanceResponse> GetBalance(Guid clientId,DateTime? date )
         {
+            var now = DateTime.Now;
+            if (!date.HasValue || date.Value.Year == 1)
+            {
+                date = now;
+            }
             var client = (await context.Clients.Include(x => x.BankTransactions)
                                                .Include(x => x.WalletTransactions)
                                                .Include(x => x.InternalTransactions)
-                                               .FirstOrDefaultAsync(x => x.Id == clientId));
+                                               .FirstOrDefaultAsync(x => x.Id == clientId));    
 
-            return new BalanceResponse(client);
+            return new BalanceResponse(client, date);
         }
 
         public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)

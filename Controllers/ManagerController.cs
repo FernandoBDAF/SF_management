@@ -33,7 +33,11 @@ namespace SFManagement.Controllers
 
         [HttpGet]
         [Route("balance/{managerId}")]
-        public async Task<BalanceResponse> Balance(Guid managerId) => await _managerService.GetBalance(managerId);
+        public async Task<BalanceResponse> Balance(Guid managerId) => await _managerService.GetBalance(managerId, null);
+        
+        [HttpPost]
+        [Route("balance/{managerId}")]
+        public async Task<BalanceResponse> Balance(Guid managerId, BalanceRequest request) => await _managerService.GetBalance(managerId, request.Date);
 
         [HttpGet]
         [Route("profit/{managerId}")]
