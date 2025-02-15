@@ -8,7 +8,7 @@ public class BalanceResponse
     public BalanceResponse(IEnumerable<BankTransaction> bankTransactions,
         IEnumerable<InternalTransaction> internalTransaction, decimal initialValue, DateTime? date)
     {
-        Value += initialValue;
+        Value = initialValue;
         
         Value = bankTransactions
             .Where(x => x.Date < date && !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.OfxId.HasValue) ||
@@ -61,7 +61,7 @@ public class BalanceResponse
 
     public BalanceResponse(Wallet wallet, DateTime? date)
     {
-        Coins += wallet.IntialCoins;
+        Coins = wallet.IntialCoins;
 
         Coins += wallet.Transactions
             .Where(x => x.Date < date && !x.DeletedAt.HasValue &&
