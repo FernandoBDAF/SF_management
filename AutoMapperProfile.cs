@@ -41,6 +41,10 @@ namespace SFManagement
 
             CreateMap<WalletTransaction, WalletTransactionResponse>();
             CreateMap<WalletTransactionRequest, WalletTransaction>();
+            
+            CreateMap<(WalletTransaction from, WalletTransaction to), (WalletTransactionResponse from, WalletTransactionResponse to)>()
+                .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
+                .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
 
             CreateMap<Excel, ExcelResponse>();
             CreateMap<ExcelRequest, Excel>();

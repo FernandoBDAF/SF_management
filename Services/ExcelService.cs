@@ -37,7 +37,7 @@ namespace SFManagement.Services
                 CreatedAt = DateTime.Now,
                 ManagerId = request.ManagerId,
                 FileName = request.PostFile.FileName,
-                FileType = walletTransactionType == WalletTransactionType.Income ? "Compra" : "Venda"
+                FileType = walletTransactionType == WalletTransactionType.Income ? "Venda" : "Compra"
             };
 
             var rows = this.ReadExcelFile(request.PostFile, new List<(int, string)> { (1, "Nickname"), (2, "Value"), (3, "Wallet"), (6, "CreatedAt"), (8, "Description") });
@@ -106,7 +106,7 @@ namespace SFManagement.Services
             foreach (var row in rows)
             {
                 var walletTransactionValue = Decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR"));
-                var walletTransactionType = walletTransactionValue > 0 ? WalletTransactionType.Income : WalletTransactionType.Expense;
+                var walletTransactionType = walletTransactionValue > 0 ? WalletTransactionType.Expense : WalletTransactionType.Income;
 
                 walletTransactionValue = walletTransactionValue > 0 ? walletTransactionValue : decimal.Negate(walletTransactionValue);
                 

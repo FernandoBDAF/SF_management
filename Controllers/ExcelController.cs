@@ -22,11 +22,11 @@ namespace SFManagement.Controllers
 
         [HttpPost]
         [Route("import-buy-transactions")]
-        public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ExcelRequest request) => await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Income);
+        public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ExcelRequest request) => await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Expense);
 
         [HttpPost]
         [Route("import-sell-transactions")]
-        public async Task<List<WalletTransactionResponse>> ImportSellTransactions(ExcelRequest request) => await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Expense);
+        public async Task<List<WalletTransactionResponse>> ImportSellTransactions(ExcelRequest request) => await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Income);
 
         [HttpPost]
         [Route("import-transfer-transactions")]
