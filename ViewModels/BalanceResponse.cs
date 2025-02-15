@@ -10,7 +10,7 @@ public class BalanceResponse
     {
         Value = initialValue;
         
-        Value = bankTransactions
+        Value += bankTransactions
             .Where(x => x.Date < date && !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.OfxId.HasValue) ||
                                                                    (x.ApprovedAt.HasValue && x.LinkedToId.HasValue) ||
                                                                    (x.ApprovedAt.HasValue && (x.ClientId.HasValue ||
