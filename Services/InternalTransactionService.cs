@@ -15,37 +15,68 @@ namespace SFManagement.Services
             _user = httpContextAccessor.HttpContext?.User;
         }
 
-        public async Task<List<InternalTransaction>> Transfer(Guid toId, Guid fromId, InternalTransactionTransferRequest obj)
+        public async Task<List<InternalTransaction>> Transfer(Guid toId, Guid fromId,
+            InternalTransactionTransferRequest obj)
         {
             var transferId = Guid.NewGuid();
 
-            var toInternalTransaction = new InternalTransaction()
+            // Validate recipient
+            var clientTo = await context.Clients.FirstOrDefaultAsync(x => x.Id == toId);
+            var managerTo = await context.Managers.FirstOrDefaultAsync(x => x.Id == toId);
+            if (clientTo == null && managerTo == null)
+            {
+                throw new Exception("Recipient not found - neither client nor manager exists");
+            }
+
+            // Validate sender
+            var clientFrom = await context.Clients.FirstOrDefaultAsync(x => x.Id == fromId);
+            var managerFrom = await context.Managers.FirstOrDefaultAsync(x => x.Id == fromId);
+            if (clientFrom == null && managerFrom == null)
+            {
+                throw new Exception("Sender not found - neither client nor manager exists");
+            }
+
+            // Create base transaction details
+            var baseTransaction = new
             {
                 Value = obj.Value,
                 Coins = obj.Coins,
                 ExchangeRate = obj.ExchangeRate,
-                ClientId = toId,
                 TransferId = transferId,
-                InternalTransactionType = Enums.InternalTransactionType.Income,
                 Date = obj.Date,
                 Description = obj.Description
             };
 
-            var fromInternalTransaction = new InternalTransaction()
+            // Create recipient transaction
+            var toInternalTransaction = new InternalTransaction
             {
-                Value = obj.Value,
-                Coins = obj.Coins,
-                ExchangeRate = obj.ExchangeRate,
-                ClientId = fromId,
-                TransferId = transferId,
+                Value = baseTransaction.Value,
+                Coins = baseTransaction.Coins,
+                ExchangeRate = baseTransaction.ExchangeRate,
+                TransferId = baseTransaction.TransferId,
+                Date = baseTransaction.Date,
+                Description = baseTransaction.Description,
+                InternalTransactionType = Enums.InternalTransactionType.Income,
+                ClientId = clientTo?.Id,
+                ManagerId = managerTo?.Id
+            };
+
+            // Create sender transaction
+            var fromInternalTransaction = new InternalTransaction
+            {
+                Value = baseTransaction.Value,
+                Coins = baseTransaction.Coins,
+                ExchangeRate = baseTransaction.ExchangeRate,
+                TransferId = baseTransaction.TransferId,
+                Date = baseTransaction.Date,
+                Description = baseTransaction.Description,
                 InternalTransactionType = Enums.InternalTransactionType.Expense,
-                Date = obj.Date,
-                Description = obj.Description
+                ClientId = clientFrom?.Id,
+                ManagerId = managerFrom?.Id
             };
 
             await _entity.AddAsync(toInternalTransaction);
             await _entity.AddAsync(fromInternalTransaction);
-
             await context.SaveChangesAsync();
 
             return new List<InternalTransaction> { toInternalTransaction, fromInternalTransaction };
