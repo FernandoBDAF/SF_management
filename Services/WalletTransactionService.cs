@@ -228,7 +228,7 @@ namespace SFManagement.Services
 
         public async Task SetExchangeRate(Guid managerId)
         {
-            var walletTransactions = await context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == managerId && !x.ClientId.HasValue).ToListAsync();
+            var walletTransactions = await context.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == managerId && !x.ClientId.HasValue && x.TagId.HasValue).ToListAsync();
 
             foreach (var group in walletTransactions.GroupBy(x => x.Date.Date))
             {
