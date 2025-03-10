@@ -11,7 +11,11 @@ namespace SFManagement.ViewModels
             switch (manager.ManagerType)
             {
                 case Enums.ManagerType.Default:
-                    Value = manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x => x.Profit);
+                    Value = manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
+                        (x.ApprovedAt.HasValue &&
+                         (x.LinkedToId.HasValue || x.ClientId.HasValue ||
+                          x.TagId.HasValue ||
+                          (x.ManagerId.HasValue && x.WalletId.HasValue))))).Sum(x => x.Profit);
                     break;
                 case Enums.ManagerType.Apps:
                     manager.ClosingManagers.Where(x => !x.DeletedAt.HasValue).Sum(x => x.InternalTransactions.Where(i => !i.DeletedAt.HasValue && i.IsProfit).Sum(i => i.InternalTransactionType == Enums.InternalTransactionType.Income ? decimal.Negate(i.Value) : i.Value));

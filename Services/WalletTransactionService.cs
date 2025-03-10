@@ -186,18 +186,20 @@ namespace SFManagement.Services
         {
             var queryWalletTransactions = context.WalletTransactions.AsNoTracking()
                 .Include(x => x.Wallet)
-                .Where(x => x.Wallet.ManagerId == manager.Id && !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
-                    (x.ApprovedAt.HasValue && (x.LinkedToId.HasValue || x.ClientId.HasValue ||
-                                               x.TagId.HasValue || (x.ManagerId.HasValue && x.WalletId.HasValue)))));
-            
+                .Where(x => x.Wallet.ManagerId == manager.Id && !x.DeletedAt.HasValue &&
+                            ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
+                             (x.ApprovedAt.HasValue && (x.LinkedToId.HasValue || x.ClientId.HasValue ||
+                                                        x.TagId.HasValue ||
+                                                        (x.ManagerId.HasValue && x.WalletId.HasValue)))));
+
             var len = queryWalletTransactions.Count();
-            
+
             var expenses = queryWalletTransactions.Where(x => x.WalletTransactionType == WalletTransactionType.Expense);
             var expensesTotal = expenses.Count();
-            
+
             var queryWalletTransactionsCurrentDate = queryWalletTransactions
                 .Where(x => x.Date.Date == date.Date);
-            
+
             var len2 = queryWalletTransactionsCurrentDate.Count();
 
             var lastAvg = await context.AvgRates.AsNoTracking().OrderByDescending(x => x.Date)
@@ -209,7 +211,8 @@ namespace SFManagement.Services
             currentAvg = currentAvg ?? new AvgRate { Date = date.Date, ManagerId = manager.Id };
 
             var currentBalanceCoins = await queryWalletTransactions.Where(x =>
-                x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date == date.Date).SumAsync(x => x.Coins);
+                    x.WalletTransactionType == Enums.WalletTransactionType.Expense && x.Date.Date == date.Date)
+                .SumAsync(x => x.Coins);
             var currentBalanceTotal = await queryWalletTransactions
                 .Where(x => x.WalletTransactionType == Enums.WalletTransactionType.Expense &&
                             x.Date.Date == date.Date).SumAsync(x => x.Coins * x.ExchangeRate);
@@ -282,12 +285,17 @@ namespace SFManagement.Services
 
         public async Task CalcProfits(Guid managerId)
         {
-            foreach (var walletTransaction in await context.WalletTransactions.Where(x =>
-                         !x.DeletedAt.HasValue && x.WalletTransactionType == Enums.WalletTransactionType.Income &&
-                         x.ManagerId == managerId).ToListAsync())
+            foreach (var walletTransaction in await context.WalletTransactions.Include(x => x.Wallet).Where(x =>
+                         !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
+                                                   (x.ApprovedAt.HasValue &&
+                                                    (x.LinkedToId.HasValue || x.ClientId.HasValue ||
+                                                     x.TagId.HasValue ||
+                                                     (x.ManagerId.HasValue && x.WalletId.HasValue)))) &&
+                         x.WalletTransactionType == Enums.WalletTransactionType.Income &&
+                         x.Wallet.ManagerId == managerId).ToListAsync())
             {
                 var avgRate = await context.AvgRates.OrderByDescending(x => x.Date).FirstOrDefaultAsync(x =>
-                    x.Date.Date <= walletTransaction.Date.Date && x.ManagerId == walletTransaction.ManagerId);
+                    x.Date.Date <= walletTransaction.Date.Date && x.ManagerId == walletTransaction.Wallet.ManagerId);
 
                 walletTransaction.Profit = (walletTransaction.ExchangeRate - avgRate.Value) * walletTransaction.Coins;
 
