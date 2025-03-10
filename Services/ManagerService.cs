@@ -20,12 +20,15 @@ namespace SFManagement.Services
                 date = now;
             }
 
-            var manager = (await context.Managers.Include(x => x.BankTransactions).Include(x => x.Wallets)
+            var manager = (await context.Managers
+                .Include(x => x.BankTransactions)
+                .Include(x => x.Wallets)
                 .ThenInclude(x => x.Transactions).Include(x => x.InternalTransactions)
-                .Include(x => x.WalletTransactions).Include(x => x.ClosingManagers)
+                .Include(x => x.WalletTransactions)
+                .Include(x => x.ClosingManagers)
                 .FirstOrDefaultAsync(x => x.Id == managerId));
-            var avgRate = await context.AvgRates.FirstOrDefaultAsync(x =>
-                x.Date.Month <= date.Value.Month && !x.DeletedAt.HasValue && x.ManagerId == manager.Id);
+            var avgRate = await context.AvgRates.AsNoTracking().OrderByDescending(x => x.Date)
+                .Where(x => x.Date < date && x.ManagerId == managerId).FirstOrDefaultAsync();
             return new BalanceResponse(manager, avgRate, date);
         }
 

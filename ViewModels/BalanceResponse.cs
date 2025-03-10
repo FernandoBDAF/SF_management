@@ -81,7 +81,7 @@ public class BalanceResponse
         Coins += manager.WalletTransactions
             .Where(x => x.Date < date && !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
                                                                               (x.ApprovedAt.HasValue && (x.LinkedToId.HasValue || x.ClientId.HasValue ||
-                                                                               x.TagId.HasValue || x.ManagerId.HasValue))))
+                                                                               x.TagId.HasValue || (x.ManagerId.HasValue && x.WalletId.HasValue)))))
             .Sum(x => x.WalletTransactionType == WalletTransactionType.Income ? decimal.Negate(x.Coins) : x.Coins);
         
         // Coins += manager.InternalTransactions.Where(x => x.Date < date && !x.DeletedAt.HasValue && x.Coins.HasValue).Sum(x =>
