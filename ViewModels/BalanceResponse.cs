@@ -39,6 +39,13 @@ public class BalanceResponse
             !x.Coins.HasValue && x.InternalTransactionType == InternalTransactionType.Income
                 ? x.Value
                 : decimal.Negate(x.Value));
+
+        Coins = client.WalletTransactions
+            .Where(x => x.Date < date && !x.DeletedAt.HasValue && x.IsCoinBalance == true &&
+                        (!x.ApprovedAt.HasValue || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x =>
+                x.WalletTransactionType == WalletTransactionType.Expense
+                    ? x.Coins / (1 + (x.Rate/100 ?? 0))
+                    : decimal.Negate(x.Coins / (1 + (x.Rate/100 ?? 0))));
     }
 
     public BalanceResponse(Tag tag)
@@ -77,13 +84,15 @@ public class BalanceResponse
     public BalanceResponse(Manager manager, AvgRate? avgRate, DateTime? date)
     {
         Coins = manager.InitialCoins;
-        
+
         Coins += manager.WalletTransactions
             .Where(x => x.Date < date && !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
-                                                                              (x.ApprovedAt.HasValue && (x.LinkedToId.HasValue || x.ClientId.HasValue ||
-                                                                               x.TagId.HasValue || (x.ManagerId.HasValue && x.WalletId.HasValue)))))
+                                                                   (x.ApprovedAt.HasValue && (x.LinkedToId.HasValue ||
+                                                                       x.ClientId.HasValue ||
+                                                                       x.TagId.HasValue ||
+                                                                       (x.ManagerId.HasValue && x.WalletId.HasValue)))))
             .Sum(x => x.WalletTransactionType == WalletTransactionType.Income ? decimal.Negate(x.Coins) : x.Coins);
-        
+
         // Coins += manager.InternalTransactions.Where(x => x.Date < date && !x.DeletedAt.HasValue && x.Coins.HasValue).Sum(x =>
         //     x.InternalTransactionType == InternalTransactionType.Income ? decimal.Negate(x.Coins) : x.Coins);
 
@@ -95,13 +104,14 @@ public class BalanceResponse
         Value += manager.BankTransactions
             .Where(x => x.Date < date && !x.DeletedAt.HasValue && x.ManagerId == manager.Id)
             .Sum(x => x.BankTransactionType == BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
-        
-        Value += manager.InternalTransactions.Where(x => x.Date < date && !x.DeletedAt.HasValue && !x.ClosingManagerId.HasValue).Sum(x =>
-            x.InternalTransactionType == InternalTransactionType.Expense ? decimal.Negate(x.Value) : x.Value);
+
+        Value += manager.InternalTransactions
+            .Where(x => x.Date < date && !x.DeletedAt.HasValue && !x.ClosingManagerId.HasValue).Sum(x =>
+                x.InternalTransactionType == InternalTransactionType.Expense ? decimal.Negate(x.Value) : x.Value);
 
         Value += manager.ClosingManagers.Where(x => x.End < date && !x.DeletedAt.HasValue)
             .Sum(x => decimal.Negate(x.TotalBalance + x.RakeBruto));
-        
+
         Value += manager.WalletTransactions
             .Where(x => x.Date < date && !x.DeletedAt.HasValue && !x.TagId.HasValue && !x.ClientId.HasValue &&
                         (!x.ApprovedAt.HasValue || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x =>

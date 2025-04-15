@@ -13,10 +13,16 @@ namespace SFManagement.Models
         public decimal ExchangeRate { get; set; }
 
         [Precision(18, 2)]
+        public decimal? Rate { get; set; }
+        
+        public bool? IsCoinBalance { get; set; }
+        
+        [Precision(18, 2)]
         public decimal Coins { get; set; }
 
         [Precision(18, 2)]
         public decimal Profit { get; set; }
+        
 
         public string? Description { get; set; }
 

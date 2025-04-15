@@ -27,5 +27,9 @@ namespace SFManagement.ViewModels
         public Guid? TagId { get; set; }
 
         public Guid? ManagerId { get; set; }
+        
+        public decimal Rate { get; set; }
+        
+        public bool IsCoinBalance { get; set; }
     }
 }
