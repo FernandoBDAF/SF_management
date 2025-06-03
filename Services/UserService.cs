@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity; // TC
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens; // TC
 using SFManagement.Models;
 using SFManagement.Settings;
 using SFManagement.ViewModels;
-using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt; // TC
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
