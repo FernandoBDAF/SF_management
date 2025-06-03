@@ -1,26 +1,44 @@
-﻿using SFManagement.Data;
+﻿using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+using SFManagement.Data;
 using SFManagement.Models;
-using System.Data.Entity;
 
 namespace SFManagement.Services
 {
     public class BankTransactionService : BaseService<BankTransaction>
     {
-        public BankTransactionService(DataContext context) : base(context)
+        private readonly ClaimsPrincipal _user;
+
+        public BankTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
+            _user = httpContextAccessor.HttpContext?.User;
         }
 
-        public async Task<BankTransaction> Approve(Guid bankTransactionId)
+        public override async Task<List<BankTransaction>> List() => await context.BankTransactions.Include(x => x.Bank).Include(x => x.Client).Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
+
+        public async Task<BankTransaction> Approve(Guid bankTransactionId, ViewModels.BankTransactionApproveRequest model)
         {
             var bankTransaction = _entity.FirstOrDefault(x => x.Id == bankTransactionId);
 
             if (bankTransaction == null)
+            {
                 throw new AppException("Não foi encontrado nenhuma transação.");
+            }
 
             if (bankTransaction.ApprovedAt.HasValue)
+            {
                 throw new AppException("Transação já aprovada.");
+            }
 
             bankTransaction.ApprovedAt = DateTime.Now;
+            bankTransaction.TagId = model.TagId;
+            bankTransaction.ClientId = model.ClientId;
+            bankTransaction.ManagerId = model.ManagerId;
+
+            if (_user != null)
+            {
+                bankTransaction.ApprovedBy = Guid.Parse(_user.Claims.FirstOrDefault(c => c.Type == "uid").Value);
+            }
 
             context.BankTransactions.Update(bankTransaction);
 
@@ -34,26 +52,51 @@ namespace SFManagement.Services
             var fromBankTransaction = _entity.FirstOrDefault(x => x.Id == fromBankTransactionId);
 
             if (fromBankTransaction == null)
+            {
                 throw new AppException("Não foi encontrado nenhuma transação de destino.");
+            }
             if (string.IsNullOrEmpty(fromBankTransaction.FitId))
+            {
                 throw new AppException("Não é uma transação de destino válida (Não é uma transação oriunda de arquivo OFX.)");
-            if (await context.BankTransactions.AnyAsync(x => x.LinkedToId == fromBankTransaction.Id))
+            }
+            if (context.BankTransactions.Any(x => x.LinkedToId == fromBankTransaction.Id))
+            {
                 throw new AppException("Esta transação OFX já foi vinculada a uma transação manual.");
+            }
 
             var toBankTransaction = _entity.FirstOrDefault(x => x.Id == toBankTransactionId);
 
             if (toBankTransaction == null)
+            {
                 throw new AppException("Não foi encontrado nenhuma transação de início.");
+            }
             if (!string.IsNullOrEmpty(toBankTransaction.FitId))
+            {
                 throw new AppException("Não é uma transação de início válida (Não é uma transação manual.)");
+            }
             if (toBankTransaction.LinkedToId.HasValue)
+            {
                 throw new AppException("Esta transação manual já foi vinculada a uma transação OFX.");
-
-            //TODO: Validações de transações entre clientes diferentes ou entre empresa e cliente.
+            }
 
             toBankTransaction.LinkedToId = fromBankTransaction.Id;
+            toBankTransaction.ApprovedAt = DateTime.Now;
+
+            if (_user != null)
+            {
+                toBankTransaction.ApprovedBy = Guid.Parse(_user.Claims.FirstOrDefault(c => c.Type == "uid").Value);
+            }
 
             context.BankTransactions.Update(toBankTransaction);
+
+            fromBankTransaction.ApprovedAt = DateTime.Now;
+
+            if (_user != null)
+            {
+                fromBankTransaction.ApprovedBy = Guid.Parse(_user.Claims.FirstOrDefault(c => c.Type == "uid").Value);
+            }
+
+            context.BankTransactions.Update(fromBankTransaction);
 
             await context.SaveChangesAsync();
 
@@ -61,5 +104,66 @@ namespace SFManagement.Services
         }
 
         public async Task<List<BankTransaction>> ListByClientIdAndBankId(Guid? clientId, Guid? bankId) => await context.BankTransactions.Where(x => !x.DeletedAt.HasValue && x.ClientId == clientId && (bankId == null || x.BankId == bankId) && ((string.IsNullOrEmpty(x.FitId) && !x.LinkedToId.HasValue) || (!string.IsNullOrEmpty(x.FitId) && x.ApprovedAt.HasValue))).ToListAsync();
+
+        public async Task<BankTransaction> Unapprove(Guid bankTransactionId)
+        {
+            var bankTransaction = _entity.FirstOrDefault(x => x.Id == bankTransactionId);
+
+            if (bankTransaction == null)
+            {
+                throw new AppException("Não foi encontrado nenhuma transação.");
+            }
+            if (!bankTransaction.ApprovedAt.HasValue)
+            {
+                throw new AppException("Transação não está aprovada.");
+            }
+
+            bankTransaction.ApprovedAt = null;
+            bankTransaction.ApprovedBy = null;
+            bankTransaction.TagId = null;
+
+            if (!string.IsNullOrEmpty(bankTransaction.FitId))
+            {
+                bankTransaction.ClientId = null;
+                var to = _entity.FirstOrDefault(x => x.LinkedToId == bankTransactionId);
+
+                if (to != null)
+                {
+                    to.ApprovedAt = null;
+                    to.ApprovedBy = null;
+                    to.LinkedToId = null;
+
+                    to.TagId = null;
+
+                    context.BankTransactions.Update(to);
+                }
+
+            }
+            else if (bankTransaction.LinkedToId.HasValue)
+            {
+                var to = _entity.FirstOrDefault(x => x.Id == bankTransaction.LinkedToId);
+
+                if (to == null)
+                {
+                    throw new AppException("Não foi encontrado nenhuma transação que tem link com essa transação.");
+                }
+
+                to.ApprovedAt = null;
+                to.ApprovedBy = null;
+                to.ClientId = null;
+
+                to.TagId = null;
+
+                bankTransaction.LinkedToId = null;
+
+                context.BankTransactions.Update(to);
+            }
+
+            context.BankTransactions.Update(bankTransaction);
+
+            await context.SaveChangesAsync();
+
+            return bankTransaction;
+        }
     }
 }

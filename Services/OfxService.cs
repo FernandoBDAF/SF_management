@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
 using System.Xml;
@@ -8,16 +9,26 @@ namespace SFManagement.Services
 {
     public class OfxService : BaseService<Ofx>
     {
-
-        public OfxService(DataContext context) : base(context)
+        public OfxService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
         {
+        }
+
+        public override async Task<Ofx> Get(Guid id)
+        {
+            var query = await context.Ofxs.Include(x => x.BankTransactions).Include(x => x.Bank).FirstOrDefaultAsync(x => x.Id == id);
+            return query;
+        }
+
+        public override async Task<List<Ofx>> List()
+        {
+            return await context.Ofxs.Include(x => x.Bank).Where(x => !x.DeletedAt.HasValue).ToListAsync();
         }
 
         public async Task<Ofx> Add(IFormFile formFile, Guid bankId)
         {
             await Task.Yield();
 
-            var ofx = new Ofx(ParseOfxContent(formFile, bankId), bankId);
+            var ofx = new Ofx(ParseOfxContent(formFile, bankId), bankId, formFile.FileName);
             var toExcluded = new List<BankTransaction>();
 
             foreach (var bankTransaction in ofx.BankTransactions)

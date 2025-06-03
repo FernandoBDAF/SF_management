@@ -7,6 +7,10 @@ using SFManagement.ViewModels;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 
 namespace SFManagement.Services
 {
@@ -15,13 +19,18 @@ namespace SFManagement.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly JWT _jwt;
+        private readonly IMapper _mapper;
 
-        public UserService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IOptions<JWT> jwt)
+
+        public UserService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IOptions<JWT> jwt, IMapper mapper)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _jwt = jwt.Value;
+            _mapper = mapper;
         }
+
+        public async Task<List<UserResponse>> List() => _mapper.Map<List<UserResponse>>(await _userManager.Users.ToListAsync());
 
         public async Task<ApplicationUser> RegisterAsync(ViewModels.RegisterRequest model)
         {
@@ -73,9 +82,15 @@ namespace SFManagement.Services
 
                 JwtSecurityToken jwtSecurityToken = await CreateJwtToken(user);
 
+                user.RefreshToken = GenerateRefreshToken();
+                user.RefreshTokenExpiryTime = DateTime.Now.AddMinutes(_jwt.DurationInMinutes);
+
+                await _userManager.UpdateAsync(user);
+
                 authenticationModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
                 authenticationModel.Email = user.Email;
                 authenticationModel.UserName = user.UserName;
+                authenticationModel.RefreshToken = user.RefreshToken;
 
                 var roleList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
 
@@ -86,7 +101,7 @@ namespace SFManagement.Services
 
             authenticationModel.IsAuthenticated = false;
             authenticationModel.Message = $"Incorrect credentials for user {user.Email}";
-
+            
             return authenticationModel;
         }
 
@@ -138,6 +153,79 @@ namespace SFManagement.Services
             }
 
             return $"Incorrect credentials for user {model.Email}.";
+        }
+
+        public async Task<AuthenticationModel> RefreshToken(TokenRequest model)
+        {
+            var authenticationModel = new AuthenticationModel();
+
+            if (model is null)
+            {
+                throw new AppException("Invalid client request");
+            }
+
+            string? accessToken = model.AccessToken;
+            string? refreshToken = model.RefreshToken;
+
+            var principal = GetPrincipalFromExpiredToken(accessToken);
+            if (principal == null)
+            {
+                throw new AppException("Invalid access token/refresh token");
+            }
+
+            string username = principal.Identity.Name;
+            var user = await _userManager.FindByNameAsync(username);
+
+            if (user == null || user.RefreshToken != refreshToken ||user.RefreshTokenExpiryTime <= DateTime.Now)
+            {
+                throw new AppException("Invalid access token/refresh token");
+            }
+
+            JwtSecurityToken jwtSecurityToken = await CreateJwtToken(user);
+
+            user.RefreshToken = GenerateRefreshToken();
+            await _userManager.UpdateAsync(user);
+
+            authenticationModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            authenticationModel.Email = user.Email;
+            authenticationModel.UserName = user.UserName;
+            authenticationModel.RefreshToken = user.RefreshToken;
+
+            var roleList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+
+            authenticationModel.Roles = roleList.ToList();
+
+            return authenticationModel;
+        }
+
+        private static string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key)),
+                ValidateLifetime = false
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+
+            return principal;
         }
     }
 }

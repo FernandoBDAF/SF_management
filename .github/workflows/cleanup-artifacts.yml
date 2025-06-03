@@ -2,9 +2,7 @@ name: Cleanup Artifacts
 
 on:
   workflow_dispatch:
-
-permissions:
-  actions: write  # Add explicit permissions to manage artifacts
+  actions: write # Add explicit permissions to manage artifacts
 
 jobs:
   delete-artifacts:

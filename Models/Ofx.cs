@@ -6,16 +6,18 @@ namespace SFManagement.Models
     {
         public Ofx() { }
 
-        public Ofx(List<BankTransaction> transactions, Guid bankId)
+        public Ofx(List<BankTransaction> transactions, Guid bankId, string fileName)
         {
             BankId = bankId;
             BankTransactions = transactions;
+            CreatedAt = DateTime.Now;
+            FileName = fileName;
         }
 
         [ForeignKey("Bank")]
         public Guid BankId { get; set; }
 
-        public virtual Bank? Bank { get; set; }
+        public virtual Bank Bank { get; set; }
 
         public string? FileName { get; set; }
 

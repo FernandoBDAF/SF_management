@@ -1,4 +1,6 @@
-﻿namespace SFManagement.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace SFManagement.Models
 {
     public class Bank : BaseDomain
     {
@@ -7,5 +9,10 @@
         public string? Name { get; set; }
 
         public virtual ICollection<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
+
+        public virtual ICollection<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
+
+        [Precision(18, 2)]
+        public decimal InitialValue { get; set; }
     }
 }

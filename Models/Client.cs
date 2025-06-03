@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace SFManagement.Models
 {
@@ -30,5 +29,14 @@ namespace SFManagement.Models
         public DateTime? Birthday { get; set; }
 
         public virtual List<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
+
+        public virtual List<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
+
+        public virtual List<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
+
+        public virtual List<Nickname> Nicknames { get; set; } = new List<Nickname>();
+
+        [Precision(18, 2)]
+        public decimal InitialValue { get; set; }
     }
 }

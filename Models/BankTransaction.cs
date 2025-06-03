@@ -32,8 +32,7 @@ namespace SFManagement.Models
             Description = el.Element("MEMO")?.Value.Replace("</MEMO>", string.Empty);
             FitId = el.Element("FITID")?.Value.Replace("</FITID>", string.Empty);
             BankId = bankId;
-
-            //TODO: Colocar operação que não tenha cliente vinculado aparece vinculada para empresa (RECEITA ou DESPESA)
+            CreatedAt = DateTime.Now;
         }
 
         [Precision(18, 2)]
@@ -62,9 +61,12 @@ namespace SFManagement.Models
 
         public virtual Client? Client { get; set; }
 
-        public DateTime? ApprovedAt { get; set; }
+        [ForeignKey("Manager")]
+        public Guid? ManagerId { get; set; }
+        
+        public virtual Manager Manager { get; set; }
 
-        public BankTransactionTag? Tag { get; set; }
+        public DateTime? ApprovedAt { get; set; }
 
         public string? TagDescription { get; set; }
 
@@ -74,6 +76,13 @@ namespace SFManagement.Models
         public virtual BankTransaction LinkedTo { get; set; }
 
         public virtual BankTransaction WasLinked { get; set; }
+
+        [ForeignKey("Tag")]
+        public Guid? TagId { get; set; }
+
+        public virtual Tag Tag { get; set; }
+
+        public Guid? ApprovedBy { get; set; }
 
         public bool IsValid
         {

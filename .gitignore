@@ -11,3 +11,6 @@
 /bin/Debug/net8.0
 /.vs
 /obj
+/.github/.vs
+/bin/
+.idea

@@ -18,12 +18,19 @@ namespace SFManagement.Controllers
             _userService = userService;
         }
 
-        [HttpPost("register")]
+        [HttpGet]
+        public async Task<List<UserResponse>> GetAsync() => await _userService.List();
+
+		[HttpPost("register")]
         public async Task<ApplicationUser> RegisterAsync(RegisterRequest model) => await _userService.RegisterAsync(model);
 
         [AllowAnonymous]
         [HttpPost("token")]
         public async Task<AuthenticationModel> TokenAsync(TokenRequest model) => await _userService.GetTokenAsync(model);
+
+        [HttpPost]
+        [Route("refresh-token")]
+        public async Task<AuthenticationModel> RefreshToken(TokenRequest model) => await _userService.RefreshToken(model);
 
         [AllowAnonymous]
         [HttpPost("addrole")]

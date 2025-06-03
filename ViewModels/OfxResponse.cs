@@ -1,4 +1,6 @@
-﻿namespace SFManagement.ViewModels
+﻿using SFManagement.Models;
+
+namespace SFManagement.ViewModels
 {
     public class OfxResponse : BaseResponse
     {
@@ -6,6 +8,8 @@
 
         public string? FileName { get; set; }
 
-        public byte[]? File { get; set; }
+        public List<BankTransactionResponse>? BankTransactions { get; set; } = new List<BankTransactionResponse>();
+        
+        public BankResponse Bank { get; set; }
     }
 }

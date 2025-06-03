@@ -13,5 +13,7 @@
         public List<string> Roles { get; set; } = new List<string>();
 
         public string? Token { get; set; }
+
+        public string? RefreshToken { get; set; }
     }
 }

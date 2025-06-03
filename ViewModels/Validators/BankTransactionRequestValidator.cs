@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using SFManagement.Models;
 
 namespace SFManagement.ViewModels.Validators
 {
@@ -10,7 +9,6 @@ namespace SFManagement.ViewModels.Validators
             RuleFor(x => x.BankTransactionType).NotEmpty();
             RuleFor(x => x.BankId).NotEmpty();
             RuleFor(x => x.Value).NotEmpty();
-            RuleFor(x => x.Description).NotEmpty();
         }
     }
 }

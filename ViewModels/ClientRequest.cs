@@ -1,6 +1,6 @@
 ﻿namespace SFManagement.ViewModels
 {
-    public class ClientRequest : BaseResponse
+    public class ClientRequest
     {
         public string? Name { get; set; }
 
@@ -25,5 +25,9 @@
         public string? Email { get; set; }
 
         public DateTime? Birthday { get; set; }
+
+        public decimal? InitialValue { get; set; }
+        
+        public DateTime? Date { get; set; }
     }
 }

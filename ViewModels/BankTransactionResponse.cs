@@ -8,22 +8,34 @@ namespace SFManagement.ViewModels
 
         public decimal Value { get; set; }
 
+        public string? Description { get; set; }
+
         public DateTime Date { get; set; }
 
         public string? FitId { get; set; }
 
-        public string? Description { get; set; }
-
-        public bool IsValid { get; set; }
+        public Guid? OfxId { get; set; }
 
         public Guid? ClientId { get; set; }
 
         public DateTime? ApprovedAt { get; set; }
 
-        public BankTransactionTag? Tag { get; set; }
-
         public string? TagDescription { get; set; }
 
-        public Guid? LinkedTo { get; set; }
+        public Guid? LinkedToId { get; set; }
+
+        public BankTransactionType BankTransactionType { get; set; }
+
+        public bool IsValid { get; set; }
+
+        public string BankName { get; set; }
+
+        public string ClientName { get; set; }
+
+        public Guid? TagId { get; set; }
+
+        public Guid? ManagerId { get; set; }
+
+        public Guid? ApprovedBy { get; set; }
     }
 }
