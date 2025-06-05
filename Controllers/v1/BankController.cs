@@ -22,6 +22,7 @@ namespace SFManagement.Controllers.v1
 
         [HttpGet]
         [Route("balance/{bankId}")]
+        // [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
         public async Task<BalanceResponse> Balance(Guid bankId) => await _bankService.GetBalance(bankId, null);
         
         [HttpPost]

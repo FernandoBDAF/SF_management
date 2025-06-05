@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using SFManagement.Models;
@@ -163,5 +162,16 @@ public static class DependencyInjectionExtensions
         // https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
         builder.Services.AddHealthChecks()
             .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
+    
+    public static void AddRateLimitServices(this WebApplicationBuilder builder)
+    {
+        builder.Services.Configure<IpRateLimitOptions>(
+            builder.Configuration.GetSection("IpRateLimiting"));
+        builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+        builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+        builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+        builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+        builder.Services.AddInMemoryRateLimiting();
     }
 }

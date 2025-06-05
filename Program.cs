@@ -1,4 +1,5 @@
 using System.Globalization;
+using AspNetCoreRateLimit;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -18,6 +19,10 @@ builder.AddStandardServices();
 builder.AddScopedServices();
 builder.AddAuthServices();
 builder.AddHealthCheckServices();
+
+builder.Services.AddResponseCaching();
+builder.Services.AddMemoryCache();
+builder.AddRateLimitServices();
 
 builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
@@ -41,22 +46,11 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 var app = builder.Build();
 
-ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-CultureInfo cultureInfo = new CultureInfo("pt-BR");
-CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
-CultureInfo.CurrentCulture = cultureInfo;
-CultureInfo.CurrentUICulture = cultureInfo;
-
-app.UseRequestLocalization(new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture(cultureInfo),
-    SupportedCultures = new List<CultureInfo> { cultureInfo },
-    SupportedUICultures = new List<CultureInfo> { cultureInfo }
-});
-
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseIpRateLimiting();
+app.UseResponseCaching();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
@@ -74,19 +68,31 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     });
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<ErrorHandlerMiddleware>();
+app.MapControllers();
+app.MapHealthChecks("/health").AllowAnonymous();
+
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+CultureInfo cultureInfo = new CultureInfo("pt-BR");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+CultureInfo.CurrentCulture = cultureInfo;
+CultureInfo.CurrentUICulture = cultureInfo;
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(cultureInfo),
+    SupportedCultures = new List<CultureInfo> { cultureInfo },
+    SupportedUICultures = new List<CultureInfo> { cultureInfo }
+});
+
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
     serviceScope.ServiceProvider.GetService<DataContext>().Database.Migrate();
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseMiddleware<ErrorHandlerMiddleware>();
-app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -102,7 +108,5 @@ using (var scope = app.Services.CreateScope())
     {
     }
 }
-
-app.MapHealthChecks("/health").AllowAnonymous();
 
 app.Run();
