@@ -1,14 +1,13 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
-{
-    public class TokenRequestValidator : AbstractValidator<TokenRequest>
-    {
-        public TokenRequestValidator()
-        {
-            RuleFor(x => x.Email).NotEmpty();
+namespace SFManagement.ViewModels.Validators;
 
-            RuleFor(x => x.Password).NotEmpty();
-        }
+public class TokenRequestValidator : AbstractValidator<TokenRequest>
+{
+    public TokenRequestValidator()
+    {
+        RuleFor(x => x.Email).NotEmpty();
+
+        RuleFor(x => x.Password).NotEmpty();
     }
 }

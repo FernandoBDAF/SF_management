@@ -1,8 +1,7 @@
-﻿namespace SFManagement.Enums
+﻿namespace SFManagement.Enums;
+
+public enum WalletTransactionType
 {
-    public enum WalletTransactionType
-    {
-        Income = 1,
-        Expense = 2
-    }
+    Income = 1,
+    Expense = 2
 }

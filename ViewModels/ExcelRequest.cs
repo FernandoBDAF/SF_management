@@ -1,9 +1,8 @@
-﻿namespace SFManagement.ViewModels
-{
-    public class ExcelRequest
-    {
-        public Guid ManagerId { get; set; }
+﻿namespace SFManagement.ViewModels;
 
-        public IFormFile PostFile { get; set; }
-    }
+public class ExcelRequest
+{
+    public Guid ManagerId { get; set; }
+
+    public IFormFile PostFile { get; set; }
 }

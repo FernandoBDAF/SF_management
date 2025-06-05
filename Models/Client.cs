@@ -1,42 +1,40 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace SFManagement.Models
+namespace SFManagement.Models;
+
+public class Client : BaseDomain
 {
-    public class Client : BaseDomain
-    {
-        public string? Name { get; set; }
+    public string? Name { get; set; }
 
-        public string? Phone { get; set; }
+    public string? Phone { get; set; }
 
-        public string? CPF { get; set; }
+    public string? CPF { get; set; }
 
-        public string? Cep { get; set; }
+    public string? Cep { get; set; }
 
-        public string? Address { get; set; }
+    public string? Address { get; set; }
 
-        public string? District { get; set; }
+    public string? District { get; set; }
 
-        public string? City { get; set; }
+    public string? City { get; set; }
 
-        public string? State { get; set; }
+    public string? State { get; set; }
 
-        public string? Complement { get; set; }
+    public string? Complement { get; set; }
 
-        public string? AddressNumber { get; set; }
+    public string? AddressNumber { get; set; }
 
-        public string? Email { get; set; }
+    public string? Email { get; set; }
 
-        public DateTime? Birthday { get; set; }
+    public DateTime? Birthday { get; set; }
 
-        public virtual List<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
+    public virtual List<BankTransaction> BankTransactions { get; set; } = new();
 
-        public virtual List<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
+    public virtual List<WalletTransaction> WalletTransactions { get; set; } = new();
 
-        public virtual List<InternalTransaction> InternalTransactions { get; set; } = new List<InternalTransaction>();
+    public virtual List<InternalTransaction> InternalTransactions { get; set; } = new();
 
-        public virtual List<Nickname> Nicknames { get; set; } = new List<Nickname>();
+    public virtual List<Nickname> Nicknames { get; set; } = new();
 
-        [Precision(18, 2)]
-        public decimal InitialValue { get; set; }
-    }
+    [Precision(18, 2)] public decimal InitialValue { get; set; }
 }

@@ -24,7 +24,9 @@ builder.Services.AddResponseCaching();
 builder.Services.AddMemoryCache();
 builder.AddRateLimitServices();
 
-builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+builder.Services.AddDbContext<DataContext>(p =>
+    p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<DataContext>();
 builder.Services.AddHttpContextAccessor();
@@ -40,7 +42,7 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     options.DefaultRequestCulture = new RequestCulture("pt-BR");
-    options.SupportedCultures = new List<CultureInfo> { new CultureInfo("pt-BR") };
+    options.SupportedCultures = new List<CultureInfo> { new("pt-BR") };
     options.RequestCultureProviders.Clear();
 });
 
@@ -76,7 +78,7 @@ app.MapHealthChecks("/health").AllowAnonymous();
 
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-CultureInfo cultureInfo = new CultureInfo("pt-BR");
+var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 CultureInfo.CurrentCulture = cultureInfo;

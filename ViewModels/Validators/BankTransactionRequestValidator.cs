@@ -1,14 +1,13 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class BankTransactionRequestValidator : AbstractValidator<BankTransactionRequest>
 {
-    public class BankTransactionRequestValidator : AbstractValidator<BankTransactionRequest>
+    public BankTransactionRequestValidator()
     {
-        public BankTransactionRequestValidator()
-        {
-            RuleFor(x => x.BankTransactionType).NotEmpty();
-            RuleFor(x => x.BankId).NotEmpty();
-            RuleFor(x => x.Value).NotEmpty();
-        }
+        RuleFor(x => x.BankTransactionType).NotEmpty();
+        RuleFor(x => x.BankId).NotEmpty();
+        RuleFor(x => x.Value).NotEmpty();
     }
 }

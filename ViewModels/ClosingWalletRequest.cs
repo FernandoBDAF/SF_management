@@ -1,11 +1,10 @@
-﻿namespace SFManagement.ViewModels
+﻿namespace SFManagement.ViewModels;
+
+public class ClosingWalletRequest
 {
-    public class ClosingWalletRequest
-    {
-        public decimal ReturnRake { get; set; }
+    public decimal ReturnRake { get; set; }
 
-        public Guid WalletId { get; set; }
+    public Guid WalletId { get; set; }
 
-        public Guid ClosingManagerId { get; set; }
-    }
+    public Guid ClosingManagerId { get; set; }
 }

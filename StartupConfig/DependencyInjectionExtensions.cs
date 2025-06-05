@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SFManagement.Models;
 using SFManagement.Services;
@@ -19,10 +20,10 @@ public static class DependencyInjectionExtensions
         builder.AddSwaggerServices();
         builder.AddVersioningServices();
     }
-    
+
     private static void AddSwaggerServices(this WebApplicationBuilder builder)
     {
-        var securityScheme = new OpenApiSecurityScheme()
+        var securityScheme = new OpenApiSecurityScheme
         {
             Name = "Authorization",
             Description = "JWT Authorization header info using bearer tokens",
@@ -60,7 +61,7 @@ public static class DependencyInjectionExtensions
                 {
                     Name = "Fernando Barroso",
                     Url = new Uri("https://github.com/FernandoBDAF")
-                },
+                }
             });
         });
     }
@@ -70,7 +71,7 @@ public static class DependencyInjectionExtensions
         builder.Services.AddApiVersioning(opts =>
         {
             opts.AssumeDefaultVersionWhenUnspecified = true;
-            opts.DefaultApiVersion = new(1, 0);
+            opts.DefaultApiVersion = new ApiVersion(1, 0);
             opts.ReportApiVersions = true;
         });
 
@@ -80,13 +81,7 @@ public static class DependencyInjectionExtensions
             opts.SubstituteApiVersionInUrl = true;
         });
     }
-    
-    // public static void AddCustomServices(this WebApplicationBuilder builder)
-    // {
-    //     builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
-    //     builder.Services.AddSingleton<ITodoData, TodoData>();
-    // }
-    
+
     public static void AddAuthServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddAuthorizationBuilder()
@@ -94,9 +89,9 @@ public static class DependencyInjectionExtensions
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
                 .Build());
-        
+
         builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
-        
+
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -115,7 +110,9 @@ public static class DependencyInjectionExtensions
                 ClockSkew = TimeSpan.Zero,
                 ValidIssuer = builder.Configuration["JWT:Issuer"],
                 ValidAudience = builder.Configuration["JWT:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                    builder.Configuration["JWT:Key"]
+                ))
             };
         });
     }
@@ -156,14 +153,14 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<AvgRateService>();
         builder.Services.AddScoped<UserService>();
     }
-    
+
     public static void AddHealthCheckServices(this WebApplicationBuilder builder)
     {
         // https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
         builder.Services.AddHealthChecks()
             .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
-    
+
     public static void AddRateLimitServices(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<IpRateLimitOptions>(

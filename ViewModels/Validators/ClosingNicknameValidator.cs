@@ -1,11 +1,7 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class ClosingNicknameValidator : AbstractValidator<ClosingNicknameRequest>
 {
-    public class ClosingNicknameValidator : AbstractValidator<ClosingNicknameRequest>
-    {
-        public ClosingNicknameValidator()
-        {
-        }
-    }
 }

@@ -1,18 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SFManagement.Enums;
+﻿using SFManagement.Enums;
 
-namespace SFManagement.ViewModels
+namespace SFManagement.ViewModels;
+
+public class ManagerResponse : BaseResponse
 {
-    public class ManagerResponse : BaseResponse
-    {
-        public string? Name { get; set; }
+    public string? Name { get; set; }
 
-        public ManagerType ManagerType { get; set; }
+    public ManagerType ManagerType { get; set; }
 
-        public decimal InitialValue { get; set; }
+    public decimal InitialValue { get; set; }
 
-        public decimal InitialExchangeRate { get; set; }
+    public decimal InitialExchangeRate { get; set; }
 
-        public decimal InitialCoins { get; set; }
-    }
+    public decimal InitialCoins { get; set; }
 }

@@ -1,9 +1,8 @@
-﻿namespace SFManagement.ViewModels
-{
-    public class ImportTransferTransactionRequest
-    {
-        public IFormFile File { get; set; }
+﻿namespace SFManagement.ViewModels;
 
-        public Guid WalletId { get; set; }
-    }
+public class ImportTransferTransactionRequest
+{
+    public IFormFile File { get; set; }
+
+    public Guid WalletId { get; set; }
 }

@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class ClosingManagerValidator : AbstractValidator<ClosingManagerRequest>
 {
-    public class ClosingManagerValidator : AbstractValidator<ClosingManagerRequest>
+    public ClosingManagerValidator()
     {
-        public ClosingManagerValidator()
-        {
-            RuleFor(x => x.Start).LessThanOrEqualTo(x => x.End);
-        }
+        RuleFor(x => x.Start).LessThanOrEqualTo(x => x.End);
     }
 }

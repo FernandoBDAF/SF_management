@@ -1,6 +1,5 @@
-﻿namespace SFManagement.ViewModels
+﻿namespace SFManagement.ViewModels;
+
+public class AvgRateRequest
 {
-    public class AvgRateRequest
-    {
-    }
 }

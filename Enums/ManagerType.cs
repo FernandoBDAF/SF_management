@@ -1,8 +1,7 @@
-﻿namespace SFManagement.Enums
+﻿namespace SFManagement.Enums;
+
+public enum ManagerType
 {
-    public enum ManagerType
-    {
-        Default = 0,
-        Apps = 1
-    }
+    Default = 0,
+    Apps = 1
 }

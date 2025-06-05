@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class ManagerValidator : AbstractValidator<ManagerRequest>
 {
-    public class ManagerValidator : AbstractValidator<ManagerRequest>
+    public ManagerValidator()
     {
-        public ManagerValidator()
-        {
-            RuleFor(x => x.Name).NotEmpty();
-        }
+        RuleFor(x => x.Name).NotEmpty();
     }
 }
