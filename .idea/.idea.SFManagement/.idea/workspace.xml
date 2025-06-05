@@ -10,25 +10,28 @@
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/AvgRateController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AvgRateController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BankTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BaseApiController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ClosingManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ClosingNicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingNicknameController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ClosingWalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingWalletController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ExcelController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ExcelController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/InternalTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/InternalTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/NicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/OfxController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/OfxController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/TagController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/TagController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/UserController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/UserController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/WalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/WalletTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/AvgRateController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AvgRateController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/BankTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BaseApiController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClosingManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingManagerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClosingNicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingNicknameController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClosingWalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingWalletController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ExcelController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ExcelController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/InternalTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/InternalTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/OfxController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/OfxController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/TagController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/TagController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/WalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/WalletTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ErrorHandlerMiddleware.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ErrorHandlerMiddleware.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Properties/launchSettings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SFManagement.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SFManagement.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +43,11 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bbcfe7ab04c9c5e854e8084459eb29d1ba45cca1ecfec1ad876fafa1267/ConfigurationManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Program.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectColorInfo"><![CDATA[{
@@ -95,7 +103,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1749089477183</updated>
-      <workItem from="1749089479094" duration="14346000" />
+      <workItem from="1749089479094" duration="28121000" />
     </task>
     <servers />
   </component>

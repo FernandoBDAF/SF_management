@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using Azure;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
-namespace SFManagement.Controllers
+namespace SFManagement.Controllers.v1
 {
     [ApiController]
     [Route("api/v{verion:apiVersion}/[controller]")]

@@ -1,17 +1,12 @@
 using System.Globalization;
-using System.Text;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using SFManagement;
 using SFManagement.Data;
 using SFManagement.Models;
-using SFManagement.Services;
-using SFManagement.Settings;
 using SFManagement.StartupConfig;
 using SFManagement.ViewModels.Validators;
 
@@ -20,21 +15,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.AddStandardServices();
+builder.AddScopedServices();
+builder.AddAuthServices();
+builder.AddHealthCheckServices();
 
 builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<DataContext>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<UserService>();
-
-builder.AddAuthServices();
 
 builder.Services.AddFluentValidation(config =>
 {
     config.RegisterValidatorsFromAssemblyContaining<WalletTransactionValidator>();
 });
 
-builder.AddScopedServices();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -108,5 +102,7 @@ using (var scope = app.Services.CreateScope())
     {
     }
 }
+
+app.MapHealthChecks("/health").AllowAnonymous();
 
 app.Run();

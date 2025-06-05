@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using SFManagement.Models;
@@ -79,6 +81,7 @@ public static class DependencyInjectionExtensions
             opts.SubstituteApiVersionInUrl = true;
         });
     }
+    
     // public static void AddCustomServices(this WebApplicationBuilder builder)
     // {
     //     builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
@@ -89,6 +92,7 @@ public static class DependencyInjectionExtensions
     {
         builder.Services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+                .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
                 .Build());
         
@@ -98,6 +102,7 @@ public static class DependencyInjectionExtensions
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(o =>
         {
             o.RequireHttpsMetadata = false;
@@ -150,11 +155,13 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<UserResolverService>();
         builder.Services.AddScoped<BaseService<AvgRate>, AvgRateService>();
         builder.Services.AddScoped<AvgRateService>();
+        builder.Services.AddScoped<UserService>();
     }
     
-    // public static void AddHealthCheckServices(this WebApplicationBuilder builder)
-    // {
-    //     builder.Services.AddHealthChecks()
-    //         .AddSqlServer(builder.Configuration.GetConnectionString("Default"));
-    // }
+    public static void AddHealthCheckServices(this WebApplicationBuilder builder)
+    {
+        // https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
+        builder.Services.AddHealthChecks()
+            .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
 }
