@@ -8,7 +8,8 @@ using SFManagement.Services;
 namespace SFManagement.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v{verion:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class ClosingNicknameController : BaseApiController<ClosingNickname, ClosingNicknameRequest, ClosingNicknameResponse>
     {
         private readonly ClosingNicknameService _closingNicknameService;

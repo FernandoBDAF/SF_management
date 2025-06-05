@@ -6,9 +6,9 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v{verion:apiVersion}/[controller]")]
+    [ApiVersionNeutral]
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;

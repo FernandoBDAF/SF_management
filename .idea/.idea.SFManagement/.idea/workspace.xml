@@ -9,28 +9,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/wwwroot/css/theme-feeling-blue.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/css/theme-flattop.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/css/theme-material.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/css/theme-modern.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/css/theme-monokai.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/css/theme-muted.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/css/theme-newspaper.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/css/theme-outline.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/AvgRateController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AvgRateController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BankController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BankTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BankTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ClientController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ClosingManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ClosingManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ClosingNicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ClosingNicknameController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ClosingWalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ClosingWalletController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ExcelController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ExcelController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/AvgRateController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AvgRateController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/BankTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BaseApiController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ClosingManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingManagerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ClosingNicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingNicknameController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ClosingWalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClosingWalletController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ExcelController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ExcelController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/InternalTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/InternalTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/NicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/OfxController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/OfxController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/TagController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/TagController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/UserController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/UserController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/WalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/WalletTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletTransactionController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SFManagement.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SFManagement.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SFManagement.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/SFManagement.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reference_materials/tim_corey/web_api.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,7 +95,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1749089477183</updated>
-      <workItem from="1749089479094" duration="12257000" />
+      <workItem from="1749089479094" duration="14346000" />
     </task>
     <servers />
   </component>

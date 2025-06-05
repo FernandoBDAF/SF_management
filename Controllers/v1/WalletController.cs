@@ -7,9 +7,9 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v{verion:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class WalletController : BaseApiController<Wallet, WalletRequest, WalletResponse>
     {
         private WalletService _walletService;

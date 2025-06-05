@@ -9,7 +9,8 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v{verion:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class ExcelController : BaseApiController<Excel, ExcelRequest, ExcelResponse>
     {
         private readonly ExcelService _excelService;

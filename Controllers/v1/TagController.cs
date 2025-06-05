@@ -7,9 +7,9 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v{verion:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class TagController : BaseApiController<Tag, TagRequest, TagResponse>
     {
         private readonly TagService _tagService;

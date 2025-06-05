@@ -7,9 +7,9 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v{verion:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class OfxController : BaseApiController<Ofx, OfxRequest, OfxResponse>
     {
         private readonly ILogger<OfxController> _logger;

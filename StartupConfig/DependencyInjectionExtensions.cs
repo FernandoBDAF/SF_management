@@ -16,6 +16,7 @@ public static class DependencyInjectionExtensions
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.AddSwaggerServices();
+        builder.AddVersioningServices();
     }
     
     private static void AddSwaggerServices(this WebApplicationBuilder builder)
@@ -63,6 +64,21 @@ public static class DependencyInjectionExtensions
         });
     }
 
+    private static void AddVersioningServices(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddApiVersioning(opts =>
+        {
+            opts.AssumeDefaultVersionWhenUnspecified = true;
+            opts.DefaultApiVersion = new(1, 0);
+            opts.ReportApiVersions = true;
+        });
+
+        builder.Services.AddVersionedApiExplorer(opts =>
+        {
+            opts.GroupNameFormat = "'v'VVV";
+            opts.SubstituteApiVersionInUrl = true;
+        });
+    }
     // public static void AddCustomServices(this WebApplicationBuilder builder)
     // {
     //     builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
