@@ -8,7 +8,6 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class ExcelController : BaseApiController<Excel, ExcelRequest, ExcelResponse>

@@ -7,7 +7,8 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
+    [ApiController]
+    [Route("[controller]")]
     public class AvgRateController : BaseApiController<AvgRate, AvgRateRequest, AvgRateResponse>
     {
         private readonly AvgRateService _avgService;

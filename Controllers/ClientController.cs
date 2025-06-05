@@ -7,7 +7,6 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class ClientController : BaseApiController<Client, ClientRequest, ClientResponse>

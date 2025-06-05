@@ -7,7 +7,6 @@ using SFManagement.Services;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class ClosingNicknameController : BaseApiController<ClosingNickname, ClosingNicknameRequest, ClosingNicknameResponse>

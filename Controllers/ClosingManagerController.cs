@@ -7,7 +7,6 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class ClosingManagerController : BaseApiController<ClosingManager, ClosingManagerRequest, ClosingManagerResponse>
