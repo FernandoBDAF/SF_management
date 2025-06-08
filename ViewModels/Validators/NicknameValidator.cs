@@ -1,16 +1,15 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class NicknameValidator : AbstractValidator<NicknameRequest>
 {
-    public class NicknameValidator : AbstractValidator<NicknameRequest>
+    public NicknameValidator()
     {
-        public NicknameValidator()
-        {
-            RuleFor(x => x.Name).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty();
 
-            RuleFor(x => x.WalletId).NotEmpty();
+        RuleFor(x => x.WalletId).NotEmpty();
 
-            RuleFor(x => x.ClientId).NotEmpty();
-        }
+        RuleFor(x => x.ClientId).NotEmpty();
     }
 }

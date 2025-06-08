@@ -1,13 +1,12 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class ImportBuyTransactionsRequestValidator : AbstractValidator<ImportBuySellTransactionsRequest>
 {
-    public class ImportBuyTransactionsRequestValidator : AbstractValidator<ImportBuySellTransactionsRequest>
+    public ImportBuyTransactionsRequestValidator()
     {
-        public ImportBuyTransactionsRequestValidator()
-        {
-            RuleFor(x => x.File).NotNull();
-            RuleFor(x => x.WalletId).NotEmpty();
-        }
+        RuleFor(x => x.File).NotNull();
+        RuleFor(x => x.WalletId).NotEmpty();
     }
 }

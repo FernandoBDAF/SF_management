@@ -1,109 +1,84 @@
 using System.Globalization;
-using System.Text;
+using AspNetCoreRateLimit;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using SFManagement;
 using SFManagement.Data;
 using SFManagement.Models;
-using SFManagement.Services;
-using SFManagement.Settings;
+using SFManagement.StartupConfig;
 using SFManagement.ViewModels.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.AddStandardServices();
+builder.AddScopedServices();
+builder.AddAuthServices();
+builder.AddHealthCheckServices();
 
-builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+builder.Services.AddResponseCaching();
+builder.Services.AddMemoryCache();
+builder.AddRateLimitServices();
 
-builder.Services.AddDbContext<DataContext>(p => p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+builder.Services.AddDbContext<DataContext>(p =>
+    p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<DataContext>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<UserService>();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
-{
-    o.RequireHttpsMetadata = false;
-    o.SaveToken = true;
-    o.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidAudience = builder.Configuration["JWT:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
-    };
-});
 
 builder.Services.AddFluentValidation(config =>
 {
     config.RegisterValidatorsFromAssemblyContaining<WalletTransactionValidator>();
 });
 
-builder.Services.AddScoped<ClientService>();
-builder.Services.AddScoped<BaseService<Client>, ClientService>();
-builder.Services.AddScoped<BankService>();
-builder.Services.AddScoped<BaseService<Bank>, BankService>();
-builder.Services.AddScoped<BankTransactionService>();
-builder.Services.AddScoped<BaseService<BankTransaction>, BankTransactionService>();
-builder.Services.AddScoped<OfxService>();
-builder.Services.AddScoped<BaseService<Ofx>, OfxService>();
-builder.Services.AddScoped<TransactionService>();
-builder.Services.AddScoped<BaseService<Manager>, ManagerService>();
-builder.Services.AddScoped<ManagerService>();
-builder.Services.AddScoped<BaseService<Wallet>, WalletService>();
-builder.Services.AddScoped<WalletService>();
-builder.Services.AddScoped<BaseService<Nickname>, NicknameService>();
-builder.Services.AddScoped<NicknameService>();
-builder.Services.AddScoped<BaseService<WalletTransaction>, WalletTransactionService>();
-builder.Services.AddScoped<WalletTransactionService>();
-builder.Services.AddScoped<BaseService<Excel>, ExcelService>();
-builder.Services.AddScoped<ExcelService>();
-builder.Services.AddScoped<BaseService<Tag>, TagService>();
-builder.Services.AddScoped<TagService>();
-builder.Services.AddScoped<BaseService<ClosingWallet>, ClosingWalletService>();
-builder.Services.AddScoped<ClosingWalletService>();
-builder.Services.AddScoped<BaseService<ClosingNickname>, ClosingNicknameService>();
-builder.Services.AddScoped<ClosingNicknameService>();
-builder.Services.AddScoped<BaseService<ClosingManager>, ClosingManagerService>();
-builder.Services.AddScoped<ClosingManagerService>();
-builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
-builder.Services.AddScoped<InternalTransactionService>();
-builder.Services.AddScoped<UserResolverService>();
-builder.Services.AddScoped<BaseService<AvgRate>, AvgRateService>();
-builder.Services.AddScoped<AvgRateService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     options.DefaultRequestCulture = new RequestCulture("pt-BR");
-    options.SupportedCultures = new List<CultureInfo> { new CultureInfo("pt-BR") };
+    options.SupportedCultures = new List<CultureInfo> { new("pt-BR") };
     options.RequestCultureProviders.Clear();
 });
 
-ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
 var app = builder.Build();
 
-CultureInfo cultureInfo = new CultureInfo("pt-BR");
+app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseIpRateLimiting();
+app.UseResponseCaching();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger(opts =>
+    {
+        //opts.SerializeAsV2 = true;
+    });
+    // Custom themes: https://github.com/ostranme/swagger-ui-themes
+    app.UseSwaggerUI(opts =>
+    {
+        opts.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        opts.RoutePrefix = string.Empty;
+        opts.InjectStylesheet("/css/theme-modern.css");
+    });
+}
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<ErrorHandlerMiddleware>();
+app.MapControllers();
+app.MapHealthChecks("/health").AllowAnonymous();
+
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 CultureInfo.CurrentCulture = cultureInfo;
@@ -116,28 +91,10 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     SupportedUICultures = new List<CultureInfo> { cultureInfo }
 });
 
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage();
-}
-
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
     serviceScope.ServiceProvider.GetService<DataContext>().Database.Migrate();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseMiddleware<ErrorHandlerMiddleware>();
-app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {

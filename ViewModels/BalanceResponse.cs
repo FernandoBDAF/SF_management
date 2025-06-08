@@ -9,7 +9,7 @@ public class BalanceResponse
         IEnumerable<InternalTransaction> internalTransaction, decimal initialValue, DateTime? date)
     {
         Value = initialValue;
-        
+
         Value += bankTransactions
             .Where(x => x.Date < date && !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.OfxId.HasValue) ||
                                                                    (x.ApprovedAt.HasValue && x.LinkedToId.HasValue) ||
@@ -44,8 +44,8 @@ public class BalanceResponse
             .Where(x => x.Date < date && !x.DeletedAt.HasValue && x.IsCoinBalance == true &&
                         (!x.ApprovedAt.HasValue || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x =>
                 x.WalletTransactionType == WalletTransactionType.Expense
-                    ? x.Coins / (1 + (x.Rate/100 ?? 0))
-                    : decimal.Negate(x.Coins / (1 + (x.Rate/100 ?? 0))));
+                    ? x.Coins / (1 + (x.Rate / 100 ?? 0))
+                    : decimal.Negate(x.Coins / (1 + (x.Rate / 100 ?? 0))));
     }
 
     public BalanceResponse(Tag tag)

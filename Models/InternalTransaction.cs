@@ -1,62 +1,52 @@
-﻿
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
 
-namespace SFManagement.Models
+namespace SFManagement.Models;
+
+public class InternalTransaction : BaseDomain
 {
-    public class InternalTransaction : BaseDomain
-    {
-        [Precision(18, 2)]
-        public decimal Value { get; set; }
+    [Precision(18, 2)] public decimal Value { get; set; }
 
-        [Precision(18, 2)]
-        public decimal? Coins { get; set; }
+    [Precision(18, 2)] public decimal? Coins { get; set; }
 
-        [Precision(18, 2)]
-        public decimal? ExchangeRate { get; set; }
+    [Precision(18, 2)] public decimal? ExchangeRate { get; set; }
 
-        [ForeignKey("Client")]
-        public Guid? ClientId { get; set; }
+    [ForeignKey("Client")] public Guid? ClientId { get; set; }
 
-        public virtual Client Client { get; set; }
+    public virtual Client Client { get; set; }
 
-        [ForeignKey("Manager")]
-        public Guid? ManagerId { get; set; }
+    [ForeignKey("Manager")] public Guid? ManagerId { get; set; }
 
-        public virtual Manager Manager { get; set; }
+    public virtual Manager Manager { get; set; }
 
-        [ForeignKey("Wallet")]
-        public Guid? WalletId { get; set; }
+    [ForeignKey("Wallet")] public Guid? WalletId { get; set; }
 
-        public virtual Wallet Wallet { get; set; }
+    public virtual Wallet Wallet { get; set; }
 
-        public InternalTransactionType InternalTransactionType { get; set; }
+    public InternalTransactionType InternalTransactionType { get; set; }
 
-        public Guid? TransferId { get; set; }
+    public Guid? TransferId { get; set; }
 
-        public DateTime Date { get; set; }
+    public DateTime Date { get; set; }
 
-        public string? Description { get; set; }
+    public string? Description { get; set; }
 
-        [ForeignKey("Tag")]
-        public Guid? TagId { get; set; }
+    [ForeignKey("Tag")] public Guid? TagId { get; set; }
 
-        public virtual Tag Tag { get; set; }
+    public virtual Tag Tag { get; set; }
 
-        [ForeignKey("Bank")]
-        public Guid? BankId { get; set; }
+    [ForeignKey("Bank")] public Guid? BankId { get; set; }
 
-        public virtual Bank Bank { get; set; }
+    public virtual Bank Bank { get; set; }
 
-        public DateTime? ApprovedAt { get; set; }
+    public DateTime? ApprovedAt { get; set; }
 
-        public Guid? ApprovedBy { get; set; }
+    public Guid? ApprovedBy { get; set; }
 
-        public Guid? ClosingManagerId { get; set; }
+    public Guid? ClosingManagerId { get; set; }
 
-        public virtual ClosingManager ClosingManager { get; set; }
+    public virtual ClosingManager ClosingManager { get; set; }
 
-        public bool IsProfit { get; set; }
-    }
+    public bool IsProfit { get; set; }
 }

@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class TagRequestValidator : AbstractValidator<TagRequest>
 {
-    public class TagRequestValidator : AbstractValidator<TagRequest>
+    public TagRequestValidator()
     {
-        public TagRequestValidator()
-        {
-            RuleFor(x => x.Description).NotEmpty();
-        }
+        RuleFor(x => x.Description).NotEmpty();
     }
 }

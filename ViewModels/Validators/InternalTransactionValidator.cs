@@ -1,9 +1,7 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class InternalTransactionValidator : AbstractValidator<InternalTransactionRequest>
 {
-    public class InternalTransactionValidator : AbstractValidator<InternalTransactionRequest>
-    {
-        public InternalTransactionValidator() { }
-    }
 }

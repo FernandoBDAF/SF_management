@@ -1,35 +1,34 @@
 ﻿using SFManagement.Enums;
 
-namespace SFManagement.ViewModels
+namespace SFManagement.ViewModels;
+
+public class WalletTransactionRequest
 {
-    public class WalletTransactionRequest
-    {
-        public decimal Value { get; set; }
-        
-        public decimal Coins { get; set; }
-        
-        public decimal ExchangeRate { get; set; }
+    public decimal Value { get; set; }
 
-        public string? Description { get; set; }
+    public decimal Coins { get; set; }
 
-        public DateTime Date { get; set; }
+    public decimal ExchangeRate { get; set; }
 
-        public DateTime? ApprovedAt { get; set; }
+    public string? Description { get; set; }
 
-        public WalletTransactionType WalletTransactionType { get; set; }
+    public DateTime Date { get; set; }
 
-        public Guid? WalletId { get; set; }
+    public DateTime? ApprovedAt { get; set; }
 
-        public Guid? NicknameId { get; set; }
+    public WalletTransactionType WalletTransactionType { get; set; }
 
-        public Guid? ClientId { get; set; }
+    public Guid? WalletId { get; set; }
 
-        public Guid? TagId { get; set; }
+    public Guid? NicknameId { get; set; }
 
-        public Guid? ManagerId { get; set; }
-        
-        public decimal Rate { get; set; }
-        
-        public bool IsCoinBalance { get; set; }
-    }
+    public Guid? ClientId { get; set; }
+
+    public Guid? TagId { get; set; }
+
+    public Guid? ManagerId { get; set; }
+
+    public decimal Rate { get; set; }
+
+    public bool IsCoinBalance { get; set; }
 }

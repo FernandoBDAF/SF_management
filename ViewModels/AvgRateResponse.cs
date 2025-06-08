@@ -1,11 +1,10 @@
-﻿namespace SFManagement.ViewModels
+﻿namespace SFManagement.ViewModels;
+
+public class AvgRateResponse : BaseResponse
 {
-    public class AvgRateResponse : BaseResponse
-    {
-        public Guid ManagerId { get; set; }
+    public Guid ManagerId { get; set; }
 
-        public decimal Value { get; set; } = decimal.Zero;
+    public decimal Value { get; set; } = decimal.Zero;
 
-        public DateTime Date { get; set; }
-    }
+    public DateTime Date { get; set; }
 }

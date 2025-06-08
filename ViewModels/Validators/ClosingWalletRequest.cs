@@ -1,11 +1,7 @@
 ﻿using FluentValidation;
 
-namespace SFManagement.ViewModels.Validators
+namespace SFManagement.ViewModels.Validators;
+
+public class ClosingWalletRequest : AbstractValidator<ClosingWalletRequest>
 {
-    public class ClosingWalletRequest : AbstractValidator<ClosingWalletRequest>
-    {
-        public ClosingWalletRequest()
-        {
-        }
-    }
 }

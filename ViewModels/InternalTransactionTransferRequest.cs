@@ -1,19 +1,18 @@
 ﻿using SFManagement.Enums;
 
-namespace SFManagement.ViewModels
+namespace SFManagement.ViewModels;
+
+public class InternalTransactionTransferRequest
 {
-    public class InternalTransactionTransferRequest
-    {
-        public decimal Value { get; set; }
+    public decimal Value { get; set; }
 
-        public decimal? Coins { get; set; }
+    public decimal? Coins { get; set; }
 
-        public decimal? ExchangeRate { get; set; }
-        
-        public DateTime Date { get; set; }
+    public decimal? ExchangeRate { get; set; }
 
-        public string? Description { get; set; }
+    public DateTime Date { get; set; }
 
-        public InternalTransactionType InternalTransactionType { get; set; }
-    }
+    public string? Description { get; set; }
+
+    public InternalTransactionType InternalTransactionType { get; set; }
 }
