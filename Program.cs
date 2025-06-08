@@ -12,14 +12,12 @@ using SFManagement.StartupConfig;
 using SFManagement.ViewModels.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 
 builder.AddStandardServices();
 builder.AddScopedServices();
 builder.AddAuthServices();
 builder.AddHealthCheckServices();
-
 builder.Services.AddResponseCaching();
 builder.Services.AddMemoryCache();
 builder.AddRateLimitServices();

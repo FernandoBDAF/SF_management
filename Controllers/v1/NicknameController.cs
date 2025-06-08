@@ -21,7 +21,8 @@ public class NicknameController : BaseApiController<Nickname, NicknameRequest, N
         _mapper = mapper;
     }
 
-    [HttpGet("/nickname-client/{clientId}")]
+    [HttpGet]
+    [Route("nickname-client/{clientId}")]
     public async Task<List<NicknameResponse>> GetNicknames(Guid clientId)
     {
         return _mapper.Map<List<NicknameResponse>>(await _nicknameService.GetByClientId(clientId));
