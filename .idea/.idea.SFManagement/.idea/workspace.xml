@@ -13,9 +13,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +93,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1749089477183</updated>
-      <workItem from="1749089479094" duration="54474000" />
+      <workItem from="1749089479094" duration="58922000" />
     </task>
     <servers />
   </component>
