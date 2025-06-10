@@ -12,56 +12,57 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "9.x"
-          include-prerelease: true
+          dotnet-version: '9.x'
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
-          retention-days: 1 # Only keep artifacts for 1 day
 
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
-      name: "production"
+      name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-
-
+      
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C40C8B98E1B54AD193F8D69FDA798B52 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E64C3ECC611348E29E286499583DC2F1 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5700F6D933CF4097A0CEAC9FF6E5E274 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_EE8FB9C4DA834556A447BE046993CFB2 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1EC8853231644217A47C645F847F80C5 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F6E4A6A6A1474CD4A3F887F9CCB51074 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
-          app-name: "sfmanagement-api"
-          slot-name: "Production"
+          app-name: 'sfmanagement-api'
+          slot-name: 'Production'
           package: .
+          
