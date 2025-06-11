@@ -12,7 +12,6 @@ using SFManagement.StartupConfig;
 using SFManagement.ViewModels.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
 
 builder.AddStandardServices();
 builder.AddScopedServices();
@@ -52,8 +51,8 @@ app.UseResponseCaching();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
-{
+// if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+// {
     app.UseDeveloperExceptionPage();
     app.UseSwagger(opts =>
     {
@@ -66,7 +65,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
         opts.RoutePrefix = string.Empty;
         opts.InjectStylesheet("/css/theme-modern.css");
     });
-}
+// }
 
 app.UseAuthentication();
 app.UseAuthorization();
