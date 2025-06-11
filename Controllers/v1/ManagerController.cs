@@ -27,7 +27,8 @@ public class ManagerController : BaseApiController<Manager, ManagerRequest, Mana
         _transactionService = transactionService;
     }
 
-    [HttpGet("/wallets/{managerId}")]
+    [HttpGet]
+    [Route("wallets/{managerId}")]
     public async Task<List<WalletResponse>> GetWalletsByManagerId(Guid managerId)
     {
         return _mapper.Map<List<WalletResponse>>(await _walletService.GetWalletsByManagerId(managerId));
