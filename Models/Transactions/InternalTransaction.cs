@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Models.Closing;
+using SFManagement.Models.Transactions;
 
-namespace SFManagement.Models;
+namespace SFManagement.Models.Transactions;
 
 public class InternalTransaction : BaseDomain
 {

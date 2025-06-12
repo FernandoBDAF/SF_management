@@ -4,41 +4,40 @@ using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using SFManagement.Data;
 using SFManagement.Enums;
-using SFManagement.Models;
+using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class ExcelService : BaseService<Excel>
+public class ExcelService(
+    DataContext context,
+    IMapper mapper,
+    IHttpContextAccessor httpContextAccessor,
+    WalletTransactionService walletTransactionService)
+    : BaseService<Excel>(context, httpContextAccessor)
 {
-    private readonly IMapper _mapper;
-    private readonly WalletTransactionService _walletTransactionService;
-
-    public ExcelService(DataContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor,
-        WalletTransactionService walletTransactionService) : base(context, httpContextAccessor)
-    {
-        _mapper = mapper;
-        _walletTransactionService = walletTransactionService;
-    }
+    private readonly WalletTransactionService _walletTransactionService = walletTransactionService;
 
     public override async Task<Excel?> Get(Guid id)
     {
-        return await _entity.Include(x => x.WalletTransactions)
+        return await _entity.Include(x => x.ExcelTransactions)
             .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
     }
 
-    public async Task<List<WalletTransactionResponse>> ImportBuySellTransactions(ExcelRequest request,
+    public async Task<List<ExcelTransactionResponse>> ImportBuySellTransactions(ExcelRequest request,
         WalletTransactionType walletTransactionType)
     {
         var manager = await context.Managers.FindAsync(request.ManagerId);
         if (manager == null) throw new AppException("Manager not found");
 
-        var excel = new Excel
+        var fileType = walletTransactionType == WalletTransactionType.Income ? "Venda" : "Compra";
+        
+        var excel = new Excel(request.ManagerId, request.PostFile.FileName, fileType)
         {
             CreatedAt = DateTime.Now,
             ManagerId = request.ManagerId,
             FileName = request.PostFile.FileName,
-            FileType = walletTransactionType == WalletTransactionType.Income ? "Venda" : "Compra"
+            FileType = fileType
         };
 
         var rows = ReadExcelFile(request.PostFile,
@@ -47,104 +46,116 @@ public class ExcelService : BaseService<Excel>
 
         foreach (var row in rows)
         {
-            var nicknameValue = row.FirstOrDefault(x => x.Name == "Nickname").Value;
-            var createdAtValue = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
-            string[] formats = { "d/M/yyyy H:mm", "d/M/yy H:mm", "d/M/yy HH:mm", "d/M/yyyy HH:mm" };
-            DateTime parsedDate;
+            var fileNickname = row.FirstOrDefault(x => x.Name == "Nickname").Value;
+            var fileCoins = decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR"));
+            var fileWallet = row.FirstOrDefault(x => x.Name == "Wallet").Value;
+            
+            var fileDate = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
+            var formats = new string[]{ "d/M/yyyy H:mm", "d/M/yy H:mm", "d/M/yy HH:mm", "d/M/yyyy HH:mm" };
 
-            if (DateTime.TryParseExact(createdAtValue, formats, CultureInfo.InvariantCulture, DateTimeStyles.None,
-                    out parsedDate))
-                parsedDate = parsedDate; // Assign the successfully parsed DateTime
+            if (DateTime.TryParseExact(fileDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None,
+                    out var parsedDate))
+                parsedDate = parsedDate;
             else
-                throw new FormatException($"Unable to parse date: {createdAtValue}");
+                throw new FormatException($"Unable to parse date: {fileDate}");
 
-            var walletTransaction = new WalletTransaction
+            var fileDescription = row.FirstOrDefault(x => x.Name == "Description").Value;
+            
+            var excelTransaction = new ExcelTransaction
             {
                 Date = parsedDate,
-                Coins = decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR")),
-                Description = row.FirstOrDefault(x => x.Name == "Description").Value,
+                Coins = fileCoins,
+                ManagerId = excel.ManagerId,
                 WalletTransactionType = walletTransactionType,
-                ExcelNickname = nicknameValue,
-                ManagerId = excel.ManagerId
+                ExcelNickname = fileNickname,
+                ExcelWallet = fileWallet,
             };
+            
+            excelTransaction.Description = fileDescription;
 
-            if (!context.WalletTransactions.Any(x =>
-                    x.Date == walletTransaction.Date && x.Value == walletTransaction.Value &&
-                    x.WalletTransactionType == walletTransaction.WalletTransactionType &&
-                    x.WalletId == walletTransaction.WalletId)) excel.WalletTransactions.Add(walletTransaction);
+            if (!context.ExcelTransactions.Any(x =>
+                    x.Date == excelTransaction.Date && x.Coins == excelTransaction.Coins &&
+                    x.WalletTransactionType == excelTransaction.WalletTransactionType &&
+                    x.ManagerId == excelTransaction.ManagerId)) excel.ExcelTransactions.Add(excelTransaction);
         }
 
-        if (excel.WalletTransactions.Count == 0) throw new AppException("No transactions found");
+        if (excel.ExcelTransactions.Count == 0) throw new AppException("No transactions found");
 
         await context.Excels.AddAsync(excel);
         await context.SaveChangesAsync();
 
-        return _mapper.Map<List<WalletTransactionResponse>>(excel.WalletTransactions);
+        return mapper.Map<List<ExcelTransactionResponse>>(excel.ExcelTransactions);
     }
 
-    public async Task<List<WalletTransactionResponse>> ImportTransferTransactions(ExcelRequest request)
+    public async Task<List<ExcelTransactionResponse>> ImportTransferTransactions(ExcelRequest request)
     {
         var manager = await context.Managers.FindAsync(request.ManagerId);
         if (manager == null) throw new AppException("Manager not found");
 
-        var excel = new Excel
+        var fileType = "Transferência";
+        var excel = new Excel(request.ManagerId, request.PostFile.FileName, fileType)
         {
             CreatedAt = DateTime.Now,
             ManagerId = request.ManagerId,
             FileName = request.PostFile.FileName,
-            FileType = "Transferência"
+            FileType = fileType
         };
 
         var rows = ReadExcelFile(request.PostFile,
             new List<(int, string)> { (1, "From"), (2, "To"), (3, "CreatedAt"), (4, "Value"), (5, "Description") });
-
+        
         foreach (var row in rows)
         {
-            var walletTransactionValue =
+            var fileCoins =
                 decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR"));
+            var fileWallet = "interna cred";
+                
             var walletTransactionType =
-                walletTransactionValue > 0 ? WalletTransactionType.Expense : WalletTransactionType.Income;
+                fileCoins > 0 ? WalletTransactionType.Expense : WalletTransactionType.Income;
+            var fileNickname =
+                fileCoins > 0 ? row.FirstOrDefault(x => x.Name == "From").Value : row.FirstOrDefault(x => x.Name == "To").Value;
 
-            walletTransactionValue = walletTransactionValue > 0
-                ? walletTransactionValue
-                : decimal.Negate(walletTransactionValue);
+            fileCoins = fileCoins > 0
+                ? fileCoins
+                : decimal.Negate(fileCoins);
 
-            //parse date
-            var createdAtValue = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
-            string[] formats = { "d/M/yyyy H:mm", "d/M/yy H:mm", "d/M/yy HH:mm", "d/M/yyyy HH:mm" };
-            DateTime parsedDate;
+            var fileDate = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
+            var formats = new string[]{ "d/M/yyyy H:mm", "d/M/yy H:mm", "d/M/yy HH:mm", "d/M/yyyy HH:mm" };
 
-            if (DateTime.TryParseExact(createdAtValue, formats, CultureInfo.InvariantCulture, DateTimeStyles.None,
-                    out parsedDate))
-                parsedDate = parsedDate; // Assign the successfully parsed DateTime
+            if (DateTime.TryParseExact(fileDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None,
+                    out var parsedDate))
+                parsedDate = parsedDate;
             else
-                throw new FormatException($"Unable to parse date: {createdAtValue}");
-            //
+                throw new FormatException($"Unable to parse date: {fileDate}");
 
-            var walletTransaction = new WalletTransaction
+            var fileDescription = row.FirstOrDefault(x => x.Name == "Description").Value;
+
+            var excelTransaction = new ExcelTransaction
             {
                 Date = parsedDate,
-                Coins = walletTransactionValue,
-                Description = row.FirstOrDefault(x => x.Name == "Description").Value,
+                Coins = fileCoins,
+                ManagerId = excel.ManagerId,
                 WalletTransactionType = walletTransactionType,
-                ManagerId = excel.ManagerId
+                ExcelNickname = fileNickname,
+                ExcelWallet = fileWallet,
             };
+            excelTransaction.Description = fileDescription;
 
-            if (!context.WalletTransactions.Any(x =>
-                    x.Date == walletTransaction.Date && x.Value == walletTransaction.Value &&
-                    x.WalletTransactionType == walletTransaction.WalletTransactionType &&
-                    x.WalletId == walletTransaction.WalletId)) excel.WalletTransactions.Add(walletTransaction);
+            if (!context.ExcelTransactions.Any(x =>
+                    x.Date == excelTransaction.Date && x.Coins == excelTransaction.Coins &&
+                    x.WalletTransactionType == excelTransaction.WalletTransactionType &&
+                    x.ManagerId == excelTransaction.ManagerId)) excel.ExcelTransactions.Add(excelTransaction);
         }
 
-        if (excel.WalletTransactions.Count == 0) throw new AppException("No transactions found");
+        if (excel.ExcelTransactions.Count == 0) throw new AppException("No transactions found");
 
         await context.Excels.AddAsync(excel);
         await context.SaveChangesAsync();
 
-        return _mapper.Map<List<WalletTransactionResponse>>(excel.WalletTransactions);
+        return mapper.Map<List<ExcelTransactionResponse>>(excel.ExcelTransactions);
     }
 
-    public List<List<(string Value, string Name)>> ReadExcelFile(IFormFile file, List<(int Column, string Name)> fields)
+    private static List<List<(string Value, string Name)>> ReadExcelFile(IFormFile file, List<(int Column, string Name)> fields)
     {
         var rows = new List<List<(string Value, string Name)>>();
 
@@ -210,6 +221,6 @@ public class ExcelService : BaseService<Excel>
 
         await context.SaveChangesAsync();
 
-        return _mapper.Map<List<WalletTransactionResponse>>(list);
+        return mapper.Map<List<WalletTransactionResponse>>(list);
     }
 }

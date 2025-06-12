@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using SFManagement.Models;
+using SFManagement.Models.Closing;
+using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
 namespace SFManagement;
@@ -30,7 +32,9 @@ public class AutoMapperProfile : Profile
         CreateMap<Ofx, OfxResponse>();
         CreateMap<OfxRequest, Ofx>();
 
-
+        CreateMap<OfxTransaction, OfxTransactionResponse>();
+        CreateMap<OfxTransactionRequest, OfxTransaction>();
+        
         CreateMap<Manager, ManagerResponse>();
         CreateMap<ManagerRequest, Manager>();
 

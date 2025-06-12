@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.Models.Closing;
 
 namespace SFManagement.Services;
 

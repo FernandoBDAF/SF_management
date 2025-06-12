@@ -1,25 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
 
-namespace SFManagement.Models;
+namespace SFManagement.Models.Transactions;
 
-public class BankTransaction : BaseDomain
+public class OfxTransaction : BaseDomain
 {
-    public BankTransaction()
+    public OfxTransaction()
     {
     }
-
-    public BankTransaction(XElement el, Guid bankId)
+    
+    public OfxTransaction(XElement el, Guid bankId)
     {
         BankId = bankId;
-
+    
         var dtposted = el.Element("DTPOSTED")?.Value.Replace("</DTPOSTED>", string.Empty);
         if (!string.IsNullOrEmpty(dtposted) && DateTime.TryParseExact(dtposted, "yyyyMMdd",
                 CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)) Date = date;
-
+    
         var trnamt = el.Element("TRNAMT")?.Value.Replace("</TRNAMT>", string.Empty);
         if (!string.IsNullOrEmpty(trnamt) && decimal.TryParse(trnamt,
                 NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign,
@@ -30,54 +31,35 @@ public class BankTransaction : BaseDomain
                 Value > decimal.Zero ? BankTransactionType.Income : BankTransactionType.Expense;
             Value = Value > decimal.Zero ? Value : decimal.Negate(Value);
         }
-
+    
         Description = el.Element("MEMO")?.Value.Replace("</MEMO>", string.Empty);
-        FitId = el.Element("FITID")?.Value.Replace("</FITID>", string.Empty);
+        FitId = el.Element("FITID")?.Value.Replace("</FITID>", string.Empty) ?? "not found";
         BankId = bankId;
         CreatedAt = DateTime.Now;
     }
-
-    [Precision(18, 2)] public decimal Value { get; set; }
-
+    
+    [Required] public DateTime Date { get; set; }
+    
+    [Required] [Precision(18, 2)] public decimal Value { get; set; }
+    
+    [MaxLength(30)]
     public string? Description { get; set; }
-
+    
+    [Required]
     [ForeignKey("Bank")] public Guid BankId { get; set; }
 
-    public virtual Bank Bank { get; set; }
-
+    public virtual Bank Bank { get; set; } = new();
+    
+    [Required]
     public BankTransactionType BankTransactionType { get; set; }
 
-    public DateTime Date { get; set; }
-
-    public string? FitId { get; set; }
+    [Required] [MaxLength(20)] public string FitId { get; set; } = null!;
 
     [ForeignKey("Ofx")] public Guid? OfxId { get; set; }
 
     public virtual Ofx? Ofx { get; set; }
+    
+    [ForeignKey("BankTransaction")] public Guid? BankTransactionId { get; set; }
 
-    [ForeignKey("Client")] public Guid? ClientId { get; set; }
-
-    public virtual Client? Client { get; set; }
-
-    [ForeignKey("Manager")] public Guid? ManagerId { get; set; }
-
-    public virtual Manager Manager { get; set; }
-
-    public DateTime? ApprovedAt { get; set; }
-
-    public string? TagDescription { get; set; }
-
-    [ForeignKey("LinkedTo")] public Guid? LinkedToId { get; set; }
-
-    public virtual BankTransaction LinkedTo { get; set; }
-
-    public virtual BankTransaction WasLinked { get; set; }
-
-    [ForeignKey("Tag")] public Guid? TagId { get; set; }
-
-    public virtual Tag Tag { get; set; }
-
-    public Guid? ApprovedBy { get; set; }
-
-    public bool IsValid => !OfxId.HasValue || (OfxId.HasValue && ApprovedAt.HasValue);
+    public virtual BankTransaction? BankTransaction { get; set; }
 }

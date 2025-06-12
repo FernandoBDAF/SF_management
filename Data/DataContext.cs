@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFManagement.Models;
+using SFManagement.Models.Closing;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Data;
 
@@ -21,6 +23,8 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
     public DbSet<BankTransaction> BankTransactions { get; set; }
 
     public DbSet<Ofx> Ofxs { get; set; }
+    
+    public DbSet<OfxTransaction> OfxTransactions { get; set; }
 
     public DbSet<Manager> Managers { get; set; }
 
@@ -31,6 +35,8 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
     public DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public DbSet<Excel> Excels { get; set; }
+
+    public DbSet<ExcelTransaction> ExcelTransactions { get; set; }
 
     public DbSet<Tag> Tags { get; set; }
 

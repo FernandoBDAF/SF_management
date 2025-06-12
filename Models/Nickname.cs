@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using SFManagement.Models.Closing;
 
 namespace SFManagement.Models;
 

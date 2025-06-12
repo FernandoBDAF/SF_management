@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SFManagement.Models;
+namespace SFManagement.Models.Transactions;
 
 public class Tag : BaseDomain
 {

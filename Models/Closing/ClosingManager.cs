@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Models.Transactions;
 
-namespace SFManagement.Models;
+namespace SFManagement.Models.Closing;
 
 public class ClosingManager : BaseDomain
 {
     [ForeignKey("Manager")] public Guid ManagerId { get; set; }
 
-    public virtual Manager Manager { get; set; }
+    public virtual Manager Manager { get; set; } = new();
 
     public DateTime Start { get; set; }
 

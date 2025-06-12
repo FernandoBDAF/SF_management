@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models;
 

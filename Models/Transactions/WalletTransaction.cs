@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Models.Transactions;
 
-namespace SFManagement.Models;
+namespace SFManagement.Models.Transactions;
 
-public class WalletTransaction : BaseDomain
+public class WalletTransaction : BaseTransaction
 {
     [Precision(18, 2)] public decimal Value { get; set; }
 
@@ -35,7 +36,6 @@ public class WalletTransaction : BaseDomain
 
     public virtual Nickname Nickname { get; set; }
 
-    // se ja temos walletId e wallet obrigatoriamente eh ligado a manager, precisamos disso?
     [ForeignKey("Manager")] public Guid? ManagerId { get; set; }
 
     public virtual Manager Manager { get; set; }

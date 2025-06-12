@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 

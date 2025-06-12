@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace SFManagement.Models;
+namespace SFManagement.Models.Closing;
 
 public class ClosingNickname : BaseDomain
 {

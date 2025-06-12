@@ -2,6 +2,8 @@
 using SFManagement.Data;
 using SFManagement.Enums;
 using SFManagement.Models;
+using SFManagement.Models.Closing;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Services;
 

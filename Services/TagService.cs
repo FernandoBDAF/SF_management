@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
