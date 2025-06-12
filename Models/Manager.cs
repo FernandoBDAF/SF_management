@@ -1,31 +1,37 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Models.Closing;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models;
 
 public class Manager : BaseDomain
 {
-    public string? Name { get; set; }
+    [Required] [MaxLength(20)] public string Name { get; set; }
 
     public ManagerType ManagerType { get; set; }
 
-    public virtual List<Wallet> Wallets { get; set; } = new();
+    public virtual ICollection<Wallet> Wallets { get; set; } = new HashSet<Wallet>();
 
-    public virtual List<Excel> Excels { get; set; } = new();
+    public virtual ICollection<Excel> Excels { get; set; } = new HashSet<Excel>();
 
-    public virtual List<ClosingManager> ClosingManagers { get; set; } = new();
+    public virtual ICollection<ClosingManager> ClosingManagers { get; set; } = new HashSet<ClosingManager>();
+    
+    public virtual ICollection<BankTransaction> BankTransactions { get; set; } = new HashSet<BankTransaction>();
+    
+    // this have to be moved to the wallet or equivalent
+    public virtual decimal? AgreedCommission { get; set; }
 
-    public virtual List<BankTransaction> BankTransactions { get; set; } = new();
+    // public virtual ICollection<WalletTransaction> WalletTransactions { get; set; } = new HashSet<WalletTransaction>();
 
-    public virtual List<WalletTransaction> WalletTransactions { get; set; } = new();
+    public virtual ICollection<InternalTransaction> InternalTransactions { get; set; } = new HashSet<InternalTransaction>();
 
-    public virtual List<InternalTransaction> InternalTransactions { get; set; } = new();
+    public virtual ICollection<AvgRate> AvgRates { get; set; } = new HashSet<AvgRate>();
 
-    public virtual List<AvgRate> AvgRates { get; set; } = new();
+    [Precision(18, 2)] public decimal? InitialValue { get; set; }
 
-    [Precision(18, 2)] public decimal InitialValue { get; set; }
+    [Precision(18, 2)] public decimal? InitialExchangeRate { get; set; }
 
-    [Precision(18, 2)] public decimal InitialExchangeRate { get; set; }
-
-    [Precision(18, 2)] public decimal InitialCoins { get; set; }
+    [Precision(18, 2)] public decimal? InitialCoins { get; set; }
 }

@@ -1,48 +1,24 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Models.Closing;
+using SFManagement.Models.Transactions;
 
-namespace SFManagement.Models;
+namespace SFManagement.Models.Transactions;
 
-public class InternalTransaction : BaseDomain
+public class InternalTransaction : BaseTransaction
 {
-    [Precision(18, 2)] public decimal Value { get; set; }
+    [Precision(18, 2)] public decimal? Value { get; set; }
 
     [Precision(18, 2)] public decimal? Coins { get; set; }
 
     [Precision(18, 2)] public decimal? ExchangeRate { get; set; }
 
-    [ForeignKey("Client")] public Guid? ClientId { get; set; }
-
-    public virtual Client Client { get; set; }
-
-    [ForeignKey("Manager")] public Guid? ManagerId { get; set; }
-
-    public virtual Manager Manager { get; set; }
-
-    [ForeignKey("Wallet")] public Guid? WalletId { get; set; }
-
-    public virtual Wallet Wallet { get; set; }
-
     public InternalTransactionType InternalTransactionType { get; set; }
 
     public Guid? TransferId { get; set; }
 
-    public DateTime Date { get; set; }
-
-    public string? Description { get; set; }
-
-    [ForeignKey("Tag")] public Guid? TagId { get; set; }
-
-    public virtual Tag Tag { get; set; }
-
     [ForeignKey("Bank")] public Guid? BankId { get; set; }
-
-    public virtual Bank Bank { get; set; }
-
-    public DateTime? ApprovedAt { get; set; }
-
-    public Guid? ApprovedBy { get; set; }
 
     public Guid? ClosingManagerId { get; set; }
 

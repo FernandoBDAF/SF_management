@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Enums;
-using SFManagement.Models;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -22,21 +22,21 @@ public class ExcelController : BaseApiController<Excel, ExcelRequest, ExcelRespo
 
     [HttpPost]
     [Route("import-buy-transactions")]
-    public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ExcelRequest request)
+    public async Task<List<ExcelTransactionResponse>> ImportBuyTransactions(ExcelRequest request)
     {
         return await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Expense);
     }
 
     [HttpPost]
     [Route("import-sell-transactions")]
-    public async Task<List<WalletTransactionResponse>> ImportSellTransactions(ExcelRequest request)
+    public async Task<List<ExcelTransactionResponse>> ImportSellTransactions(ExcelRequest request)
     {
         return await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Income);
     }
 
     [HttpPost]
     [Route("import-transfer-transactions")]
-    public async Task<List<WalletTransactionResponse>> ImportTransferTransactions(ExcelRequest request)
+    public async Task<List<ExcelTransactionResponse>> ImportTransferTransactions(ExcelRequest request)
     {
         return await _excelService.ImportTransferTransactions(request);
     }

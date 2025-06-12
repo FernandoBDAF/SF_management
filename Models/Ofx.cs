@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace SFManagement.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+namespace SFManagement.Models.Transactions;
 
 public class Ofx : BaseDomain
 {
@@ -8,21 +8,18 @@ public class Ofx : BaseDomain
     {
     }
 
-    public Ofx(List<BankTransaction> transactions, Guid bankId, string fileName)
+    public Ofx(List<OfxTransaction> transactions, Guid bankId, string fileName)
     {
         BankId = bankId;
-        BankTransactions = transactions;
-        CreatedAt = DateTime.Now;
         FileName = fileName;
+        OfxTransactions = transactions;
     }
 
-    [ForeignKey("Bank")] public Guid BankId { get; set; }
+    [Required] [ForeignKey("Bank")] public Guid BankId { get; set; }
 
-    public virtual Bank Bank { get; set; }
+    public virtual Bank? Bank { get; set; } = new();
 
-    public string? FileName { get; set; }
+    [Required] [MaxLength(20)] public string FileName { get; set; }
 
-    public byte[]? File { get; set; }
-
-    public ICollection<BankTransaction> BankTransactions { get; set; } = new HashSet<BankTransaction>();
+    public ICollection<OfxTransaction> OfxTransactions { get; set; } = new HashSet<OfxTransaction>();
 }
