@@ -14,5 +14,5 @@ public class InternalTransactionTransferRequest
 
     public string? Description { get; set; }
 
-    public InternalTransactionType InternalTransactionType { get; set; }
+    public TransactionDirection InternalTransactionType { get; set; }
 }

@@ -24,14 +24,14 @@ public class ExcelController : BaseApiController<Excel, ExcelRequest, ExcelRespo
     [Route("import-buy-transactions")]
     public async Task<List<ExcelTransactionResponse>> ImportBuyTransactions(ExcelRequest request)
     {
-        return await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Expense);
+        return await _excelService.ImportBuySellTransactions(request, TransactionDirection.Expense);
     }
 
     [HttpPost]
     [Route("import-sell-transactions")]
     public async Task<List<ExcelTransactionResponse>> ImportSellTransactions(ExcelRequest request)
     {
-        return await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Income);
+        return await _excelService.ImportBuySellTransactions(request, TransactionDirection.Income);
     }
 
     [HttpPost]

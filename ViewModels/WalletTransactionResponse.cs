@@ -20,7 +20,7 @@ public class WalletTransactionResponse : BaseResponse
 
     public DateTime? ApprovedAt { get; set; }
 
-    public WalletTransactionType WalletTransactionType { get; set; }
+    public TransactionDirection TransactionDirection { get; set; }
 
     public Guid? WalletId { get; set; }
 

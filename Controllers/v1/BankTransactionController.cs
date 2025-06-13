@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -10,12 +11,12 @@ namespace SFManagement.Controllers.v1;
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class
-    BankTransactionController : BaseApiController<BankTransaction, BankTransactionRequest, BankTransactionResponse>
+    BankTransactionController : BaseApiController<FiatAssetTransaction, BankTransactionRequest, BankTransactionResponse>
 {
     private readonly BankTransactionService _bankTransactionService;
     private readonly IMapper _mapper;
 
-    public BankTransactionController(BaseService<BankTransaction> service, IMapper mapper,
+    public BankTransactionController(BaseService<FiatAssetTransaction> service, IMapper mapper,
         BankTransactionService bankTransactionService) : base(service, mapper)
     {
         _bankTransactionService = bankTransactionService;

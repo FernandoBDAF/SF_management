@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -10,13 +11,13 @@ namespace SFManagement.Controllers.v1;
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class
-    WalletTransactionController : BaseApiController<WalletTransaction, WalletTransactionRequest,
+    WalletTransactionController : BaseApiController<DigitalAssetTransaction, WalletTransactionRequest,
     WalletTransactionResponse>
 {
     private readonly IMapper _mapper;
     private readonly WalletTransactionService _walletTransactionService;
 
-    public WalletTransactionController(BaseService<WalletTransaction> service, IMapper mapper,
+    public WalletTransactionController(BaseService<DigitalAssetTransaction> service, IMapper mapper,
         WalletTransactionService walletTransactionService) : base(service, mapper)
     {
         _walletTransactionService = walletTransactionService;

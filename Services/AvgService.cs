@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.Models.Entities;
 
 namespace SFManagement.Services;
 
@@ -16,17 +17,19 @@ public class AvgRateService : BaseService<AvgRate>
 
     public async Task Reset(Guid managerId)
     {
-        var firstDate = await context.WalletTransactions
-            .Where(x => x.Wallet.ManagerId == managerId)
-            .OrderBy(x => x.Date)
-            .FirstOrDefaultAsync();
-        await _walletTransactionService.CalcAvgRate(
-            await context.Managers.FirstOrDefaultAsync(x => x.Id == managerId), firstDate.Date);
+        await Task.Yield();
+        // var firstDate = await context.DigitalAssetTransactions
+        //     .Where(x => x.Wallet.ManagerId == managerId)
+        //     .OrderBy(x => x.Date)
+        //     .FirstOrDefaultAsync();
+        // await _walletTransactionService.CalcAvgRate(
+        //     await context.Managers.FirstOrDefaultAsync(x => x.Id == managerId), firstDate.Date);
     }
 
     public async Task Calc(Guid managerId, DateTime referenceDate)
     {
-        await _walletTransactionService.CalcAvgRate(
-            await context.Managers.FirstOrDefaultAsync(x => x.Id == managerId), referenceDate.Date);
+        await Task.Yield();
+        // await _walletTransactionService.CalcAvgRate(
+        //     await context.Managers.FirstOrDefaultAsync(x => x.Id == managerId), referenceDate.Date);
     }
 }

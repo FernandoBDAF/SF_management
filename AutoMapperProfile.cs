@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
 using SFManagement.Models;
+using SFManagement.Models.Closing;
+using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
 namespace SFManagement;
@@ -8,15 +11,18 @@ public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
+        CreateMap<Address, AddressResponse>();
+        CreateMap<AddressRequest, Address>();
+        
         CreateMap<Bank, BankResponse>();
         CreateMap<BankRequest, Bank>();
 
-        CreateMap<BankTransaction, BankTransactionResponse>()
-            .ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name))
-            .ForMember(dest => dest.ClientName, act => act.MapFrom(src => src.Client.Name));
-        CreateMap<BankTransactionRequest, BankTransaction>();
+        // CreateMap<FiatAssetTransaction, BankTransactionResponse>()
+        //     .ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name))
+        //     .ForMember(dest => dest.ClientName, act => act.MapFrom(src => src.Client.Name));
+        // CreateMap<BankTransactionRequest, FiatAssetTransaction>();
 
-        CreateMap<(BankTransaction from, BankTransaction to), (BankTransactionResponse from, BankTransactionResponse to
+        CreateMap<(FiatAssetTransaction from, FiatAssetTransaction to), (BankTransactionResponse from, BankTransactionResponse to
                 )>()
             .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
             .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
@@ -30,20 +36,22 @@ public class AutoMapperProfile : Profile
         CreateMap<Ofx, OfxResponse>();
         CreateMap<OfxRequest, Ofx>();
 
-
-        CreateMap<Manager, ManagerResponse>();
-        CreateMap<ManagerRequest, Manager>();
+        CreateMap<OfxTransaction, OfxTransactionResponse>();
+        CreateMap<OfxTransactionRequest, OfxTransaction>();
+        
+        CreateMap<PokerManager, ManagerResponse>();
+        CreateMap<ManagerRequest, PokerManager>();
 
         CreateMap<Wallet, WalletResponse>();
         CreateMap<WalletRequest, Wallet>();
 
-        CreateMap<Nickname, NicknameResponse>();
-        CreateMap<NicknameRequest, Nickname>();
+        CreateMap<WalletIdentifier, NicknameResponse>();
+        CreateMap<NicknameRequest, WalletIdentifier>();
 
-        CreateMap<WalletTransaction, WalletTransactionResponse>();
-        CreateMap<WalletTransactionRequest, WalletTransaction>();
+        CreateMap<DigitalAssetTransaction, WalletTransactionResponse>();
+        CreateMap<WalletTransactionRequest, DigitalAssetTransaction>();
 
-        CreateMap<(WalletTransaction from, WalletTransaction to), (WalletTransactionResponse from,
+        CreateMap<(DigitalAssetTransaction from, DigitalAssetTransaction to), (WalletTransactionResponse from,
                 WalletTransactionResponse to)>()
             .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
             .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));

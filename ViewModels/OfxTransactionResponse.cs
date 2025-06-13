@@ -12,7 +12,7 @@ public class OfxTransactionResponse
     
     public Guid BankId { get; set; }
 
-    public BankTransactionType BankTransactionType { get; set; }
+    public TransactionDirection TransactionDirection { get; set; }
     
     public string FitId { get; set; }
 

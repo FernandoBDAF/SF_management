@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
+using SFManagement.Models.Entities;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -9,7 +10,7 @@ namespace SFManagement.Controllers.v1;
 [ApiController]
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class ManagerController : BaseApiController<Manager, ManagerRequest, ManagerResponse>
+public class ManagerController : BaseApiController<PokerManager, ManagerRequest, ManagerResponse>
 {
     private readonly ManagerService _managerService;
 
@@ -18,7 +19,7 @@ public class ManagerController : BaseApiController<Manager, ManagerRequest, Mana
     private readonly TransactionService _transactionService;
     private readonly WalletService _walletService;
 
-    public ManagerController(BaseService<Manager> service, IMapper mapper, WalletService walletService,
+    public ManagerController(BaseService<PokerManager> service, IMapper mapper, WalletService walletService,
         ManagerService managerService, TransactionService transactionService) : base(service, mapper)
     {
         _mapper = mapper;

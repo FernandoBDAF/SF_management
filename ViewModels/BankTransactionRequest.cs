@@ -16,7 +16,7 @@ public class BankTransactionRequest
 
     public Guid? ClientId { get; set; }
 
-    public BankTransactionType BankTransactionType { get; set; }
+    public TransactionDirection TransactionDirection { get; set; }
 
     public Guid? TagId { get; set; }
 

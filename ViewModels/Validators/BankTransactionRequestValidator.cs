@@ -6,7 +6,7 @@ public class BankTransactionRequestValidator : AbstractValidator<BankTransaction
 {
     public BankTransactionRequestValidator()
     {
-        RuleFor(x => x.BankTransactionType).NotEmpty();
+        RuleFor(x => x.TransactionDirection).NotEmpty();
         RuleFor(x => x.BankId).NotEmpty();
         RuleFor(x => x.Value).NotEmpty();
     }

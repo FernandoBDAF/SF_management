@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFManagement.Models;
 using SFManagement.Models.Closing;
+using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
+
 
 namespace SFManagement.Data;
 
@@ -15,24 +17,27 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
     {
         _httpContextAccessor = httpContextAccessor;
     }
+    public DbSet<Bank> Banks { get; set; }
+    
+    public DbSet<Address> Addresses { get; set; }
 
     public DbSet<Client> Clients { get; set; }
 
-    public DbSet<Bank> Banks { get; set; }
-
-    public DbSet<BankTransaction> BankTransactions { get; set; }
+    public DbSet<FiatAssetTransaction> FiatAssetTransactions { get; set; }
 
     public DbSet<Ofx> Ofxs { get; set; }
     
+    public DbSet<InitialBalance> InitialBalances { get; set; }
+    
     public DbSet<OfxTransaction> OfxTransactions { get; set; }
 
-    public DbSet<Manager> Managers { get; set; }
+    public DbSet<PokerManager> PokerManagers { get; set; }
 
-    public DbSet<Nickname> Nicknames { get; set; }
+    public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }
 
     public DbSet<Wallet> Wallets { get; set; }
 
-    public DbSet<WalletTransaction> WalletTransactions { get; set; }
+    public DbSet<DigitalAssetTransaction> DigitalAssetTransactions { get; set; }
 
     public DbSet<Excel> Excels { get; set; }
 
@@ -53,6 +58,32 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+       modelBuilder.Entity<BaseAssetHolder>().UseTpcMappingStrategy();
+
+        modelBuilder.Entity<WalletIdentifier>()
+        .HasOne(wi => wi.Wallet)
+        .WithMany(w => w.WalletIdentifiers)
+        .HasForeignKey(wi => wi.WalletId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WalletIdentifier>()
+        .HasOne(wi => wi.Client)
+        .WithMany(c => c.WalletIdentifiers)
+        .HasForeignKey(wi => wi.ClientId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WalletIdentifier>()
+        .HasOne(wi => wi.Member)
+        .WithMany(m => m.WalletIdentifiers)
+        .HasForeignKey(wi => wi.MemberId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WalletIdentifier>()
+        .HasOne(wi => wi.PokerManager)
+        .WithMany(p => p.WalletIdentifiers)
+        .HasForeignKey(wi => wi.PokerManagerId)
+        .OnDelete(DeleteBehavior.Restrict);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

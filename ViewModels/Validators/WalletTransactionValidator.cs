@@ -8,7 +8,7 @@ public class WalletTransactionValidator : AbstractValidator<WalletTransactionReq
     {
         RuleFor(x => x.Coins).NotEmpty();
         RuleFor(x => x.Date).NotEmpty();
-        RuleFor(x => x.WalletTransactionType).NotEmpty();
+        RuleFor(x => x.TransactionDirection).NotEmpty();
         RuleFor(x => x.WalletId).NotEmpty();
         RuleFor(x => x.ManagerId).NotEmpty();
     }

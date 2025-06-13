@@ -12,7 +12,7 @@ public class ExcelTransactionResponse
 
     public Guid ManagerId { get; set; }
 
-    public WalletTransactionType WalletTransactionType { get; set; }
+    public TransactionDirection TransactionDirection { get; set; }
 
     public string ExcelNickname { get; set; }
     

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.Models.Entities;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
@@ -18,21 +19,23 @@ public class ClientService : BaseService<Client>
 
     public async Task<BalanceResponse> GetBalance(Guid clientId, DateTime? date)
     {
-        var now = DateTime.Now;
-        if (!date.HasValue || date.Value.Year == 1) date = now;
-        var client = await context.Clients.Include(x => x.BankTransactions)
-            .Include(x => x.WalletTransactions)
-            .Include(x => x.InternalTransactions)
-            .FirstOrDefaultAsync(x => x.Id == clientId);
-
-        return new BalanceResponse(client, date);
+        // var now = DateTime.Now;
+        // if (!date.HasValue || date.Value.Year == 1) date = now;
+        // var client = await context.Clients.Include(x => x.BankTransactions)
+        //     .Include(x => x.WalletTransactions)
+        //     .Include(x => x.InternalTransactions)
+        //     .FirstOrDefaultAsync(x => x.Id == clientId);
+        //
+        // return new BalanceResponse(client, date);
+        await Task.Yield();
+        return null;
     }
 
     public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
     {
         var client = await context.Clients.FindAsync(clientId);
 
-        client.InitialValue = request.InitialValue ?? client.InitialValue;
+        // client.InitialValue = request.InitialValue ?? client.InitialValue;
 
         await context.SaveChangesAsync();
 

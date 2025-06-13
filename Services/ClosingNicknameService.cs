@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.Models.Closing;
 
 namespace SFManagement.Services;
 
@@ -13,11 +14,13 @@ public class ClosingNicknameService : BaseService<ClosingNickname>
 
     public async Task<List<IGrouping<Guid, ClosingNickname>>> GetByClosingManagerId(Guid closingManagerId)
     {
-        return await _entity
-            .Where(x => !x.DeletedAt.HasValue && x.ClosingManagerId == closingManagerId)
-            .Include(x => x.Nickname)
-            .GroupBy(x => x.Nickname.WalletId)
-            .ToListAsync();
+        // return await _entity
+        //     .Where(x => !x.DeletedAt.HasValue && x.ClosingManagerId == closingManagerId)
+        //     .Include(x => x.Nickname)
+        //     .GroupBy(x => x.Nickname.WalletId)
+        //     .ToListAsync();
+        await Task.Yield();
+        return null;
     }
 
 

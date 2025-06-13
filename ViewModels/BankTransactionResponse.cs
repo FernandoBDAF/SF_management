@@ -24,7 +24,7 @@ public class BankTransactionResponse : BaseResponse
 
     public Guid? LinkedToId { get; set; }
 
-    public BankTransactionType BankTransactionType { get; set; }
+    public TransactionDirection TransactionDirection { get; set; }
 
     public bool IsValid { get; set; }
 
