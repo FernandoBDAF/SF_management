@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace SFManagement.Models;
+namespace SFManagement.Models.Closing;
 
 public class ClosingWallet : BaseDomain
 {
@@ -15,13 +15,13 @@ public class ClosingWallet : BaseDomain
         ReturnRake = decimal.Zero;
     }
 
-    [ForeignKey("ClosingManager")] public Guid ClosingManagerId { get; set; }
-
-    public virtual ClosingManager ClosingManager { get; set; }
+    // [ForeignKey("ClosingManager")] public Guid ClosingManagerId { get; set; }
+    //
+    // public virtual ClosingManager ClosingManager { get; set; }
 
     [ForeignKey("Wallet")] public Guid WalletId { get; set; }
-
+    
     public virtual Wallet Wallet { get; set; }
 
-    [Precision(18, 2)] public decimal ReturnRake { get; set; }
+    // [Precision(18, 2)] public decimal ReturnRake { get; set; }
 }

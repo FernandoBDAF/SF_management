@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SFManagement.Models.Entities;
+
 namespace SFManagement.Models.Transactions;
 
 public class Ofx : BaseDomain

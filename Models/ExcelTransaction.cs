@@ -22,6 +22,6 @@ public class ExcelTransaction : BaseDomain
 
     [ForeignKey("Excel")] public Guid ExcelId { get; set; }
     
-    [ForeignKey("WalletTransaction")] public Guid? WalletTransactionId { get; set; }
+    [ForeignKey("DigitalAssetTransaction")] public Guid? WalletTransactionId { get; set; }
 
 }

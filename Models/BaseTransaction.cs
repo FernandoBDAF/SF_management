@@ -1,32 +1,26 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using SFManagement.Models.Entities;
 
 namespace SFManagement.Models.Transactions;
 
-// This class defines operations that transfer money between a central operator and a user of the system
-// Transactions impact the balance of a asset of one or more objects
+// This class defines operations that transfer assets between two AssetHolders
+// One of them will have a wallet that managers an asset's pool
+// The other will register in these wallet creating an WalletIdentifier
+// The transaction happens between the WI and the W
 public class BaseTransaction : BaseDomain
 {
     [Required] public DateTime Date { get; set; }
-
-    [ForeignKey("Client")] public Guid? ClientId { get; set; }
-
-    public virtual Client? Client { get; set; } = new();
     
-    [ForeignKey("Member")] public Guid? MemberId { get; set; }
+    // The one creating the transaction
+    [ForeignKey("WalletIdentifier")] public Guid AssetHolderWalletIdentifierId { get; set; }
+    
+    // The one who owns the asset pool
+    [ForeignKey("Wallet")] public Guid AssetHolderWalletId { get; set; }
 
-    public virtual Member? Member { get; set; } = new();
-
-    [ForeignKey("Manager")] public Guid? ManagerId { get; set; }
-
-    public virtual Manager? Manager { get; set; } = new();
-
-    [MaxLength(30)]
-    public string? Description { get; set; }
-
-    // Rename to category
-    // It's a unique definition that redefine the behaviour of the transaction
+    [MaxLength(30)] public string? Description { get; set; }
+    
     [ForeignKey("Tag")] public Guid? TagId { get; set; }
 
     public virtual Tag Tag { get; set; } = new();

@@ -5,7 +5,7 @@ using SFManagement.Models.Closing;
 using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.Transactions;
-
+// This transaction might be deleted with the new flow 
 public class InternalTransaction : BaseTransaction
 {
     [Precision(18, 2)] public decimal? Value { get; set; }

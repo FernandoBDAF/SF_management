@@ -13,7 +13,7 @@ public class Excel : BaseDomain
     //     ExcelTransactions = new List<ExcelTransaction>();
     // }
     
-    [Required] [ForeignKey("Manager")] public Guid ManagerId { get; set; }
+    [Required] [ForeignKey("PokerManager")] public Guid ManagerId { get; set; }
 
     [MaxLength(20)] public string? FileName { get; set; }
 
