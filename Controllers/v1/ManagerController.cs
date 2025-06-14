@@ -10,9 +10,9 @@ namespace SFManagement.Controllers.v1;
 [ApiController]
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class ManagerController : BaseApiController<PokerManager, ManagerRequest, ManagerResponse>
+public class ManagerController : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>
 {
-    private readonly ManagerService _managerService;
+    private readonly PokerManagerService _pokerManagerService;
 
     private readonly IMapper _mapper;
 
@@ -20,11 +20,11 @@ public class ManagerController : BaseApiController<PokerManager, ManagerRequest,
     private readonly WalletService _walletService;
 
     public ManagerController(BaseService<PokerManager> service, IMapper mapper, WalletService walletService,
-        ManagerService managerService, TransactionService transactionService) : base(service, mapper)
+        PokerManagerService pokerManagerService, TransactionService transactionService) : base(service, mapper)
     {
         _mapper = mapper;
         _walletService = walletService;
-        _managerService = managerService;
+        _pokerManagerService = pokerManagerService;
         _transactionService = transactionService;
     }
 
@@ -39,21 +39,21 @@ public class ManagerController : BaseApiController<PokerManager, ManagerRequest,
     [Route("balance/{managerId}")]
     public async Task<BalanceResponse> Balance(Guid managerId)
     {
-        return await _managerService.GetBalance(managerId, null);
+        return await _pokerManagerService.GetBalance(managerId, null);
     }
 
     [HttpPost]
     [Route("balance/{managerId}")]
     public async Task<BalanceResponse> Balance(Guid managerId, BalanceRequest request)
     {
-        return await _managerService.GetBalance(managerId, request.Date);
+        return await _pokerManagerService.GetBalance(managerId, request.Date);
     }
 
     [HttpGet]
     [Route("profit/{managerId}")]
     public async Task<ProfitResponse> Profit(Guid managerId, DateTime? start, DateTime? end)
     {
-        return await _managerService.GetProfit(managerId, start, end);
+        return await _pokerManagerService.GetProfit(managerId, start, end);
     }
 
     [HttpGet]

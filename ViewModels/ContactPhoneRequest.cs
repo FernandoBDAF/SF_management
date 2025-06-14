@@ -1,14 +1,14 @@
-﻿using SFManagement.Enums;
-
 namespace SFManagement.ViewModels;
 
-public class WalletRequest
+public class ContactPhoneRequest
 {
-    public AssetType? AssetType { get; set; }
+    public int? CountryCode { get; set; }
     
-    public decimal? InitialAssetAmount { get; set; }
+    public int? LocalCode { get; set; }
     
-    public decimal? DefaultAgreedCommission { get; set; }
+    public string? PhoneNumber { get; set; }
+    
+    public string? SearchFor { get; set; }
     
     public Guid? ClientId { get; set; }
     

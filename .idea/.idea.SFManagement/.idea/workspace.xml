@@ -12,153 +12,41 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Controllers/v1/AddressControler.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Services/AddressService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Services/ContactPhoneService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Services/InitialBalanceService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ViewModels/AddressRequest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ViewModels/AddressResponse.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ViewModels/BaseAssetHolderRequest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ViewModels/BaseAssetHolderResponse.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/MemberServices.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ViewModels/ContactPhoneRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ViewModels/ContactPhoneResponse.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ViewModels/InitialBalanceRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ViewModels/InitialBalanceResponse.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ViewModels/MemberRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ViewModels/MemberResponse.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/AvgRateController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AvgRateController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data/DataContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Data/DataContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240711201310_AddClient.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240711201310_AddClient.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240711204926_AddBank.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240711204926_AddBank.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240711210058_AddBankTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240711210058_AddBankTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240715215003_AddOfx.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240715215003_AddOfx.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240722203754_UpdateBankTransactionWithClientId.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240722203754_UpdateBankTransactionWithClientId.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240724214736_AddAprovedAt.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240724214736_AddAprovedAt.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240725221543_AddLinkedTo.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240725221543_AddLinkedTo.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240729204454_AddUser.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240729204454_AddUser.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240729210707_AddNameToUser.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240729210707_AddNameToUser.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240806211636_AddManager.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240806211636_AddManager.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240807213632_AddWallet.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240807213632_AddWallet.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240812204633_AddNicknameAndWallet.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240812204633_AddNicknameAndWallet.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240812211213_AddWalletTransactions.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240812211213_AddWalletTransactions.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240820210520_AddNicknameIdAndClientIdInWalletTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240820210520_AddNicknameIdAndClientIdInWalletTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240821210202_RemoveRequiredNicknameIdInWalletTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240821210202_RemoveRequiredNicknameIdInWalletTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240827211931_AddExcel.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240827211931_AddExcel.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240909224506_FixBankRelationship´.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20240909224506_FixBankRelationship´.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241122200207_add exhange rate to wallet transactions.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241122200207_add exhange rate to wallet transactions.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241127214415_accept null walletId in walletTransactions.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241127214415_accept null walletId in walletTransactions.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241128195130_ManagerExcel.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241128195130_ManagerExcel.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241128200442_AddLinkedToWalletTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241128200442_AddLinkedToWalletTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241204200755_AddTags.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241204200755_AddTags.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241204205258_AddTagIntoWalletAndBankTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241204205258_AddTagIntoWalletAndBankTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241204213427_AddFileNameAndFileTypeIntoExcel.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241204213427_AddFileNameAndFileTypeIntoExcel.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241205201025_AddInitialValueClient.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241205201025_AddInitialValueClient.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241205221848_AddClosingManager.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241205221848_AddClosingManager.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241206204830_AddInternalTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241206204830_AddInternalTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241206210510_AddInternalTransactionTransfer.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241206210510_AddInternalTransactionTransfer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241206211304_AddIntoInternalTransactionCoinsAndExchangeRate.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241206211304_AddIntoInternalTransactionCoinsAndExchangeRate.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241206211844_AddCreatorIntoBaseDomain.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241206211844_AddCreatorIntoBaseDomain.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241210222801_FixMigration.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241210222801_FixMigration.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241211203817_AddTagIdINtoInternalTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241211203817_AddTagIdINtoInternalTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241212200852_AddWalletIdIntoInternalTransactions.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241212200852_AddWalletIdIntoInternalTransactions.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241212201442_AddBankIdIntoInternalTransactions.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241212201442_AddBankIdIntoInternalTransactions.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241212210404_AddApprovedAtIntoINternalTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241212210404_AddApprovedAtIntoINternalTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241217194552_AddInitialValueBank.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241217194552_AddInitialValueBank.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241217195011_AddInitialValueManager.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241217195011_AddInitialValueManager.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241217195326_AddInitialValueWallet.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241217195326_AddInitialValueWallet.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241219203548_AddExcelNickname.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241219203548_AddExcelNickname.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220131528_AddDeleteIdAndEditorId.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220131528_AddDeleteIdAndEditorId.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220133529_AddApprovedBy.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220133529_AddApprovedBy.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220134017_AddApprovedByInternalTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220134017_AddApprovedByInternalTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220134702_AddApprovedByBankTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220134702_AddApprovedByBankTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220140550_AddRefreshToken.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220140550_AddRefreshToken.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220194709_AddProfitAndAverateRate.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20241220194709_AddProfitAndAverateRate.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250110213509_AddIsProfitIntoInternalTransaction.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250110213509_AddIsProfitIntoInternalTransaction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250110214656_AddManagerType.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250110214656_AddManagerType.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250122153018_AddAvgRate.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250122153018_AddAvgRate.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250122222952_AddManagerIntoAvgRate.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250122222952_AddManagerIntoAvgRate.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250415034748_SwapVariables.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250415034748_SwapVariables.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Closing/ClosingManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Closing/ClosingManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Closing/ClosingNickname.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Closing/ClosingNickname.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Closing/ClosingWallet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Closing/ClosingWallet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Entities/Address.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Address.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/AvgRate.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/AvgRate.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Entities/Bank.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Bank.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Client.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Client.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Entities/ContactPhone.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/ContactPhone.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Entities/InitialBalance.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/InitialBalance.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Member.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Entities/PokerManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/PokerManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Entities/Wallet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Wallet.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Entities/WalletIdentifier.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/WalletIdentifier.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Tag.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Tag.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/DigitalAssetTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/DigitalAssetTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/Excel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/Excel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/ExcelTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/ExcelTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/FiatAssetTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/FiatAssetTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/InternalTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/InternalTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/Ofx.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/Ofx.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/OfxTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/OfxTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/SettlementTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/SettlementTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ClientService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClientService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/NicknameService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/WalletService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/WalletTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletTransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/ManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/PokerManagerService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/ClientRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/ClientRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/BankRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BankRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/BankResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BankResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/BaseAssetHolderRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseAssetHolderRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/BaseAssetHolderResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseAssetHolderResponse.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewModels/ClientResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/ClientResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/ClosingManagerResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/ClosingManagerResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/ManagerRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/PokerManagerRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/ManagerResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/PokerManagerResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/ManagerValidator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/Validators/ManagerValidator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/WalletValidator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/Validators/WalletValidator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/WalletRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/WalletResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletResponse.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,7 +85,7 @@
     ".NET Launch Settings Profile.SFManagement: http.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "3740045e",
+    "git-widget-placeholder": "6d321d01",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",

@@ -128,17 +128,25 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<BankService>();
         builder.Services.AddScoped<BaseService<Client>, ClientService>();
         builder.Services.AddScoped<ClientService>();
+        builder.Services.AddScoped<BaseService<ContactPhone>, ContactPhoneService>();
+        builder.Services.AddScoped<ContactPhoneService>();
+        builder.Services.AddScoped<BaseService<InitialBalance>, InitialBalanceService>();
+        builder.Services.AddScoped<InitialBalanceService>();
+        builder.Services.AddScoped<BaseService<Member>, MemberService>();
+        builder.Services.AddScoped<MemberService>();
+        builder.Services.AddScoped<BaseService<PokerManager>, PokerManagerService>();
+        builder.Services.AddScoped<PokerManagerService>();
+        builder.Services.AddScoped<BaseService<Wallet>, WalletService>();
+        builder.Services.AddScoped<WalletService>();
+        builder.Services.AddScoped<BaseService<WalletIdentifier>, WalletIdentifierService>();
+        builder.Services.AddScoped<WalletIdentifierService>();
+        
+        
         builder.Services.AddScoped<BaseService<FiatAssetTransaction>, BankTransactionService>();
         builder.Services.AddScoped<BankTransactionService>();
         builder.Services.AddScoped<OfxService>();
         builder.Services.AddScoped<BaseService<Ofx>, OfxService>();
         builder.Services.AddScoped<TransactionService>();
-        builder.Services.AddScoped<BaseService<PokerManager>, ManagerService>();
-        builder.Services.AddScoped<ManagerService>();
-        builder.Services.AddScoped<BaseService<Wallet>, WalletService>();
-        builder.Services.AddScoped<WalletService>();
-        builder.Services.AddScoped<BaseService<WalletIdentifier>, WalletIdentifierService>();
-        builder.Services.AddScoped<WalletIdentifierService>();
         builder.Services.AddScoped<BaseService<DigitalAssetTransaction>, WalletTransactionService>();
         builder.Services.AddScoped<WalletTransactionService>();
         builder.Services.AddScoped<BaseService<Excel>, ExcelService>();

@@ -1,14 +1,22 @@
-﻿namespace SFManagement.ViewModels;
+﻿using SFManagement.Enums;
+
+namespace SFManagement.ViewModels;
 
 public class WalletResponse : BaseResponse
 {
-    public string Name { get; set; }
-
-    public Guid ManagerId { get; set; }
-
-    public decimal InitialCoins { get; set; }
-
-    public decimal InitialValue { get; set; }
-
-    public decimal InitialExchangeRate { get; set; }
+    public AssetType? AssetType { get; set; }
+    
+    public decimal? InitialAssetAmount { get; set; }
+    
+    public decimal? DefaultAgreedCommission { get; set; }
+    
+    public WalletIdentifierResponse[]? WalletIdentifiers { get; set; }
+    
+    public Guid? ClientId { get; set; }
+    
+    public Guid? MemberId { get; set; }
+    
+    public Guid? BankId { get; set; }
+    
+    public Guid? PokerManagerId { get; set; }
 }

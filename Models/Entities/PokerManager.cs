@@ -10,16 +10,14 @@ public class PokerManager : BaseAssetHolder
 {
     // public ManagerType ManagerType { get; set; }
     
-    [Precision(18, 2)] public decimal? InitialExchangeRate { get; set; }
-
-    [Precision(18, 2)] public decimal? InitialCoins { get; set; }
-    
     // this will be removed and replaced by cache
     // public virtual ICollection<AvgRate> AvgRates { get; set; } = new HashSet<AvgRate>();
 
     public virtual ICollection<Excel> Excels { get; set; } = new HashSet<Excel>();
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
+    
+    public ICollection<ContactPhone> PhonesNumbers { get; set; } = new HashSet<ContactPhone>();
     
     public virtual ICollection<Wallet> Wallets { get; set; } = new HashSet<Wallet>();
     

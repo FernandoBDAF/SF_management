@@ -18,6 +18,7 @@ public class WalletIdentifier : BaseDomain
 
     [MaxLength(50)]
     public string? Pix { get; set; }
+    
 
     [Required, MaxLength(30)]
     public string InputForTransactions { get; set; } = string.Empty;
@@ -28,18 +29,18 @@ public class WalletIdentifier : BaseDomain
     [Precision(18, 2)]
     public decimal? DefaultParentCommission { get; set; }
 
-
+    // Aming to avoid dependency loop it is necessary to handle the deletion of
+    // the 5 relationships bellow in the datacontext file.
     public Guid WalletId { get; set; }
     public virtual Wallet Wallet { get; set; } = new Wallet();
-
+    
+    // Only one of the following relationships bellow should happen, so there is
+    // a logic handling this in the service.
     public Guid? ClientId { get; set; }
     public virtual Client? Client { get; set; }
 
     public Guid? MemberId { get; set; }
     public virtual Member? Member { get; set; }
-
-    public Guid? BankId { get; set; }
-    public virtual Bank? Bank { get; set; }
 
     public Guid? PokerManagerId { get; set; }
     public virtual PokerManager? PokerManager { get; set; }

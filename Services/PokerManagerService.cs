@@ -6,9 +6,9 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class ManagerService : BaseService<PokerManager>
+public class PokerManagerService : BaseService<PokerManager>
 {
-    public ManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
+    public PokerManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
     }

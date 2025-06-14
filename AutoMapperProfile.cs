@@ -16,6 +16,27 @@ public class AutoMapperProfile : Profile
         
         CreateMap<Bank, BankResponse>();
         CreateMap<BankRequest, Bank>();
+        
+        CreateMap<Client, ClientResponse>();
+        CreateMap<ClientRequest, Client>();
+        
+        CreateMap<ContactPhone, ContactPhoneResponse>();
+        CreateMap<ContactPhoneRequest, ContactPhone>();
+        
+        CreateMap<InitialBalance, InitialBalanceResponse>();
+        CreateMap<InitialBalanceRequest, InitialBalance>();
+        
+        CreateMap<Member, MemberResponse>();
+        CreateMap<MemberRequest, Member>();
+        
+        CreateMap<PokerManager, PokerManagerResponse>();
+        CreateMap<PokerManagerRequest, PokerManager>();
+
+        CreateMap<Wallet, WalletResponse>();
+        CreateMap<WalletRequest, Wallet>();
+
+        CreateMap<WalletIdentifier, NicknameResponse>();
+        CreateMap<NicknameRequest, WalletIdentifier>();
 
         // CreateMap<FiatAssetTransaction, BankTransactionResponse>()
         //     .ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name))
@@ -26,10 +47,7 @@ public class AutoMapperProfile : Profile
                 )>()
             .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
             .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
-
-        CreateMap<Client, ClientResponse>();
-        CreateMap<ClientRequest, Client>();
-
+        
         CreateMap<ClosingNickname, ClosingNicknameResponse>();
         CreateMap<ClosingNicknameRequest, ClosingNickname>();
 
@@ -39,15 +57,6 @@ public class AutoMapperProfile : Profile
         CreateMap<OfxTransaction, OfxTransactionResponse>();
         CreateMap<OfxTransactionRequest, OfxTransaction>();
         
-        CreateMap<PokerManager, ManagerResponse>();
-        CreateMap<ManagerRequest, PokerManager>();
-
-        CreateMap<Wallet, WalletResponse>();
-        CreateMap<WalletRequest, Wallet>();
-
-        CreateMap<WalletIdentifier, NicknameResponse>();
-        CreateMap<NicknameRequest, WalletIdentifier>();
-
         CreateMap<DigitalAssetTransaction, WalletTransactionResponse>();
         CreateMap<WalletTransactionRequest, DigitalAssetTransaction>();
 

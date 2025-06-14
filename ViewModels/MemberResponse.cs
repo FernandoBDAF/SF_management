@@ -1,10 +1,12 @@
-﻿using SFManagement.Models.Entities;
+using SFManagement.Models.Entities;
 
 namespace SFManagement.ViewModels;
 
-public class ClientResponse : BaseAssetHolderResponse
+public class MemberResponse : BaseAssetHolderResponse
 {
     public DateTime? Birthday { get; set; }
+    
+    public double? Share { get; set; }
     
     public WalletResponse[]? Wallets { get; set; }
     

@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace SFManagement.Models.Entities;
 
@@ -21,18 +19,14 @@ public class Address : BaseDomain
     [MaxLength(30)] public string? Complement { get; set; }
     
     public Guid? ClientId { get; set; }
-    
     public virtual Client? Client { get; set; }
     
     public Guid? MemberId { get; set; }
-    
     public virtual Member? Member { get; set; }
     
     public Guid? BankId { get; set; }
-    
     public virtual Bank? Bank { get; set; }
     
     public Guid? PokerManagerId { get; set; }
-    
     public virtual PokerManager? PokerManager { get; set; }
 }

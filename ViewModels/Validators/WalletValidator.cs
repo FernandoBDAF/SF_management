@@ -6,7 +6,7 @@ public class WalletValidator : AbstractValidator<WalletRequest>
 {
     public WalletValidator()
     {
-        RuleFor(x => x.Name).NotEmpty();
-        RuleFor(x => x.ManagerId).NotEmpty();
+        // RuleFor(x => x.Name).NotEmpty();
+        // RuleFor(x => x.ManagerId).NotEmpty();
     }
 }
