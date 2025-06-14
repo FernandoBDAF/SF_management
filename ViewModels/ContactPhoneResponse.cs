@@ -1,6 +1,6 @@
 namespace SFManagement.ViewModels;
 
-public class ContactPhoneResponse
+public class ContactPhoneResponse : BaseResponse
 {
     public int? CountryCode { get; set; }
     

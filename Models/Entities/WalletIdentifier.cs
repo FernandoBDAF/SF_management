@@ -29,8 +29,10 @@ public class WalletIdentifier : BaseDomain
     [Precision(18, 2)]
     public decimal? DefaultParentCommission { get; set; }
 
-    // Aming to avoid dependency loop it is necessary to handle the deletion of
-    // the 5 relationships bellow in the datacontext file.
+    // Aiming to avoid dependency loop it is necessary to handle the deletion of
+    // the 5 relationships bellow in the datacontext file. On delete of wallet,
+    // WalletIdentifier will be deleted. Deleting any of the other classes will
+    // leave and orphan wallet identifier 
     public Guid WalletId { get; set; }
     public virtual Wallet Wallet { get; set; } = new Wallet();
     

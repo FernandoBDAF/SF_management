@@ -2,7 +2,7 @@ using SFManagement.Enums;
 
 namespace SFManagement.ViewModels;
 
-public class InitialBalanceResponse
+public class InitialBalanceResponse : BaseResponse
 {
     public decimal? Balance { get; set; }
     

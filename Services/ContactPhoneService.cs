@@ -3,7 +3,7 @@ using SFManagement.Models.Entities;
 
 namespace SFManagement.Services;
 
-public class ContactPhoneService : BaseService<ContactPhone>
+public class ContactPhoneService: BaseService<ContactPhone>
 {
     public ContactPhoneService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
