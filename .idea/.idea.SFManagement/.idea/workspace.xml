@@ -12,16 +12,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Controllers/v1/ContactPhoneController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controllers/v1/InitialBalanceController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controllers/v1/MemberController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/AddressControler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AddressController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/ManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/NicknameController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletIdentifierController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ContactPhoneService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ContactPhoneService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/ContactPhoneResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/ContactPhoneResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/InitialBalanceResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/InitialBalanceResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BaseApiController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/WalletIdentifierController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletIdentifierController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Entities/Bank.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Bank.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Entities/Client.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Client.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Entities/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Member.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Entities/PokerManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/PokerManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/BaseService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/WalletService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/PokerManagerResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/PokerManagerResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/WalletResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletResponse.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,26 +117,13 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Services/BaseService.cs</url>
-          <line>71</line>
+          <line>120</line>
           <properties documentPath="$PROJECT_DIR$/Services/BaseService.cs" containingFunctionPresentation="Method 'Update'">
             <startOffsets>
-              <option value="2367" />
+              <option value="4166" />
             </startOffsets>
             <endOffsets>
-              <option value="2394" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Services/BaseService.cs</url>
-          <line>96</line>
-          <properties documentPath="$PROJECT_DIR$/Services/BaseService.cs" containingFunctionPresentation="Method 'Update'">
-            <startOffsets>
-              <option value="3321" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3344" />
+              <option value="4189" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="8" />

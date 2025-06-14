@@ -9,6 +9,7 @@ public class WalletService(DataContext context, IHttpContextAccessor httpContext
     : BaseService<Wallet>(context,
         httpContextAccessor)
 {
+
     public override async Task<Wallet> Add(Wallet obj)
     {
         EnforceSingleOwner(obj);
@@ -43,5 +44,34 @@ public class WalletService(DataContext context, IHttpContextAccessor httpContext
         // return new BalanceResponse(wallet, null);
         await Task.Yield();
         return null;
+    }
+
+    public override async Task<Wallet?> Get(Guid id)
+    {
+        var query = context.Wallets
+            .Include(w => w.Client)
+            .Include(w => w.Member)
+            .Include(w => w.Bank)
+            .Include(w => w.PokerManager)
+            .Include(w => w.WalletIdentifiers);
+
+        var wallet = await query.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
+        if (wallet == null)
+            return null;
+
+        int ownerCount = 0;
+        if (wallet.ClientId != null) ownerCount++;
+        if (wallet.MemberId != null) ownerCount++;
+        if (wallet.BankId != null) ownerCount++;
+        if (wallet.PokerManagerId != null) ownerCount++;
+
+        if (ownerCount != 1)
+        {
+            // Log the inconsistency (replace with your logger if available)
+            Console.WriteLine($"[ERROR] Wallet {wallet.Id} has {ownerCount} owners set. Data inconsistency detected.");
+            // Optionally, throw or return null
+            throw new InvalidOperationException($"Wallet {wallet.Id} must have exactly one owner, but has {ownerCount}.");
+        }
+        return wallet;
     }
 }

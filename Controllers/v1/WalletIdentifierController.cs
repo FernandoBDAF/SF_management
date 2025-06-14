@@ -14,14 +14,14 @@ public class WalletIdentifierController(
     BaseService<WalletIdentifier> service,
     IMapper mapper,
     WalletIdentifierService walletIdentifierService)
-    : BaseApiController<WalletIdentifier, NicknameRequest, NicknameResponse>(service, mapper)
+    : BaseApiController<WalletIdentifier, WalletIdentifierRequest, WalletIdentifierResponse>(service, mapper)
 {
     private readonly IMapper _mapper = mapper;
 
     [HttpGet]
     [Route("nickname-client/{clientId}")]
-    public async Task<List<NicknameResponse>> GetNicknames(Guid clientId)
+    public async Task<List<WalletIdentifierResponse>> GetNicknames(Guid clientId)
     {
-        return _mapper.Map<List<NicknameResponse>>(await walletIdentifierService.GetByClientId(clientId));
+        return _mapper.Map<List<WalletIdentifierResponse>>(await walletIdentifierService.GetByClientId(clientId));
     }
 }

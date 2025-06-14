@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.Models.Entities;
 
 namespace SFManagement.Services;
 
-public class BaseService<Entity> where Entity : BaseDomain
+public class BaseService<TEntity> where TEntity : BaseDomain
 {
-    public readonly DbSet<Entity> _entity;
+    public readonly DbSet<TEntity> _entity;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public readonly DataContext context;
@@ -14,46 +15,69 @@ public class BaseService<Entity> where Entity : BaseDomain
     public BaseService(DataContext context, IHttpContextAccessor httpContextAccessor)
     {
         this.context = context;
-        _entity = context.Set<Entity>();
+        _entity = context.Set<TEntity>();
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public virtual async Task<List<Entity>> List()
+    public virtual async Task<List<TEntity>> List()
     {
         return await _entity.Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
     }
 
-    public virtual async Task<Entity?> Get(Guid id)
+    public virtual async Task<TEntity?> Get(Guid id)
     {
         var query = _entity.AsQueryable();
         
-        // Include all virtual navigation properties
-        foreach (var property in typeof(Entity).GetProperties())
+        // Special handling for Client entity
+        if (typeof(TEntity) == typeof(Client))
         {
-            if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
-            {
-                // Get the corresponding ID property if it exists
-                var idPropertyName = property.Name + "Id";
-                var idProperty = typeof(Entity).GetProperty(idPropertyName);
-                
-                if (idProperty != null)
-                {
-                    // Only include if the ID is not empty
-                    query = query.Include(property.Name)
-                        .Where(e => EF.Property<Guid?>(e, idPropertyName) != null && 
-                                  EF.Property<Guid?>(e, idPropertyName) != Guid.Empty);
-                }
-                else
-                {
-                    query = query.Include(property.Name);
-                }
-            }
+            query = ((IQueryable<Client>)query)
+                .Include(c => c.PhonesNumbers)
+                .Include(c => c.InitialBalances)
+                .Include(c => c.Wallets)
+                .Include(c => c.WalletIdentifiers)
+                .Include(c => c.Address)
+                .Cast<TEntity>();
+        }
+        // Special handling for Bank entity
+        else if (typeof(TEntity) == typeof(Bank))
+        {
+            query = ((IQueryable<Bank>)query)
+                .Include(b => b.PhonesNumbers)
+                .Include(b => b.InitialBalances)
+                .Include(b => b.Wallets)
+                .Include(b => b.Ofxs)
+                .Include(b => b.Address)
+                .Cast<TEntity>();
+        }
+        // Special handling for Member entity
+        else if (typeof(TEntity) == typeof(Member))
+        {
+            query = ((IQueryable<Member>)query)
+                .Include(m => m.PhonesNumbers)
+                .Include(m => m.InitialBalances)
+                .Include(m => m.Wallets)
+                .Include(m => m.WalletIdentifiers)
+                .Include(m => m.Address)
+                .Cast<TEntity>();
+        }
+        // Special handling for PokerManager entity
+        else if (typeof(TEntity) == typeof(PokerManager))
+        {
+            query = ((IQueryable<PokerManager>)query)
+                .Include(pm => pm.PhonesNumbers)
+                .Include(pm => pm.InitialBalances)
+                .Include(pm => pm.Wallets)
+                .Include(pm => pm.WalletIdentifiers)
+                .Include(pm => pm.Excels)
+                .Include(pm => pm.Address)
+                .Cast<TEntity>();
         }
         
         return await query.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
     }
 
-    public virtual async Task<Entity> Add(Entity obj)
+    public virtual async Task<TEntity> Add(TEntity obj)
     {
         obj.CreatedAt = DateTime.Now;
 
@@ -67,7 +91,7 @@ public class BaseService<Entity> where Entity : BaseDomain
         return obj;
     }
 
-    public virtual async Task<Entity> Update(Guid id, Entity obj)
+    public virtual async Task<TEntity> Update(Guid id, TEntity obj)
     {
         var entity = await Get(id);
         if (entity == null)
@@ -76,7 +100,7 @@ public class BaseService<Entity> where Entity : BaseDomain
         entity.UpdatedAt = DateTime.Now;
 
         // Copy properties from obj to entity
-        foreach (var property in typeof(Entity).GetProperties())
+        foreach (var property in typeof(TEntity).GetProperties())
         {
             if (property.Name != "Id" && property.Name != "CreatedAt" && property.Name != "CreatorId")
             {

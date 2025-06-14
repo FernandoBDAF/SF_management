@@ -32,11 +32,16 @@ public class AutoMapperProfile : Profile
         CreateMap<PokerManager, PokerManagerResponse>();
         CreateMap<PokerManagerRequest, PokerManager>();
 
-        CreateMap<Wallet, WalletResponse>();
+        CreateMap<Wallet, WalletResponse>()
+            .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
+            .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
+            .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
+            .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
+
         CreateMap<WalletRequest, Wallet>();
 
-        CreateMap<WalletIdentifier, NicknameResponse>();
-        CreateMap<NicknameRequest, WalletIdentifier>();
+        CreateMap<WalletIdentifier, WalletIdentifierResponse>();
+        CreateMap<WalletIdentifierRequest, WalletIdentifier>();
 
         // CreateMap<FiatAssetTransaction, BankTransactionResponse>()
         //     .ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name))

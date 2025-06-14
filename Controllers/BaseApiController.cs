@@ -22,14 +22,16 @@ public class BaseApiController<TEntity, TRequest, TResponse> : ControllerBase wh
     [HttpGet]
     public virtual async Task<List<TResponse>> Get()
     {
-        return _mapper.Map<List<TResponse>>(await _service.List());
+        var entities = await _service.List();
+        return _mapper.Map<List<TResponse>>(entities);
     }
 
     [HttpGet]
     [Route("{id}")]
     public virtual async Task<TResponse?> Get(Guid id)
     {
-        return _mapper.Map<TResponse>(await _service.Get(id));
+        var entity = await _service.Get(id);
+        return entity == null ? null : _mapper.Map<TResponse>(entity);
     }
 
     [HttpDelete]
@@ -43,13 +45,17 @@ public class BaseApiController<TEntity, TRequest, TResponse> : ControllerBase wh
     [Route("")]
     public virtual async Task<TResponse> Post(TRequest model)
     {
-        return _mapper.Map<TResponse>(await _service.Add(_mapper.Map<TEntity>(model)));
+        var entity = _mapper.Map<TEntity>(model);
+        var result = await _service.Add(entity);
+        return _mapper.Map<TResponse>(result);
     }
 
     [HttpPut]
     [Route("{id}")]
     public virtual async Task<TResponse> Put(Guid id, TRequest model)
     {
-        return _mapper.Map<TResponse>(await _service.Update(id, _mapper.Map<TEntity>(model)));
+        var entity = _mapper.Map<TEntity>(model);
+        var result = await _service.Update(id, entity);
+        return _mapper.Map<TResponse>(result);
     }
 }

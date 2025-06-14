@@ -17,7 +17,7 @@ public class PokerManager : BaseAssetHolder
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
     
-    public ICollection<ContactPhone> PhonesNumbers { get; set; } = new HashSet<ContactPhone>();
+    public virtual ICollection<ContactPhone> PhonesNumbers { get; set; } = new HashSet<ContactPhone>();
     
     public virtual ICollection<Wallet> Wallets { get; set; } = new HashSet<Wallet>();
     
