@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.Models.Entities;
 using SFManagement.Services;
@@ -13,22 +14,32 @@ namespace SFManagement.Controllers.v1;
 public class ClientController : BaseApiController<Client, ClientRequest, ClientResponse>
 {
     private readonly ClientService _clientService;
+    private readonly BalanceService _balanceService;
     private readonly ILogger<ClientController> _logger;
     private readonly TransactionService _transactionService;
 
     public ClientController(ClientService service, ILogger<ClientController> logger, IMapper mapper,
-        ClientService clientService, TransactionService transactionService) : base(service, mapper)
+        ClientService clientService, TransactionService transactionService, BalanceService balanceService) : base(service, mapper)
     {
         _logger = logger;
         _clientService = clientService;
         _transactionService = transactionService;
+        _balanceService = balanceService;
     }
 
     [HttpGet]
     [Route("balance/{clientId}")]
-    public async Task<BalanceResponse> Balance(Guid clientId)
+    public async Task<Dictionary<AssetType,decimal>> Balance(Guid clientId)
     {
-        return await _clientService.GetBalance(clientId, null);
+        var client = await _clientService.Get(clientId);
+
+        if (client is null)
+        {
+            _logger.LogWarning("Client {clientId} not found", clientId);
+            return new Dictionary<AssetType, decimal>();
+        }
+        
+        return await _balanceService.GetBalancesByAssetType(client);
     }
 
     [HttpPost]

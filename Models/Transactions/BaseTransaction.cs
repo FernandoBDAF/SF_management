@@ -15,11 +15,11 @@ public class BaseTransaction : BaseDomain
     
     // The one creating the transaction - AssetHolderWalletIdentifierId
     // public Guid? WalletIdentifierId { get; set; }
-    public virtual WalletIdentifier? WalletIdentifier { get; set; }
+    public virtual WalletIdentifier WalletIdentifier { get; set; }
     
     // The one who owns the asset pool - AssetHolderWalletId
     // public Guid? WalletId { get; set; }
-    public virtual AssetWallet? AssetWallet { get; set; }
+    public virtual AssetWallet AssetWallet { get; set; }
 
     [MaxLength(50)] public string? Description { get; set; }
     

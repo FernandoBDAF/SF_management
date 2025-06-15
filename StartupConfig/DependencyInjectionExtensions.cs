@@ -142,6 +142,8 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<WalletIdentifierService>();
         
         
+        builder.Services.AddScoped<BalanceService>();
+        
         builder.Services.AddScoped<BaseService<FiatAssetTransaction>, FiatAssetTransactionService>();
         builder.Services.AddScoped<FiatAssetTransactionService>();
         builder.Services.AddScoped<OfxService>();
