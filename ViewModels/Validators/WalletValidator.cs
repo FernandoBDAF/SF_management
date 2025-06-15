@@ -2,7 +2,7 @@
 
 namespace SFManagement.ViewModels.Validators;
 
-public class WalletValidator : AbstractValidator<WalletRequest>
+public class WalletValidator : AbstractValidator<AssetWalletRequest>
 {
     public WalletValidator()
     {

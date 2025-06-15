@@ -19,6 +19,12 @@ public class WalletIdentifier : BaseDomain
     [MaxLength(50)]
     public string? Pix { get; set; }
     
+    // [MaxLength(20)]
+    // public string? Agency { get; set; }
+    //
+    // [MaxLength(50)]
+    // public string? Account { get; set; }
+    
 
     [Required, MaxLength(30)]
     public string InputForTransactions { get; set; } = string.Empty;
@@ -30,11 +36,11 @@ public class WalletIdentifier : BaseDomain
     public decimal? DefaultParentCommission { get; set; }
 
     // Aiming to avoid dependency loop it is necessary to handle the deletion of
-    // the 5 relationships bellow in the datacontext file. On delete of wallet,
+    // the 5 relationships bellow in the datacontext file. On delete of assetWallet,
     // WalletIdentifier will be deleted. Deleting any of the other classes will
-    // leave and orphan wallet identifier 
-    public Guid WalletId { get; set; }
-    public virtual Wallet Wallet { get; set; } = new Wallet();
+    // leave and orphan assetWallet identifier 
+    public Guid AssetWalletId { get; set; }
+    public virtual AssetWallet AssetWallet { get; set; } = new AssetWallet();
     
     // Only one of the following relationships bellow should happen, so there is
     // a logic handling this in the service.

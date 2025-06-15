@@ -5,32 +5,32 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class WalletService(DataContext context, IHttpContextAccessor httpContextAccessor)
-    : BaseService<Wallet>(context,
+public class AssetWalletService(DataContext context, IHttpContextAccessor httpContextAccessor)
+    : BaseService<AssetWallet>(context,
         httpContextAccessor)
 {
 
-    public override async Task<Wallet> Add(Wallet obj)
+    public override async Task<AssetWallet> Add(AssetWallet obj)
     {
         EnforceSingleOwner(obj);
         return await base.Add(obj);
     }
 
-    public override async Task<Wallet> Update(Guid id, Wallet obj)
+    public override async Task<AssetWallet> Update(Guid id, AssetWallet obj)
     {
         EnforceSingleOwner(obj);
         return await base.Update(id, obj);
     }
 
-    private static void EnforceSingleOwner(Wallet address)
+    private static void EnforceSingleOwner(AssetWallet address)
     {
         var ownerCount = new[] { address.ClientId, address.BankId, address.MemberId, address.PokerManagerId }
             .Count(id => id != null);
         if (ownerCount != 1)
-            throw new InvalidOperationException("Wallet must be linked to exactly one owner (Client, Bank, Member, or PokerManager).");
+            throw new InvalidOperationException("AssetWallet must be linked to exactly one owner (Client, Bank, Member, or PokerManager).");
     }
 
-    public async Task<List<Wallet>> GetWalletsByManagerId(Guid managerId)
+    public async Task<List<AssetWallet>> GetWalletsByManagerId(Guid managerId)
     {
         // return await context.Wallets.Where(x => x.ManagerId == managerId).ToListAsync();
         await Task.Yield();
@@ -39,16 +39,16 @@ public class WalletService(DataContext context, IHttpContextAccessor httpContext
 
     public async Task<BalanceResponse> GetBalance(Guid walletId)
     {
-        // var wallet = await context.Wallets.Include(x => x.Transactions).Include(x => x.InternalTransactions)
+        // var assetWallet = await context.Wallets.Include(x => x.Transactions).Include(x => x.InternalTransactions)
         //     .FirstOrDefaultAsync(x => x.Id == walletId);
-        // return new BalanceResponse(wallet, null);
+        // return new BalanceResponse(assetWallet, null);
         await Task.Yield();
         return null;
     }
 
-    public override async Task<Wallet?> Get(Guid id)
+    public override async Task<AssetWallet?> Get(Guid id)
     {
-        var query = context.Wallets
+        var query = context.AssetWallets
             .Include(w => w.Client)
             .Include(w => w.Member)
             .Include(w => w.Bank)
@@ -59,7 +59,7 @@ public class WalletService(DataContext context, IHttpContextAccessor httpContext
         if (wallet == null)
             return null;
 
-        int ownerCount = 0;
+        var ownerCount = 0;
         if (wallet.ClientId != null) ownerCount++;
         if (wallet.MemberId != null) ownerCount++;
         if (wallet.BankId != null) ownerCount++;
@@ -68,9 +68,9 @@ public class WalletService(DataContext context, IHttpContextAccessor httpContext
         if (ownerCount != 1)
         {
             // Log the inconsistency (replace with your logger if available)
-            Console.WriteLine($"[ERROR] Wallet {wallet.Id} has {ownerCount} owners set. Data inconsistency detected.");
+            Console.WriteLine($"[ERROR] AssetWallet {wallet.Id} has {ownerCount} owners set. Data inconsistency detected.");
             // Optionally, throw or return null
-            throw new InvalidOperationException($"Wallet {wallet.Id} must have exactly one owner, but has {ownerCount}.");
+            throw new InvalidOperationException($"AssetWallet {wallet.Id} must have exactly one owner, but has {ownerCount}.");
         }
         return wallet;
     }

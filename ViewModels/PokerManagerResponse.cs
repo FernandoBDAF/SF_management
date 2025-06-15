@@ -10,7 +10,7 @@ public class PokerManagerResponse : BaseAssetHolderResponse
     
     public ContactPhoneResponse[]? ContactPhones { get; set; }
     
-    public WalletResponse[]? Wallets { get; set; }
+    public AssetWalletResponse[]? Wallets { get; set; }
     
     public WalletIdentifierResponse[]? WalletIdentifiers { get; set; }
 }

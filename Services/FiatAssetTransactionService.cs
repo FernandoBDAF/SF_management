@@ -7,23 +7,23 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class BankTransactionService : BaseService<FiatAssetTransaction>
+public class FiatAssetTransactionService : BaseService<FiatAssetTransaction>
 {
     private readonly ClaimsPrincipal _user;
 
-    public BankTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
+    public FiatAssetTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
         _user = httpContextAccessor.HttpContext?.User;
     }
 
-    public override async Task<List<FiatAssetTransaction>> List()
-    {
-        await Task.Yield();
-        // return await context.BankTransactions.Include(x => x.Bank).Include(x => x.Client)
-        //     .Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
-        return null;
-    }
+    // public override async Task<List<FiatAssetTransaction>> List()
+    // {
+    //     await Task.Yield();
+    //     // return await context.BankTransactions.Include(x => x.Bank).Include(x => x.Client)
+    //     //     .Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
+    //     return null;
+    // }
 
     public async Task<FiatAssetTransaction> Approve(Guid bankTransactionId, BankTransactionApproveRequest model)
     {
@@ -34,7 +34,7 @@ public class BankTransactionService : BaseService<FiatAssetTransaction>
         if (bankTransaction.ApprovedAt.HasValue) throw new AppException("Transação já aprovada.");
 
         bankTransaction.ApprovedAt = DateTime.Now;
-        bankTransaction.TagId = model.TagId;
+        // bankTransaction.TagId = model.TagId;
         // bankTransaction.ClientId = model.ClientId;
         // bankTransaction.ManagerId = model.ManagerId;
 

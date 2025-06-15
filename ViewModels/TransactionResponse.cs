@@ -19,7 +19,7 @@ public class TransactionResponse
         Type = internalTransaction.ToString();
         // Value = internalTransaction.Value;
         InternalTransactionType = internalTransaction.InternalTransactionType;
-        TagId = internalTransaction.TagId;
+        // TagId = internalTransaction.TagId;
         // ClientId = internalTransaction.ClientId;
         ApprovedAt = internalTransaction.ApprovedAt;
     }

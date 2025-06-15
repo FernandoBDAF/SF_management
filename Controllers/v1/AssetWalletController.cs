@@ -10,15 +10,15 @@ namespace SFManagement.Controllers.v1;
 [ApiController]
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class WalletController : BaseApiController<Wallet, WalletRequest, WalletResponse>
+public class AssetWalletController : BaseApiController<AssetWallet, AssetWalletRequest, AssetWalletResponse>
 {
     private readonly TransactionService _transactionService;
-    private readonly WalletService _walletService;
+    private readonly AssetWalletService _assetWalletService;
 
-    public WalletController(WalletService walletService, BaseService<Wallet> service, IMapper mapper,
+    public AssetWalletController(AssetWalletService assetWalletService, BaseService<AssetWallet> service, IMapper mapper,
         TransactionService transactionService) : base(service, mapper)
     {
-        _walletService = walletService;
+        _assetWalletService = assetWalletService;
         _transactionService = transactionService;
     }
 
@@ -26,7 +26,7 @@ public class WalletController : BaseApiController<Wallet, WalletRequest, WalletR
     [Route("balance/{walletId}")]
     public async Task<BalanceResponse> Balance(Guid walletId)
     {
-        return await _walletService.GetBalance(walletId);
+        return await _assetWalletService.GetBalance(walletId);
     }
 
     [HttpGet]

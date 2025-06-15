@@ -6,7 +6,7 @@ public class ClosingWalletResponse : BaseResponse
 
     public Guid WalletId { get; set; }
 
-    public WalletResponse Wallet { get; set; }
+    public AssetWalletResponse AssetWallet { get; set; }
 
     public Guid ClosingManagerId { get; set; }
 }

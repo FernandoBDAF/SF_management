@@ -13,10 +13,10 @@ using SFManagement.Services;
 // public class AvgRateController : BaseApiController<AvgRate, AvgRateRequest, AvgRateResponse>
 // {
 //     private readonly AvgRateService _avgService;
-//     private readonly WalletTransactionService _walletTransactionService;
+//     private readonly DigitalAssetTransactionService _walletTransactionService;
 //
 //     public AvgRateController(BaseService<AvgRate> service, IMapper mapper, AvgRateService avgService,
-//         WalletTransactionService walletTransactionService) : base(service, mapper)
+//         DigitalAssetTransactionService walletTransactionService) : base(service, mapper)
 //     {
 //         _avgService = avgService;
 //         _walletTransactionService = walletTransactionService;

@@ -15,14 +15,14 @@ public class ClosingWalletService : BaseService<ClosingWallet>
     public async Task<List<ClosingWallet>> GetByClosingManagerId(Guid closingManagerId)
     {
         return await _entity.Where(x => !x.DeletedAt.HasValue && x.ClosingManagerId == closingManagerId)
-            .Include(x => x.Wallet).ToListAsync();
+            .Include(x => x.AssetWallet).ToListAsync();
     }
 
     public override async Task<ClosingWallet> Update(Guid id, ClosingWallet obj)
     {
         var existing = await context.ClosingWallets.FirstOrDefaultAsync(x => x.Id == id);
 
-        if (existing == null) throw new AppException("Not found closing wallet.");
+        if (existing == null) throw new AppException("Not found closing assetWallet.");
 
         existing.ReturnRake = obj.ReturnRake;
 

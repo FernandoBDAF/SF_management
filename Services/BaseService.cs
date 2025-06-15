@@ -32,9 +32,9 @@ public class BaseService<TEntity> where TEntity : BaseDomain
         if (typeof(TEntity) == typeof(Client))
         {
             query = ((IQueryable<Client>)query)
-                .Include(c => c.PhonesNumbers)
+                .Include(c => c.ContactPhones)
                 .Include(c => c.InitialBalances)
-                .Include(c => c.Wallets)
+                .Include(c => c.AssetWallets)
                 .Include(c => c.WalletIdentifiers)
                 .Include(c => c.Address)
                 .Cast<TEntity>();
@@ -43,9 +43,9 @@ public class BaseService<TEntity> where TEntity : BaseDomain
         else if (typeof(TEntity) == typeof(Bank))
         {
             query = ((IQueryable<Bank>)query)
-                .Include(b => b.PhonesNumbers)
+                .Include(b => b.ContactPhones)
                 .Include(b => b.InitialBalances)
-                .Include(b => b.Wallets)
+                .Include(b => b.AssetWallets)
                 .Include(b => b.Ofxs)
                 .Include(b => b.Address)
                 .Cast<TEntity>();
@@ -56,7 +56,7 @@ public class BaseService<TEntity> where TEntity : BaseDomain
             query = ((IQueryable<Member>)query)
                 .Include(m => m.PhonesNumbers)
                 .Include(m => m.InitialBalances)
-                .Include(m => m.Wallets)
+                .Include(m => m.AssetWallets)
                 .Include(m => m.WalletIdentifiers)
                 .Include(m => m.Address)
                 .Cast<TEntity>();
@@ -67,7 +67,7 @@ public class BaseService<TEntity> where TEntity : BaseDomain
             query = ((IQueryable<PokerManager>)query)
                 .Include(pm => pm.PhonesNumbers)
                 .Include(pm => pm.InitialBalances)
-                .Include(pm => pm.Wallets)
+                .Include(pm => pm.AssetWallets)
                 .Include(pm => pm.WalletIdentifiers)
                 .Include(pm => pm.Excels)
                 .Include(pm => pm.Address)

@@ -60,18 +60,18 @@ public class ClosingManagerService : BaseService<ClosingManager>
         //
         // closingManager.DoneAt = DateTime.Now;
         //
-        // foreach (var wallet in closingManager.Manager.Wallets)
+        // foreach (var assetWallet in closingManager.Manager.Wallets)
         // {
-        //     var totalBalance = closingManager.ClosingNicknames.Where(x => x.Nickname.WalletId == wallet.Id)
+        //     var totalBalance = closingManager.ClosingNicknames.Where(x => x.Nickname.WalletId == assetWallet.Id)
         //         .Sum(x => x.Balance);
         //
         //     if (totalBalance != decimal.Zero)
-        //         wallet.InternalTransactions.Add(new InternalTransaction
+        //         assetWallet.InternalTransactions.Add(new InternalTransaction
         //         {
         //             InternalTransactionType = totalBalance > decimal.Zero
         //                 ? InternalTransactionType.Expense
         //                 : InternalTransactionType.Income,
-        //             Description = $"Fechamento balanço clube {wallet.Name}",
+        //             Description = $"Fechamento balanço clube {assetWallet.Name}",
         //             Coins = totalBalance > decimal.Zero ? totalBalance : decimal.Negate(totalBalance),
         //             Date = closingManager.End,
         //             ApprovedAt = DateTime.Now,

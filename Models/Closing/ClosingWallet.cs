@@ -10,9 +10,9 @@ public class ClosingWallet : BaseDomain
     {
     }
 
-    // public ClosingWallet(Wallet wallet)
+    // public ClosingWallet(AssetWallet assetWallet)
     // {
-    //     WalletId = wallet.Id;
+    //     WalletId = assetWallet.Id;
     //     ReturnRake = decimal.Zero;
     // }
 
@@ -22,7 +22,7 @@ public class ClosingWallet : BaseDomain
 
     public Guid WalletId { get; set; }
     
-    public virtual Wallet Wallet { get; set; }
+    public virtual AssetWallet AssetWallet { get; set; }
 
     [Precision(18, 2)] public decimal ReturnRake { get; set; }
 }

@@ -5,7 +5,7 @@ using SFManagement.Enums;
 
 namespace SFManagement.Models.Entities;
 
-public class Wallet : BaseDomain
+public class AssetWallet : BaseDomain
 {
     public AssetType AssetType { get; set; }
     

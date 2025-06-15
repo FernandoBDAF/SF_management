@@ -12,7 +12,7 @@ public class Bank : BaseAssetHolder
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
     
-    public virtual ICollection<ContactPhone> PhonesNumbers { get; set; } = new HashSet<ContactPhone>();
+    public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
     
-    public virtual ICollection<Wallet> Wallets { get; set; } = new HashSet<Wallet>();
+    public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
 }

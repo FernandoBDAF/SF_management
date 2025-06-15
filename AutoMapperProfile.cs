@@ -32,23 +32,25 @@ public class AutoMapperProfile : Profile
         CreateMap<PokerManager, PokerManagerResponse>();
         CreateMap<PokerManagerRequest, PokerManager>();
 
-        CreateMap<Wallet, WalletResponse>()
+        CreateMap<AssetWallet, AssetWalletResponse>()
             .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
             .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
             .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
             .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
-
-        CreateMap<WalletRequest, Wallet>();
+        CreateMap<AssetWalletRequest, AssetWallet>();
 
         CreateMap<WalletIdentifier, WalletIdentifierResponse>();
         CreateMap<WalletIdentifierRequest, WalletIdentifier>();
 
-        // CreateMap<FiatAssetTransaction, BankTransactionResponse>()
+        // CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>()
         //     .ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name))
         //     .ForMember(dest => dest.ClientName, act => act.MapFrom(src => src.Client.Name));
-        // CreateMap<BankTransactionRequest, FiatAssetTransaction>();
+        // CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
 
-        CreateMap<(FiatAssetTransaction from, FiatAssetTransaction to), (BankTransactionResponse from, BankTransactionResponse to
+        CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
+        CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
+        
+        CreateMap<(FiatAssetTransaction from, FiatAssetTransaction to), (FiatAssetTransactionResponse from, FiatAssetTransactionResponse to
                 )>()
             .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
             .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
@@ -62,11 +64,11 @@ public class AutoMapperProfile : Profile
         CreateMap<OfxTransaction, OfxTransactionResponse>();
         CreateMap<OfxTransactionRequest, OfxTransaction>();
         
-        CreateMap<DigitalAssetTransaction, WalletTransactionResponse>();
-        CreateMap<WalletTransactionRequest, DigitalAssetTransaction>();
+        CreateMap<DigitalAssetTransaction, DigitalAssetTransactionResponse>();
+        CreateMap<DigitalAssetTransactionRequest, DigitalAssetTransaction>();
 
-        CreateMap<(DigitalAssetTransaction from, DigitalAssetTransaction to), (WalletTransactionResponse from,
-                WalletTransactionResponse to)>()
+        CreateMap<(DigitalAssetTransaction from, DigitalAssetTransaction to), (DigitalAssetTransactionResponse from,
+                DigitalAssetTransactionResponse to)>()
             .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
             .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
 

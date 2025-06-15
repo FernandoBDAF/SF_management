@@ -3,7 +3,7 @@ using SFManagement.Models.Entities;
 
 namespace SFManagement.ViewModels;
 
-public class WalletResponse : BaseResponse
+public class AssetWalletResponse : BaseResponse
 {
     public AssetType AssetType { get; set; }
     

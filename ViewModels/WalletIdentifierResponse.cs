@@ -16,7 +16,7 @@ public class WalletIdentifierResponse : BaseResponse
 
     public decimal? DefaultParentCommission { get; set; }
     
-    public Guid? WalletId { get; set; }
+    public Guid? AssetWalletId { get; set; }
     
     public Guid? ClientId { get; set; }
     

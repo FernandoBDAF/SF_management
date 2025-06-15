@@ -13,7 +13,7 @@ namespace SFManagement.Controllers.v1;
 public class PokerManagerController(
     BaseService<PokerManager> service,
     IMapper mapper,
-    WalletService walletService,
+    AssetWalletService assetWalletService,
     PokerManagerService pokerManagerService,
     TransactionService transactionService)
     : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>(service, mapper)
@@ -22,9 +22,9 @@ public class PokerManagerController(
 
     [HttpGet]
     [Route("wallets/{managerId}")]
-    public async Task<List<WalletResponse>> GetWalletsByManagerId(Guid managerId)
+    public async Task<List<AssetWalletResponse>> GetWalletsByManagerId(Guid managerId)
     {
-        return _mapper.Map<List<WalletResponse>>(await walletService.GetWalletsByManagerId(managerId));
+        return _mapper.Map<List<AssetWalletResponse>>(await assetWalletService.GetWalletsByManagerId(managerId));
     }
 
     [HttpGet]

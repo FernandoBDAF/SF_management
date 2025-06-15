@@ -2,7 +2,7 @@
 
 namespace SFManagement.ViewModels;
 
-public class WalletRequest
+public class AssetWalletRequest
 {
     public AssetType? AssetType { get; set; }
     

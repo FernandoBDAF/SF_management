@@ -35,7 +35,7 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
 
     public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }
 
-    public DbSet<Wallet> Wallets { get; set; }
+    public DbSet<AssetWallet> AssetWallets { get; set; }
 
     public DbSet<DigitalAssetTransaction> DigitalAssetTransactions { get; set; }
 
@@ -62,9 +62,9 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
        modelBuilder.Entity<BaseAssetHolder>().UseTpcMappingStrategy();
 
         modelBuilder.Entity<WalletIdentifier>()
-        .HasOne(wi => wi.Wallet)
+        .HasOne(wi => wi.AssetWallet)
         .WithMany(w => w.WalletIdentifiers)
-        .HasForeignKey(wi => wi.WalletId)
+        .HasForeignKey(wi => wi.AssetWalletId)
         .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<WalletIdentifier>()

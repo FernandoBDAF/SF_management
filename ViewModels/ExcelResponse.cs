@@ -8,6 +8,6 @@ public class ExcelResponse : BaseResponse
 
     public string? FileType { get; set; }
 
-    public ICollection<WalletTransactionResponse> WalletTransactions { get; set; } =
-        new HashSet<WalletTransactionResponse>();
+    public ICollection<DigitalAssetTransactionResponse> WalletTransactions { get; set; } =
+        new HashSet<DigitalAssetTransactionResponse>();
 }
