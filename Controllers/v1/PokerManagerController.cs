@@ -27,19 +27,19 @@ public class PokerManagerController(
         return _mapper.Map<List<AssetWalletResponse>>(await assetWalletService.GetWalletsByManagerId(managerId));
     }
 
-    [HttpGet]
-    [Route("balance/{managerId}")]
-    public async Task<BalanceResponse> Balance(Guid managerId)
-    {
-        return await pokerManagerService.GetBalance(managerId, null);
-    }
-
-    [HttpPost]
-    [Route("balance/{managerId}")]
-    public async Task<BalanceResponse> Balance(Guid managerId, BalanceRequest request)
-    {
-        return await pokerManagerService.GetBalance(managerId, request.Date);
-    }
+    // [HttpGet]
+    // [Route("balance/{managerId}")]
+    // public async Task<BalanceResponse> Balance(Guid managerId)
+    // {
+    //     return await pokerManagerService.GetBalance(managerId, null);
+    // }
+    //
+    // [HttpPost]
+    // [Route("balance/{managerId}")]
+    // public async Task<BalanceResponse> Balance(Guid managerId, BalanceRequest request)
+    // {
+    //     return await pokerManagerService.GetBalance(managerId, request.Date);
+    // }
 
     [HttpGet]
     [Route("profit/{managerId}")]

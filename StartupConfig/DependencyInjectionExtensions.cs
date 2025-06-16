@@ -161,8 +161,8 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<ClosingNicknameService>();
         builder.Services.AddScoped<BaseService<ClosingManager>, ClosingManagerService>();
         builder.Services.AddScoped<ClosingManagerService>();
-        builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
-        builder.Services.AddScoped<InternalTransactionService>();
+        // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
+        // builder.Services.AddScoped<InternalTransactionService>();
         builder.Services.AddScoped<UserResolverService>();
         builder.Services.AddScoped<BaseService<AvgRate>, AvgRateService>();
         builder.Services.AddScoped<AvgRateService>();

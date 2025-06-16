@@ -30,7 +30,7 @@ public class ClosingManager : BaseDomain
     public List<ClosingWallet> ClosingWallets { get; set; } = new();
     public List<ClosingNickname> ClosingNicknames { get; set; } = new();
 
-    public List<InternalTransaction> InternalTransactions { get; set; } = new();
+    // public List<InternalTransaction> InternalTransactions { get; set; } = new();
 
     // public static decimal CalcRake(List<ClosingNickname> closingNicknames, List<ClosingWallet> closingWallets)
     // {

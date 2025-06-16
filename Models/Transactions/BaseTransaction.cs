@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using SFManagement.Enums;
 using SFManagement.Models.Entities;
 
 namespace SFManagement.Models.Transactions;
@@ -14,15 +15,16 @@ public class BaseTransaction : BaseDomain
     [Required] public DateTime Date { get; set; }
     
     // The one creating the transaction - AssetHolderWalletIdentifierId
-    // public Guid? WalletIdentifierId { get; set; }
     public Guid WalletIdentifierId { get; set; }
-    // public virtual WalletIdentifier WalletIdentifier { get; set; }
     
-    // The one who owns the asset pool - AssetHolderWalletId
+    // The one who owns the asset pool (reference for Direction) - AssetHolderWalletId
     public Guid AssetWalletId { get; set; }
-    // public virtual AssetWallet AssetWallet { get; set; }
-
+    
     [MaxLength(50)] public string? Description { get; set; }
+    
+    [Precision(18, 2)] public decimal AssetAmount { get; set; }
+    
+    [Required] public TransactionDirection TransactionDirection { get; set; }
     
     public Guid? TagId { get; set; }
     public virtual Tag? Tag { get; set; }

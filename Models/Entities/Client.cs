@@ -12,7 +12,7 @@ public class Client : BaseAssetHolder
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
     
-    public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
-    
-    public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } =  new HashSet<WalletIdentifier>();
+    // public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
+    //
+    // public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } =  new HashSet<WalletIdentifier>();
 }

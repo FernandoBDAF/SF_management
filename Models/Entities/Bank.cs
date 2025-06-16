@@ -14,5 +14,7 @@ public class Bank : BaseAssetHolder
     
     public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
     
-    public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
+    // public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
+    //
+    // public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } = new HashSet<WalletIdentifier>();
 }

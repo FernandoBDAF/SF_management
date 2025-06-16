@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
 using SFManagement.Services;
 using SFManagement.ViewModels;
+using SFManagement.Enums;
 
 namespace SFManagement.Controllers;
 
@@ -57,5 +58,12 @@ public class BaseApiController<TEntity, TRequest, TResponse> : ControllerBase wh
         var entity = _mapper.Map<TEntity>(model);
         var result = await _service.Update(id, entity);
         return _mapper.Map<TResponse>(result);
+    }
+    
+    [HttpGet]
+    [Route("balance/{id}")]
+    public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
+    {
+        return await _service.GetBalancesByAssetType(id);
     }
 }

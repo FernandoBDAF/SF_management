@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
+using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Services;
 
@@ -46,8 +48,9 @@ public class BaseService<TEntity> where TEntity : BaseDomain
                 .Include(b => b.ContactPhones)
                 .Include(b => b.InitialBalances)
                 .Include(b => b.AssetWallets)
-                .Include(b => b.Ofxs)
+                .Include(c => c.WalletIdentifiers)
                 .Include(b => b.Address)
+                .Include(b => b.Ofxs)
                 .Cast<TEntity>();
         }
         // Special handling for Member entity
@@ -135,7 +138,7 @@ public class BaseService<TEntity> where TEntity : BaseDomain
             await context.SaveChangesAsync();
         }
     }
-}
+
 
     // public virtual async Task Balance(Guid id)
     // {
@@ -152,3 +155,108 @@ public class BaseService<TEntity> where TEntity : BaseDomain
     //     var balanceService = new BalanceService(context);
     //     var balances = await balanceService.GetBalancesByAssetType(client);
     // }
+    
+    public class AssetBalance
+    {
+        public AssetType AssetType { get; set; }
+        public decimal? Value { get; set; }
+    }
+
+    public async Task<Dictionary<AssetType, decimal>> GetBalancesByAssetType(Guid id)
+    {
+        var assetHolder = await GetAssetHolderWithTransactions(id);
+            
+        var balances = new Dictionary<AssetType, decimal>();
+
+        foreach (var aw in assetHolder.AssetWallets ?? Enumerable.Empty<AssetWallet>())
+        {
+            foreach (var tx in aw.DigitalAssetTransactions ?? Enumerable.Empty<DigitalAssetTransaction>())
+            {
+                var assetType = aw.AssetType;
+                var value = tx.TransactionDirection == TransactionDirection.Income ?
+                    (tx.AssetAmount) : -(tx.AssetAmount);
+                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+                balances[assetType] += value;
+            }
+            
+            foreach (var tx in aw.FiatAssetTransactions ?? Enumerable.Empty<FiatAssetTransaction>())
+            {
+                var assetType = aw.AssetType;
+                var value = tx.TransactionDirection == TransactionDirection.Income ?
+                    (tx.AssetAmount) : -(tx.AssetAmount);
+                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+                balances[assetType] += value;
+            }
+        }
+
+        // 3. DigitalAssetTransactions from Client's own WalletIdentifiers
+        foreach (var wi in assetHolder.WalletIdentifiers ?? Enumerable.Empty<WalletIdentifier>())
+        {
+            foreach (var tx in wi.DigitalAssetTransactions ?? Enumerable.Empty<DigitalAssetTransaction>())
+            {
+                var assetType = wi.AssetType;
+                var value = tx.TransactionDirection == TransactionDirection.Income ?
+                    -(tx.AssetAmount) : (tx.AssetAmount);
+                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+                balances[assetType] += value;
+            }
+            
+            foreach (var tx in wi.FiatAssetTransactions ?? Enumerable.Empty<FiatAssetTransaction>())
+            {
+                var assetType = wi.AssetType;
+                var value = tx.TransactionDirection == TransactionDirection.Income ?
+                    -(tx.AssetAmount) : (tx.AssetAmount);
+                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+                balances[assetType] += value;
+            }
+        }
+
+        return balances;
+    }
+    
+    public async Task<BaseAssetHolder> GetAssetHolderWithTransactions(Guid id)
+    {
+        var query = (IQueryable<BaseAssetHolder>)_entity.AsQueryable();
+        query = query
+            .Include(c => c.AssetWallets)
+            .ThenInclude(wi => wi.DigitalAssetTransactions)
+
+            .Include(c => c.AssetWallets)
+            .ThenInclude(wi => wi.FiatAssetTransactions)
+
+            .Include(c => c.WalletIdentifiers)
+            .ThenInclude(wi => wi.DigitalAssetTransactions)
+
+            .Include(c => c.WalletIdentifiers)
+            .ThenInclude(wi => wi.FiatAssetTransactions);
+
+        TEntity obj;
+        if (typeof(TEntity) == typeof(Client))
+        {
+            query = query.Cast<Client>();
+        }
+        else if (typeof(TEntity) == typeof(Bank))
+        {
+            query = query.Cast<Bank>();
+        }
+        else if (typeof(TEntity) == typeof(Member))
+        {
+            query = query.Cast<Member>();
+        }
+        else if (typeof(TEntity) == typeof(PokerManager))
+        {
+            query = query.Cast<PokerManager>();
+        }
+        else
+        {
+            throw new KeyNotFoundException($"Entity type {typeof(TEntity).Name} is not supported");
+        }
+        
+
+        var assetHolder = await query.FirstOrDefaultAsync(x => 
+                                  x.Id == id) ?? 
+                              throw new Exception("AssetHolder not found");
+
+        return assetHolder;
+    }
+}

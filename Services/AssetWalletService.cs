@@ -52,8 +52,7 @@ public class AssetWalletService(DataContext context, IHttpContextAccessor httpCo
             .Include(w => w.Client)
             .Include(w => w.Member)
             .Include(w => w.Bank)
-            .Include(w => w.PokerManager)
-            .Include(w => w.WalletIdentifiers);
+            .Include(w => w.PokerManager);
 
         var wallet = await query.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
         if (wallet == null)

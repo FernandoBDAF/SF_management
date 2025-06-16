@@ -32,11 +32,11 @@ public class AutoMapperProfile : Profile
         CreateMap<PokerManager, PokerManagerResponse>();
         CreateMap<PokerManagerRequest, PokerManager>();
 
-        CreateMap<AssetWallet, AssetWalletResponse>()
-            .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
-            .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
-            .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
-            .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
+        CreateMap<AssetWallet, AssetWalletResponse>();
+            // .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
+            // .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
+            // .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
+            // .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
         CreateMap<AssetWalletRequest, AssetWallet>();
 
         CreateMap<WalletIdentifier, WalletIdentifierResponse>();
@@ -50,10 +50,10 @@ public class AutoMapperProfile : Profile
         CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
         CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
         
-        CreateMap<(FiatAssetTransaction from, FiatAssetTransaction to), (FiatAssetTransactionResponse from, FiatAssetTransactionResponse to
-                )>()
-            .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
-            .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
+        // CreateMap<(FiatAssetTransaction from, FiatAssetTransaction to), (FiatAssetTransactionResponse from, FiatAssetTransactionResponse to
+        //         )>()
+        //     .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
+        //     .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
         
         CreateMap<ClosingNickname, ClosingNicknameResponse>();
         CreateMap<ClosingNicknameRequest, ClosingNickname>();
@@ -67,10 +67,10 @@ public class AutoMapperProfile : Profile
         CreateMap<DigitalAssetTransaction, DigitalAssetTransactionResponse>();
         CreateMap<DigitalAssetTransactionRequest, DigitalAssetTransaction>();
 
-        CreateMap<(DigitalAssetTransaction from, DigitalAssetTransaction to), (DigitalAssetTransactionResponse from,
-                DigitalAssetTransactionResponse to)>()
-            .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
-            .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
+        // CreateMap<(DigitalAssetTransaction from, DigitalAssetTransaction to), (DigitalAssetTransactionResponse from,
+        //         DigitalAssetTransactionResponse to)>()
+            // .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
+            // .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
 
         CreateMap<Excel, ExcelResponse>();
         CreateMap<ExcelRequest, Excel>();
@@ -87,10 +87,10 @@ public class AutoMapperProfile : Profile
         CreateMap<ClosingManager, ClosingManagerResponse>();
         CreateMap<ClosingManagerRequest, ClosingManager>();
 
-        CreateMap<(InternalTransaction to, InternalTransaction from), (InternalTransactionResponse to,
-            InternalTransactionResponse from)>();
-        CreateMap<InternalTransaction, InternalTransactionResponse>();
-        CreateMap<InternalTransactionRequest, InternalTransaction>();
+        // CreateMap<(InternalTransaction to, InternalTransaction from), (InternalTransactionResponse to,
+        //     InternalTransactionResponse from)>();
+        // CreateMap<InternalTransaction, InternalTransactionResponse>();
+        // CreateMap<InternalTransactionRequest, InternalTransaction>();
 
         CreateMap<ApplicationUser, UserResponse>();
 

@@ -16,4 +16,8 @@ public class BaseAssetHolder : BaseDomain
     [MaxLength(20)] public string? Cpf { get; set; }
     
     [MaxLength(20)] public string? Cnpj { get; set; }
+    
+    public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
+    
+    public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } = new HashSet<WalletIdentifier>();
 }

@@ -27,19 +27,19 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
         _balanceService = balanceService;
     }
 
-    [HttpGet]
-    [Route("balance/{clientId}")]
-    public async Task<Dictionary<AssetType,decimal>> Balance(Guid clientId)
-    {
-        return await _clientService.GetBalancesByAssetType(clientId);
-    }
+    // [HttpGet]
+    // [Route("balance/{clientId}")]
+    // public async Task<Dictionary<AssetType,decimal>> Balance(Guid clientId)
+    // {
+    //     return await _clientService.GetBalancesByAssetType(clientId);
+    // }
 
-    [HttpPost]
-    [Route("balance/{clientId}")]
-    public async Task<BalanceResponse> Balance(Guid clientId, BalanceRequest request)
-    {
-        return await _clientService.GetBalance(clientId, request.Date);
-    }
+    // [HttpPost]
+    // [Route("balance/{clientId}")]
+    // public async Task<BalanceResponse> Balance(Guid clientId, BalanceRequest request)
+    // {
+    //     return await _clientService.GetBalance(clientId, request.Date);
+    // }
 
     [HttpGet]
     [Route("transactions/{clientId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]

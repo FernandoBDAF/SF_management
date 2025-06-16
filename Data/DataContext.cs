@@ -51,7 +51,7 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
 
     public DbSet<ClosingNickname> ClosingNicknames { get; set; }
 
-    public DbSet<InternalTransaction> InternalTransactions { get; set; }
+    // public DbSet<InternalTransaction> InternalTransactions { get; set; }
 
     public DbSet<AvgRate> AvgRates { get; set; }
 

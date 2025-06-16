@@ -1,3 +1,5 @@
+using SFManagement.Enums;
+
 namespace SFManagement.ViewModels;
 
 public class WalletIdentifierRequest
@@ -16,7 +18,7 @@ public class WalletIdentifierRequest
 
     public decimal? DefaultParentCommission { get; set; }
     
-    public Guid? AssetWalletId { get; set; }
+    public AssetType? AssetType { get; set; }
     
     public Guid? ClientId { get; set; }
     

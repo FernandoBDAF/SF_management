@@ -18,5 +18,5 @@ public class Tag : BaseDomain
 
     public virtual List<FiatAssetTransaction> BankTransactions { get; set; } = new();
 
-    public virtual List<InternalTransaction> InternalTransactions { get; set; } = new();
+    // public virtual List<InternalTransaction> InternalTransactions { get; set; } = new();
 }
