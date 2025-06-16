@@ -31,15 +31,7 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
     [Route("balance/{clientId}")]
     public async Task<Dictionary<AssetType,decimal>> Balance(Guid clientId)
     {
-        var client = await _clientService.Get(clientId);
-
-        if (client is null)
-        {
-            _logger.LogWarning("Client {clientId} not found", clientId);
-            return new Dictionary<AssetType, decimal>();
-        }
-        
-        return await _balanceService.GetBalancesByAssetType(client);
+        return await _clientService.GetBalancesByAssetType(clientId);
     }
 
     [HttpPost]

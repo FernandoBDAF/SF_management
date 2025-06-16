@@ -136,3 +136,19 @@ public class BaseService<TEntity> where TEntity : BaseDomain
         }
     }
 }
+
+    // public virtual async Task Balance(Guid id)
+    // {
+    //     if (typeof(TEntity) != typeof(Client) && 
+    //     typeof(TEntity) != typeof(Member) && 
+    //     typeof(TEntity) != typeof(PokerManager) && 
+    //     typeof(TEntity) != typeof(Bank))
+    //         throw new InvalidOperationException("Balance can only be calculated for Client, Member, PokerManager or Bank");
+
+    //     var client = await Get(id);
+    //     if (client == null)
+    //         throw new KeyNotFoundException($"Client with id {id} not found");
+
+    //     var balanceService = new BalanceService(context);
+    //     var balances = await balanceService.GetBalancesByAssetType(client);
+    // }

@@ -12,7 +12,7 @@ public class DigitalAssetTransaction : BaseTransaction
     
     [Required] public TransactionDirection TransactionDirection { get; set; }
     
-    public AssetType? ConvertTo { get; set; }
+    public AssetType? ConvertTo { get; set; } = AssetType.BrazilianReal;
     
     [Precision(18, 2)] public decimal? ConversionRate { get; set; }
     

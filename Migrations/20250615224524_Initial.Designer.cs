@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SFManagement.Data;
 
@@ -11,9 +12,11 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250615224524_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -754,13 +757,7 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AssetType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("AssetWalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("BankId")
+                    b.Property<Guid>("AssetWalletId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ClientId")
@@ -823,8 +820,6 @@ namespace SFManagement.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssetWalletId");
-
-                    b.HasIndex("BankId");
 
                     b.HasIndex("ClientId");
 
@@ -944,6 +939,8 @@ namespace SFManagement.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssetWalletId");
 
                     b.HasIndex("ExcelId");
 
@@ -1115,6 +1112,8 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssetWalletId");
+
                     b.HasIndex("OfxTransactionId");
 
                     b.HasIndex("TagId");
@@ -1199,11 +1198,15 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssetWalletId");
+
                     b.HasIndex("BankId");
 
                     b.HasIndex("ClosingManagerId");
 
                     b.HasIndex("TagId");
+
+                    b.HasIndex("WalletIdentifierId");
 
                     b.ToTable("InternalTransactions");
                 });
@@ -1531,13 +1534,11 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Entities.WalletIdentifier", b =>
                 {
-                    b.HasOne("SFManagement.Models.Entities.AssetWallet", null)
+                    b.HasOne("SFManagement.Models.Entities.AssetWallet", "AssetWallet")
                         .WithMany("WalletIdentifiers")
-                        .HasForeignKey("AssetWalletId");
-
-                    b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
-                        .WithMany()
-                        .HasForeignKey("BankId");
+                        .HasForeignKey("AssetWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SFManagement.Models.Entities.Client", "Client")
                         .WithMany("WalletIdentifiers")
@@ -1554,7 +1555,7 @@ namespace SFManagement.Migrations
                         .HasForeignKey("PokerManagerId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Bank");
+                    b.Navigation("AssetWallet");
 
                     b.Navigation("Client");
 
@@ -1574,6 +1575,12 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Transactions.DigitalAssetTransaction", b =>
                 {
+                    b.HasOne("SFManagement.Models.Entities.AssetWallet", "AssetWallet")
+                        .WithMany()
+                        .HasForeignKey("AssetWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SFManagement.Models.Transactions.Excel", "Excel")
                         .WithMany()
                         .HasForeignKey("ExcelId");
@@ -1582,15 +1589,19 @@ namespace SFManagement.Migrations
                         .WithMany("WalletTransactions")
                         .HasForeignKey("TagId");
 
-                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", null)
-                        .WithMany("DigitalAssetTransactions")
+                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", "WalletIdentifier")
+                        .WithMany()
                         .HasForeignKey("WalletIdentifierId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("AssetWallet");
 
                     b.Navigation("Excel");
 
                     b.Navigation("Tag");
+
+                    b.Navigation("WalletIdentifier");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Transactions.Excel", b =>
@@ -1623,6 +1634,12 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Transactions.FiatAssetTransaction", b =>
                 {
+                    b.HasOne("SFManagement.Models.Entities.AssetWallet", "AssetWallet")
+                        .WithMany()
+                        .HasForeignKey("AssetWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SFManagement.Models.Transactions.OfxTransaction", "OfxTransaction")
                         .WithMany()
                         .HasForeignKey("OfxTransactionId");
@@ -1631,19 +1648,29 @@ namespace SFManagement.Migrations
                         .WithMany("BankTransactions")
                         .HasForeignKey("TagId");
 
-                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", null)
-                        .WithMany("FiatAssetTransactions")
+                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", "WalletIdentifier")
+                        .WithMany()
                         .HasForeignKey("WalletIdentifierId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("AssetWallet");
 
                     b.Navigation("OfxTransaction");
 
                     b.Navigation("Tag");
+
+                    b.Navigation("WalletIdentifier");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Transactions.InternalTransaction", b =>
                 {
+                    b.HasOne("SFManagement.Models.Entities.AssetWallet", "AssetWallet")
+                        .WithMany()
+                        .HasForeignKey("AssetWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
                         .WithMany()
                         .HasForeignKey("BankId");
@@ -1656,11 +1683,21 @@ namespace SFManagement.Migrations
                         .WithMany("InternalTransactions")
                         .HasForeignKey("TagId");
 
+                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", "WalletIdentifier")
+                        .WithMany()
+                        .HasForeignKey("WalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssetWallet");
+
                     b.Navigation("Bank");
 
                     b.Navigation("ClosingManager");
 
                     b.Navigation("Tag");
+
+                    b.Navigation("WalletIdentifier");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Transactions.Ofx", b =>
@@ -1697,13 +1734,6 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Entities.AssetWallet", b =>
                 {
                     b.Navigation("WalletIdentifiers");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Entities.WalletIdentifier", b =>
-                {
-                    b.Navigation("DigitalAssetTransactions");
-
-                    b.Navigation("FiatAssetTransactions");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Tag", b =>

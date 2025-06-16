@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using SFManagement.Enums;
 using SFManagement.Models.Closing;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.Entities;
 
@@ -39,11 +41,18 @@ public class WalletIdentifier : BaseDomain
     // the 5 relationships bellow in the datacontext file. On delete of assetWallet,
     // WalletIdentifier will be deleted. Deleting any of the other classes will
     // leave and orphan assetWallet identifier 
-    public Guid AssetWalletId { get; set; }
-    public virtual AssetWallet AssetWallet { get; set; } = new AssetWallet();
+    // public Guid AssetWalletId { get; set; }
+    // public virtual AssetWallet AssetWallet { get; set; } = new AssetWallet();
     
+    public AssetType AssetType { get; set; }
     // Only one of the following relationships bellow should happen, so there is
     // a logic handling this in the service.
+    
+    public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
+    public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
+    
+    public Guid? BankId { get; set; }
+    public virtual Bank? Bank { get; set; }
     public Guid? ClientId { get; set; }
     public virtual Client? Client { get; set; }
 

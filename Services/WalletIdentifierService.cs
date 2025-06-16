@@ -26,7 +26,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
 
     private static void EnforceSingleOwner(WalletIdentifier address)
     {
-        var ownerCount = new[] { address.ClientId, address.MemberId, address.PokerManagerId }
+        var ownerCount = new[] { address.ClientId, address.MemberId, address.PokerManagerId, address.BankId }
             .Count(id => id != null);
         if (ownerCount != 1)
             throw new InvalidOperationException("WalletIdentifier must be linked to exactly one owner (Client, Bank, Member, or PokerManager).");

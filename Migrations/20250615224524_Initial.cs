@@ -734,10 +734,10 @@ namespace SFManagement.Migrations
                     DeleteId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ApprovedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
@@ -748,7 +748,8 @@ namespace SFManagement.Migrations
                         name: "FK_DigitalAssetTransactions_AssetWallets_AssetWalletId",
                         column: x => x.AssetWalletId,
                         principalTable: "AssetWallets",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DigitalAssetTransactions_Excels_ExcelId",
                         column: x => x.ExcelId,
@@ -758,13 +759,13 @@ namespace SFManagement.Migrations
                         name: "FK_DigitalAssetTransactions_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DigitalAssetTransactions_WalletIdentifiers_WalletIdentifierId",
                         column: x => x.WalletIdentifierId,
                         principalTable: "WalletIdentifiers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -772,7 +773,7 @@ namespace SFManagement.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AssetAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    AssetAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     TransactionDirection = table.Column<int>(type: "int", nullable: false),
                     OfxTransactionId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -782,10 +783,10 @@ namespace SFManagement.Migrations
                     DeleteId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ApprovedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
@@ -796,7 +797,8 @@ namespace SFManagement.Migrations
                         name: "FK_FiatAssetTransactions_AssetWallets_AssetWalletId",
                         column: x => x.AssetWalletId,
                         principalTable: "AssetWallets",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_FiatAssetTransactions_OfxTransactions_OfxTransactionId",
                         column: x => x.OfxTransactionId,
@@ -806,13 +808,13 @@ namespace SFManagement.Migrations
                         name: "FK_FiatAssetTransactions_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_FiatAssetTransactions_WalletIdentifiers_WalletIdentifierId",
                         column: x => x.WalletIdentifierId,
                         principalTable: "WalletIdentifiers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -835,10 +837,10 @@ namespace SFManagement.Migrations
                     DeleteId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ApprovedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
@@ -849,7 +851,8 @@ namespace SFManagement.Migrations
                         name: "FK_InternalTransactions_AssetWallets_AssetWalletId",
                         column: x => x.AssetWalletId,
                         principalTable: "AssetWallets",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_InternalTransactions_Banks_BankId",
                         column: x => x.BankId,
@@ -864,13 +867,13 @@ namespace SFManagement.Migrations
                         name: "FK_InternalTransactions_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_InternalTransactions_WalletIdentifiers_WalletIdentifierId",
                         column: x => x.WalletIdentifierId,
                         principalTable: "WalletIdentifiers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

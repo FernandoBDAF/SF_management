@@ -10,7 +10,7 @@ namespace SFManagement.Models.Transactions;
 // Banks are entities that manager Fiat transactions
 public class FiatAssetTransaction : BaseTransaction
 {
-    [Precision(18, 2)] public decimal? AssetAmount { get; set; }
+    [Precision(18, 2)] public decimal AssetAmount { get; set; }
     
     [Required] public TransactionDirection TransactionDirection { get; set; }
 

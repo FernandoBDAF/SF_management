@@ -13,7 +13,7 @@ public class AssetWallet : BaseDomain
     
     [Precision(18, 2)] public decimal? DefaultAgreedCommission { get; set; }
     
-    public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } = new List<WalletIdentifier>();
+    public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; }
     
     public Guid? ClientId { get; set; }
     public virtual Client? Client { get; set; }
