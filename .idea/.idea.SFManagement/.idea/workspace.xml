@@ -12,42 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Models/AuditDomain.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BaseApiController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/InternalTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/InternalTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data/DataContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Data/DataContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250615224524_Initial.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250615224524_Initial.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250615234113_adjust WI model.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250615234113_adjust WI model.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250616035746_AW properties.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250616035746_AW properties.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Closing/ClosingManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Closing/ClosingManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/AssetWallet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/AssetWallet.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Bank.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Bank.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Client.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Client.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Member.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/PokerManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/PokerManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Tag.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Tag.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Transactions/DigitalAssetTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/DigitalAssetTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/FiatAssetTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/FiatAssetTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/InternalTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/InternalTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/AssetWalletService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AssetWalletService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/BaseService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ClientService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClientService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/InternalTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/InternalTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/TagService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/TagService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/BalanceResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BalanceResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/TransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/TransactionResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/WalletIdentifierRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

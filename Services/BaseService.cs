@@ -189,16 +189,26 @@ public class BaseService<TEntity> where TEntity : BaseDomain
             }
         }
 
-        // 3. DigitalAssetTransactions from Client's own WalletIdentifiers
         foreach (var wi in assetHolder.WalletIdentifiers ?? Enumerable.Empty<WalletIdentifier>())
         {
             foreach (var tx in wi.DigitalAssetTransactions ?? Enumerable.Empty<DigitalAssetTransaction>())
             {
-                var assetType = wi.AssetType;
-                var value = tx.TransactionDirection == TransactionDirection.Income ?
-                    -(tx.AssetAmount) : (tx.AssetAmount);
-                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-                balances[assetType] += value;
+                if (tx.ConvertTo.HasValue)
+                {
+                    var assetType = tx.ConvertTo ?? AssetType.BrazilianReal;
+                    var value = tx.TransactionDirection == TransactionDirection.Income ?
+                        (tx.AssetAmount * (tx.ConversionRate ?? 1)) : -(tx.AssetAmount * (tx.ConversionRate ?? 1));
+                    if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+                    balances[assetType] += value;
+                }
+                else
+                {
+                    var assetType = wi.AssetType;
+                    var value = tx.TransactionDirection == TransactionDirection.Income ?
+                        -(tx.AssetAmount) : (tx.AssetAmount);
+                    if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+                    balances[assetType] += value;
+                }
             }
             
             foreach (var tx in wi.FiatAssetTransactions ?? Enumerable.Empty<FiatAssetTransaction>())
