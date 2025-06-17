@@ -35,7 +35,7 @@ public class OfxTransaction : BaseDomain
         Description = el.Element("MEMO")?.Value.Replace("</MEMO>", string.Empty);
         FitId = el.Element("FITID")?.Value.Replace("</FITID>", string.Empty) ?? "not found";
         // BankId = bankId;
-        CreatedAt = DateTime.Now;
+        // CreatedAt = DateTime.Now;
     }
     
     [Required] public DateTime Date { get; set; }

@@ -14,11 +14,16 @@ public class BaseService<TEntity> where TEntity : BaseDomain
 
     public readonly DataContext context;
 
+    // private readonly BaseService<AssetWallet> _assetWalletService;
+    // private readonly BaseService<WalletIdentifier> _walletIdentifierService;
+
     public BaseService(DataContext context, IHttpContextAccessor httpContextAccessor)
     {
         this.context = context;
         _entity = context.Set<TEntity>();
         _httpContextAccessor = httpContextAccessor;
+        // _assetWalletService = new BaseService<AssetWallet>(context, httpContextAccessor);
+        // _walletIdentifierService = new BaseService<WalletIdentifier>(context, httpContextAccessor);
     }
 
     public virtual async Task<List<TEntity>> List()
@@ -30,50 +35,49 @@ public class BaseService<TEntity> where TEntity : BaseDomain
     {
         var query = _entity.AsQueryable();
         
-        // Special handling for Client entity
         if (typeof(TEntity) == typeof(Client))
         {
             query = ((IQueryable<Client>)query)
-                .Include(c => c.ContactPhones)
-                .Include(c => c.InitialBalances)
                 .Include(c => c.AssetWallets)
                 .Include(c => c.WalletIdentifiers)
                 .Include(c => c.Address)
+                .Include(c => c.ContactPhones)
+                .Include(c => c.InitialBalances)
                 .Cast<TEntity>();
         }
-        // Special handling for Bank entity
+        
         else if (typeof(TEntity) == typeof(Bank))
         {
             query = ((IQueryable<Bank>)query)
-                .Include(b => b.ContactPhones)
-                .Include(b => b.InitialBalances)
-                .Include(b => b.AssetWallets)
+                .Include(c => c.AssetWallets)
                 .Include(c => c.WalletIdentifiers)
-                .Include(b => b.Address)
+                .Include(c => c.Address)
+                // .Include(c => c.ContactPhones)
+                // .Include(c => c.InitialBalances)
                 .Include(b => b.Ofxs)
                 .Cast<TEntity>();
         }
-        // Special handling for Member entity
+        
         else if (typeof(TEntity) == typeof(Member))
         {
             query = ((IQueryable<Member>)query)
-                .Include(m => m.PhonesNumbers)
-                .Include(m => m.InitialBalances)
-                .Include(m => m.AssetWallets)
-                .Include(m => m.WalletIdentifiers)
-                .Include(m => m.Address)
+                .Include(c => c.AssetWallets)
+                .Include(c => c.WalletIdentifiers)
+                .Include(c => c.Address)
+                .Include(c => c.ContactPhones)
+                .Include(c => c.InitialBalances)
                 .Cast<TEntity>();
         }
-        // Special handling for PokerManager entity
+        
         else if (typeof(TEntity) == typeof(PokerManager))
         {
             query = ((IQueryable<PokerManager>)query)
-                .Include(pm => pm.PhonesNumbers)
-                .Include(pm => pm.InitialBalances)
-                .Include(pm => pm.AssetWallets)
-                .Include(pm => pm.WalletIdentifiers)
+                .Include(c => c.AssetWallets)
+                .Include(c => c.WalletIdentifiers)
+                .Include(c => c.Address)
+                .Include(c => c.ContactPhones)
+                .Include(c => c.InitialBalances)
                 .Include(pm => pm.Excels)
-                .Include(pm => pm.Address)
                 .Cast<TEntity>();
         }
         
@@ -82,12 +86,26 @@ public class BaseService<TEntity> where TEntity : BaseDomain
 
     public virtual async Task<TEntity> Add(TEntity obj)
     {
+        // if (obj is DigitalAssetTransaction || obj is FiatAssetTransaction)
+        // {
+        //     var aw = await _assetWalletService.Get((obj as BaseTransaction).AssetWalletId);
+        //     var wi = await _walletIdentifierService.Get((obj as BaseTransaction).WalletIdentifierId);
+        //     if (aw == null || wi == null)
+        //     {
+        //         throw new ApplicationException("Invalid asset wallet or wallet identifier");
+        //     }
+        //     if (aw.AssetType != wi.AssetType)
+        //     {
+        //         throw new Exception("Asset type mismatch");
+        //     }
+        // }
+        
         obj.CreatedAt = DateTime.Now;
 
         var user = _httpContextAccessor.HttpContext?.User;
 
         if (user != null) obj.CreatorId = Guid.Parse(user.Claims.FirstOrDefault(c => c.Type == "uid")?.Value);
-
+        
         await _entity.AddAsync(obj);
         await context.SaveChangesAsync();
 
@@ -138,23 +156,6 @@ public class BaseService<TEntity> where TEntity : BaseDomain
             await context.SaveChangesAsync();
         }
     }
-
-
-    // public virtual async Task Balance(Guid id)
-    // {
-    //     if (typeof(TEntity) != typeof(Client) && 
-    //     typeof(TEntity) != typeof(Member) && 
-    //     typeof(TEntity) != typeof(PokerManager) && 
-    //     typeof(TEntity) != typeof(Bank))
-    //         throw new InvalidOperationException("Balance can only be calculated for Client, Member, PokerManager or Bank");
-
-    //     var client = await Get(id);
-    //     if (client == null)
-    //         throw new KeyNotFoundException($"Client with id {id} not found");
-
-    //     var balanceService = new BalanceService(context);
-    //     var balances = await balanceService.GetBalancesByAssetType(client);
-    // }
     
     public class AssetBalance
     {
@@ -193,9 +194,9 @@ public class BaseService<TEntity> where TEntity : BaseDomain
         {
             foreach (var tx in wi.DigitalAssetTransactions ?? Enumerable.Empty<DigitalAssetTransaction>())
             {
-                if (tx.ConvertTo.HasValue)
+                if (tx.BalanceAs.HasValue)
                 {
-                    var assetType = tx.ConvertTo ?? AssetType.BrazilianReal;
+                    var assetType = tx.BalanceAs ?? AssetType.BrazilianReal;
                     var value = tx.TransactionDirection == TransactionDirection.Income ?
                         (tx.AssetAmount * (tx.ConversionRate ?? 1)) : -(tx.AssetAmount * (tx.ConversionRate ?? 1));
                     if (!balances.ContainsKey(assetType)) balances[assetType] = 0;

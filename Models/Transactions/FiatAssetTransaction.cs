@@ -7,9 +7,14 @@ using SFManagement.Enums;
 
 namespace SFManagement.Models.Transactions;
 
-// Banks are entities that manager Fiat transactions
 public class FiatAssetTransaction : BaseTransaction
 {
     public Guid? OfxTransactionId { get; set; }
     public virtual OfxTransaction? OfxTransaction { get; set; }
+    
+    [NotMapped]
+    public Guid? ClientId { get; set; }
+    
+    [NotMapped]
+    public Guid? BankId { get; set; }
 }

@@ -14,16 +14,16 @@ public class ContactPhone : BaseDomain
     
     [MaxLength(30)] public string? SearchFor { get; set; }
     
-    // The relationships require that the service has a logic to garanteed only one of the 4 classes bellow
-    // Also to avoid dependency loop .....
+    // Only one of the following relationships bellow should happen, so there is
+    // a logic handling this in the service.
     public Guid? ClientId { get; set; }
     public virtual Client? Client { get; set; }
     
     public Guid? MemberId { get; set; }
     public virtual Member? Member { get; set; }
     
-    public Guid? BankId { get; set; }
-    public virtual Bank? Bank { get; set; }
+    // public Guid? BankId { get; set; }
+    // public virtual Bank? Bank { get; set; }
     
     public Guid? PokerManagerId { get; set; }
     public virtual PokerManager? PokerManager { get; set; }

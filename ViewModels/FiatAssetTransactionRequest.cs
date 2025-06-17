@@ -4,9 +4,9 @@ namespace SFManagement.ViewModels;
 
 public class FiatAssetTransactionRequest : BaseTransactionRequest
 {
-    public decimal? AssetAmount { get; set; }
-    
-    public TransactionDirection? TransactionDirection { get; set; }
-
     public Guid? OfxTransactionId { get; set; }
+    
+    public Guid? ClientId { get; set; }
+    
+    public Guid? BankId { get; set; }
 }

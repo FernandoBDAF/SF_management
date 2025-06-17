@@ -16,13 +16,13 @@ public class SettlementTransaction : BaseTransaction
     
     [Precision(18, 2)] public decimal? ParentCommission { get; set; }
     
-    public decimal? AgreedCommission { get; set; } 
+    public decimal? AgreedCommission { get; set; }
     
     public DateTime? DoneAt { get; set; }
     
     public DateTime? CalculatedAt { get; set; }
     
     // This is the parent
-    public Guid? ClientId { get; set; }
-    public virtual Client? Client { get; set; }
+    public Guid? ParantId { get; set; }
+    public virtual Client? Parent { get; set; }
 }

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using SFManagement.Models;
-using SFManagement.Models.Closing;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
@@ -55,8 +54,6 @@ public class AutoMapperProfile : Profile
         //     .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
         //     .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
         
-        CreateMap<ClosingNickname, ClosingNicknameResponse>();
-        CreateMap<ClosingNicknameRequest, ClosingNickname>();
 
         CreateMap<Ofx, OfxResponse>();
         CreateMap<OfxRequest, Ofx>();
@@ -77,15 +74,6 @@ public class AutoMapperProfile : Profile
 
         CreateMap<Tag, TagResponse>();
         CreateMap<TagRequest, Tag>();
-
-        CreateMap<ClosingWallet, ClosingWalletResponse>();
-        CreateMap<ClosingWalletRequest, ClosingWallet>();
-
-        CreateMap<ClosingNickname, ClosingNicknameResponse>();
-        CreateMap<ClosingNicknameRequest, ClosingNickname>();
-
-        CreateMap<ClosingManager, ClosingManagerResponse>();
-        CreateMap<ClosingManagerRequest, ClosingManager>();
 
         // CreateMap<(InternalTransaction to, InternalTransaction from), (InternalTransactionResponse to,
         //     InternalTransactionResponse from)>();

@@ -4,27 +4,32 @@ namespace SFManagement.ViewModels;
 
 public class WalletIdentifierRequest
 {
-    public string? Nickname { get; set; }
-
-    public string? Email { get; set; }
-
-    public string? Phone { get; set; }
-
-    public string? Pix { get; set; }
+    // Nickname, Routing Number, Agencia
+    public string? RouteInfo { get; set; }
     
+    // Account Number, email, Conta
+    public string? IdentifierInfo { get; set; }
+    
+    // Account Type, pix, poupanca
+    public string? DescriptiveInfo { get; set; }
+    
+    // Name, 
+    public string? ExtraInfo { get; set; }
+    
+    // PIX, PokerManager input, etc...
     public string? InputForTransactions { get; set; } = string.Empty;
-
+    
+    public AssetType? AssetType { get; set; }
+    
     public decimal? DefaultRakeCommission { get; set; }
 
     public decimal? DefaultParentCommission { get; set; }
     
-    public AssetType? AssetType { get; set; }
-    
-    public Guid? ClientId { get; set; }
-    
-    public Guid? MemberId { get; set; }
-    
     public Guid? BankId { get; set; }
     
+    public Guid? ClientId { get; set; }
+
+    public Guid? MemberId { get; set; }
+
     public Guid? PokerManagerId { get; set; }
 }
