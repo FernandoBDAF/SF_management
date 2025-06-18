@@ -13,18 +13,22 @@
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BaseApiController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/v1/WalletIdentifierController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletIdentifierController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Bank.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Bank.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Client.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Client.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Member.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/PokerManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/PokerManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/WalletService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/PokerManagerResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/PokerManagerResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/WalletResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/AuditDomain.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/AuditDomain.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/BaseDomain.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/BaseDomain.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Entities/WalletIdentifier.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/WalletIdentifier.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Transactions/FiatAssetTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/FiatAssetTransaction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/ClientService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClientService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +42,11 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/515227dbc86331faf5687261f2e50bb8e1ff111d611dc4d906ece21f96c976/SqlServerExecutionStrategy.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bbcfe7ab04c9c5e854e8084459eb29d1ba45cca1ecfec1ad876fafa1267/ConfigurationManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c7afd9724cf757c4a8469dba2bdc22ab5ac111c91f431dbfefc992dacb3e8635/ControllerBase.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Models/Entities/AssetWallet.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Models/Entities/PokerManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Program.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
@@ -63,7 +71,8 @@
     ".NET Launch Settings Profile.SFManagement: http.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Entities/models__services__controllers",
+    "XThreadsFramesViewSplitterKey": "0.49225473",
+    "git-widget-placeholder": "FinalCleaning",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -112,23 +121,4 @@
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="false" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Services/BaseService.cs</url>
-          <line>120</line>
-          <properties documentPath="$PROJECT_DIR$/Services/BaseService.cs" containingFunctionPresentation="Method 'Update'">
-            <startOffsets>
-              <option value="4166" />
-            </startOffsets>
-            <endOffsets>
-              <option value="4189" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
 </project>

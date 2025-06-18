@@ -1,29 +1,56 @@
 ﻿using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
+using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class BankTransactionService : BaseService<FiatAssetTransaction>
+public class FiatAssetTransactionService : BaseService<FiatAssetTransaction>
 {
     private readonly ClaimsPrincipal _user;
 
-    public BankTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
+    public FiatAssetTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
         _user = httpContextAccessor.HttpContext?.User;
     }
 
-    public override async Task<List<FiatAssetTransaction>> List()
+    public override async Task<FiatAssetTransaction> Add(FiatAssetTransaction model)
     {
-        await Task.Yield();
-        // return await context.BankTransactions.Include(x => x.Bank).Include(x => x.Client)
-        //     .Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
-        return null;
+        if (model.WalletIdentifierId == Guid.Empty)
+        {
+            var walletIdentifierId = context.WalletIdentifiers
+                .Where(x => x.ClientId == model.ClientId && x.AssetType == AssetType.BrazilianReal)
+                .Select(x => x.Id).SingleOrDefault();
+            
+            var assetWalletId = context.AssetWallets
+                .Where(x => x.BankId == model.BankId && x.AssetType == AssetType.BrazilianReal)
+                .Select(x => x.Id).SingleOrDefault();
+
+            if (walletIdentifierId == Guid.Empty || assetWalletId == Guid.Empty)
+            {
+                throw (new ArgumentException("Wallet identifiers are required"));
+            }
+
+            model.WalletIdentifierId = walletIdentifierId;
+            model.AssetWalletId = assetWalletId;
+        }
+        
+        var transaction = await base.Add(model);
+        
+        return transaction;
     }
+
+    // public override async Task<List<FiatAssetTransaction>> List()
+    // {
+    //     await Task.Yield();
+    //     // return await context.BankTransactions.Include(x => x.Bank).Include(x => x.Client)
+    //     //     .Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
+    //     return null;
+    // }
 
     public async Task<FiatAssetTransaction> Approve(Guid bankTransactionId, BankTransactionApproveRequest model)
     {
@@ -34,7 +61,7 @@ public class BankTransactionService : BaseService<FiatAssetTransaction>
         if (bankTransaction.ApprovedAt.HasValue) throw new AppException("Transação já aprovada.");
 
         bankTransaction.ApprovedAt = DateTime.Now;
-        bankTransaction.TagId = model.TagId;
+        // bankTransaction.TagId = model.TagId;
         // bankTransaction.ClientId = model.ClientId;
         // bankTransaction.ManagerId = model.ManagerId;
 

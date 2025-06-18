@@ -7,29 +7,29 @@ namespace SFManagement.Services;
 
 public class AvgRateService : BaseService<AvgRate>
 {
-    private readonly WalletTransactionService _walletTransactionService;
+    private readonly DigitalAssetTransactionService _digitalAssetTransactionService;
 
     public AvgRateService(DataContext context, IHttpContextAccessor httpContextAccessor,
-        WalletTransactionService walletTransactionService) : base(context, httpContextAccessor)
+        DigitalAssetTransactionService digitalAssetTransactionService) : base(context, httpContextAccessor)
     {
-        _walletTransactionService = walletTransactionService;
+        _digitalAssetTransactionService = digitalAssetTransactionService;
     }
 
     public async Task Reset(Guid managerId)
     {
         await Task.Yield();
         // var firstDate = await context.DigitalAssetTransactions
-        //     .Where(x => x.Wallet.ManagerId == managerId)
+        //     .Where(x => x.AssetWallet.ManagerId == managerId)
         //     .OrderBy(x => x.Date)
         //     .FirstOrDefaultAsync();
-        // await _walletTransactionService.CalcAvgRate(
+        // await _digitalAssetTransactionService.CalcAvgRate(
         //     await context.Managers.FirstOrDefaultAsync(x => x.Id == managerId), firstDate.Date);
     }
 
     public async Task Calc(Guid managerId, DateTime referenceDate)
     {
         await Task.Yield();
-        // await _walletTransactionService.CalcAvgRate(
+        // await _digitalAssetTransactionService.CalcAvgRate(
         //     await context.Managers.FirstOrDefaultAsync(x => x.Id == managerId), referenceDate.Date);
     }
 }

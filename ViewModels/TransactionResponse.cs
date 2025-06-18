@@ -11,18 +11,18 @@ public class TransactionResponse
     {
     }
 
-    public TransactionResponse(InternalTransaction internalTransaction)
-    {
-        Id = internalTransaction.Id;
-        Date = internalTransaction.Date;
-        Description = internalTransaction.Description;
-        Type = internalTransaction.ToString();
-        // Value = internalTransaction.Value;
-        InternalTransactionType = internalTransaction.InternalTransactionType;
-        TagId = internalTransaction.TagId;
-        // ClientId = internalTransaction.ClientId;
-        ApprovedAt = internalTransaction.ApprovedAt;
-    }
+    // public TransactionResponse(InternalTransaction internalTransaction)
+    // {
+    //     Id = internalTransaction.Id;
+    //     Date = internalTransaction.Date;
+    //     Description = internalTransaction.Description;
+    //     Type = internalTransaction.ToString();
+    //     // Value = internalTransaction.Value;
+    //     InternalTransactionType = internalTransaction.InternalTransactionType;
+    //     // TagId = internalTransaction.TagId;
+    //     // ClientId = internalTransaction.ClientId;
+    //     ApprovedAt = internalTransaction.ApprovedAt;
+    // }
 
     public TransactionResponse(FiatAssetTransaction fiatAssetTransaction)
     {

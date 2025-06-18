@@ -7,7 +7,7 @@ namespace SFManagement.Models.Entities;
 
 public class BaseAssetHolder : BaseDomain
 {
-    [Required] [MaxLength(20)] public string Name { get; set; } = "";
+    [Required] [MaxLength(20)] public string Name { get; set; }
 
     [MaxLength(40)] public string? Email { get; set; }
     
@@ -16,4 +16,8 @@ public class BaseAssetHolder : BaseDomain
     [MaxLength(20)] public string? Cpf { get; set; }
     
     [MaxLength(20)] public string? Cnpj { get; set; }
+    
+    public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
+    
+    public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } = new HashSet<WalletIdentifier>();
 }

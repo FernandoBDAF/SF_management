@@ -12,8 +12,8 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250614052755_Review viewModels and services")]
-    partial class ReviewviewModelsandservices
+    [Migration("20250617151532_update WI")]
+    partial class updateWI
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -234,168 +234,16 @@ namespace SFManagement.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Closing.ClosingManager", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CalculatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DoneAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("End")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("RakeBruto")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("Start")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("TotalBalance")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalRakeDiscounts")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ClosingManagers");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Closing.ClosingNickname", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Balance")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("ClosingManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("FatherNicknameId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("FatherPercentual")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("NicknameId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Rake")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Rakeback")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClosingManagerId");
-
-                    b.ToTable("ClosingNicknames");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Closing.ClosingWallet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ClosingManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("ReturnRake")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClosingManagerId");
-
-                    b.HasIndex("WalletId");
-
-                    b.ToTable("ClosingWallets");
-                });
-
             modelBuilder.Entity("SFManagement.Models.Entities.Address", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BankId")
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("City")
@@ -431,9 +279,6 @@ namespace SFManagement.Migrations
                     b.Property<Guid?>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("Number")
-                        .HasColumnType("int");
-
                     b.Property<Guid?>("PokerManagerId")
                         .HasColumnType("uniqueidentifier");
 
@@ -455,10 +300,6 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BankId")
-                        .IsUnique()
-                        .HasFilter("[BankId] IS NOT NULL");
-
                     b.HasIndex("ClientId")
                         .IsUnique()
                         .HasFilter("[ClientId] IS NOT NULL");
@@ -474,10 +315,78 @@ namespace SFManagement.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("SFManagement.Models.Entities.AssetWallet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AssetType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("BankId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("DefaultAgreedCommission")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("DeleteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("EditorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("MemberId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PokerManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BankId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("PokerManagerId");
+
+                    b.ToTable("AssetWallets");
+                });
+
             modelBuilder.Entity("SFManagement.Models.Entities.AvgRate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -517,6 +426,12 @@ namespace SFManagement.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Cnpj")
@@ -567,7 +482,10 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BankId")
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ClientId")
@@ -614,8 +532,6 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BankId");
-
                     b.HasIndex("ClientId");
 
                     b.HasIndex("MemberId");
@@ -631,15 +547,21 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("Balance")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("BalanceUnit")
+                    b.Property<int?>("BalanceAs")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("BankId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("BalanceUnit")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("ClientId")
                         .HasColumnType("uniqueidentifier");
@@ -647,9 +569,6 @@ namespace SFManagement.Migrations
                     b.Property<decimal?>("ConversionRate")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("ConvertTo")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -676,8 +595,6 @@ namespace SFManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BankId");
 
                     b.HasIndex("ClientId");
 
@@ -688,70 +605,22 @@ namespace SFManagement.Migrations
                     b.ToTable("InitialBalances");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Entities.Wallet", b =>
+            modelBuilder.Entity("SFManagement.Models.Entities.WalletIdentifier", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AssetType")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("BankId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("DefaultAgreedCommission")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("InitialAssetAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("MemberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("PokerManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankId");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("MemberId");
-
-                    b.HasIndex("PokerManagerId");
-
-                    b.ToTable("Wallets");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Entities.WalletIdentifier", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ClientId")
@@ -777,10 +646,18 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("DescriptiveInfo")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
                     b.Property<Guid?>("EditorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("ExtraInfo")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("IdentifierInfo")
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
@@ -792,37 +669,25 @@ namespace SFManagement.Migrations
                     b.Property<Guid?>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Nickname")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Pix")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<Guid?>("PokerManagerId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RouteInfo")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("BankId");
 
                     b.HasIndex("ClientId");
 
                     b.HasIndex("MemberId");
 
                     b.HasIndex("PokerManagerId");
-
-                    b.HasIndex("WalletId");
 
                     b.ToTable("WalletIdentifiers");
                 });
@@ -831,6 +696,12 @@ namespace SFManagement.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -880,12 +751,15 @@ namespace SFManagement.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("AssetWalletId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("BalanceAs")
+                        .HasColumnType("int");
+
                     b.Property<decimal?>("ConversionRate")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("ConvertTo")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -929,19 +803,16 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("WalletIdentifierId")
+                    b.Property<Guid>("WalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssetWalletId");
+
                     b.HasIndex("ExcelId");
 
                     b.HasIndex("TagId");
-
-                    b.HasIndex("WalletId");
 
                     b.HasIndex("WalletIdentifierId");
 
@@ -952,6 +823,12 @@ namespace SFManagement.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -994,6 +871,12 @@ namespace SFManagement.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Coins")
@@ -1063,9 +946,12 @@ namespace SFManagement.Migrations
                     b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal?>("AssetAmount")
+                    b.Property<decimal>("AssetAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("AssetWalletId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1101,26 +987,23 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("WalletIdentifierId")
+                    b.Property<Guid>("WalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssetWalletId");
+
                     b.HasIndex("OfxTransactionId");
 
                     b.HasIndex("TagId");
-
-                    b.HasIndex("WalletId");
 
                     b.HasIndex("WalletIdentifierId");
 
                     b.ToTable("FiatAssetTransactions");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Transactions.InternalTransaction", b =>
+            modelBuilder.Entity("SFManagement.Models.Transactions.Ofx", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1130,88 +1013,6 @@ namespace SFManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("ApprovedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("BankId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ClosingManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("Coins")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("ExchangeRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("InternalTransactionType")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsProfit")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("TransferId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("Value")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("WalletIdentifierId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankId");
-
-                    b.HasIndex("ClosingManagerId");
-
-                    b.HasIndex("TagId");
-
-                    b.HasIndex("WalletId");
-
-                    b.HasIndex("WalletIdentifierId");
-
-                    b.ToTable("InternalTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Transactions.Ofx", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BankId")
@@ -1251,6 +1052,12 @@ namespace SFManagement.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -1304,8 +1111,13 @@ namespace SFManagement.Migrations
                 {
                     b.HasBaseType("SFManagement.Models.Entities.BaseAssetHolder");
 
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Code")
                         .HasColumnType("int");
+
+                    b.HasIndex("AddressId");
 
                     b.ToTable("Banks");
                 });
@@ -1391,42 +1203,8 @@ namespace SFManagement.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Closing.ClosingNickname", b =>
-                {
-                    b.HasOne("SFManagement.Models.Closing.ClosingManager", "ClosingManager")
-                        .WithMany("ClosingNicknames")
-                        .HasForeignKey("ClosingManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClosingManager");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Closing.ClosingWallet", b =>
-                {
-                    b.HasOne("SFManagement.Models.Closing.ClosingManager", "ClosingManager")
-                        .WithMany("ClosingWallets")
-                        .HasForeignKey("ClosingManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SFManagement.Models.Entities.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClosingManager");
-
-                    b.Navigation("Wallet");
-                });
-
             modelBuilder.Entity("SFManagement.Models.Entities.Address", b =>
                 {
-                    b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
-                        .WithOne("Address")
-                        .HasForeignKey("SFManagement.Models.Entities.Address", "BankId");
-
                     b.HasOne("SFManagement.Models.Entities.Client", "Client")
                         .WithOne("Address")
                         .HasForeignKey("SFManagement.Models.Entities.Address", "ClientId");
@@ -1439,6 +1217,31 @@ namespace SFManagement.Migrations
                         .WithOne("Address")
                         .HasForeignKey("SFManagement.Models.Entities.Address", "PokerManagerId");
 
+                    b.Navigation("Client");
+
+                    b.Navigation("Member");
+
+                    b.Navigation("PokerManager");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.AssetWallet", b =>
+                {
+                    b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
+                        .WithMany("AssetWallets")
+                        .HasForeignKey("BankId");
+
+                    b.HasOne("SFManagement.Models.Entities.Client", "Client")
+                        .WithMany("AssetWallets")
+                        .HasForeignKey("ClientId");
+
+                    b.HasOne("SFManagement.Models.Entities.Member", "Member")
+                        .WithMany("AssetWallets")
+                        .HasForeignKey("MemberId");
+
+                    b.HasOne("SFManagement.Models.Entities.PokerManager", "PokerManager")
+                        .WithMany("AssetWallets")
+                        .HasForeignKey("PokerManagerId");
+
                     b.Navigation("Bank");
 
                     b.Navigation("Client");
@@ -1450,23 +1253,17 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Entities.ContactPhone", b =>
                 {
-                    b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
-                        .WithMany("PhonesNumbers")
-                        .HasForeignKey("BankId");
-
                     b.HasOne("SFManagement.Models.Entities.Client", "Client")
-                        .WithMany("PhonesNumbers")
+                        .WithMany("ContactPhones")
                         .HasForeignKey("ClientId");
 
                     b.HasOne("SFManagement.Models.Entities.Member", "Member")
-                        .WithMany("PhonesNumbers")
+                        .WithMany("ContactPhones")
                         .HasForeignKey("MemberId");
 
                     b.HasOne("SFManagement.Models.Entities.PokerManager", "PokerManager")
-                        .WithMany("PhonesNumbers")
+                        .WithMany("ContactPhones")
                         .HasForeignKey("PokerManagerId");
-
-                    b.Navigation("Bank");
 
                     b.Navigation("Client");
 
@@ -1477,10 +1274,6 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Entities.InitialBalance", b =>
                 {
-                    b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
-                        .WithMany("InitialBalances")
-                        .HasForeignKey("BankId");
-
                     b.HasOne("SFManagement.Models.Entities.Client", "Client")
                         .WithMany("InitialBalances")
                         .HasForeignKey("ClientId");
@@ -1492,35 +1285,6 @@ namespace SFManagement.Migrations
                     b.HasOne("SFManagement.Models.Entities.PokerManager", "PokerManager")
                         .WithMany("InitialBalances")
                         .HasForeignKey("PokerManagerId");
-
-                    b.Navigation("Bank");
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Member");
-
-                    b.Navigation("PokerManager");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Entities.Wallet", b =>
-                {
-                    b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
-                        .WithMany("Wallets")
-                        .HasForeignKey("BankId");
-
-                    b.HasOne("SFManagement.Models.Entities.Client", "Client")
-                        .WithMany("Wallets")
-                        .HasForeignKey("ClientId");
-
-                    b.HasOne("SFManagement.Models.Entities.Member", "Member")
-                        .WithMany("Wallets")
-                        .HasForeignKey("MemberId");
-
-                    b.HasOne("SFManagement.Models.Entities.PokerManager", "PokerManager")
-                        .WithMany("Wallets")
-                        .HasForeignKey("PokerManagerId");
-
-                    b.Navigation("Bank");
 
                     b.Navigation("Client");
 
@@ -1531,6 +1295,10 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Entities.WalletIdentifier", b =>
                 {
+                    b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
+                        .WithMany("WalletIdentifiers")
+                        .HasForeignKey("BankId");
+
                     b.HasOne("SFManagement.Models.Entities.Client", "Client")
                         .WithMany("WalletIdentifiers")
                         .HasForeignKey("ClientId")
@@ -1546,19 +1314,13 @@ namespace SFManagement.Migrations
                         .HasForeignKey("PokerManagerId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("SFManagement.Models.Entities.Wallet", "Wallet")
-                        .WithMany("WalletIdentifiers")
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Bank");
 
                     b.Navigation("Client");
 
                     b.Navigation("Member");
 
                     b.Navigation("PokerManager");
-
-                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Tag", b =>
@@ -1572,6 +1334,12 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Transactions.DigitalAssetTransaction", b =>
                 {
+                    b.HasOne("SFManagement.Models.Entities.AssetWallet", null)
+                        .WithMany("DigitalAssetTransactions")
+                        .HasForeignKey("AssetWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SFManagement.Models.Transactions.Excel", "Excel")
                         .WithMany()
                         .HasForeignKey("ExcelId");
@@ -1580,21 +1348,15 @@ namespace SFManagement.Migrations
                         .WithMany("WalletTransactions")
                         .HasForeignKey("TagId");
 
-                    b.HasOne("SFManagement.Models.Entities.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletId");
-
-                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", "WalletIdentifier")
-                        .WithMany()
-                        .HasForeignKey("WalletIdentifierId");
+                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", null)
+                        .WithMany("DigitalAssetTransactions")
+                        .HasForeignKey("WalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Excel");
 
                     b.Navigation("Tag");
-
-                    b.Navigation("Wallet");
-
-                    b.Navigation("WalletIdentifier");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Transactions.Excel", b =>
@@ -1627,6 +1389,12 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Transactions.FiatAssetTransaction", b =>
                 {
+                    b.HasOne("SFManagement.Models.Entities.AssetWallet", null)
+                        .WithMany("FiatAssetTransactions")
+                        .HasForeignKey("AssetWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SFManagement.Models.Transactions.OfxTransaction", "OfxTransaction")
                         .WithMany()
                         .HasForeignKey("OfxTransactionId");
@@ -1635,54 +1403,15 @@ namespace SFManagement.Migrations
                         .WithMany("BankTransactions")
                         .HasForeignKey("TagId");
 
-                    b.HasOne("SFManagement.Models.Entities.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletId");
-
-                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", "WalletIdentifier")
-                        .WithMany()
-                        .HasForeignKey("WalletIdentifierId");
+                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", null)
+                        .WithMany("FiatAssetTransactions")
+                        .HasForeignKey("WalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("OfxTransaction");
 
                     b.Navigation("Tag");
-
-                    b.Navigation("Wallet");
-
-                    b.Navigation("WalletIdentifier");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Transactions.InternalTransaction", b =>
-                {
-                    b.HasOne("SFManagement.Models.Entities.Bank", "Bank")
-                        .WithMany()
-                        .HasForeignKey("BankId");
-
-                    b.HasOne("SFManagement.Models.Closing.ClosingManager", "ClosingManager")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("ClosingManagerId");
-
-                    b.HasOne("SFManagement.Models.Tag", "Tag")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("TagId");
-
-                    b.HasOne("SFManagement.Models.Entities.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletId");
-
-                    b.HasOne("SFManagement.Models.Entities.WalletIdentifier", "WalletIdentifier")
-                        .WithMany()
-                        .HasForeignKey("WalletIdentifierId");
-
-                    b.Navigation("Bank");
-
-                    b.Navigation("ClosingManager");
-
-                    b.Navigation("Tag");
-
-                    b.Navigation("Wallet");
-
-                    b.Navigation("WalletIdentifier");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Transactions.Ofx", b =>
@@ -1707,18 +1436,27 @@ namespace SFManagement.Migrations
                     b.Navigation("Ofx");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Closing.ClosingManager", b =>
+            modelBuilder.Entity("SFManagement.Models.Entities.Bank", b =>
                 {
-                    b.Navigation("ClosingNicknames");
+                    b.HasOne("SFManagement.Models.Entities.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
 
-                    b.Navigation("ClosingWallets");
-
-                    b.Navigation("InternalTransactions");
+                    b.Navigation("Address");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Entities.Wallet", b =>
+            modelBuilder.Entity("SFManagement.Models.Entities.AssetWallet", b =>
                 {
-                    b.Navigation("WalletIdentifiers");
+                    b.Navigation("DigitalAssetTransactions");
+
+                    b.Navigation("FiatAssetTransactions");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.WalletIdentifier", b =>
+                {
+                    b.Navigation("DigitalAssetTransactions");
+
+                    b.Navigation("FiatAssetTransactions");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Tag", b =>
@@ -1726,8 +1464,6 @@ namespace SFManagement.Migrations
                     b.Navigation("BankTransactions");
 
                     b.Navigation("Children");
-
-                    b.Navigation("InternalTransactions");
 
                     b.Navigation("WalletTransactions");
                 });
@@ -1744,56 +1480,52 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Entities.Bank", b =>
                 {
-                    b.Navigation("Address");
-
-                    b.Navigation("InitialBalances");
+                    b.Navigation("AssetWallets");
 
                     b.Navigation("Ofxs");
 
-                    b.Navigation("PhonesNumbers");
-
-                    b.Navigation("Wallets");
+                    b.Navigation("WalletIdentifiers");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.Client", b =>
                 {
                     b.Navigation("Address");
 
+                    b.Navigation("AssetWallets");
+
+                    b.Navigation("ContactPhones");
+
                     b.Navigation("InitialBalances");
 
-                    b.Navigation("PhonesNumbers");
-
                     b.Navigation("WalletIdentifiers");
-
-                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.Member", b =>
                 {
                     b.Navigation("Address");
 
+                    b.Navigation("AssetWallets");
+
+                    b.Navigation("ContactPhones");
+
                     b.Navigation("InitialBalances");
 
-                    b.Navigation("PhonesNumbers");
-
                     b.Navigation("WalletIdentifiers");
-
-                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.PokerManager", b =>
                 {
                     b.Navigation("Address");
 
+                    b.Navigation("AssetWallets");
+
+                    b.Navigation("ContactPhones");
+
                     b.Navigation("Excels");
 
                     b.Navigation("InitialBalances");
 
-                    b.Navigation("PhonesNumbers");
-
                     b.Navigation("WalletIdentifiers");
-
-                    b.Navigation("Wallets");
                 });
 #pragma warning restore 612, 618
         }

@@ -13,7 +13,7 @@ namespace SFManagement.Controllers.v1;
 public class PokerManagerController(
     BaseService<PokerManager> service,
     IMapper mapper,
-    WalletService walletService,
+    AssetWalletService assetWalletService,
     PokerManagerService pokerManagerService,
     TransactionService transactionService)
     : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>(service, mapper)
@@ -22,24 +22,24 @@ public class PokerManagerController(
 
     [HttpGet]
     [Route("wallets/{managerId}")]
-    public async Task<List<WalletResponse>> GetWalletsByManagerId(Guid managerId)
+    public async Task<List<AssetWalletResponse>> GetWalletsByManagerId(Guid managerId)
     {
-        return _mapper.Map<List<WalletResponse>>(await walletService.GetWalletsByManagerId(managerId));
+        return _mapper.Map<List<AssetWalletResponse>>(await assetWalletService.GetWalletsByManagerId(managerId));
     }
 
-    [HttpGet]
-    [Route("balance/{managerId}")]
-    public async Task<BalanceResponse> Balance(Guid managerId)
-    {
-        return await pokerManagerService.GetBalance(managerId, null);
-    }
-
-    [HttpPost]
-    [Route("balance/{managerId}")]
-    public async Task<BalanceResponse> Balance(Guid managerId, BalanceRequest request)
-    {
-        return await pokerManagerService.GetBalance(managerId, request.Date);
-    }
+    // [HttpGet]
+    // [Route("balance/{managerId}")]
+    // public async Task<BalanceResponse> Balance(Guid managerId)
+    // {
+    //     return await pokerManagerService.GetBalance(managerId, null);
+    // }
+    //
+    // [HttpPost]
+    // [Route("balance/{managerId}")]
+    // public async Task<BalanceResponse> Balance(Guid managerId, BalanceRequest request)
+    // {
+    //     return await pokerManagerService.GetBalance(managerId, request.Date);
+    // }
 
     [HttpGet]
     [Route("profit/{managerId}")]
@@ -48,18 +48,18 @@ public class PokerManagerController(
         return await pokerManagerService.GetProfit(managerId, start, end);
     }
 
-    [HttpGet]
-    [Route("transactions/{managerId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid managerId, DateTime? startDate = null,
-        DateTime? endDate = null, int quantity = 100, int page = 0)
-    {
-        return await transactionService.GetManagerTransactions(managerId, startDate, endDate, quantity, page);
-    }
-
-    [HttpGet]
-    [Route("transactions/{managerId}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid managerId, int quantity = 100, int page = 0)
-    {
-        return await transactionService.GetManagerTransactions(managerId, null, null, quantity, page);
-    }
+    // [HttpGet]
+    // [Route("transactions/{managerId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
+    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid managerId, DateTime? startDate = null,
+    //     DateTime? endDate = null, int quantity = 100, int page = 0)
+    // {
+    //     return await transactionService.GetManagerTransactions(managerId, startDate, endDate, quantity, page);
+    // }
+    //
+    // [HttpGet]
+    // [Route("transactions/{managerId}/{quantity?}/{page?}")]
+    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid managerId, int quantity = 100, int page = 0)
+    // {
+    //     return await transactionService.GetManagerTransactions(managerId, null, null, quantity, page);
+    // }
 }

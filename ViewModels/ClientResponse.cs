@@ -6,11 +6,11 @@ public class ClientResponse : BaseAssetHolderResponse
 {
     public DateTime? Birthday { get; set; }
     
-    public WalletResponse[]? Wallets { get; set; }
-    
     public WalletIdentifierResponse[]? WalletIdentifiers { get; set; }
     
     public InitialBalanceResponse[]? InitialBalances { get; set; }
     
     public ContactPhoneResponse[]? ContactPhones { get; set; }
+    
+    public AssetWalletResponse[]? AssetWallets { get; set; }
 }

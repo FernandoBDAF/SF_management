@@ -43,7 +43,7 @@ public class ExcelController : BaseApiController<Excel, ExcelRequest, ExcelRespo
 
     [HttpPut]
     [Route("{from}/reconciliation/{to}")]
-    public async Task<List<WalletTransactionResponse>> Reconciliation(Guid from, Guid to)
+    public async Task<List<DigitalAssetTransactionResponse>> Reconciliation(Guid from, Guid to)
     {
         return await _excelService.Reconciliation(from, to);
     }

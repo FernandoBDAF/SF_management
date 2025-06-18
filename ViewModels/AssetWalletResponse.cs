@@ -1,17 +1,17 @@
 ﻿using SFManagement.Enums;
 using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.ViewModels;
 
-public class WalletResponse : BaseResponse
+public class AssetWalletResponse : BaseResponse
 {
     public AssetType AssetType { get; set; }
     
-    public decimal? InitialAssetAmount { get; set; }
-    
     public decimal? DefaultAgreedCommission { get; set; }
     
-    public WalletIdentifierResponse[]? WalletIdentifiers { get; set; }
+    public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
+    public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
     
     public Guid? ClientId { get; set; }
     public string? ClientName { get; set; }

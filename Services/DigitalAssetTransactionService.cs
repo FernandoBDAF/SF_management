@@ -10,29 +10,29 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class WalletTransactionService : BaseService<DigitalAssetTransaction>
+public class DigitalAssetTransactionService : BaseService<DigitalAssetTransaction>
 {
     private readonly IMapper _mapper;
     private readonly ClaimsPrincipal _user;
 
-    public WalletTransactionService(DataContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) :
+    public DigitalAssetTransactionService(DataContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) :
         base(context, httpContextAccessor)
     {
         _mapper = mapper;
         _user = httpContextAccessor.HttpContext?.User;
     }
 
-    public override async Task<DigitalAssetTransaction> Add(DigitalAssetTransaction obj)
-    {
-        obj = await base.Add(obj);
-        return obj;
-    }
+    // public override async Task<DigitalAssetTransaction> Add(DigitalAssetTransaction obj)
+    // {
+    //     obj = await base.Add(obj);
+    //     return obj;
+    // }
 
-    public async Task<WalletTransactionResponse> ApproveTransaction(Guid walletTransactionId,
+    public async Task<DigitalAssetTransactionResponse> ApproveTransaction(Guid walletTransactionId,
         WalletTransactionApproveRequest model)
     {
         // var walletTransaction = await base.Get(walletTransactionId);
-        // if (walletTransaction == null) throw new AppException("Wallet transaction not found");
+        // if (walletTransaction == null) throw new AppException("AssetWallet transaction not found");
         //
         // walletTransaction.ApprovedAt = DateTime.Now;
         // walletTransaction.NicknameId = model.NicknameId;
@@ -48,7 +48,7 @@ public class WalletTransactionService : BaseService<DigitalAssetTransaction>
         // context.WalletTransactions.Update(walletTransaction);
         // await context.SaveChangesAsync();
         //
-        // return _mapper.Map<WalletTransactionResponse>(walletTransaction);
+        // return _mapper.Map<DigitalAssetTransactionResponse>(walletTransaction);
         await Task.Yield();
         return null;
     }
@@ -162,8 +162,8 @@ public class WalletTransactionService : BaseService<DigitalAssetTransaction>
     public async Task CalcAvgRate(PokerManager manager, DateTime date)
     {
         // var queryWalletTransactions = context.WalletTransactions.AsNoTracking()
-        //     .Include(x => x.Wallet)
-        //     .Where(x => x.Wallet.ManagerId == manager.Id && !x.DeletedAt.HasValue &&
+        //     .Include(x => x.AssetWallet)
+        //     .Where(x => x.AssetWallet.ManagerId == manager.Id && !x.DeletedAt.HasValue &&
         //                 ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
         //                  (x.ApprovedAt.HasValue && (x.LinkedToId.HasValue || x.ClientId.HasValue ||
         //                                             x.TagId.HasValue ||
@@ -273,17 +273,17 @@ public class WalletTransactionService : BaseService<DigitalAssetTransaction>
 
     public async Task CalcProfits(Guid managerId)
     {
-        // foreach (var walletTransaction in await context.WalletTransactions.Include(x => x.Wallet).Where(x =>
+        // foreach (var walletTransaction in await context.WalletTransactions.Include(x => x.AssetWallet).Where(x =>
         //              !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
         //                                        (x.ApprovedAt.HasValue &&
         //                                         (x.LinkedToId.HasValue || x.ClientId.HasValue ||
         //                                          x.TagId.HasValue ||
         //                                          (x.ManagerId.HasValue && x.WalletId.HasValue)))) &&
         //              (x.WalletTransactionType == WalletTransactionType.Income || x.IsCoinBalance == true) &&
-        //              x.Wallet.ManagerId == managerId).ToListAsync())
+        //              x.AssetWallet.ManagerId == managerId).ToListAsync())
         // {
         //     var avgRate = await context.AvgRates.OrderByDescending(x => x.Date).FirstOrDefaultAsync(x =>
-        //         x.Date.Date <= walletTransaction.Date.Date && x.ManagerId == walletTransaction.Wallet.ManagerId);
+        //         x.Date.Date <= walletTransaction.Date.Date && x.ManagerId == walletTransaction.AssetWallet.ManagerId);
         //
         //     if (walletTransaction.IsCoinBalance != true)
         //     {
