@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFManagement.Models;
+using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
+
 
 namespace SFManagement.Data;
 
@@ -13,40 +16,94 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
     {
         _httpContextAccessor = httpContextAccessor;
     }
+    public DbSet<Bank> Banks { get; set; }
+    
+    public DbSet<Address> Addresses { get; set; }
 
     public DbSet<Client> Clients { get; set; }
 
-    public DbSet<Bank> Banks { get; set; }
-
-    public DbSet<BankTransaction> BankTransactions { get; set; }
+    public DbSet<FiatAssetTransaction> FiatAssetTransactions { get; set; }
 
     public DbSet<Ofx> Ofxs { get; set; }
+    
+    public DbSet<InitialBalance> InitialBalances { get; set; }
+    
+    public DbSet<OfxTransaction> OfxTransactions { get; set; }
 
-    public DbSet<Manager> Managers { get; set; }
+    public DbSet<PokerManager> PokerManagers { get; set; }
 
-    public DbSet<Nickname> Nicknames { get; set; }
+    public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }
 
-    public DbSet<Wallet> Wallets { get; set; }
+    public DbSet<AssetWallet> AssetWallets { get; set; }
 
-    public DbSet<WalletTransaction> WalletTransactions { get; set; }
+    public DbSet<DigitalAssetTransaction> DigitalAssetTransactions { get; set; }
 
     public DbSet<Excel> Excels { get; set; }
 
+    public DbSet<ExcelTransaction> ExcelTransactions { get; set; }
+
     public DbSet<Tag> Tags { get; set; }
 
-    public DbSet<ClosingManager> ClosingManagers { get; set; }
-
-    public DbSet<ClosingWallet> ClosingWallets { get; set; }
-
-    public DbSet<ClosingNickname> ClosingNicknames { get; set; }
-
-    public DbSet<InternalTransaction> InternalTransactions { get; set; }
+    // public DbSet<InternalTransaction> InternalTransactions { get; set; }
 
     public DbSet<AvgRate> AvgRates { get; set; }
 
+    // TODO: Review the deletion behavior of the relationships
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<BaseAssetHolder>().UseTpcMappingStrategy();
+
+        // WalletIdentifier depends on AssetWallet and Client, Member, PokerManager
+        // modelBuilder.Entity<WalletIdentifier>()
+        // .HasOne(wi => wi.AssetWallet)
+        // .WithMany(w => w.WalletIdentifiers)
+        // .HasForeignKey(wi => wi.AssetWalletId)
+        // .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WalletIdentifier>()
+        .HasOne(wi => wi.Client)
+        .WithMany(c => c.WalletIdentifiers)
+        .HasForeignKey(wi => wi.ClientId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WalletIdentifier>()
+        .HasOne(wi => wi.Member)
+        .WithMany(m => m.WalletIdentifiers)
+        .HasForeignKey(wi => wi.MemberId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WalletIdentifier>()
+        .HasOne(wi => wi.PokerManager)
+        .WithMany(p => p.WalletIdentifiers)
+        .HasForeignKey(wi => wi.PokerManagerId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+        // Transactions depend on WalletIdentifier and AssetWallet
+        // modelBuilder.Entity<DigitalAssetTransaction>()
+        // .HasOne(x => x.WalletIdentifier)
+        // .WithMany()
+        // .HasForeignKey(x => x.WalletIdentifierId)
+        // .OnDelete(DeleteBehavior.Restrict);
+        //
+        // modelBuilder.Entity<DigitalAssetTransaction>()
+        // .HasOne(x => x.AssetWallet)
+        // .WithMany()
+        // .HasForeignKey(x => x.AssetWalletId)
+        // .OnDelete(DeleteBehavior.Cascade);
+        //
+        // modelBuilder.Entity<FiatAssetTransaction>()
+        // .HasOne(x => x.WalletIdentifier)
+        // .WithMany()
+        // .HasForeignKey(x => x.WalletIdentifierId)
+        // .OnDelete(DeleteBehavior.Restrict);
+        //
+        // modelBuilder.Entity<FiatAssetTransaction>()
+        // .HasOne(x => x.AssetWallet)
+        // .WithMany()
+        // .HasForeignKey(x => x.AssetWalletId)
+        // .OnDelete(DeleteBehavior.Cascade);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

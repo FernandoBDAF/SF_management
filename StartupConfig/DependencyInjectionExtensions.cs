@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SFManagement.Models;
+using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.Settings;
 
@@ -119,35 +121,38 @@ public static class DependencyInjectionExtensions
 
     public static void AddScopedServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<ClientService>();
-        builder.Services.AddScoped<BaseService<Client>, ClientService>();
-        builder.Services.AddScoped<BankService>();
+        builder.Services.AddScoped<BaseService<Address>, AddressService>();
+        builder.Services.AddScoped<AddressService>();
         builder.Services.AddScoped<BaseService<Bank>, BankService>();
-        builder.Services.AddScoped<BankTransactionService>();
-        builder.Services.AddScoped<BaseService<BankTransaction>, BankTransactionService>();
+        builder.Services.AddScoped<BankService>();
+        builder.Services.AddScoped<BaseService<Client>, ClientService>();
+        builder.Services.AddScoped<ClientService>();
+        builder.Services.AddScoped<BaseService<ContactPhone>, ContactPhoneService>();
+        builder.Services.AddScoped<ContactPhoneService>();
+        builder.Services.AddScoped<BaseService<InitialBalance>, InitialBalanceService>();
+        builder.Services.AddScoped<InitialBalanceService>();
+        builder.Services.AddScoped<BaseService<Member>, MemberService>();
+        builder.Services.AddScoped<MemberService>();
+        builder.Services.AddScoped<BaseService<PokerManager>, PokerManagerService>();
+        builder.Services.AddScoped<PokerManagerService>();
+        builder.Services.AddScoped<BaseService<AssetWallet>, AssetWalletService>();
+        builder.Services.AddScoped<AssetWalletService>();
+        builder.Services.AddScoped<BaseService<WalletIdentifier>, WalletIdentifierService>();
+        builder.Services.AddScoped<WalletIdentifierService>();
+        
+        builder.Services.AddScoped<BaseService<FiatAssetTransaction>, FiatAssetTransactionService>();
+        builder.Services.AddScoped<FiatAssetTransactionService>();
         builder.Services.AddScoped<OfxService>();
         builder.Services.AddScoped<BaseService<Ofx>, OfxService>();
         builder.Services.AddScoped<TransactionService>();
-        builder.Services.AddScoped<BaseService<Manager>, ManagerService>();
-        builder.Services.AddScoped<ManagerService>();
-        builder.Services.AddScoped<BaseService<Wallet>, WalletService>();
-        builder.Services.AddScoped<WalletService>();
-        builder.Services.AddScoped<BaseService<Nickname>, NicknameService>();
-        builder.Services.AddScoped<NicknameService>();
-        builder.Services.AddScoped<BaseService<WalletTransaction>, WalletTransactionService>();
-        builder.Services.AddScoped<WalletTransactionService>();
+        builder.Services.AddScoped<BaseService<DigitalAssetTransaction>, DigitalAssetTransactionService>();
+        builder.Services.AddScoped<DigitalAssetTransactionService>();
         builder.Services.AddScoped<BaseService<Excel>, ExcelService>();
         builder.Services.AddScoped<ExcelService>();
         builder.Services.AddScoped<BaseService<Tag>, TagService>();
         builder.Services.AddScoped<TagService>();
-        builder.Services.AddScoped<BaseService<ClosingWallet>, ClosingWalletService>();
-        builder.Services.AddScoped<ClosingWalletService>();
-        builder.Services.AddScoped<BaseService<ClosingNickname>, ClosingNicknameService>();
-        builder.Services.AddScoped<ClosingNicknameService>();
-        builder.Services.AddScoped<BaseService<ClosingManager>, ClosingManagerService>();
-        builder.Services.AddScoped<ClosingManagerService>();
-        builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
-        builder.Services.AddScoped<InternalTransactionService>();
+        // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
+        // builder.Services.AddScoped<InternalTransactionService>();
         builder.Services.AddScoped<UserResolverService>();
         builder.Services.AddScoped<BaseService<AvgRate>, AvgRateService>();
         builder.Services.AddScoped<AvgRateService>();

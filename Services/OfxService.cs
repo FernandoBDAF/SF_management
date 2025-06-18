@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Services;
 
@@ -14,28 +15,28 @@ public class OfxService : BaseService<Ofx>
 
     public override async Task<Ofx> Get(Guid id)
     {
-        var query = await context.Ofxs.Include(x => x.BankTransactions).Include(x => x.Bank)
+        var query = await context.Ofxs.Include(x => x.OfxTransactions)
+            .Include(x => x.Bank)
             .FirstOrDefaultAsync(x => x.Id == id);
-        return query;
+        return query ?? throw new NullReferenceException("The ofx was not found");
     }
 
     public override async Task<List<Ofx>> List()
     {
-        return await context.Ofxs.Include(x => x.Bank).Where(x => !x.DeletedAt.HasValue).ToListAsync();
+        return await context.Ofxs
+                                .Include(x => x.Bank)
+                                .Where(x => !x.DeletedAt.HasValue)
+                                .ToListAsync();
     }
 
     public async Task<Ofx> Add(IFormFile formFile, Guid bankId)
     {
-        await Task.Yield();
-
         var ofx = new Ofx(ParseOfxContent(formFile, bankId), bankId, formFile.FileName);
-        var toExcluded = new List<BankTransaction>();
+        var toExcluded = ofx.OfxTransactions.Where(ofxTransaction => context.OfxTransactions
+                                                            .Include(x => x.Ofx)
+                                                            .Any(x => x.FitId == ofxTransaction.FitId && x.Ofx.BankId == bankId)).ToList();
 
-        foreach (var bankTransaction in ofx.BankTransactions)
-            if (context.BankTransactions.Any(x => x.FitId == bankTransaction.FitId && x.BankId == bankId))
-                toExcluded.Add(bankTransaction);
-
-        ofx.BankTransactions = ofx.BankTransactions.Where(x => !toExcluded.Any(te => te.FitId == x.FitId)).ToList();
+        ofx.OfxTransactions = ofx.OfxTransactions.Where(x => !toExcluded.Any(te => te.FitId == x.FitId)).ToList();
 
         await context.Ofxs.AddAsync(ofx);
         await context.SaveChangesAsync();
@@ -43,7 +44,7 @@ public class OfxService : BaseService<Ofx>
         return ofx;
     }
 
-    private List<BankTransaction> ParseOfxContent(IFormFile formFile, Guid bankId)
+    private List<OfxTransaction> ParseOfxContent(IFormFile formFile, Guid bankId)
     {
         using (var stream = new StreamReader(formFile.OpenReadStream()))
         {
@@ -77,9 +78,9 @@ public class OfxService : BaseService<Ofx>
             }
 
 
-            var list = new List<BankTransaction>();
+            var list = new List<OfxTransaction>();
 
-            foreach (var element in rootElement.Descendants("STMTTRN")) list.Add(new BankTransaction(element, bankId));
+            foreach (var element in rootElement.Descendants("STMTTRN")) list.Add(new OfxTransaction(element, bankId));
 
             return list;
         }

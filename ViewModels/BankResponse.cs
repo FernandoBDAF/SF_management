@@ -1,10 +1,16 @@
-﻿namespace SFManagement.ViewModels;
+﻿using SFManagement.Models.Entities;
 
-public class BankResponse : BaseResponse
+namespace SFManagement.ViewModels;
+
+public class BankResponse : BaseAssetHolderResponse
 {
     public string? Code { get; set; }
-
-    public string? Name { get; set; }
-
-    public decimal InitialValue { get; set; }
+    
+    public OfxResponse[]? Ofxs { get; set; }
+    
+    public InitialBalanceResponse[]? InitialBalances { get; set; }
+    
+    public ContactPhoneResponse[]? ContactPhones { get; set; }
+    
+    public AssetWalletResponse[]? AssetWallets { get; set; }
 }

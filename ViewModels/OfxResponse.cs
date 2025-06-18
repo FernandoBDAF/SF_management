@@ -6,7 +6,5 @@ public class OfxResponse : BaseResponse
 
     public string? FileName { get; set; }
 
-    public List<BankTransactionResponse>? BankTransactions { get; set; } = new();
-
-    public BankResponse Bank { get; set; }
+    public List<OfxTransactionResponse>? OfxTransactions { get; set; } = new();
 }
