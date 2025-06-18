@@ -32,11 +32,9 @@ public class OfxService : BaseService<Ofx>
     public async Task<Ofx> Add(IFormFile formFile, Guid bankId)
     {
         var ofx = new Ofx(ParseOfxContent(formFile, bankId), bankId, formFile.FileName);
-        var toExcluded = new List<OfxTransaction>();
-
-        foreach (var ofxTransaction in ofx.OfxTransactions)
-            if (context.OfxTransactions.Any(x => x.FitId == ofxTransaction.FitId && x.BankId == bankId))
-                toExcluded.Add(ofxTransaction);
+        var toExcluded = ofx.OfxTransactions.Where(ofxTransaction => context.OfxTransactions
+                                                            .Include(x => x.Ofx)
+                                                            .Any(x => x.FitId == ofxTransaction.FitId && x.Ofx.BankId == bankId)).ToList();
 
         ofx.OfxTransactions = ofx.OfxTransactions.Where(x => !toExcluded.Any(te => te.FitId == x.FitId)).ToList();
 

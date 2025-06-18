@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
+using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
@@ -14,12 +16,14 @@ public class BankService : BaseService<Bank>
 
     public async Task<BalanceResponse> GetBalance(Guid bankId, DateTime? date)
     {
-        var now = DateTime.Now;
-        if (!date.HasValue || date.Value.Year == 1) date = now;
-        var bank = await context.Banks.Include(x => x.BankTransactions).Include(x => x.InternalTransactions)
-            .FirstOrDefaultAsync(x => x.Id == bankId);
-
-        return new BalanceResponse(bank.BankTransactions, bank.InternalTransactions, bank.InitialValue, date);
+        await Task.Yield();
+        // var now = DateTime.Now;
+        // if (!date.HasValue || date.Value.Year == 1) date = now;
+        // var bank = await context.Banks.Include(x => x.BankTransactions).Include(x => x.InternalTransactions)
+        //     .FirstOrDefaultAsync(x => x.Id == bankId);
+        //
+        // return new BalanceResponse(bank.BankTransactions, bank.InternalTransactions, bank.InitialValue, date);
+        return null;
     }
 
 
@@ -29,7 +33,7 @@ public class BankService : BaseService<Bank>
 
         if (existing == null) throw new AppException("Not found bank");
 
-        existing.InitialValue = obj.InitialValue;
+        // existing.InitialValue = obj.InitialValue;
         existing.Code = obj.Code;
         existing.Name = obj.Name;
 
