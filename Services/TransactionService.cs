@@ -102,7 +102,7 @@ public class TransactionService
         // };
         //
         // var walletTransactionsQuery = _context.WalletTransactions.Where(x =>
-        //     !x.DeletedAt.HasValue && x.Wallet != null && x.Wallet.ManagerId == managerId);
+        //     !x.DeletedAt.HasValue && x.AssetWallet != null && x.AssetWallet.ManagerId == managerId);
         // var internalTransactionsQuery =
         //     _context.InternalTransactions.Where(x => !x.DeletedAt.HasValue && x.ManagerId == managerId);
         //

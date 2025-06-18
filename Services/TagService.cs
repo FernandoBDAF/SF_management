@@ -16,7 +16,8 @@ public class TagService : BaseService<Tag>
     public async Task<BalanceResponse> GetBalance(Guid tagId)
     {
         var tag = await context.Tags.Include(x => x.BankTransactions).Include(x => x.WalletTransactions)
-            .Include(x => x.InternalTransactions).FirstOrDefaultAsync(x => x.Id == tagId);
+            // .Include(x => x.InternalTransactions)
+            .FirstOrDefaultAsync(x => x.Id == tagId);
 
         return new BalanceResponse(tag);
     }

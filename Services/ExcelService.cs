@@ -13,10 +13,10 @@ public class ExcelService(
     DataContext context,
     IMapper mapper,
     IHttpContextAccessor httpContextAccessor,
-    WalletTransactionService walletTransactionService)
+    DigitalAssetTransactionService digitalAssetTransactionService)
     : BaseService<Excel>(context, httpContextAccessor)
 {
-    private readonly WalletTransactionService _walletTransactionService = walletTransactionService;
+    private readonly DigitalAssetTransactionService _digitalAssetTransactionService = digitalAssetTransactionService;
 
     public override async Task<Excel?> Get(Guid id)
     {
@@ -42,13 +42,13 @@ public class ExcelService(
         //
         // var rows = ReadExcelFile(request.PostFile,
         //     new List<(int, string)>
-        //         { (1, "WalletIdentifier"), (2, "Value"), (3, "Wallet"), (6, "CreatedAt"), (8, "Description") });
+        //         { (1, "WalletIdentifier"), (2, "Value"), (3, "AssetWallet"), (6, "CreatedAt"), (8, "Description") });
         //
         // foreach (var row in rows)
         // {
         //     var fileNickname = row.FirstOrDefault(x => x.Name == "WalletIdentifier").Value;
         //     var fileCoins = decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR"));
-        //     var fileWallet = row.FirstOrDefault(x => x.Name == "Wallet").Value;
+        //     var fileWallet = row.FirstOrDefault(x => x.Name == "AssetWallet").Value;
         //     
         //     var fileDate = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
         //     var formats = new string[]{ "d/M/yyyy H:mm", "d/M/yy H:mm", "d/M/yy HH:mm", "d/M/yyyy HH:mm" };
@@ -189,7 +189,7 @@ public class ExcelService(
         return rows;
     }
 
-    public async Task<List<WalletTransactionResponse>> Reconciliation(Guid from, Guid to)
+    public async Task<List<DigitalAssetTransactionResponse>> Reconciliation(Guid from, Guid to)
     {
         // var list = new List<DigitalAssetTransaction>();
         //
@@ -225,7 +225,7 @@ public class ExcelService(
         //
         // await context.SaveChangesAsync();
         //
-        // return mapper.Map<List<WalletTransactionResponse>>(list);
+        // return mapper.Map<List<DigitalAssetTransactionResponse>>(list);
         await Task.Yield();
         return null;
     }

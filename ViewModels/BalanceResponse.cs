@@ -8,7 +8,8 @@ namespace SFManagement.ViewModels;
 public class BalanceResponse
 {
     public BalanceResponse(IEnumerable<FiatAssetTransaction> bankTransactions,
-        IEnumerable<InternalTransaction> internalTransaction, decimal initialValue, DateTime? date)
+        // IEnumerable<InternalTransaction> internalTransaction, decimal initialValue, DateTime? date)
+        decimal initialValue, DateTime? date)
     {
         // Value = initialValue;
         //
@@ -68,16 +69,16 @@ public class BalanceResponse
         //         : decimal.Negate(x.Value));
     }
 
-    public BalanceResponse(Wallet wallet, DateTime? date)
+    public BalanceResponse(AssetWallet assetWallet, DateTime? date)
     {
-        // Coins = wallet.IntialCoins;
+        // Coins = assetWallet.IntialCoins;
         //
-        // Coins += wallet.Transactions
+        // Coins += assetWallet.Transactions
         //     .Where(x => x.Date < date && !x.DeletedAt.HasValue &&
         //                 (!x.ApprovedAt.HasValue || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x =>
         //         x.WalletTransactionType == WalletTransactionType.Income ? decimal.Negate(x.Coins) : x.Coins);
         //
-        // Coins += wallet.InternalTransactions.Where(x => x.Date < date && !x.DeletedAt.HasValue).Sum(x =>
+        // Coins += assetWallet.InternalTransactions.Where(x => x.Date < date && !x.DeletedAt.HasValue).Sum(x =>
         //     x.InternalTransactionType == InternalTransactionType.Income
         //         ? decimal.Negate(x.Coins ?? decimal.Zero)
         //         : x.Coins ?? decimal.Zero);
