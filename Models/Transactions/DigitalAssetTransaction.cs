@@ -8,8 +8,7 @@ namespace SFManagement.Models.Transactions;
 
 public class DigitalAssetTransaction : BaseTransaction
 {
-    // change name: BalanceAs
-    public AssetType? ConvertTo { get; set; } = AssetType.BrazilianReal;
+    public AssetType? BalanceAs { get; set; }
     
     [Precision(18, 2)] public decimal? ConversionRate { get; set; }
     

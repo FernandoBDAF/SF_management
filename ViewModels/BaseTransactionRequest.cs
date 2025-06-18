@@ -1,3 +1,4 @@
+using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.Models.Entities;
 
@@ -12,6 +13,10 @@ public class BaseTransactionRequest
     public Guid?  AssetWalletId { get; set; }
 
     public string? Description { get; set; }
+    
+    public decimal? AssetAmount { get; set; }
+    
+    public TransactionDirection? TransactionDirection { get; set; }
     
     public Guid? TagId { get; set; }
 }

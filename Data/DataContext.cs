@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFManagement.Models;
-using SFManagement.Models.Closing;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 
@@ -44,12 +43,6 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
     public DbSet<ExcelTransaction> ExcelTransactions { get; set; }
 
     public DbSet<Tag> Tags { get; set; }
-
-    public DbSet<ClosingManager> ClosingManagers { get; set; }
-
-    public DbSet<ClosingWallet> ClosingWallets { get; set; }
-
-    public DbSet<ClosingNickname> ClosingNicknames { get; set; }
 
     // public DbSet<InternalTransaction> InternalTransactions { get; set; }
 
@@ -111,18 +104,6 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
         // .WithMany()
         // .HasForeignKey(x => x.AssetWalletId)
         // .OnDelete(DeleteBehavior.Cascade);
-        //
-        // modelBuilder.Entity<InternalTransaction>()
-        //     .HasOne(x => x.WalletIdentifier)
-        //     .WithMany()
-        //     .HasForeignKey(x => x.WalletIdentifierId)
-        //     .OnDelete(DeleteBehavior.Restrict);
-        //
-        // modelBuilder.Entity<InternalTransaction>()
-        //     .HasOne(x => x.AssetWallet)
-        //     .WithMany()
-        //     .HasForeignKey(x => x.AssetWalletId)
-        //     .OnDelete(DeleteBehavior.Cascade);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

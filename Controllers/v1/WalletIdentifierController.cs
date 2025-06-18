@@ -18,10 +18,10 @@ public class WalletIdentifierController(
 {
     private readonly IMapper _mapper = mapper;
 
-    [HttpGet]
-    [Route("nickname-client/{clientId}")]
-    public async Task<List<WalletIdentifierResponse>> GetNicknames(Guid clientId)
-    {
-        return _mapper.Map<List<WalletIdentifierResponse>>(await walletIdentifierService.GetByClientId(clientId));
-    }
+    // [HttpGet]
+    // [Route("nickname-client/{clientId}")]
+    // public async Task<List<WalletIdentifierResponse>> GetNicknames(Guid clientId)
+    // {
+    //     return _mapper.Map<List<WalletIdentifierResponse>>(await walletIdentifierService.GetByClientId(clientId));
+    // }
 }

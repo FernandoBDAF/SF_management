@@ -22,9 +22,9 @@ public class AssetWalletService(DataContext context, IHttpContextAccessor httpCo
         return await base.Update(id, obj);
     }
 
-    private static void EnforceSingleOwner(AssetWallet address)
+    private static void EnforceSingleOwner(AssetWallet assetWallet)
     {
-        var ownerCount = new[] { address.ClientId, address.BankId, address.MemberId, address.PokerManagerId }
+        var ownerCount = new[] { assetWallet.ClientId, assetWallet.BankId, assetWallet.MemberId, assetWallet.PokerManagerId }
             .Count(id => id != null);
         if (ownerCount != 1)
             throw new InvalidOperationException("AssetWallet must be linked to exactly one owner (Client, Bank, Member, or PokerManager).");

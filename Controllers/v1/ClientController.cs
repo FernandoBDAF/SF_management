@@ -14,47 +14,31 @@ namespace SFManagement.Controllers.v1;
 public class ClientController : BaseApiController<Client, ClientRequest, ClientResponse>
 {
     private readonly ClientService _clientService;
-    private readonly BalanceService _balanceService;
     private readonly ILogger<ClientController> _logger;
     private readonly TransactionService _transactionService;
 
     public ClientController(ClientService service, ILogger<ClientController> logger, IMapper mapper,
-        ClientService clientService, TransactionService transactionService, BalanceService balanceService) : base(service, mapper)
+        ClientService clientService, TransactionService transactionService) : base(service, mapper)
     {
         _logger = logger;
         _clientService = clientService;
         _transactionService = transactionService;
-        _balanceService = balanceService;
     }
 
     // [HttpGet]
-    // [Route("balance/{clientId}")]
-    // public async Task<Dictionary<AssetType,decimal>> Balance(Guid clientId)
+    // [Route("transactions/{clientId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
+    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, DateTime? startDate = null,
+    //     DateTime? endDate = null, int quantity = 100, int page = 0)
     // {
-    //     return await _clientService.GetBalancesByAssetType(clientId);
+    //     return await _transactionService.GetTransactions(clientId, startDate, endDate, quantity, page);
     // }
 
-    // [HttpPost]
-    // [Route("balance/{clientId}")]
-    // public async Task<BalanceResponse> Balance(Guid clientId, BalanceRequest request)
+    // [HttpGet]
+    // [Route("transactions/{clientId}/{quantity?}/{page?}")]
+    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, int quantity = 100, int page = 0)
     // {
-    //     return await _clientService.GetBalance(clientId, request.Date);
+    //     return await _transactionService.GetTransactions(clientId, null, null, quantity, page);
     // }
-
-    [HttpGet]
-    [Route("transactions/{clientId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, DateTime? startDate = null,
-        DateTime? endDate = null, int quantity = 100, int page = 0)
-    {
-        return await _transactionService.GetTransactions(clientId, startDate, endDate, quantity, page);
-    }
-
-    [HttpGet]
-    [Route("transactions/{clientId}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, int quantity = 100, int page = 0)
-    {
-        return await _transactionService.GetTransactions(clientId, null, null, quantity, page);
-    }
 
     [HttpPut]
     [Route("initial-balance/{clientId}")]

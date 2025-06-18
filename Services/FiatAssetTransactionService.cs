@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
+using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
@@ -15,6 +16,32 @@ public class FiatAssetTransactionService : BaseService<FiatAssetTransaction>
         httpContextAccessor)
     {
         _user = httpContextAccessor.HttpContext?.User;
+    }
+
+    public override async Task<FiatAssetTransaction> Add(FiatAssetTransaction model)
+    {
+        if (model.WalletIdentifierId == Guid.Empty)
+        {
+            var walletIdentifierId = context.WalletIdentifiers
+                .Where(x => x.ClientId == model.ClientId && x.AssetType == AssetType.BrazilianReal)
+                .Select(x => x.Id).SingleOrDefault();
+            
+            var assetWalletId = context.AssetWallets
+                .Where(x => x.BankId == model.BankId && x.AssetType == AssetType.BrazilianReal)
+                .Select(x => x.Id).SingleOrDefault();
+
+            if (walletIdentifierId == Guid.Empty || assetWalletId == Guid.Empty)
+            {
+                throw (new ArgumentException("Wallet identifiers are required"));
+            }
+
+            model.WalletIdentifierId = walletIdentifierId;
+            model.AssetWalletId = assetWalletId;
+        }
+        
+        var transaction = await base.Add(model);
+        
+        return transaction;
     }
 
     // public override async Task<List<FiatAssetTransaction>> List()

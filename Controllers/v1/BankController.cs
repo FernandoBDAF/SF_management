@@ -37,18 +37,18 @@ public class BankController : BaseApiController<Bank, BankRequest, BankResponse>
     //     return await _bankService.GetBalance(bankId, request.Date);
     // }
 
-    [HttpGet]
-    [Route("transactions/{bankId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid bankId, DateTime? startDate = null,
-        DateTime? endDate = null, int? quantity = 100, int? page = 0)
-    {
-        return await _transactionService.GetBankTransactions(bankId, startDate, endDate, quantity.Value, page.Value);
-    }
-
-    [HttpGet]
-    [Route("transactions/{bankId}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid bankId, int? quantity = 100, int? page = 0)
-    {
-        return await _transactionService.GetBankTransactions(bankId, null, null, quantity.Value, page.Value);
-    }
+    // [HttpGet]
+    // [Route("transactions/{bankId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
+    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid bankId, DateTime? startDate = null,
+    //     DateTime? endDate = null, int? quantity = 100, int? page = 0)
+    // {
+    //     return await _transactionService.GetBankTransactions(bankId, startDate, endDate, quantity.Value, page.Value);
+    // }
+    //
+    // [HttpGet]
+    // [Route("transactions/{bankId}/{quantity?}/{page?}")]
+    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid bankId, int? quantity = 100, int? page = 0)
+    // {
+    //     return await _transactionService.GetBankTransactions(bankId, null, null, quantity.Value, page.Value);
+    // }
 }

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SFManagement.Models;
-using SFManagement.Models.Closing;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
@@ -141,9 +140,6 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<BaseService<WalletIdentifier>, WalletIdentifierService>();
         builder.Services.AddScoped<WalletIdentifierService>();
         
-        
-        builder.Services.AddScoped<BalanceService>();
-        
         builder.Services.AddScoped<BaseService<FiatAssetTransaction>, FiatAssetTransactionService>();
         builder.Services.AddScoped<FiatAssetTransactionService>();
         builder.Services.AddScoped<OfxService>();
@@ -155,12 +151,6 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<ExcelService>();
         builder.Services.AddScoped<BaseService<Tag>, TagService>();
         builder.Services.AddScoped<TagService>();
-        builder.Services.AddScoped<BaseService<ClosingWallet>, ClosingWalletService>();
-        builder.Services.AddScoped<ClosingWalletService>();
-        builder.Services.AddScoped<BaseService<ClosingNickname>, ClosingNicknameService>();
-        builder.Services.AddScoped<ClosingNicknameService>();
-        builder.Services.AddScoped<BaseService<ClosingManager>, ClosingManagerService>();
-        builder.Services.AddScoped<ClosingManagerService>();
         // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
         // builder.Services.AddScoped<InternalTransactionService>();
         builder.Services.AddScoped<UserResolverService>();
