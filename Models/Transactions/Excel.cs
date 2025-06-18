@@ -6,14 +6,6 @@ namespace SFManagement.Models.Transactions;
 
 public class Excel : BaseDomain
 {
-    // public Excel(Guid managerId, string fileName, string fileType)
-    // {
-    //     ManagerId = managerId;
-    //     FileName = fileName;
-    //     FileType = fileType;
-    //     ExcelTransactions = new List<ExcelTransaction>();
-    // }
-    
     public Guid PokerManagerId { get; set; }
     public virtual PokerManager PokerManager { get; set; } = new PokerManager();
 

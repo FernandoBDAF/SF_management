@@ -4,11 +4,7 @@ namespace SFManagement.ViewModels;
 
 public class DigitalAssetTransactionRequest : BaseTransactionRequest
 {
-    public decimal? AssetAmount { get; set; }
-    
-    public TransactionDirection? TransactionDirection { get; set; }
-    
-    public AssetType? ConvertTo { get; set; }
+    public AssetType? BalanceAs { get; set; }
     
     public decimal? ConversionRate { get; set; }
     

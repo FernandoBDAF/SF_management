@@ -22,9 +22,9 @@ public class AssetWalletService(DataContext context, IHttpContextAccessor httpCo
         return await base.Update(id, obj);
     }
 
-    private static void EnforceSingleOwner(AssetWallet address)
+    private static void EnforceSingleOwner(AssetWallet assetWallet)
     {
-        var ownerCount = new[] { address.ClientId, address.BankId, address.MemberId, address.PokerManagerId }
+        var ownerCount = new[] { assetWallet.ClientId, assetWallet.BankId, assetWallet.MemberId, assetWallet.PokerManagerId }
             .Count(id => id != null);
         if (ownerCount != 1)
             throw new InvalidOperationException("AssetWallet must be linked to exactly one owner (Client, Bank, Member, or PokerManager).");
@@ -52,8 +52,7 @@ public class AssetWalletService(DataContext context, IHttpContextAccessor httpCo
             .Include(w => w.Client)
             .Include(w => w.Member)
             .Include(w => w.Bank)
-            .Include(w => w.PokerManager)
-            .Include(w => w.WalletIdentifiers);
+            .Include(w => w.PokerManager);
 
         var wallet = await query.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
         if (wallet == null)

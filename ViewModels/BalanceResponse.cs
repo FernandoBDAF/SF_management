@@ -8,7 +8,8 @@ namespace SFManagement.ViewModels;
 public class BalanceResponse
 {
     public BalanceResponse(IEnumerable<FiatAssetTransaction> bankTransactions,
-        IEnumerable<InternalTransaction> internalTransaction, decimal initialValue, DateTime? date)
+        // IEnumerable<InternalTransaction> internalTransaction, decimal initialValue, DateTime? date)
+        decimal initialValue, DateTime? date)
     {
         // Value = initialValue;
         //

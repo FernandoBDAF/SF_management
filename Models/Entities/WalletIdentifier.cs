@@ -1,49 +1,48 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using SFManagement.Models.Closing;
+using SFManagement.Enums;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.Entities;
 
 public class WalletIdentifier : BaseDomain
 {
-    [Required, MaxLength(30)]
-    public string? Nickname { get; set; } = string.Empty;
-
+    
+    // Nickname, Routing Number, Agencia
     [MaxLength(40)]
-    public string? Email { get; set; }
-
-    [MaxLength(20)]
-    public string? Phone { get; set; }
-
+    public string? RouteInfo { get; set; }
+    
+    // Account Number, email, Conta
+    [MaxLength(40)]
+    public string? IdentifierInfo { get; set; }
+    
+    // Account Type, pix, poupanca
+    [MaxLength(40)]
+    public string? DescriptiveInfo { get; set; }
+    
+    // Name, 
     [MaxLength(50)]
-    public string? Pix { get; set; }
+    public string? ExtraInfo { get; set; }
     
-    // [MaxLength(20)]
-    // public string? Agency { get; set; }
-    //
-    // [MaxLength(50)]
-    // public string? Account { get; set; }
-    
-
+    // PIX, PokerManager input, etc...
     [Required, MaxLength(30)]
-    public string InputForTransactions { get; set; } = string.Empty;
-
+    public string InputForTransactions { get; set; }
+    
+    public AssetType AssetType { get; set; }
+    
     [Precision(18, 2)]
     public decimal? DefaultRakeCommission { get; set; }
 
     [Precision(18, 2)]
     public decimal? DefaultParentCommission { get; set; }
-
-    // Aiming to avoid dependency loop it is necessary to handle the deletion of
-    // the 5 relationships bellow in the datacontext file. On delete of assetWallet,
-    // WalletIdentifier will be deleted. Deleting any of the other classes will
-    // leave and orphan assetWallet identifier 
-    public Guid AssetWalletId { get; set; }
-    public virtual AssetWallet AssetWallet { get; set; } = new AssetWallet();
+    
+    public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
+    public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
     
     // Only one of the following relationships bellow should happen, so there is
     // a logic handling this in the service.
+    public Guid? BankId { get; set; }
+    public virtual Bank? Bank { get; set; }
     public Guid? ClientId { get; set; }
     public virtual Client? Client { get; set; }
 

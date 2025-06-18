@@ -22,9 +22,9 @@ public class InitialBalanceService : BaseService<InitialBalance>
         return await base.Update(id, obj);
     }
 
-    private static void EnforceSingleOwner(InitialBalance address)
+    private static void EnforceSingleOwner(InitialBalance initialBalance)
     {
-        var ownerCount = new[] { address.ClientId, address.BankId, address.MemberId, address.PokerManagerId }
+        var ownerCount = new[] { initialBalance.ClientId, initialBalance.MemberId, initialBalance.PokerManagerId }
             .Count(id => id != null);
         if (ownerCount != 1)
             throw new InvalidOperationException("InitialBalance must be linked to exactly one owner (Client, Bank, Member, or PokerManager).");
