@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Enums;
-using SFManagement.Models;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -22,28 +22,28 @@ public class ExcelController : BaseApiController<Excel, ExcelRequest, ExcelRespo
 
     [HttpPost]
     [Route("import-buy-transactions")]
-    public async Task<List<WalletTransactionResponse>> ImportBuyTransactions(ExcelRequest request)
+    public async Task<List<ExcelTransactionResponse>> ImportBuyTransactions(ExcelRequest request)
     {
-        return await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Expense);
+        return await _excelService.ImportBuySellTransactions(request, TransactionDirection.Expense);
     }
 
     [HttpPost]
     [Route("import-sell-transactions")]
-    public async Task<List<WalletTransactionResponse>> ImportSellTransactions(ExcelRequest request)
+    public async Task<List<ExcelTransactionResponse>> ImportSellTransactions(ExcelRequest request)
     {
-        return await _excelService.ImportBuySellTransactions(request, WalletTransactionType.Income);
+        return await _excelService.ImportBuySellTransactions(request, TransactionDirection.Income);
     }
 
     [HttpPost]
     [Route("import-transfer-transactions")]
-    public async Task<List<WalletTransactionResponse>> ImportTransferTransactions(ExcelRequest request)
+    public async Task<List<ExcelTransactionResponse>> ImportTransferTransactions(ExcelRequest request)
     {
         return await _excelService.ImportTransferTransactions(request);
     }
 
     [HttpPut]
     [Route("{from}/reconciliation/{to}")]
-    public async Task<List<WalletTransactionResponse>> Reconciliation(Guid from, Guid to)
+    public async Task<List<DigitalAssetTransactionResponse>> Reconciliation(Guid from, Guid to)
     {
         return await _excelService.Reconciliation(from, to);
     }

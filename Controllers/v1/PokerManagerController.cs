@@ -1,0 +1,65 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using SFManagement.Models;
+using SFManagement.Models.Entities;
+using SFManagement.Services;
+using SFManagement.ViewModels;
+
+namespace SFManagement.Controllers.v1;
+
+[ApiController]
+[Route("api/v{verion:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+public class PokerManagerController(
+    BaseService<PokerManager> service,
+    IMapper mapper,
+    AssetWalletService assetWalletService,
+    PokerManagerService pokerManagerService,
+    TransactionService transactionService)
+    : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>(service, mapper)
+{
+    private readonly IMapper _mapper = mapper;
+
+    [HttpGet]
+    [Route("wallets/{managerId}")]
+    public async Task<List<AssetWalletResponse>> GetWalletsByManagerId(Guid managerId)
+    {
+        return _mapper.Map<List<AssetWalletResponse>>(await assetWalletService.GetWalletsByManagerId(managerId));
+    }
+
+    // [HttpGet]
+    // [Route("balance/{managerId}")]
+    // public async Task<BalanceResponse> Balance(Guid managerId)
+    // {
+    //     return await pokerManagerService.GetBalance(managerId, null);
+    // }
+    //
+    // [HttpPost]
+    // [Route("balance/{managerId}")]
+    // public async Task<BalanceResponse> Balance(Guid managerId, BalanceRequest request)
+    // {
+    //     return await pokerManagerService.GetBalance(managerId, request.Date);
+    // }
+
+    [HttpGet]
+    [Route("profit/{managerId}")]
+    public async Task<ProfitResponse> Profit(Guid managerId, DateTime? start, DateTime? end)
+    {
+        return await pokerManagerService.GetProfit(managerId, start, end);
+    }
+
+    // [HttpGet]
+    // [Route("transactions/{managerId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
+    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid managerId, DateTime? startDate = null,
+    //     DateTime? endDate = null, int quantity = 100, int page = 0)
+    // {
+    //     return await transactionService.GetManagerTransactions(managerId, startDate, endDate, quantity, page);
+    // }
+    //
+    // [HttpGet]
+    // [Route("transactions/{managerId}/{quantity?}/{page?}")]
+    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid managerId, int quantity = 100, int page = 0)
+    // {
+    //     return await transactionService.GetManagerTransactions(managerId, null, null, quantity, page);
+    // }
+}

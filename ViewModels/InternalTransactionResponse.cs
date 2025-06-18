@@ -14,7 +14,7 @@ public class InternalTransactionResponse : BaseResponse
 
     public Guid? ManagerId { get; set; }
 
-    public InternalTransactionType InternalTransactionType { get; set; }
+    // public TransactionDirection InternalTransactionType { get; set; }
 
     public Guid? TransferId { get; set; }
 
