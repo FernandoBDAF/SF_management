@@ -2,7 +2,7 @@
 
 namespace SFManagement.ViewModels.Validators;
 
-public class ManagerValidator : AbstractValidator<ManagerRequest>
+public class ManagerValidator : AbstractValidator<PokerManagerRequest>
 {
     public ManagerValidator()
     {

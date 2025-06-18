@@ -18,7 +18,7 @@ public class InternalTransactionRequest
 
     public string? Description { get; set; }
 
-    public InternalTransactionType InternalTransactionType { get; set; }
+    public TransactionDirection InternalTransactionType { get; set; }
 
     public Guid? TagId { get; set; }
 
