@@ -11,11 +11,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SFManagement.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SFManagement.csproj" afterDir="false" />
-    </list>
+    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,20 +24,21 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/515227dbc86331faf5687261f2e50bb8e1ff111d611dc4d906ece21f96c976/SqlServerExecutionStrategy.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bbcfe7ab04c9c5e854e8084459eb29d1ba45cca1ecfec1ad876fafa1267/ConfigurationManager.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Controllers/v1/ManagerController.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Controllers/v1/NicknameController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c7afd9724cf757c4a8469dba2bdc22ab5ac111c91f431dbfefc992dacb3e8635/ControllerBase.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Models/Entities/AssetWallet.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Models/Entities/PokerManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/appsettings.json" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/appsettings.json" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
 }</component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 5
@@ -56,7 +53,8 @@
     &quot;.NET Launch Settings Profile.SFManagement: http.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;hmg&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.49225473&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;staging&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,

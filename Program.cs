@@ -10,6 +10,7 @@ using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.StartupConfig;
 using SFManagement.ViewModels.Validators;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,16 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedCultures = new List<CultureInfo> { new("pt-BR") };
     options.RequestCultureProviders.Clear();
 });
+
+// It configures JSON serialization at the application level
+// This is used to avoid circular references in the JSON response
+// It is used to avoid the error:
+// "A possible object cycle was detected which is not supported. This can either be due to a cycle or if the object depth is too large."
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 var app = builder.Build();
 
