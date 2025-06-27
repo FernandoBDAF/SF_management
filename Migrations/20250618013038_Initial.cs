@@ -563,7 +563,7 @@ namespace SFManagement.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RouteInfo = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    RouteInfo = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     IdentifierInfo = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     DescriptiveInfo = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     ExtraInfo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),

@@ -56,7 +56,16 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseCors(x => x
+    .WithOrigins(
+        "http://localhost:3000",
+        "https://localhost:3000",
+        "https://sfmanagement-web-stag.azurewebsites.net",
+        "https://sfmanagement-web.azurewebsites.net"
+    )
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials());
 app.UseIpRateLimiting();
 app.UseResponseCaching();
 app.UseHttpsRedirection();

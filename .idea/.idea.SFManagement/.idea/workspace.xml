@@ -11,7 +11,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="" />
+    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -95,6 +99,8 @@
       <updated>1749089477183</updated>
       <workItem from="1749089479094" duration="60965000" />
       <workItem from="1749577230009" duration="4895000" />
+      <workItem from="1750205338184" duration="4921000" />
+      <workItem from="1751053067825" duration="713000" />
     </task>
     <servers />
   </component>
