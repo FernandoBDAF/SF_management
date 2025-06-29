@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SFManagement.Models;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
@@ -15,12 +14,44 @@ public class
 {
     private readonly FiatAssetTransactionService _fiatAssetTransactionService;
     private readonly IMapper _mapper;
+    private readonly TransactionService _transactionService;
+    private readonly BankService _bankService;
 
-    public FiatAssetTransactionController(BaseService<FiatAssetTransaction> service, IMapper mapper,
-        FiatAssetTransactionService fiatAssetTransactionService) : base(service, mapper)
+    public FiatAssetTransactionController(BaseService<FiatAssetTransaction> service, TransactionService transactionService,
+        BankService bankService ,IMapper mapper, FiatAssetTransactionService fiatAssetTransactionService) : base(service, mapper)
     {
         _fiatAssetTransactionService = fiatAssetTransactionService;
         _mapper = mapper;
+        _transactionService = transactionService;
+        _bankService = bankService;
+    }
+    
+    [HttpGet]
+    [Route("bank-transactions")]
+    public async Task<TableResponse<FiatAssetTransactionResponse>> BankTransactions([FromQuery] int? quantity, [FromQuery] int? page)
+    {
+        var bankAssetWalletIds = await _bankService.GetBankAssetWalletIds();
+
+        if (bankAssetWalletIds.Length == 0)
+        {
+            return new TableResponse<FiatAssetTransactionResponse>
+            {
+                Data = [],
+                Total = 0
+            };
+        }
+
+        return await _transactionService.GetBankFiatAssetTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+    }
+    
+    [HttpGet]
+    [Route("direct-transactions")]
+    public async Task<TableResponse<FiatAssetTransactionResponse>> DirectTransactions([FromQuery] int? quantity, [FromQuery] int? page)
+    {
+        var bankAssetWalletIds = await _bankService.GetBankAssetWalletIds();
+
+        return await _transactionService.GetNonBankFiatAssetTransactions(bankAssetWalletIds,
+            null,null, quantity ?? 100, page ?? 0);
     }
 
     // [HttpGet]

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿// using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models;
 using SFManagement.Models.Entities;
@@ -12,6 +13,12 @@ public class BankService : BaseService<Bank>
     public BankService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
+    }
+
+    public async Task<Guid[]> GetBankAssetWalletIds()
+    {
+        var bankAssetWalletIds = await context.Banks.Include(x => x.AssetWallets).Select(x => x.AssetWallets.Select(y => y.Id)).SelectMany(x => x).ToArrayAsync();
+        return bankAssetWalletIds;
     }
 
     public async Task<BalanceResponse> GetBalance(Guid bankId, DateTime? date)

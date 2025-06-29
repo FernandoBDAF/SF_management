@@ -16,12 +16,34 @@ public class
 {
     private readonly IMapper _mapper;
     private readonly DigitalAssetTransactionService _digitalAssetTransactionService;
+    private readonly TransactionService _transactionService;
+    private readonly PokerManagerService _pokerManagerService;
 
-    public DigitalAssetTransactionController(BaseService<DigitalAssetTransaction> service, IMapper mapper,
-        DigitalAssetTransactionService digitalAssetTransactionService) : base(service, mapper)
+    public DigitalAssetTransactionController(BaseService<DigitalAssetTransaction> service, TransactionService transactionService,
+        PokerManagerService pokerManagerService, IMapper mapper, DigitalAssetTransactionService digitalAssetTransactionService) 
+        : base(service, mapper)
     {
         _digitalAssetTransactionService = digitalAssetTransactionService;
         _mapper = mapper;
+        _transactionService = transactionService;
+        _pokerManagerService = pokerManagerService; }
+    
+    [HttpGet]
+    [Route("poker-manager-transactions")]
+    public async Task<TableResponse<DigitalAssetTransactionResponse>> Transactions([FromQuery] int? quantity, [FromQuery] int? page)
+    {
+        var pokerManagerAssetWalletIds = await _pokerManagerService.GetPokerManagerAssetWalletIds();
+
+        if (pokerManagerAssetWalletIds.Length == 0)
+        {
+            return new TableResponse<DigitalAssetTransactionResponse>
+            {
+                Data = [],
+                Total = 0
+            };
+        }
+
+        return await _transactionService.GetPokerManagerDigitalAssetTransactions(pokerManagerAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
     }
 
     [HttpPost]

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SFManagement.Models;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
@@ -15,15 +14,12 @@ public class PokerManagerController(
     PokerManagerService service,
     FiatAssetTransactionService fiatAssetTransactionService,
     IMapper mapper,
-    AssetWalletService assetWalletService,
-    PokerManagerService pokerManagerService,
-    TransactionService transactionService)
+    AssetWalletService assetWalletService)
     : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>(service, mapper)
 {
     private readonly IMapper _mapper = mapper;
     private readonly PokerManagerService _pokerManagerService = service;
     private readonly FiatAssetTransactionService _fiatAssetTransactionService = fiatAssetTransactionService;
-
 
     [HttpGet]
     [Route("wallets/{managerId}")]
@@ -36,7 +32,7 @@ public class PokerManagerController(
     [Route("{pokerManagerId}/send-brazilian-real")]
     public async Task<FiatAssetTransaction> SendBrazilianReais(Guid pokerManagerId, FiatAssetTransactionRequest request)
     {
-        var pokerManager = await _pokerManagerService.Get(pokerManagerId);
+        var pokerManager = await _pokerManagerService.Get(pokerManagerId) ?? throw new AppException("Poker manager not found");
         
         return await _fiatAssetTransactionService.SendBrazilianReais(pokerManager, request);
     }
@@ -55,12 +51,12 @@ public class PokerManagerController(
     //     return await pokerManagerService.GetBalance(managerId, request.Date);
     // }
 
-    [HttpGet]
-    [Route("profit/{managerId}")]
-    public async Task<ProfitResponse> Profit(Guid managerId, DateTime? start, DateTime? end)
-    {
-        return await pokerManagerService.GetProfit(managerId, start, end);
-    }
+    // [HttpGet]
+    // [Route("profit/{managerId}")]
+    // public async Task<ProfitResponse> Profit(Guid managerId, DateTime? start, DateTime? end)
+    // {
+    //     return await pokerManagerService.GetProfit(managerId, start, end);
+    // }
 
     // [HttpGet]
     // [Route("transactions/{managerId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]

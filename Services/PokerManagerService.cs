@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
-using SFManagement.Models;
 using SFManagement.Models.Entities;
 using SFManagement.ViewModels;
 
@@ -11,6 +10,12 @@ public class PokerManagerService : BaseService<PokerManager>
     public PokerManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
+    }
+
+    public async Task<Guid[]> GetPokerManagerAssetWalletIds()
+    {
+        var pokerManagerAssetWalletIds = await context.PokerManagers.Include(x => x.AssetWallets).Select(x => x.AssetWallets.Select(y => y.Id)).SelectMany(x => x).ToArrayAsync();
+        return pokerManagerAssetWalletIds;
     }
 
     public async Task<BalanceResponse> GetBalance(Guid managerId, DateTime? date)
