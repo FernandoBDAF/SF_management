@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFManagement.Enums;
 using SFManagement.Models;
 using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -14,13 +15,15 @@ namespace SFManagement.Controllers.v1;
 public class ClientController : BaseApiController<Client, ClientRequest, ClientResponse>
 {
     private readonly ClientService _clientService;
+    private readonly FiatAssetTransactionService _fiatAssetTransactionService;
     private readonly ILogger<ClientController> _logger;
     private readonly TransactionService _transactionService;
 
-    public ClientController(ClientService service, ILogger<ClientController> logger, IMapper mapper,
+    public ClientController(ClientService service, FiatAssetTransactionService fiatAssetTransactionService, ILogger<ClientController> logger, IMapper mapper,
         ClientService clientService, TransactionService transactionService) : base(service, mapper)
     {
         _logger = logger;
+        _fiatAssetTransactionService = fiatAssetTransactionService;
         _clientService = clientService;
         _transactionService = transactionService;
     }
@@ -45,5 +48,14 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
     public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
     {
         return await _clientService.UpdateInitialValue(clientId, request);
+    }
+    
+    [HttpPost]
+    [Route("{clientId}/send-brazilian-real")]
+    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid clientId, FiatAssetTransactionRequest request)
+    {
+        var client = await _clientService.Get(clientId);
+        
+        return await _fiatAssetTransactionService.SendBrazilianReais(client, request);
     }
 }

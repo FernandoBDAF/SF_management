@@ -13,6 +13,15 @@ public class AssetWalletService(DataContext context, IHttpContextAccessor httpCo
     public override async Task<AssetWallet> Add(AssetWallet obj)
     {
         EnforceSingleOwner(obj);
+        var aw = await context.AssetWallets.FirstOrDefaultAsync(x =>
+            (x.ClientId == obj.ClientId ||
+             x.PokerManagerId == obj.PokerManagerId ||
+             x.BankId == obj.BankId ||
+             x.MemberId == obj.MemberId) && x.AssetType == obj.AssetType);
+        if (aw is not null)
+        {
+            throw new Exception($"Only one asset wallet is allowed.");
+        }
         return await base.Add(obj);
     }
 

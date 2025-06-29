@@ -8,5 +8,9 @@ public class FiatAssetTransactionRequest : BaseTransactionRequest
     
     public Guid? ClientId { get; set; }
     
+    public Guid? PokerManagerId { get; set; }
+    
+    public Guid? MemberId { get; set; }
+    
     public Guid? BankId { get; set; }
 }

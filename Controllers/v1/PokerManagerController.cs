@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
 using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -11,7 +12,8 @@ namespace SFManagement.Controllers.v1;
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class PokerManagerController(
-    BaseService<PokerManager> service,
+    PokerManagerService service,
+    FiatAssetTransactionService fiatAssetTransactionService,
     IMapper mapper,
     AssetWalletService assetWalletService,
     PokerManagerService pokerManagerService,
@@ -19,12 +21,24 @@ public class PokerManagerController(
     : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>(service, mapper)
 {
     private readonly IMapper _mapper = mapper;
+    private readonly PokerManagerService _pokerManagerService = service;
+    private readonly FiatAssetTransactionService _fiatAssetTransactionService = fiatAssetTransactionService;
+
 
     [HttpGet]
     [Route("wallets/{managerId}")]
     public async Task<List<AssetWalletResponse>> GetWalletsByManagerId(Guid managerId)
     {
         return _mapper.Map<List<AssetWalletResponse>>(await assetWalletService.GetWalletsByManagerId(managerId));
+    }
+    
+    [HttpPost]
+    [Route("{pokerManagerId}/send-brazilian-real")]
+    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid pokerManagerId, FiatAssetTransactionRequest request)
+    {
+        var pokerManager = await _pokerManagerService.Get(pokerManagerId);
+        
+        return await _fiatAssetTransactionService.SendBrazilianReais(pokerManager, request);
     }
 
     // [HttpGet]

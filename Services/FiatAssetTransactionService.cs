@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Enums;
-using SFManagement.Models;
+using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
@@ -42,6 +42,36 @@ public class FiatAssetTransactionService : BaseService<FiatAssetTransaction>
         var transaction = await base.Add(model);
         
         return transaction;
+    }
+    
+    public async Task<FiatAssetTransaction> SendBrazilianReais(BaseAssetHolder assetHolder, FiatAssetTransactionRequest transaction)
+    {
+        var aw = assetHolder.AssetWallets.FirstOrDefault(x => x.AssetType == AssetType.BrazilianReal) ?? throw new Exception($"Asset Wallet for Brazilian Real does not exist");
+
+        var wi = await context.WalletIdentifiers
+            .FirstOrDefaultAsync(x => 
+                x.AssetType == AssetType.BrazilianReal && (
+                    (x.ClientId.HasValue && x.ClientId == transaction.ClientId) ||
+                    (x.MemberId.HasValue && x.MemberId == transaction.MemberId) ||
+                    (x.PokerManagerId.HasValue && x.PokerManagerId == transaction.PokerManagerId) ||
+                    (x.BankId.HasValue && x.BankId == transaction.BankId)
+                )) ?? throw new Exception($"Wallet Identifier for Brazilian Real does not exist");
+
+
+        var fiatTransaction = new FiatAssetTransaction
+        {
+            AssetWalletId = aw.Id,
+            WalletIdentifierId = wi.Id,
+            Date = transaction.Date ?? DateTime.Now,
+            Description = transaction.Description,
+            AssetAmount = transaction.AssetAmount ?? 0,
+            TransactionDirection = TransactionDirection.Expense
+        };
+
+        await context.FiatAssetTransactions.AddAsync(fiatTransaction);
+        await context.SaveChangesAsync();
+        
+        return fiatTransaction;
     }
 
     // public override async Task<List<FiatAssetTransaction>> List()
