@@ -31,20 +31,25 @@ public class AutoMapperProfile : Profile
         CreateMap<PokerManager, PokerManagerResponse>();
         CreateMap<PokerManagerRequest, PokerManager>();
 
-        CreateMap<AssetWallet, AssetWalletResponse>();
-            // .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
-            // .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
-            // .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
-            // .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
+        CreateMap<AssetWallet, AssetWalletResponse>()
+            .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
+            .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
+            .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
+            .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
         CreateMap<AssetWalletRequest, AssetWallet>();
 
-        CreateMap<WalletIdentifier, WalletIdentifierResponse>();
+        CreateMap<WalletIdentifier, WalletIdentifierResponse>()
+            .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
+            .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
+            .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
+            .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
         CreateMap<WalletIdentifierRequest, WalletIdentifier>();
 
-        // CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>()
-        //     .ForMember(dest => dest.BankName, act => act.MapFrom(src => src.Bank.Name))
-        //     .ForMember(dest => dest.ClientName, act => act.MapFrom(src => src.Client.Name));
-        // CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
+        CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
+            // .ForMember(dest => dest.ClientNameAw, act => act.MapFrom(src => src.AssetWallet.Client.Name))   
+            // .ForMember(dest => dest.ClientNameWi, act => act.MapFrom(src => src.WalletIdentifier.Client.Name));
+            
+        CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
 
         CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
         CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();

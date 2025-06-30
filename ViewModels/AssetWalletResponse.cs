@@ -10,9 +10,6 @@ public class AssetWalletResponse : BaseResponse
     
     public decimal? DefaultAgreedCommission { get; set; }
     
-    public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
-    public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
-    
     public Guid? ClientId { get; set; }
     public string? ClientName { get; set; }
     
@@ -24,4 +21,7 @@ public class AssetWalletResponse : BaseResponse
     
     public Guid? PokerManagerId { get; set; }
     public string? PokerManagerName { get; set; }
+    
+    // public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
+    // public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
 }

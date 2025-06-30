@@ -10,8 +10,10 @@ public class BaseTransaction : BaseDomain
     [Required] public DateTime Date { get; set; }
     
     [Required] public Guid WalletIdentifierId { get; set; }
+    public virtual WalletIdentifier? WalletIdentifier { get; set; }
     
     [Required] public Guid AssetWalletId { get; set; }
+    public virtual AssetWallet? AssetWallet { get; set; }
     
     [MaxLength(50)] public string? Description { get; set; }
     

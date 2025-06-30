@@ -42,7 +42,12 @@ public class TransactionService
         response.Total = await transactionsQuery.CountAsync();
         
         var allTransactions = new List<FiatAssetTransactionResponse>();
-        allTransactions.AddRange((await transactionsQuery.ToListAsync())
+        allTransactions.AddRange((await transactionsQuery
+                .Include(x => x.WalletIdentifier)
+                .ThenInclude(wi => wi != null ? wi.Client : null)
+                .Include(x => x.AssetWallet)
+                .ThenInclude(aw => aw != null ? aw.Client : null)
+                .ToListAsync())
             .Select(_mapper.Map<FiatAssetTransactionResponse>));
         
         response.Data = [.. allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity)];
@@ -75,7 +80,12 @@ public class TransactionService
         response.Total = await bankTransactionsQuery.CountAsync();
         
         var allTransactions = new List<FiatAssetTransactionResponse>();
-        allTransactions.AddRange((await bankTransactionsQuery.ToListAsync())
+        allTransactions.AddRange((await bankTransactionsQuery
+                    .Include(x => x.WalletIdentifier)
+                    .ThenInclude(y => y != null ? y.Client : null)
+                    .Include(x => x.AssetWallet)
+                    .ThenInclude(y => y != null ? y.Client : null)
+                .ToListAsync())
             .Select(_mapper.Map<FiatAssetTransactionResponse>));
         
         response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
@@ -108,7 +118,10 @@ public class TransactionService
         response.Total = await transactionsQuery.CountAsync();
         
         var allTransactions = new List<DigitalAssetTransactionResponse>();
-        allTransactions.AddRange((await transactionsQuery.ToListAsync())
+        allTransactions.AddRange((await transactionsQuery
+                .Include(x => x.WalletIdentifier)
+                .Include(x => x.AssetWallet)
+                .ToListAsync())
             .Select(_mapper.Map<DigitalAssetTransactionResponse>));
         
         response.Data = [.. allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity)];

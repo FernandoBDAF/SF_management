@@ -12,17 +12,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Controllers/v1/DirectAssetTransactionController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/AssetWalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AssetWalletController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BankService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BankService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/PokerManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/PokerManagerService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/TransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/TransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/AssetWalletResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/AssetWalletResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

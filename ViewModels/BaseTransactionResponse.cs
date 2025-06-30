@@ -10,6 +10,14 @@ public class BaseTransactionResponse : BaseResponse
     public virtual WalletIdentifierResponse? WalletIdentifier { get; set; }
     
     public virtual AssetWalletResponse? AssetWallet { get; set; }
+    
+    // public string? BankName { get; set; }
+    //
+    // public string? ClientNameAw { get; set; }
+    // public string? ClientNameWi { get; set; }
+    //
+    // public string? MemberName { get; set; }
+    // public string? PokerManagerName { get; set; }
 
     public string? Description { get; set; }
     
