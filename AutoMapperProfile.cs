@@ -51,8 +51,8 @@ public class AutoMapperProfile : Profile
             
         CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
 
-        CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
-        CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
+        // CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
+        // CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
         
         // CreateMap<(FiatAssetTransaction from, FiatAssetTransaction to), (FiatAssetTransactionResponse from, FiatAssetTransactionResponse to
         //         )>()

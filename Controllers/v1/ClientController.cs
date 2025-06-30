@@ -16,32 +16,16 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
 {
     private readonly ClientService _clientService;
     private readonly FiatAssetTransactionService _fiatAssetTransactionService;
-    private readonly ILogger<ClientController> _logger;
-    private readonly TransactionService _transactionService;
 
-    public ClientController(ClientService service, FiatAssetTransactionService fiatAssetTransactionService, ILogger<ClientController> logger, IMapper mapper,
-        ClientService clientService, TransactionService transactionService) : base(service, mapper)
+    private readonly IMapper _mapper;
+
+    public ClientController(ClientService service, FiatAssetTransactionService fiatAssetTransactionService, 
+        IMapper mapper, ClientService clientService) : base(service, mapper)
     {
-        _logger = logger;
         _fiatAssetTransactionService = fiatAssetTransactionService;
         _clientService = clientService;
-        _transactionService = transactionService;
+        _mapper = mapper;
     }
-
-    // [HttpGet]
-    // [Route("transactions/{clientId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
-    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, DateTime? startDate = null,
-    //     DateTime? endDate = null, int quantity = 100, int page = 0)
-    // {
-    //     return await _transactionService.GetTransactions(clientId, startDate, endDate, quantity, page);
-    // }
-
-    // [HttpGet]
-    // [Route("transactions/{clientId}/{quantity?}/{page?}")]
-    // public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, int quantity = 100, int page = 0)
-    // {
-    //     return await _transactionService.GetTransactions(clientId, null, null, quantity, page);
-    // }
 
     [HttpPut]
     [Route("initial-balance/{clientId}")]
@@ -57,5 +41,21 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
         var client = await _clientService.Get(clientId);
         
         return await _fiatAssetTransactionService.SendBrazilianReais(client, request);
+    }
+    
+    [HttpGet]
+    [Route("{id}/balance")]
+    public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
+    {
+        return await _clientService.GetBalancesByAssetType(id);
+    }
+    
+    [HttpGet]
+    [Route("{id}/transactions")]
+    public async Task<ClientResponse> GetAssetHolderWithTransactions(Guid id)
+    {
+        var client = await _clientService.GetAssetHolderWithTransactionsNoCascade(id);
+
+        return _mapper.Map<ClientResponse>(client);
     }
 }

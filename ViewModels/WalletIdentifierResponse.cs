@@ -38,7 +38,7 @@ public class WalletIdentifierResponse : BaseResponse
     public Guid? PokerManagerId { get; set; }
     public string? PokerManagerName { get; set; }
     
-    // public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
-    //
-    // public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
+    public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
+    
+    public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
 }

@@ -69,17 +69,17 @@ public class BaseApiController<TEntity, TRequest, TResponse> : ControllerBase wh
         return _mapper.Map<TResponse>(result);
     }
     
-    [HttpGet]
-    [Route("balance/{id}")]
-    public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
-    {
-        return await _service.GetBalancesByAssetType(id);
-    }
-    
-    [HttpGet]
-    [Route("transactions/{id}")]
-    public async Task<BaseAssetHolder> GetAssetHolderWithTransactions(Guid id)
-    {
-        return await _service.GetAssetHolderWithTransactions(id);
-    }
+    // [HttpGet]
+    // [Route("balance/{id}")]
+    // public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
+    // {
+    //     return await _service.GetBalancesByAssetType(id);
+    // }
+    //
+    // [HttpGet]
+    // [Route("transactions/{id}")]
+    // public async Task<BaseAssetHolder> GetAssetHolderWithTransactions(Guid id)
+    // {
+    //     return await _service.GetAssetHolderWithTransactions(id);
+    // }
 }

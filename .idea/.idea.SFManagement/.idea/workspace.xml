@@ -12,12 +12,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/BaseTransactionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BaseApiController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/AssetWalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AssetWalletController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/TagController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/TagController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/BaseService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/ClientService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClientService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/DigitalAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/DigitalAssetTransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/TransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/TransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewModels/AssetWalletResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/AssetWalletResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/ClientResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/ClientResponse.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -37,6 +49,8 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c7afd9724cf757c4a8469dba2bdc22ab5ac111c91f431dbfefc992dacb3e8635/ControllerBase.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Controllers/v1/ClientController.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Services/AssetWalletService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Services/BaseService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Services/TransactionService.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{

@@ -16,17 +16,16 @@ public class
 {
     private readonly IMapper _mapper;
     private readonly DigitalAssetTransactionService _digitalAssetTransactionService;
-    private readonly TransactionService _transactionService;
     private readonly PokerManagerService _pokerManagerService;
 
-    public DigitalAssetTransactionController(BaseService<DigitalAssetTransaction> service, TransactionService transactionService,
-        PokerManagerService pokerManagerService, IMapper mapper, DigitalAssetTransactionService digitalAssetTransactionService) 
+    public DigitalAssetTransactionController(DigitalAssetTransactionService service,
+        PokerManagerService pokerManagerService, IMapper mapper) 
         : base(service, mapper)
     {
-        _digitalAssetTransactionService = digitalAssetTransactionService;
+        _digitalAssetTransactionService = service;
         _mapper = mapper;
-        _transactionService = transactionService;
-        _pokerManagerService = pokerManagerService; }
+        _pokerManagerService = pokerManagerService;
+    }
     
     [HttpGet]
     [Route("poker-manager-transactions")]
@@ -43,31 +42,34 @@ public class
             };
         }
 
-        return await _transactionService.GetPokerManagerDigitalAssetTransactions(pokerManagerAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+        var transactions = await _digitalAssetTransactionService
+            .GetAssetHolderTransactions(pokerManagerAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+        
+        return _mapper.Map<TableResponse<DigitalAssetTransactionResponse>>(transactions);
     }
 
-    [HttpPost]
-    [Route("approve/{walletTransactionId}")]
-    public async Task<DigitalAssetTransactionResponse> ApproveTransaction(Guid walletTransactionId,
-        [FromBody] WalletTransactionApproveRequest model)
-    {
-        return await _digitalAssetTransactionService.ApproveTransaction(walletTransactionId, model);
-    }
-
-    [HttpPut]
-    [Route("unapprove/{walletTransactionId}")]
-    public async Task<DigitalAssetTransactionResponse> Unapprove(Guid walletTransactionId)
-    {
-        return _mapper.Map<DigitalAssetTransactionResponse>(
-            await _digitalAssetTransactionService.UnApproveTransaction(walletTransactionId));
-    }
-
-    [HttpPut]
-    [Route("link/{fromWalletTransactionId}/{toWalletTransactionId}")]
-    public async Task<(DigitalAssetTransactionResponse from, DigitalAssetTransactionResponse to)> Link(Guid fromWalletTransactionId,
-        Guid toWalletTransactionId)
-    {
-        return _mapper.Map<(DigitalAssetTransactionResponse from, DigitalAssetTransactionResponse to)>(
-            await _digitalAssetTransactionService.Link(fromWalletTransactionId, toWalletTransactionId));
-    }
+    // [HttpPost]
+    // [Route("approve/{walletTransactionId}")]
+    // public async Task<DigitalAssetTransactionResponse> ApproveTransaction(Guid walletTransactionId,
+    //     [FromBody] WalletTransactionApproveRequest model)
+    // {
+    //     return await _digitalAssetTransactionService.ApproveTransaction(walletTransactionId, model);
+    // }
+    //
+    // [HttpPut]
+    // [Route("unapprove/{walletTransactionId}")]
+    // public async Task<DigitalAssetTransactionResponse> Unapprove(Guid walletTransactionId)
+    // {
+    //     return _mapper.Map<DigitalAssetTransactionResponse>(
+    //         await _digitalAssetTransactionService.UnApproveTransaction(walletTransactionId));
+    // }
+    //
+    // [HttpPut]
+    // [Route("link/{fromWalletTransactionId}/{toWalletTransactionId}")]
+    // public async Task<(DigitalAssetTransactionResponse from, DigitalAssetTransactionResponse to)> Link(Guid fromWalletTransactionId,
+    //     Guid toWalletTransactionId)
+    // {
+    //     return _mapper.Map<(DigitalAssetTransactionResponse from, DigitalAssetTransactionResponse to)>(
+    //         await _digitalAssetTransactionService.Link(fromWalletTransactionId, toWalletTransactionId));
+    // }
 }

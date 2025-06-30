@@ -12,14 +12,9 @@ namespace SFManagement.Controllers.v1;
 [ApiVersion("1.0")]
 public class AssetWalletController : BaseApiController<AssetWallet, AssetWalletRequest, AssetWalletResponse>
 {
-    private readonly TransactionService _transactionService;
-    private readonly AssetWalletService _assetWalletService;
 
-    public AssetWalletController(AssetWalletService assetWalletService, BaseService<AssetWallet> service, IMapper mapper,
-        TransactionService transactionService) : base(service, mapper)
+    public AssetWalletController(BaseService<AssetWallet> service, IMapper mapper) : base(service, mapper)
     {
-        _assetWalletService = assetWalletService;
-        _transactionService = transactionService;
     }
 
     // [HttpGet]

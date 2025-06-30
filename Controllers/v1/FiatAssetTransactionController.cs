@@ -14,15 +14,13 @@ public class
 {
     private readonly FiatAssetTransactionService _fiatAssetTransactionService;
     private readonly IMapper _mapper;
-    private readonly TransactionService _transactionService;
     private readonly BankService _bankService;
 
-    public FiatAssetTransactionController(BaseService<FiatAssetTransaction> service, TransactionService transactionService,
-        BankService bankService ,IMapper mapper, FiatAssetTransactionService fiatAssetTransactionService) : base(service, mapper)
+    public FiatAssetTransactionController(FiatAssetTransactionService service,
+        BankService bankService ,IMapper mapper) : base(service, mapper)
     {
-        _fiatAssetTransactionService = fiatAssetTransactionService;
+        _fiatAssetTransactionService = service;
         _mapper = mapper;
-        _transactionService = transactionService;
         _bankService = bankService;
     }
     
@@ -41,7 +39,10 @@ public class
             };
         }
 
-        return await _transactionService.GetBankFiatAssetTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+        var transactions = await _fiatAssetTransactionService
+            .GetAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+         
+        return _mapper.Map<TableResponse<FiatAssetTransactionResponse>>(transactions);
     }
     
     [HttpGet]
@@ -50,8 +51,11 @@ public class
     {
         var bankAssetWalletIds = await _bankService.GetBankAssetWalletIds();
 
-        return await _transactionService.GetNonBankFiatAssetTransactions(bankAssetWalletIds,
+        var transactions = await _fiatAssetTransactionService
+            .GetNonAssetHolderTransactions(bankAssetWalletIds,
             null,null, quantity ?? 100, page ?? 0);
+        
+        return _mapper.Map<TableResponse<FiatAssetTransactionResponse>>(transactions);
     }
 
     // [HttpGet]
@@ -60,35 +64,35 @@ public class
     //     return _mapper.Map<List<FiatAssetTransactionResponse>>(await _fiatAssetTransactionService.List());
     // }
 
-    [HttpPut]
-    [Route("approve/{bankTransactionId}")]
-    public async Task<FiatAssetTransactionResponse> Approve(Guid bankTransactionId,
-        [FromBody] BankTransactionApproveRequest model)
-    {
-        return _mapper.Map<FiatAssetTransactionResponse>(await _fiatAssetTransactionService.Approve(bankTransactionId, model));
-    }
-
-    [HttpPut]
-    [Route("unapprove/{bankTransactionId}")]
-    public async Task<FiatAssetTransactionResponse> Unapprove(Guid bankTransactionId)
-    {
-        return _mapper.Map<FiatAssetTransactionResponse>(await _fiatAssetTransactionService.Unapprove(bankTransactionId));
-    }
-
-    [HttpPut]
-    [Route("link/{fromBankTransactionId}/{toBankTransactionId}")]
-    public async Task<(FiatAssetTransactionResponse from, FiatAssetTransactionResponse to)> Link(Guid fromBankTransactionId,
-        Guid toBankTransactionId)
-    {
-        return _mapper.Map<(FiatAssetTransactionResponse from, FiatAssetTransactionResponse to)>(
-            await _fiatAssetTransactionService.Link(fromBankTransactionId, toBankTransactionId));
-    }
-
-    [HttpGet]
-    [Route("list/{clientId}/{bankId}")]
-    public async Task<List<FiatAssetTransactionResponse>> ListByClienteId(Guid? clientId, Guid? bankId)
-    {
-        return _mapper.Map<List<FiatAssetTransactionResponse>>(
-            await _fiatAssetTransactionService.ListByClientIdAndBankId(clientId, bankId));
-    }
+    // [HttpPut]
+    // [Route("approve/{bankTransactionId}")]
+    // public async Task<FiatAssetTransactionResponse> Approve(Guid bankTransactionId,
+    //     [FromBody] BankTransactionApproveRequest model)
+    // {
+    //     return _mapper.Map<FiatAssetTransactionResponse>(await _fiatAssetTransactionService.Approve(bankTransactionId, model));
+    // }
+    //
+    // [HttpPut]
+    // [Route("unapprove/{bankTransactionId}")]
+    // public async Task<FiatAssetTransactionResponse> Unapprove(Guid bankTransactionId)
+    // {
+    //     return _mapper.Map<FiatAssetTransactionResponse>(await _fiatAssetTransactionService.Unapprove(bankTransactionId));
+    // }
+    //
+    // [HttpPut]
+    // [Route("link/{fromBankTransactionId}/{toBankTransactionId}")]
+    // public async Task<(FiatAssetTransactionResponse from, FiatAssetTransactionResponse to)> Link(Guid fromBankTransactionId,
+    //     Guid toBankTransactionId)
+    // {
+    //     return _mapper.Map<(FiatAssetTransactionResponse from, FiatAssetTransactionResponse to)>(
+    //         await _fiatAssetTransactionService.Link(fromBankTransactionId, toBankTransactionId));
+    // }
+    //
+    // [HttpGet]
+    // [Route("list/{clientId}/{bankId}")]
+    // public async Task<List<FiatAssetTransactionResponse>> ListByClienteId(Guid? clientId, Guid? bankId)
+    // {
+    //     return _mapper.Map<List<FiatAssetTransactionResponse>>(
+    //         await _fiatAssetTransactionService.ListByClientIdAndBankId(clientId, bankId));
+    // }
 }

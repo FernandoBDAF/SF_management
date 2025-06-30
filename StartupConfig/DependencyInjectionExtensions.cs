@@ -125,7 +125,7 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<AddressService>();
         builder.Services.AddScoped<BaseService<Bank>, BankService>();
         builder.Services.AddScoped<BankService>();
-        builder.Services.AddScoped<BaseService<Client>, ClientService>();
+        builder.Services.AddScoped<BaseAssetHolderService<Client>, ClientService>();
         builder.Services.AddScoped<ClientService>();
         builder.Services.AddScoped<BaseService<ContactPhone>, ContactPhoneService>();
         builder.Services.AddScoped<ContactPhoneService>();
@@ -140,12 +140,12 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<BaseService<WalletIdentifier>, WalletIdentifierService>();
         builder.Services.AddScoped<WalletIdentifierService>();
         
-        builder.Services.AddScoped<BaseService<FiatAssetTransaction>, FiatAssetTransactionService>();
+        builder.Services.AddScoped<BaseTransactionService<FiatAssetTransaction>, FiatAssetTransactionService>();
         builder.Services.AddScoped<FiatAssetTransactionService>();
         builder.Services.AddScoped<OfxService>();
         builder.Services.AddScoped<BaseService<Ofx>, OfxService>();
-        builder.Services.AddScoped<TransactionService>();
-        builder.Services.AddScoped<BaseService<DigitalAssetTransaction>, DigitalAssetTransactionService>();
+        // builder.Services.AddScoped<TransactionService>();
+        builder.Services.AddScoped<BaseTransactionService<DigitalAssetTransaction>, DigitalAssetTransactionService>();
         builder.Services.AddScoped<DigitalAssetTransactionService>();
         builder.Services.AddScoped<BaseService<Excel>, ExcelService>();
         builder.Services.AddScoped<ExcelService>();

@@ -8,7 +8,7 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class ClientService : BaseService<Client>
+public class ClientService : BaseAssetHolderService<Client>
 {
     private readonly IMapper _mapper;
 
