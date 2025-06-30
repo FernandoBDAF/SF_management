@@ -119,8 +119,10 @@ public class TransactionService
         
         var allTransactions = new List<DigitalAssetTransactionResponse>();
         allTransactions.AddRange((await transactionsQuery
-                .Include(x => x.WalletIdentifier)
-                .Include(x => x.AssetWallet)
+                    .Include(x => x.WalletIdentifier)
+                    .ThenInclude(y => y != null ? y.Client : null)
+                    .Include(x => x.AssetWallet)
+                    .ThenInclude(y => y != null ? y.Client : null)
                 .ToListAsync())
             .Select(_mapper.Map<DigitalAssetTransactionResponse>));
         
