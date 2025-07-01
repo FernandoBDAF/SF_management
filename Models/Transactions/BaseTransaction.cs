@@ -9,7 +9,7 @@ public class BaseTransaction : BaseDomain
 {
     [Required] public DateTime Date { get; set; }
     
-    [Required] public Guid WalletIdentifierId { get; set; }
+    public Guid? WalletIdentifierId { get; set; }
     public virtual WalletIdentifier? WalletIdentifier { get; set; }
     
     [Required] public Guid AssetWalletId { get; set; }
@@ -22,6 +22,6 @@ public class BaseTransaction : BaseDomain
     // mudar para sinal?
     [Required] public TransactionDirection TransactionDirection { get; set; }
     
-    public Guid? TagId { get; set; }
-    public virtual Tag? Tag { get; set; }
+    public Guid? FinancialBehaviorId { get; set; }
+    public virtual FinancialBehavior? FinancialBehavior { get; set; }
 }

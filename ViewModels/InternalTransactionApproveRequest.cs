@@ -2,7 +2,7 @@
 
 public class InternalTransactionApproveRequest
 {
-    public Guid? TagId { get; set; }
+    public Guid? FinancialBehaviorId { get; set; }
 
     public Guid? ClientId { get; set; }
 

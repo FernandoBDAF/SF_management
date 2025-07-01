@@ -42,7 +42,7 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
 
     public DbSet<ExcelTransaction> ExcelTransactions { get; set; }
 
-    public DbSet<Tag> Tags { get; set; }
+    public DbSet<FinancialBehavior> FinancialBehaviors { get; set; }
 
     // public DbSet<InternalTransaction> InternalTransactions { get; set; }
 

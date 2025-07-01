@@ -51,19 +51,19 @@ public class BalanceResponse
         //             : decimal.Negate(x.Coins / (1 + (x.Rate / 100 ?? 0))));
     }
 
-    public BalanceResponse(Tag tag)
+    public BalanceResponse(FinancialBehavior financialBehavior)
     {
-        // Value = tag.BankTransactions
+        // Value = financialBehavior.BankTransactions
         //     .Where(x => !x.DeletedAt.HasValue && x.TagId.HasValue &&
         //                 (!x.ApprovedAt.HasValue || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x =>
         //         x.BankTransactionType == BankTransactionType.Income ? x.Value : decimal.Negate(x.Value));
         //
-        // Value += tag.WalletTransactions
+        // Value += financialBehavior.WalletTransactions
         //     .Where(x => !x.DeletedAt.HasValue && x.TagId.HasValue &&
         //                 (!x.ApprovedAt.HasValue || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x =>
         //         x.WalletTransactionType == WalletTransactionType.Expense ? x.Value : decimal.Negate(x.Value));
         //
-        // Value += tag.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x =>
+        // Value += financialBehavior.InternalTransactions.Where(x => !x.DeletedAt.HasValue).Sum(x =>
         //     !x.Coins.HasValue && x.InternalTransactionType == InternalTransactionType.Income
         //         ? x.Value
         //         : decimal.Negate(x.Value));

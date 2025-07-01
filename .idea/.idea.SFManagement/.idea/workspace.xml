@@ -14,27 +14,29 @@
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BaseApiController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/TagController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/TagController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/TagController.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Data/DataContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Data/DataContext.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Tag.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/FinancialBehavior.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Tag.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BankService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BankService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseTransactionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/PokerManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/PokerManagerService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/TagService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/TagService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/TagService.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewModels/BalanceResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BalanceResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/BankTransactionApproveRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BankTransactionApproveRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionRequest.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/InternalTransactionApproveRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/InternalTransactionApproveRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/InternalTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/InternalTransactionRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/InternalTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/InternalTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/TagRequest.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/TagResponse.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/TransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/TransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/BankTransactionApproveRequestValidator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/Validators/BankTransactionApproveRequestValidator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/InternalTransactionApproveRequestValidator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/Validators/InternalTransactionApproveRequestValidator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/TagRequestValidator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/WalletTransactionApproveRequestValidator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/Validators/WalletTransactionApproveRequestValidator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/WalletTransactionApproveRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletTransactionApproveRequest.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,10 +77,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    ".NET Launch Settings Profile.SFManagement: http.executor": "Run",
+    ".NET Launch Settings Profile.SFManagement: http.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "XThreadsFramesViewSplitterKey": "0.49751243",
+    "XThreadsFramesViewSplitterKey": "0.33114755",
     "git-widget-placeholder": "hmg",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -130,23 +132,4 @@
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="false" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs</url>
-          <line>70</line>
-          <properties documentPath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" containingFunctionPresentation="Method 'DirectTransactions'">
-            <startOffsets>
-              <option value="2393" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2471" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="17" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
 </project>

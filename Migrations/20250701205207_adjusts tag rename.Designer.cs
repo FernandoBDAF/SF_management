@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SFManagement.Data;
 
@@ -11,9 +12,11 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250701205207_adjusts tag rename")]
+    partial class adjuststagrename
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -800,7 +803,7 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("WalletIdentifierId")
+                    b.Property<Guid>("WalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -984,7 +987,7 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("WalletIdentifierId")
+                    b.Property<Guid>("WalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -1347,7 +1350,9 @@ namespace SFManagement.Migrations
 
                     b.HasOne("SFManagement.Models.Entities.WalletIdentifier", "WalletIdentifier")
                         .WithMany("DigitalAssetTransactions")
-                        .HasForeignKey("WalletIdentifierId");
+                        .HasForeignKey("WalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AssetWallet");
 
@@ -1404,7 +1409,9 @@ namespace SFManagement.Migrations
 
                     b.HasOne("SFManagement.Models.Entities.WalletIdentifier", "WalletIdentifier")
                         .WithMany("FiatAssetTransactions")
-                        .HasForeignKey("WalletIdentifierId");
+                        .HasForeignKey("WalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AssetWallet");
 

@@ -1,6 +1,6 @@
 ﻿namespace SFManagement.ViewModels;
 
-public class TagRequest
+public class FinancialBehaviorRequest
 {
     public string? Description { get; set; }
 

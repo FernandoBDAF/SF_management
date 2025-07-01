@@ -149,8 +149,8 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<DigitalAssetTransactionService>();
         builder.Services.AddScoped<BaseService<Excel>, ExcelService>();
         builder.Services.AddScoped<ExcelService>();
-        builder.Services.AddScoped<BaseService<Tag>, TagService>();
-        builder.Services.AddScoped<TagService>();
+        builder.Services.AddScoped<BaseService<Models.FinancialBehavior>, FinancialBehaviorService>();
+        builder.Services.AddScoped<FinancialBehaviorService>();
         // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
         // builder.Services.AddScoped<InternalTransactionService>();
         builder.Services.AddScoped<UserResolverService>();

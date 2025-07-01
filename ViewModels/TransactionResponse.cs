@@ -84,7 +84,7 @@ public class TransactionResponse
 
     public decimal Coins { get; set; }
 
-    public Guid? TagId { get; set; }
+    public Guid? FinancialBehaviorId { get; set; }
 
     public Guid? ClientId { get; set; }
 

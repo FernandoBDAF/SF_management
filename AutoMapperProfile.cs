@@ -77,8 +77,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Excel, ExcelResponse>();
         CreateMap<ExcelRequest, Excel>();
 
-        CreateMap<Tag, TagResponse>();
-        CreateMap<TagRequest, Tag>();
+        CreateMap<FinancialBehavior, FinancialBehaviorResponse>();
+        CreateMap<FinancialBehaviorRequest, FinancialBehavior>();
 
         // CreateMap<(InternalTransaction to, InternalTransaction from), (InternalTransactionResponse to,
         //     InternalTransactionResponse from)>();

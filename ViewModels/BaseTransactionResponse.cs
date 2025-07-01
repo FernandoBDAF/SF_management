@@ -13,7 +13,7 @@ public class BaseTransactionResponse : BaseResponse
 
     public string? Description { get; set; }
     
-    public virtual TagResponse? Tag { get; set; }
+    public virtual FinancialBehaviorResponse? Tag { get; set; }
     
     public DateTime? ApprovedAt { get; set; }
 

@@ -22,7 +22,7 @@ public class InternalTransactionResponse : BaseResponse
 
     public string? Description { get; set; }
 
-    public Guid? TagId { get; set; }
+    public Guid? FinancialBehaviorId { get; set; }
 
     public Guid? WalletId { get; set; }
 

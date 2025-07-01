@@ -17,7 +17,7 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
 
     public override async Task<FiatAssetTransaction> Add(FiatAssetTransaction model)
     {
-        if (model.WalletIdentifierId == Guid.Empty)
+        if (!model.WalletIdentifierId.HasValue || model.AssetWalletId == Guid.Empty)
         {
             var walletIdentifierId = context.WalletIdentifiers
                 .Where(x => x.ClientId == model.ClientId && x.AssetType == AssetType.BrazilianReal)
@@ -27,12 +27,12 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
                 .Where(x => x.BankId == model.BankId && x.AssetType == AssetType.BrazilianReal)
                 .Select(x => x.Id).SingleOrDefault();
 
-            if (walletIdentifierId == Guid.Empty || assetWalletId == Guid.Empty)
+            if ((walletIdentifierId == Guid.Empty && !model.FinancialBehaviorId.HasValue) || assetWalletId == Guid.Empty)
             {
-                throw new ArgumentException("Wallet identifiers are required");
+                throw new ArgumentException("To create a transaction is needed an AssetWallet + an Wallet identifiers or an FinancialBehaviourId");
             }
 
-            model.WalletIdentifierId = walletIdentifierId;
+            model.WalletIdentifierId = walletIdentifierId == Guid.Empty ? null : walletIdentifierId;
             model.AssetWalletId = assetWalletId;
         }
         

@@ -20,7 +20,7 @@ public class InternalTransactionRequest
 
     // public TransactionDirection InternalTransactionType { get; set; }
 
-    public Guid? TagId { get; set; }
+    public Guid? FinancialBehaviorId { get; set; }
 
     public Guid? WalletId { get; set; }
 

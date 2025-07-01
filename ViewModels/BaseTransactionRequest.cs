@@ -1,6 +1,4 @@
 using SFManagement.Enums;
-using SFManagement.Models;
-using SFManagement.Models.Entities;
 
 namespace SFManagement.ViewModels;
 
@@ -18,5 +16,5 @@ public class BaseTransactionRequest
     
     public TransactionDirection? TransactionDirection { get; set; }
     
-    public Guid? TagId { get; set; }
+    public Guid? FinancialBehaviorId { get; set; }
 }

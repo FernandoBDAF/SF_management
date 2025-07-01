@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
-using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -10,27 +9,29 @@ namespace SFManagement.Controllers.v1;
 [ApiController]
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class TagController : BaseApiController<Tag, TagRequest, TagResponse>
+public class FinancialBehaviorController : BaseApiController<FinancialBehavior, FinancialBehaviorRequest, 
+    FinancialBehaviorResponse>
 {
     private readonly IMapper _mapper;
-    private readonly TagService _tagService;
+    private readonly FinancialBehaviorService _financialBehaviorService;
 
-    public TagController(TagService tagService, BaseService<Tag> service, IMapper mapper) : base(service, mapper)
+    public FinancialBehaviorController(FinancialBehaviorService financialBehavior, 
+        BaseService<FinancialBehavior> service, IMapper mapper) : base(service, mapper)
     {
-        _tagService = tagService;
+        _financialBehaviorService = financialBehavior;
         _mapper = mapper;
     }
 
-    public override async Task<List<TagResponse>> Get()
+    public override async Task<List<FinancialBehaviorResponse>> Get()
     {
-        return _mapper.Map<List<TagResponse>>(await _tagService.List());
+        return _mapper.Map<List<FinancialBehaviorResponse>>(await _financialBehaviorService.List());
     }
 
     [HttpGet]
     [Route("balance/{tagId}")]
     public async Task<BalanceResponse> Balance(Guid tagId)
     {
-        return await _tagService.GetBalance(tagId);
+        return await _financialBehaviorService.GetBalance(tagId);
     }
 
     // [HttpGet]
