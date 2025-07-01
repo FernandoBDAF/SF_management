@@ -32,20 +32,26 @@ public class
     public async Task<TableResponse<DigitalAssetTransactionResponse>> Transactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
         var pokerManagerAssetWalletIds = await _pokerManagerService.GetPokerManagerAssetWalletIds();
+        
+        var response = new TableResponse<DigitalAssetTransactionResponse>
+        {
+            Data = [],
+            Total = 0
+        };
 
         if (pokerManagerAssetWalletIds.Length == 0)
         {
-            return new TableResponse<DigitalAssetTransactionResponse>
-            {
-                Data = [],
-                Total = 0
-            };
+            return response;
         }
-
+        
         var transactions = await _digitalAssetTransactionService
             .GetAssetHolderTransactions(pokerManagerAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
         
-        return _mapper.Map<TableResponse<DigitalAssetTransactionResponse>>(transactions);
+        response.Total = transactions.Length;
+        
+        response.Data = _mapper.Map<List<DigitalAssetTransactionResponse>>(transactions);
+        
+        return response;
     }
 
     // [HttpPost]

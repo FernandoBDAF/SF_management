@@ -1,3 +1,4 @@
+using AutoMapper;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
     {
     }
     
-    public async Task<TableResponse<TEntity>> GetAssetHolderTransactions(Guid[] AssetWalletIds, DateTime? startDate,
+    public async Task<TEntity[]> GetAssetHolderTransactions(Guid[] assetWalletIds, DateTime? startDate,
         DateTime? endDate, int quantity, int page)
     {
         var response = new TableResponse<TEntity>
@@ -23,7 +24,7 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         };
         
         var transactionsQuery = _entity
-            .Where(x => !x.DeletedAt.HasValue && AssetWalletIds.Contains(x.AssetWalletId));
+            .Where(x => !x.DeletedAt.HasValue && assetWalletIds.Contains(x.AssetWalletId));
         
         if (startDate.HasValue)
         {
@@ -57,14 +58,11 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             .Include(x => x.AssetWallet)
             .ThenInclude(y => y.PokerManager)
             .ToListAsync()));
-            // .Select(_mapper.Map<FiatAssetTransactionResponse>));
         
-        response.Data = [.. allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity)];
-        
-        return response;
+        return allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToArray();
     }
     
-    public async Task<TableResponse<TEntity>> GetNonAssetHolderTransactions(Guid[]? AssetWalletIds, DateTime? startDate,
+    public async Task<TEntity[]> GetNonAssetHolderTransactions(Guid[]? assetWalletIds, DateTime? startDate,
         DateTime? endDate, int quantity, int page)
     {
         var response = new TableResponse<TEntity>
@@ -74,7 +72,7 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         };
         
         var bankTransactionsQuery = _entity
-            .Where(x => !x.DeletedAt.HasValue && (AssetWalletIds == null || !AssetWalletIds.Contains(x.AssetWalletId)));
+            .Where(x => !x.DeletedAt.HasValue && (assetWalletIds == null || !assetWalletIds.Contains(x.AssetWalletId)));
         
         if (startDate.HasValue)
         {
@@ -110,8 +108,6 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             .ToListAsync()));
             // .Select(_mapper.Map<FiatAssetTransactionResponse>));
         
-        response.Data = allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToList();
-        
-        return response;
+        return allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToArray();
     }
 }

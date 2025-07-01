@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Enums;
-using SFManagement.Models;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
@@ -27,12 +26,12 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
         _mapper = mapper;
     }
 
-    [HttpPut]
-    [Route("initial-balance/{clientId}")]
-    public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
-    {
-        return await _clientService.UpdateInitialValue(clientId, request);
-    }
+    // [HttpPut]
+    // [Route("initial-balance/{clientId}")]
+    // public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
+    // {
+    //     return await _clientService.UpdateInitialValue(clientId, request);
+    // }
     
     [HttpPost]
     [Route("{clientId}/send-brazilian-real")]
@@ -45,6 +44,7 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
     
     [HttpGet]
     [Route("{id}/balance")]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
     {
         return await _clientService.GetBalancesByAssetType(id);
@@ -52,10 +52,9 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
     
     [HttpGet]
     [Route("{id}/transactions")]
-    public async Task<ClientResponse> GetAssetHolderWithTransactions(Guid id)
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactions(Guid id)
     {
-        var client = await _clientService.GetAssetHolderWithTransactionsNoCascade(id);
-
-        return _mapper.Map<ClientResponse>(client);
+        return await _clientService.GetAssetHolderWithTransactionsAsStatement(id);
     }
 }

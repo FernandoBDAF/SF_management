@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SFManagement.Enums;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
@@ -36,20 +37,23 @@ public class PokerManagerController(
         
         return await _fiatAssetTransactionService.SendBrazilianReais(pokerManager, request);
     }
+    
+    [HttpGet]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    [Route("{id}/balance")]
+    public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
+    {
+        return await _pokerManagerService.GetBalancesByAssetType(id);
+    }
 
-    // [HttpGet]
-    // [Route("balance/{managerId}")]
-    // public async Task<BalanceResponse> Balance(Guid managerId)
-    // {
-    //     return await pokerManagerService.GetBalance(managerId, null);
-    // }
-    //
-    // [HttpPost]
-    // [Route("balance/{managerId}")]
-    // public async Task<BalanceResponse> Balance(Guid managerId, BalanceRequest request)
-    // {
-    //     return await pokerManagerService.GetBalance(managerId, request.Date);
-    // }
+    [HttpGet]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    [Route("{id}/transactions")]
+    public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactions(Guid id)
+    {
+        return await _pokerManagerService.GetAssetHolderWithTransactionsAsStatement(id);
+    }
+
 
     // [HttpGet]
     // [Route("profit/{managerId}")]

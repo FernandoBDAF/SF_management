@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models.Entities;
 using SFManagement.Services;
 using SFManagement.ViewModels;
+using SFManagement.Enums;
 
 namespace SFManagement.Controllers.v1;
 
@@ -13,18 +14,19 @@ public class BankController(BaseService<Bank> service, IMapper mapper, BankServi
 {
     private readonly BankService _bankService = bankService;
 
-    // [HttpGet]
-    // [Route("balance/{bankId}")]
-    // // [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    // public async Task<BalanceResponse> Balance(Guid bankId)
-    // {
-    //     return await _bankService.GetBalance(bankId, null);
-    // }
+    [HttpGet]
+    [Route("{id}/balance")]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
+    {
+        return await _bankService.GetBalancesByAssetType(id);
+    }
 
-    // [HttpPost]
-    // [Route("balance/{bankId}")]
-    // public async Task<BalanceResponse> Balance(Guid bankId, BalanceRequest request)
-    // {
-    //     return await _bankService.GetBalance(bankId, request.Date);
-    // }
+    [HttpGet]
+    [Route("{id}/transactions")]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactions(Guid id)
+    {
+        return await _bankService.GetAssetHolderWithTransactionsAsStatement(id);
+    }
 }

@@ -29,7 +29,7 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
 
             if (walletIdentifierId == Guid.Empty || assetWalletId == Guid.Empty)
             {
-                throw (new ArgumentException("Wallet identifiers are required"));
+                throw new ArgumentException("Wallet identifiers are required");
             }
 
             model.WalletIdentifierId = walletIdentifierId;

@@ -5,13 +5,9 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class PokerManagerService : BaseService<PokerManager>
+public class PokerManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : BaseAssetHolderService<PokerManager>(context,
+    httpContextAccessor)
 {
-    public PokerManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
-        httpContextAccessor)
-    {
-    }
-
     public async Task<Guid[]> GetPokerManagerAssetWalletIds()
     {
         var pokerManagerAssetWalletIds = await context.PokerManagers.Include(x => x.AssetWallets).Select(x => x.AssetWallets.Select(y => y.Id)).SelectMany(x => x).ToArrayAsync();

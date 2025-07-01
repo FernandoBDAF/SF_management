@@ -2,6 +2,7 @@ using SFManagement.Data;
 using SFManagement.Enums;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
+using SFManagement.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace SFManagement.Services;
@@ -82,6 +83,10 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
         {
             foreach (var tx in aw.DigitalAssetTransactions ?? Enumerable.Empty<DigitalAssetTransaction>())
             {
+                if (tx.DeletedAt.HasValue)
+                {
+                    continue;
+                }
                 var assetType = aw.AssetType;
                 var value = tx.TransactionDirection == TransactionDirection.Income ?
                     (tx.AssetAmount) : -(tx.AssetAmount);
@@ -91,6 +96,10 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
             
             foreach (var tx in aw.FiatAssetTransactions ?? Enumerable.Empty<FiatAssetTransaction>())
             {
+                if (tx.DeletedAt.HasValue)
+                {
+                    continue;
+                }
                 var assetType = aw.AssetType;
                 var value = tx.TransactionDirection == TransactionDirection.Income ?
                     (tx.AssetAmount) : -(tx.AssetAmount);
@@ -103,6 +112,11 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
         {
             foreach (var tx in wi.DigitalAssetTransactions ?? Enumerable.Empty<DigitalAssetTransaction>())
             {
+                if (tx.DeletedAt.HasValue)
+                {
+                    continue;
+                }
+                
                 if (tx.BalanceAs.HasValue)
                 {
                     var assetType = tx.BalanceAs ?? AssetType.BrazilianReal;
@@ -123,6 +137,11 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
             
             foreach (var tx in wi.FiatAssetTransactions ?? Enumerable.Empty<FiatAssetTransaction>())
             {
+                if (tx.DeletedAt.HasValue)
+                {
+                    continue;
+                }
+                
                 var assetType = wi.AssetType;
                 var value = tx.TransactionDirection == TransactionDirection.Income ?
                     -(tx.AssetAmount) : (tx.AssetAmount);
@@ -176,160 +195,7 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
 
         return assetHolder;
     }
-
-    public async Task<BaseAssetHolder> GetAssetHolderWithTransactionsOptimized(Guid id)
-    {
-        var query = (IQueryable<BaseAssetHolder>)_entity.AsQueryable();
-        query = query
-            // Include AssetWallets with their transactions
-            .Include(c => c.AssetWallets)
-                .ThenInclude(aw => aw.DigitalAssetTransactions)
-            .Include(c => c.AssetWallets)
-                .ThenInclude(aw => aw.FiatAssetTransactions)
-            
-            // Include WalletIdentifiers with their transactions
-            .Include(c => c.WalletIdentifiers)
-                .ThenInclude(wi => wi.DigitalAssetTransactions)
-            .Include(c => c.WalletIdentifiers)
-                .ThenInclude(wi => wi.FiatAssetTransactions)
-            .AsNoTracking();
-            
-
-        if (typeof(TEntity) == typeof(Client))
-        {
-            query = query.Cast<Client>();
-        }
-        else if (typeof(TEntity) == typeof(Bank))
-        {
-            query = query.Cast<Bank>();
-        }
-        else if (typeof(TEntity) == typeof(Member))
-        {
-            query = query.Cast<Member>();
-        }
-        else if (typeof(TEntity) == typeof(PokerManager))
-        {
-            query = query.Cast<PokerManager>();
-        }
-        else
-        {
-            throw new KeyNotFoundException($"Entity type {typeof(TEntity).Name} is not supported");
-        }
-        
-
-        var assetHolder = await query.FirstOrDefaultAsync(x => 
-                                  x.Id == id) ?? throw new Exception("AssetHolder not found");
-
-        // Now manually populate the asset holder information for transactions
-        foreach (var aw in assetHolder.AssetWallets)
-        {
-            if (aw.DigitalAssetTransactions != null)
-            {
-                foreach (var dat in aw.DigitalAssetTransactions)
-                {
-                    if (dat.WalletIdentifier != null)
-                    {
-                        // Load only the asset holder info without transactions
-                        dat.WalletIdentifier.Bank = await context.Banks
-                            .Where(b => b.Id == dat.WalletIdentifier.BankId)
-                            .Select(b => new Bank { Id = b.Id, Name = b.Name })
-                            .FirstOrDefaultAsync();
-                        
-                        dat.WalletIdentifier.Client = await context.Clients
-                            .Where(c => c.Id == dat.WalletIdentifier.ClientId)
-                            .Select(c => new Client { Id = c.Id, Name = c.Name })
-                            .FirstOrDefaultAsync();
-                        
-                        dat.WalletIdentifier.PokerManager = await context.PokerManagers
-                            .Where(pm => pm.Id == dat.WalletIdentifier.PokerManagerId)
-                            .Select(pm => new PokerManager { Id = pm.Id, Name = pm.Name })
-                            .FirstOrDefaultAsync();
-                    }
-                }
-            }
-            
-            if (aw.FiatAssetTransactions != null)
-            {
-                foreach (var fat in aw.FiatAssetTransactions)
-                {
-                    if (fat.WalletIdentifier != null)
-                    {
-                        // Load only the asset holder info without transactions
-                        fat.WalletIdentifier.Bank = await context.Banks
-                            .Where(b => b.Id == fat.WalletIdentifier.BankId)
-                            .Select(b => new Bank { Id = b.Id, Name = b.Name })
-                            .FirstOrDefaultAsync();
-                        
-                        fat.WalletIdentifier.Client = await context.Clients
-                            .Where(c => c.Id == fat.WalletIdentifier.ClientId)
-                            .Select(c => new Client { Id = c.Id, Name = c.Name })
-                            .FirstOrDefaultAsync();
-                        
-                        fat.WalletIdentifier.PokerManager = await context.PokerManagers
-                            .Where(pm => pm.Id == fat.WalletIdentifier.PokerManagerId)
-                            .Select(pm => new PokerManager { Id = pm.Id, Name = pm.Name })
-                            .FirstOrDefaultAsync();
-                    }
-                }
-            }
-        }
-
-        foreach (var wi in assetHolder.WalletIdentifiers)
-        {
-            if (wi.DigitalAssetTransactions != null)
-            {
-                foreach (var dat in wi.DigitalAssetTransactions)
-                {
-                    if (dat.AssetWallet != null)
-                    {
-                        // Load only the asset holder info without transactions
-                        dat.AssetWallet.Bank = await context.Banks
-                            .Where(b => b.Id == dat.AssetWallet.BankId)
-                            .Select(b => new Bank { Id = b.Id, Name = b.Name })
-                            .FirstOrDefaultAsync();
-                        
-                        dat.AssetWallet.Client = await context.Clients
-                            .Where(c => c.Id == dat.AssetWallet.ClientId)
-                            .Select(c => new Client { Id = c.Id, Name = c.Name })
-                            .FirstOrDefaultAsync();
-                        
-                        dat.AssetWallet.PokerManager = await context.PokerManagers
-                            .Where(pm => pm.Id == dat.AssetWallet.PokerManagerId)
-                            .Select(pm => new PokerManager { Id = pm.Id, Name = pm.Name })
-                            .FirstOrDefaultAsync();
-                    }
-                }
-            }
-            
-            if (wi.FiatAssetTransactions != null)
-            {
-                foreach (var fat in wi.FiatAssetTransactions)
-                {
-                    if (fat.AssetWallet != null)
-                    {
-                        // Load only the asset holder info without transactions
-                        fat.AssetWallet.Bank = await context.Banks
-                            .Where(b => b.Id == fat.AssetWallet.BankId)
-                            .Select(b => new Bank { Id = b.Id, Name = b.Name })
-                            .FirstOrDefaultAsync();
-                        
-                        fat.AssetWallet.Client = await context.Clients
-                            .Where(c => c.Id == fat.AssetWallet.ClientId)
-                            .Select(c => new Client { Id = c.Id, Name = c.Name })
-                            .FirstOrDefaultAsync();
-                        
-                        fat.AssetWallet.PokerManager = await context.PokerManagers
-                            .Where(pm => pm.Id == fat.AssetWallet.PokerManagerId)
-                            .Select(pm => new PokerManager { Id = pm.Id, Name = pm.Name })
-                            .FirstOrDefaultAsync();
-                    }
-                }
-            }
-        }
-
-        return assetHolder;
-    }
-
+    
     public async Task<BaseAssetHolder> GetAssetHolderWithTransactionsNoCascade(Guid id)
     {
         // Use a completely different approach with projection to avoid cascade
@@ -379,29 +245,19 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
                     BalanceAs = dat.BalanceAs,
                     ConversionRate = dat.ConversionRate,
                     Rate = dat.Rate,
-                    Profit = dat.Profit,
                     AssetWalletId = dat.AssetWalletId,
                     WalletIdentifierId = dat.WalletIdentifierId,
-                    TagId = dat.TagId,
-                    ApprovedAt = dat.ApprovedAt,
-                    ApprovedBy = dat.ApprovedBy,
-                    CreatedAt = dat.CreatedAt,
-                    CreatorId = dat.CreatorId,
-                    EditorId = dat.EditorId,
-                    UpdatedAt = dat.UpdatedAt,
-                    DeleteId = dat.DeleteId,
-                    DeletedAt = dat.DeletedAt,
                     WalletIdentifier = new WalletIdentifier
                     {
-                        Id = dat.WalletIdentifier.Id,
-                        RouteInfo = dat.WalletIdentifier.RouteInfo,
-                        IdentifierInfo = dat.WalletIdentifier.IdentifierInfo,
-                        DescriptiveInfo = dat.WalletIdentifier.DescriptiveInfo,
-                        ExtraInfo = dat.WalletIdentifier.ExtraInfo,
+                        // Id = dat.WalletIdentifier.Id,
+                        // RouteInfo = dat.WalletIdentifier.RouteInfo,
+                        // IdentifierInfo = dat.WalletIdentifier.IdentifierInfo,
+                        // DescriptiveInfo = dat.WalletIdentifier.DescriptiveInfo,
+                        // ExtraInfo = dat.WalletIdentifier.ExtraInfo,
                         InputForTransactions = dat.WalletIdentifier.InputForTransactions,
                         AssetType = dat.WalletIdentifier.AssetType,
-                        DefaultRakeCommission = dat.WalletIdentifier.DefaultRakeCommission,
-                        DefaultParentCommission = dat.WalletIdentifier.DefaultParentCommission,
+                        // DefaultRakeCommission = dat.WalletIdentifier.DefaultRakeCommission,
+                        // DefaultParentCommission = dat.WalletIdentifier.DefaultParentCommission,
                         BankId = dat.WalletIdentifier.BankId,
                         ClientId = dat.WalletIdentifier.ClientId,
                         MemberId = dat.WalletIdentifier.MemberId,
@@ -425,26 +281,19 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
                     TransactionDirection = fat.TransactionDirection,
                     AssetWalletId = fat.AssetWalletId,
                     WalletIdentifierId = fat.WalletIdentifierId,
-                    TagId = fat.TagId,
-                    ApprovedAt = fat.ApprovedAt,
-                    ApprovedBy = fat.ApprovedBy,
-                    CreatedAt = fat.CreatedAt,
-                    CreatorId = fat.CreatorId,
-                    EditorId = fat.EditorId,
-                    UpdatedAt = fat.UpdatedAt,
-                    DeleteId = fat.DeleteId,
-                    DeletedAt = fat.DeletedAt,
+                    // TagId = fat.TagId,
+                    // ApprovedAt = fat.ApprovedAt,
                     WalletIdentifier = new WalletIdentifier
                     {
                         Id = fat.WalletIdentifier.Id,
-                        RouteInfo = fat.WalletIdentifier.RouteInfo,
-                        IdentifierInfo = fat.WalletIdentifier.IdentifierInfo,
-                        DescriptiveInfo = fat.WalletIdentifier.DescriptiveInfo,
-                        ExtraInfo = fat.WalletIdentifier.ExtraInfo,
+                        // RouteInfo = fat.WalletIdentifier.RouteInfo,
+                        // IdentifierInfo = fat.WalletIdentifier.IdentifierInfo,
+                        // DescriptiveInfo = fat.WalletIdentifier.DescriptiveInfo,
+                        // ExtraInfo = fat.WalletIdentifier.ExtraInfo,
                         InputForTransactions = fat.WalletIdentifier.InputForTransactions,
                         AssetType = fat.WalletIdentifier.AssetType,
-                        DefaultRakeCommission = fat.WalletIdentifier.DefaultRakeCommission,
-                        DefaultParentCommission = fat.WalletIdentifier.DefaultParentCommission,
+                        // DefaultRakeCommission = fat.WalletIdentifier.DefaultRakeCommission,
+                        // DefaultParentCommission = fat.WalletIdentifier.DefaultParentCommission,
                         BankId = fat.WalletIdentifier.BankId,
                         ClientId = fat.WalletIdentifier.ClientId,
                         MemberId = fat.WalletIdentifier.MemberId,
@@ -472,23 +321,16 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
                     BalanceAs = dat.BalanceAs,
                     ConversionRate = dat.ConversionRate,
                     Rate = dat.Rate,
-                    Profit = dat.Profit,
+                    // Profit = dat.Profit,
                     AssetWalletId = dat.AssetWalletId,
                     WalletIdentifierId = dat.WalletIdentifierId,
-                    TagId = dat.TagId,
-                    ApprovedAt = dat.ApprovedAt,
-                    ApprovedBy = dat.ApprovedBy,
-                    CreatedAt = dat.CreatedAt,
-                    CreatorId = dat.CreatorId,
-                    EditorId = dat.EditorId,
-                    UpdatedAt = dat.UpdatedAt,
-                    DeleteId = dat.DeleteId,
-                    DeletedAt = dat.DeletedAt,
+                    // TagId = dat.TagId,
+                    // ApprovedAt = dat.ApprovedAt,
                     AssetWallet = new AssetWallet
                     {
                         Id = dat.AssetWallet.Id,
                         AssetType = dat.AssetWallet.AssetType,
-                        DefaultAgreedCommission = dat.AssetWallet.DefaultAgreedCommission,
+                        // DefaultAgreedCommission = dat.AssetWallet.DefaultAgreedCommission,
                         ClientId = dat.AssetWallet.ClientId,
                         MemberId = dat.AssetWallet.MemberId,
                         BankId = dat.AssetWallet.BankId,
@@ -512,20 +354,13 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
                     TransactionDirection = fat.TransactionDirection,
                     AssetWalletId = fat.AssetWalletId,
                     WalletIdentifierId = fat.WalletIdentifierId,
-                    TagId = fat.TagId,
-                    ApprovedAt = fat.ApprovedAt,
-                    ApprovedBy = fat.ApprovedBy,
-                    CreatedAt = fat.CreatedAt,
-                    CreatorId = fat.CreatorId,
-                    EditorId = fat.EditorId,
-                    UpdatedAt = fat.UpdatedAt,
-                    DeleteId = fat.DeleteId,
-                    DeletedAt = fat.DeletedAt,
+                    // TagId = fat.TagId,
+                    // ApprovedAt = fat.ApprovedAt,
                     AssetWallet = new AssetWallet
                     {
                         Id = fat.AssetWallet.Id,
                         AssetType = fat.AssetWallet.AssetType,
-                        DefaultAgreedCommission = fat.AssetWallet.DefaultAgreedCommission,
+                        // DefaultAgreedCommission = fat.AssetWallet.DefaultAgreedCommission,
                         ClientId = fat.AssetWallet.ClientId,
                         MemberId = fat.AssetWallet.MemberId,
                         BankId = fat.AssetWallet.BankId,
@@ -539,5 +374,195 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
         }
 
         return assetHolder;
+    }
+
+    public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactionsAsStatement(Guid id)
+    {
+        var assetHolder = await GetAssetHolderWithTransactionsNoCascade(id);
+        
+        var allTransactions = new List<StatementTransactionResponse>();
+        
+        // Process AssetWallet transactions
+        foreach (var aw in assetHolder.AssetWallets ?? Enumerable.Empty<AssetWallet>())
+        {
+            // Process DigitalAssetTransactions from AssetWallet
+            if (aw.DigitalAssetTransactions != null)
+            {
+                foreach (var dat in aw.DigitalAssetTransactions)
+                {
+                    var adjustedAmount = dat.AssetAmount;
+                    // For AssetWallet: Income (1) = positive, Expense (2) = negative
+                    if (dat.TransactionDirection == TransactionDirection.Expense)
+                    {
+                        adjustedAmount = -adjustedAmount;
+                    }
+                    
+                    // Get counter party name (WalletIdentifier's asset holder)
+                    string? counterPartyName = null;
+                    if (dat.WalletIdentifier != null)
+                    {
+                        if (dat.WalletIdentifier.Bank != null)
+                            counterPartyName = dat.WalletIdentifier.Bank.Name;
+                        else if (dat.WalletIdentifier.Client != null)
+                            counterPartyName = dat.WalletIdentifier.Client.Name;
+                        else if (dat.WalletIdentifier.Member != null)
+                            counterPartyName = dat.WalletIdentifier.Member.Name;
+                        else if (dat.WalletIdentifier.PokerManager != null)
+                            counterPartyName = dat.WalletIdentifier.PokerManager.Name;
+                    }
+                    
+                    allTransactions.Add(new StatementTransactionResponse
+                    {
+                        Id = dat.Id,
+                        Date = dat.Date,
+                        Description = dat.Description,
+                        AssetAmount = adjustedAmount,
+                        BalanceAs = dat.BalanceAs,
+                        ConversionRate = dat.ConversionRate,
+                        Rate = dat.Rate,
+                        AssetType = aw.AssetType,
+                        CounterPartyName = counterPartyName,
+                        WalletIdentifierInput = dat.WalletIdentifier?.InputForTransactions
+                    });
+                }
+            }
+            
+            // Process FiatAssetTransactions from AssetWallet
+            if (aw.FiatAssetTransactions != null)
+            {
+                foreach (var fat in aw.FiatAssetTransactions)
+                {
+                    var adjustedAmount = fat.AssetAmount;
+                    // For AssetWallet: Income (1) = positive, Expense (2) = negative
+                    if (fat.TransactionDirection == TransactionDirection.Expense)
+                    {
+                        adjustedAmount = -adjustedAmount;
+                    }
+                    
+                    // Get counter party name (WalletIdentifier's asset holder)
+                    string? counterPartyName = null;
+                    if (fat.WalletIdentifier != null)
+                    {
+                        if (fat.WalletIdentifier.Bank != null)
+                            counterPartyName = fat.WalletIdentifier.Bank.Name;
+                        else if (fat.WalletIdentifier.Client != null)
+                            counterPartyName = fat.WalletIdentifier.Client.Name;
+                        else if (fat.WalletIdentifier.Member != null)
+                            counterPartyName = fat.WalletIdentifier.Member.Name;
+                        else if (fat.WalletIdentifier.PokerManager != null)
+                            counterPartyName = fat.WalletIdentifier.PokerManager.Name;
+                    }
+                    
+                    allTransactions.Add(new StatementTransactionResponse
+                    {
+                        Id = fat.Id,
+                        Date = fat.Date,
+                        Description = fat.Description,
+                        AssetAmount = adjustedAmount,
+                        BalanceAs = null, // Fiat transactions don't have BalanceAs
+                        ConversionRate = null, // Fiat transactions don't have ConversionRate
+                        Rate = null, // Fiat transactions don't have Rate
+                        AssetType = aw.AssetType,
+                        CounterPartyName = counterPartyName,
+                        WalletIdentifierInput = fat.WalletIdentifier?.InputForTransactions
+                    });
+                }
+            }
+        }
+        
+        // Process WalletIdentifier transactions
+        foreach (var wi in assetHolder.WalletIdentifiers ?? Enumerable.Empty<WalletIdentifier>())
+        {
+            // Process DigitalAssetTransactions from WalletIdentifier
+            if (wi.DigitalAssetTransactions != null)
+            {
+                foreach (var dat in wi.DigitalAssetTransactions)
+                {
+                    var adjustedAmount = dat.AssetAmount;
+                    // For WalletIdentifier: Income (1) = negative, Expense (2) = positive
+                    if (dat.TransactionDirection == TransactionDirection.Income)
+                    {
+                        adjustedAmount = -adjustedAmount;
+                    }
+                    
+                    // Get counter party name (AssetWallet's asset holder)
+                    string? counterPartyName = null;
+                    if (dat.AssetWallet != null)
+                    {
+                        if (dat.AssetWallet.Bank != null)
+                            counterPartyName = dat.AssetWallet.Bank.Name;
+                        else if (dat.AssetWallet.Client != null)
+                            counterPartyName = dat.AssetWallet.Client.Name;
+                        else if (dat.AssetWallet.Member != null)
+                            counterPartyName = dat.AssetWallet.Member.Name;
+                        else if (dat.AssetWallet.PokerManager != null)
+                            counterPartyName = dat.AssetWallet.PokerManager.Name;
+                    }
+                    
+                    allTransactions.Add(new StatementTransactionResponse
+                    {
+                        Id = dat.Id,
+                        Date = dat.Date,
+                        Description = dat.Description,
+                        AssetAmount = adjustedAmount,
+                        BalanceAs = dat.BalanceAs,
+                        ConversionRate = dat.ConversionRate,
+                        Rate = dat.Rate,
+                        AssetType = wi.AssetType,
+                        CounterPartyName = counterPartyName,
+                        WalletIdentifierInput = wi.InputForTransactions
+                    });
+                }
+            }
+            
+            // Process FiatAssetTransactions from WalletIdentifier
+            if (wi.FiatAssetTransactions != null)
+            {
+                foreach (var fat in wi.FiatAssetTransactions)
+                {
+                    var adjustedAmount = fat.AssetAmount;
+                    // For WalletIdentifier: Income (1) = negative, Expense (2) = positive
+                    if (fat.TransactionDirection == TransactionDirection.Income)
+                    {
+                        adjustedAmount = -adjustedAmount;
+                    }
+                    
+                    // Get counter party name (AssetWallet's asset holder)
+                    string? counterPartyName = null;
+                    if (fat.AssetWallet != null)
+                    {
+                        if (fat.AssetWallet.Bank != null)
+                            counterPartyName = fat.AssetWallet.Bank.Name;
+                        else if (fat.AssetWallet.Client != null)
+                            counterPartyName = fat.AssetWallet.Client.Name;
+                        else if (fat.AssetWallet.Member != null)
+                            counterPartyName = fat.AssetWallet.Member.Name;
+                        else if (fat.AssetWallet.PokerManager != null)
+                            counterPartyName = fat.AssetWallet.PokerManager.Name;
+                    }
+                    
+                    allTransactions.Add(new StatementTransactionResponse
+                    {
+                        Id = fat.Id,
+                        Date = fat.Date,
+                        Description = fat.Description,
+                        AssetAmount = adjustedAmount,
+                        BalanceAs = null, // Fiat transactions don't have BalanceAs
+                        ConversionRate = null, // Fiat transactions don't have ConversionRate
+                        Rate = null, // Fiat transactions don't have Rate
+                        AssetType = wi.AssetType,
+                        CounterPartyName = counterPartyName,
+                        WalletIdentifierInput = wi.InputForTransactions
+                    });
+                }
+            }
+        }
+        
+        return new StatementAssetHolderWithTransactions
+        {
+            Id = assetHolder.Id,
+            Name = assetHolder.Name,
+            Transactions = allTransactions.ToArray()
+        };
     }
 }

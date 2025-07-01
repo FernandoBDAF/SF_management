@@ -29,20 +29,26 @@ public class
     public async Task<TableResponse<FiatAssetTransactionResponse>> BankTransactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
         var bankAssetWalletIds = await _bankService.GetBankAssetWalletIds();
+        
+        var response = new TableResponse<FiatAssetTransactionResponse>
+        {
+            Data = [],
+            Total = 0
+        };
 
         if (bankAssetWalletIds.Length == 0)
         {
-            return new TableResponse<FiatAssetTransactionResponse>
-            {
-                Data = [],
-                Total = 0
-            };
+            return response;
         }
-
+        
         var transactions = await _fiatAssetTransactionService
             .GetAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
-         
-        return _mapper.Map<TableResponse<FiatAssetTransactionResponse>>(transactions);
+        
+        response.Total = transactions.Length;
+        
+        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions);
+        
+        return response;
     }
     
     [HttpGet]
@@ -50,19 +56,22 @@ public class
     public async Task<TableResponse<FiatAssetTransactionResponse>> DirectTransactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
         var bankAssetWalletIds = await _bankService.GetBankAssetWalletIds();
+        
+        var response = new TableResponse<FiatAssetTransactionResponse>
+        {
+            Data = [],
+            Total = 0
+        };
 
         var transactions = await _fiatAssetTransactionService
-            .GetNonAssetHolderTransactions(bankAssetWalletIds,
-            null,null, quantity ?? 100, page ?? 0);
+            .GetAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
         
-        return _mapper.Map<TableResponse<FiatAssetTransactionResponse>>(transactions);
+        response.Total = transactions.Length;
+        
+        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions);
+        
+        return response;
     }
-
-    // [HttpGet]
-    // public override async Task<List<FiatAssetTransactionResponse>> Get()
-    // {
-    //     return _mapper.Map<List<FiatAssetTransactionResponse>>(await _fiatAssetTransactionService.List());
-    // }
 
     // [HttpPut]
     // [Route("approve/{bankTransactionId}")]
