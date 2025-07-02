@@ -23,6 +23,6 @@ public class SettlementTransaction : BaseTransaction
     public DateTime? CalculatedAt { get; set; }
     
     // This is the parent
-    public Guid? ParantId { get; set; }
+    public Guid? ParentId { get; set; }
     public virtual Client? Parent { get; set; }
 }

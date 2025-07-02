@@ -18,21 +18,6 @@ public class ClientService : BaseAssetHolderService<Client>
         _mapper = mapper;
     }
 
-    public override async Task<Client> Add(Client obj)
-    {
-        var client = await base.Add(obj);
-
-        var wi = new WalletIdentifier();
-        wi.AssetType = AssetType.BrazilianReal;
-        wi.InputForTransactions = "This value should be edited";
-        wi.ClientId = client.Id;
-
-        var brlWalletIdentifier = context.WalletIdentifiers.Add(wi);
-        await context.SaveChangesAsync();
-            
-        return client;
-    }
-
     // public async Task<BalanceResponse> GetBalance(Guid clientId, DateTime? date)
     // {
     //     // var now = DateTime.Now;

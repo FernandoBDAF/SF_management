@@ -64,7 +64,7 @@ public class
         };
 
         var transactions = await _fiatAssetTransactionService
-            .GetAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+            .GetNonAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
         
         response.Total = transactions.Length;
         

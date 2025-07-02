@@ -25,6 +25,20 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
         _clientService = clientService;
         _mapper = mapper;
     }
+    
+    [HttpGet]
+    [Route("wallet-identifier-has")]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    public async Task<List<ClientResponse>> GetFiltered([FromQuery] AssetType? assetType)
+    {
+        if (assetType.HasValue)
+        {
+             var clients = await _clientService.GetFilteredAssetHolders(assetType.Value);
+             return _mapper.Map<List<ClientResponse>>(clients);
+        }
+
+        return await base.Get();
+    }
 
     // [HttpPut]
     // [Route("initial-balance/{clientId}")]

@@ -13,6 +13,18 @@ public class BaseAssetHolderService<TEntity> : BaseService<TEntity> where TEntit
         : base(context, httpContextAccessor)
     {
     }
+    
+    public async Task<List<BaseAssetHolder>> GetFilteredAssetHolders(AssetType assetType)
+    {
+        var query = (IQueryable<BaseAssetHolder>)_entity.AsQueryable();
+        
+        var baseAssetHolder = await query
+            .Include(c => c.WalletIdentifiers)
+            .Where(c => c.WalletIdentifiers.Any(wi => wi.AssetType == assetType))
+            .ToListAsync();
+
+        return baseAssetHolder;
+    }
 
     // public virtual async Task<TEntity?> Get(Guid id)
     // {

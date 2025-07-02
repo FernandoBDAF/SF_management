@@ -10,10 +10,6 @@ public class AssetWallet : BaseDomain
 {
     public AssetType AssetType { get; set; }
     
-    // public decimal? InitialAssetAmount { get; set; }
-    
-    [Precision(18, 2)] public decimal? DefaultAgreedCommission { get; set; }
-    
     public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
     public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
     
