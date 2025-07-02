@@ -17,8 +17,6 @@ public class BaseAssetHolder : BaseDomain, IAssetHolder<BaseAssetHolder>
     [MaxLength(20)] public string? Cnpj { get; set; }
     public virtual Address? Address { get; set; }
     
-    public virtual ContactPhone? ContactPhone { get; set; }
-    
     // Navigation properties to specific asset holder types (only one will have a value)
     public virtual Client? Client { get; set; }
     public virtual Bank? Bank { get; set; }
@@ -58,8 +56,6 @@ public class BaseAssetHolder : BaseDomain, IAssetHolder<BaseAssetHolder>
     public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } = new HashSet<WalletIdentifier>();
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
-    
-    public virtual ICollection<Address> Addresses { get; set; } = new HashSet<Address>();
     
     public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
 }

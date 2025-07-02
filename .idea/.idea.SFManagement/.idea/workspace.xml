@@ -13,23 +13,18 @@
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/AddressController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AddressController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/AssetWalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AssetWalletController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/ContactPhoneController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ContactPhoneController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/FinancialBehaviorController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/FinancialBehaviorController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/InitialBalanceController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/InitialBalanceController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/MemberController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/MemberController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ContactPhoneService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ContactPhoneService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/FinancialBehaviorService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FinancialBehaviorService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/InitialBalanceService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/InitialBalanceService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/PokerManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/PokerManagerService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20250618013038_Initial.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20250618013038_Initial.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20250701163100_rename tags.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20250701163100_rename tags.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20250701205207_adjusts tag rename.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20250701205207_adjusts tag rename.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20250701214257_make WI optional in transactions.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20250701214257_make WI optional in transactions.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Support/Referral.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Support/Referral.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/ClientService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClientService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

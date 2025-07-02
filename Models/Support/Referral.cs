@@ -4,7 +4,7 @@ using SFManagement.Models.AssetInfrastructure;
 
 namespace SFManagement.Models.Support;
 
-public class Referral
+public class Referral : BaseDomain
 {
     [Required] public Guid WalletIdentifierId { get; set; }
     public virtual WalletIdentifier WalletIdentifier { get; set; }
