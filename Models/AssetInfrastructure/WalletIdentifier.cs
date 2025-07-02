@@ -1,12 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Models.Entities;
+using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 
-namespace SFManagement.Models.Entities;
+namespace SFManagement.Models.AssetInfrastructure;
 
 public class WalletIdentifier : BaseDomain
 {
+    [Required] public Guid BaseAssetHolderId { get; set; }
+    public virtual BaseAssetHolder BaseAssetHolder { get; set; }
+    
+    public AssetType AssetType { get; set; }
     
     // Nickname, Routing Number, Agencia
     [MaxLength(40)]
@@ -28,17 +34,11 @@ public class WalletIdentifier : BaseDomain
     [Required, MaxLength(30)]
     public string InputForTransactions { get; set; }
     
-    public AssetType AssetType { get; set; }
+    public virtual Referral? Referral { get; set; }
     
-    [Precision(18, 2)]
-    public decimal? DefaultRakeCommission { get; set; }
-
-    [Precision(18, 2)]
-    public decimal? DefaultParentCommission { get; set; }
+    public virtual ICollection<FiatAssetTransaction> FiatAssetTransactions { get; set; }
     
-    public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
-    public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
+    public virtual ICollection<DigitalAssetTransaction> DigitalAssetTransactions { get; set; }
     
-    public Guid AssetHolderId { get; set; }
-    public BaseAssetHolder AssetHolder { get; set; }
+    public virtual ICollection<SettlementTransaction> SettlementTransactions { get; set; }
 }

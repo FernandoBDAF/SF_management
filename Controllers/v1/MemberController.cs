@@ -19,11 +19,9 @@ public class MemberController(MemberService service, FiatAssetTransactionService
     
     
     [HttpPost]
-    [Route("{memberId}/send-brazilian-real")]
-    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid memberId, FiatAssetTransactionRequest request)
+    [Route("id/send-brazilian-real")]
+    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid id, FiatAssetTransactionRequest request)
     {
-        var member = await _memberService.Get(memberId);
-        
-        return await _fiatAssetTransactionService.SendBrazilianReais(member, request);
+        return await _fiatAssetTransactionService.SendBrazilianReais(id, request);
     }
 }

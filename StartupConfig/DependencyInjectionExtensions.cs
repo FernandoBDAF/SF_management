@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SFManagement.Models;
+using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
+using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.Settings;
@@ -149,13 +150,11 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<DigitalAssetTransactionService>();
         builder.Services.AddScoped<BaseService<Excel>, ExcelService>();
         builder.Services.AddScoped<ExcelService>();
-        builder.Services.AddScoped<BaseService<Models.FinancialBehavior>, FinancialBehaviorService>();
+        builder.Services.AddScoped<BaseService<FinancialBehavior>, FinancialBehaviorService>();
         builder.Services.AddScoped<FinancialBehaviorService>();
         // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
         // builder.Services.AddScoped<InternalTransactionService>();
         builder.Services.AddScoped<UserResolverService>();
-        builder.Services.AddScoped<BaseService<AvgRate>, AvgRateService>();
-        builder.Services.AddScoped<AvgRateService>();
         builder.Services.AddScoped<UserService>();
     }
 

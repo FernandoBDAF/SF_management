@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SFManagement.Models;
+using SFManagement.Models.Support;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
@@ -27,12 +27,12 @@ public class FinancialBehaviorController : BaseApiController<FinancialBehavior, 
         return _mapper.Map<List<FinancialBehaviorResponse>>(await _financialBehaviorService.List());
     }
 
-    [HttpGet]
-    [Route("balance/{tagId}")]
-    public async Task<BalanceResponse> Balance(Guid tagId)
-    {
-        return await _financialBehaviorService.GetBalance(tagId);
-    }
+    // [HttpGet]
+    // [Route("balance/{tagId}")]
+    // public async Task<BalanceResponse> Balance(Guid tagId)
+    // {
+    //     return await _financialBehaviorService.GetBalance(tagId);
+    // }
 
     // [HttpGet]
     // [Route("transactions/{tagId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]

@@ -1,14 +1,13 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using SFManagement.Interfaces;
 
 namespace SFManagement.Models.Entities;
 
-public class Member : BaseAssetHolder
+public class Member : BaseDomain, IAssetHolder<Member>
 {
+    [Required] public Guid BaseAssetHolderId { get; set; }
+    
     public double Share { get; set; }
     
     public DateTime? Birthday { get; set; }
-    
-    public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
-    
-    public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
 }

@@ -1,6 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SFManagement.Models.Entities;
+using SFManagement.Models.Support;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SFManagement.Models;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
@@ -31,7 +30,7 @@ public class
     [Route("poker-manager-transactions")]
     public async Task<TableResponse<DigitalAssetTransactionResponse>> Transactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
-        var pokerManagerAssetWalletIds = await _pokerManagerService.GetPokerManagerAssetWalletIds();
+        var pokerManagerAssetWalletIds = await _pokerManagerService.GetAssetHolderAssetWalletIds();
         
         var response = new TableResponse<DigitalAssetTransactionResponse>
         {

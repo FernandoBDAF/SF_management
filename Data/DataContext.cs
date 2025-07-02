@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFManagement.Models;
+using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
+using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 
 
@@ -16,122 +18,101 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
     {
         _httpContextAccessor = httpContextAccessor;
     }
+    
+    public DbSet<BaseAssetHolder> BaseAssetHolders { get; set; }
     public DbSet<Bank> Banks { get; set; }
+    public DbSet<Client> Clients { get; set; }
+    public DbSet<Member> Members { get; set; }
+    public DbSet<PokerManager> PokerManagers { get; set; }
     
     public DbSet<Address> Addresses { get; set; }
-
-    public DbSet<Client> Clients { get; set; }
-
-    public DbSet<FiatAssetTransaction> FiatAssetTransactions { get; set; }
-
-    public DbSet<Ofx> Ofxs { get; set; }
-    
     public DbSet<InitialBalance> InitialBalances { get; set; }
+    public DbSet<FinancialBehavior> FinancialBehaviors { get; set; }
     
-    public DbSet<OfxTransaction> OfxTransactions { get; set; }
-
-    public DbSet<PokerManager> PokerManagers { get; set; }
-
-    public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }
-
     public DbSet<AssetWallet> AssetWallets { get; set; }
-
+    public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }
+    
+    public DbSet<FiatAssetTransaction> FiatAssetTransactions { get; set; }
     public DbSet<DigitalAssetTransaction> DigitalAssetTransactions { get; set; }
-
+    
+    public DbSet<Ofx> Ofxs { get; set; }
+    public DbSet<OfxTransaction> OfxTransactions { get; set; }
     public DbSet<Excel> Excels { get; set; }
-
     public DbSet<ExcelTransaction> ExcelTransactions { get; set; }
 
-    public DbSet<FinancialBehavior> FinancialBehaviors { get; set; }
-
-    // public DbSet<InternalTransaction> InternalTransactions { get; set; }
-
-    public DbSet<AvgRate> AvgRates { get; set; }
-
-    // TODO: Review the deletion behavior of the relationships
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<BaseAssetHolder>().UseTpcMappingStrategy();
+        // Configure the one-to-one relationships between BaseAssetHolder and specific entities
+        modelBuilder.Entity<Client>()
+            .HasOne<BaseAssetHolder>()
+            .WithOne(bah => bah.Client)
+            .HasForeignKey<Client>(c => c.BaseAssetHolderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // WalletIdentifier depends on AssetWallet and Client, Member, PokerManager
-        // modelBuilder.Entity<WalletIdentifier>()
-        // .HasOne(wi => wi.AssetWallet)
-        // .WithMany(w => w.WalletIdentifiers)
-        // .HasForeignKey(wi => wi.AssetWalletId)
-        // .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Bank>()
+            .HasOne<BaseAssetHolder>()
+            .WithOne(bah => bah.Bank)
+            .HasForeignKey<Bank>(b => b.BaseAssetHolderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Member>()
+            .HasOne<BaseAssetHolder>()
+            .WithOne(bah => bah.Member)
+            .HasForeignKey<Member>(m => m.BaseAssetHolderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PokerManager>()
+            .HasOne<BaseAssetHolder>()
+            .WithOne(bah => bah.PokerManager)
+            .HasForeignKey<PokerManager>(pm => pm.BaseAssetHolderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure WalletIdentifier relationships
         modelBuilder.Entity<WalletIdentifier>()
-        .HasOne(wi => wi.Client)
-        .WithMany(c => c.WalletIdentifiers)
-        .HasForeignKey(wi => wi.ClientId)
-        .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(wi => wi.BaseAssetHolder)
+            .WithMany(bah => bah.WalletIdentifiers)
+            .HasForeignKey(wi => wi.BaseAssetHolderId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<WalletIdentifier>()
-        .HasOne(wi => wi.Member)
-        .WithMany(m => m.WalletIdentifiers)
-        .HasForeignKey(wi => wi.MemberId)
-        .OnDelete(DeleteBehavior.Restrict);
+        // Configure AssetWallet relationships
+        modelBuilder.Entity<AssetWallet>()
+            .HasOne(aw => aw.BaseAssetHolder)
+            .WithMany(bah => bah.AssetWallets)
+            .HasForeignKey(aw => aw.BaseAssetHolderId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<WalletIdentifier>()
-        .HasOne(wi => wi.PokerManager)
-        .WithMany(p => p.WalletIdentifiers)
-        .HasForeignKey(wi => wi.PokerManagerId)
-        .OnDelete(DeleteBehavior.Restrict);
-
-        // Transactions depend on WalletIdentifier and AssetWallet
+        // Configure transaction relationships
         // modelBuilder.Entity<DigitalAssetTransaction>()
-        // .HasOne(x => x.WalletIdentifier)
-        // .WithMany()
-        // .HasForeignKey(x => x.WalletIdentifierId)
-        // .OnDelete(DeleteBehavior.Restrict);
-        //
+        //     .HasOne(dat => dat.WalletIdentifier)
+        //     .WithMany(wi => wi.DigitalAssetTransactions)
+        //     .HasForeignKey(dat => dat.WalletIdentifierId)
+        //     .OnDelete(DeleteBehavior.Restrict);
+
         // modelBuilder.Entity<DigitalAssetTransaction>()
-        // .HasOne(x => x.AssetWallet)
-        // .WithMany()
-        // .HasForeignKey(x => x.AssetWalletId)
-        // .OnDelete(DeleteBehavior.Cascade);
-        //
+        //     .HasOne(dat => dat.AssetWallet)
+        //     .WithMany(aw => aw.DigitalAssetTransactions)
+        //     .HasForeignKey(dat => dat.AssetWalletId)
+        //     .OnDelete(DeleteBehavior.Restrict);
+
         // modelBuilder.Entity<FiatAssetTransaction>()
-        // .HasOne(x => x.WalletIdentifier)
-        // .WithMany()
-        // .HasForeignKey(x => x.WalletIdentifierId)
-        // .OnDelete(DeleteBehavior.Restrict);
-        //
+        //     .HasOne(fat => fat.WalletIdentifier)
+        //     .WithMany(wi => wi.FiatAssetTransactions)
+        //     .HasForeignKey(fat => fat.WalletIdentifierId)
+        //     .OnDelete(DeleteBehavior.Restrict);
+
         // modelBuilder.Entity<FiatAssetTransaction>()
-        // .HasOne(x => x.AssetWallet)
-        // .WithMany()
-        // .HasForeignKey(x => x.AssetWalletId)
-        // .OnDelete(DeleteBehavior.Cascade);
+        //     .HasOne(fat => fat.AssetWallet)
+        //     .WithMany(aw => aw.FiatAssetTransactions)
+        //     .HasForeignKey(fat => fat.AssetWalletId)
+        //     .OnDelete(DeleteBehavior.Restrict);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         SetDefaultProperties();
         return base.SaveChangesAsync(cancellationToken);
-    }
-
-    public override EntityEntry<TEntity> Update<TEntity>(TEntity entity)
-    {
-        SetPropertyReflection(entity, "EditedAt");
-        return base.Update(entity);
-    }
-
-    public override EntityEntry<TEntity> Add<TEntity>(TEntity entity)
-    {
-        SetPropertyReflection(entity, "CreatedAt");
-        return base.Update(entity);
-    }
-
-    public override EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
-    {
-        SetPropertyReflection(entity, "ExcludedAt");
-        return base.Update(entity);
-    }
-
-    private void SetPropertyReflection(object entity, string propertyName)
-    {
     }
 
     private void SetDefaultProperties()
@@ -145,8 +126,6 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
         foreach (var auditableEntity in ChangeTracker.Entries<BaseDomain>())
             if (auditableEntity.State == EntityState.Added)
             {
-                if (userId != Guid.Empty) auditableEntity.Entity.CreatorId = userId;
-
                 if (auditableEntity.Entity.CreatedAt == new DateTime() || auditableEntity.Entity.CreatedAt == null)
                     auditableEntity.Entity.CreatedAt = DateTime.Now;
             }
@@ -156,15 +135,11 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
                 {
                     auditableEntity.Property(p => p.UpdatedAt).IsModified = false;
 
-                    if (userId != Guid.Empty) auditableEntity.Entity.DeleteId = userId;
-
                     if (auditableEntity.Entity.DeletedAt == new DateTime() || auditableEntity.Entity.DeletedAt == null)
                         auditableEntity.Entity.DeletedAt = DateTime.Now;
                 }
                 else
                 {
-                    if (userId != Guid.Empty) auditableEntity.Entity.EditorId = userId;
-
                     if (auditableEntity.Entity.UpdatedAt == new DateTime() || auditableEntity.Entity.UpdatedAt == null)
                         auditableEntity.Entity.UpdatedAt = DateTime.Now;
                 }

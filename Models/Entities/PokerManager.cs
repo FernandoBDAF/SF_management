@@ -1,16 +1,13 @@
-﻿using SFManagement.Models.Transactions;
+﻿using System.ComponentModel.DataAnnotations;
+using SFManagement.Interfaces;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.Entities;
 
-public class PokerManager : BaseAssetHolder
+public class PokerManager : BaseDomain, IAssetHolder<PokerManager>
 {
     // public ManagerType ManagerType { get; set; }
     
-    // this will be removed and replaced by cache
-    // public virtual ICollection<AvgRate> AvgRates { get; set; } = new HashSet<AvgRate>();
-    
-    public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
-    
-    public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
+    [Required] public Guid BaseAssetHolderId { get; set; }
     public virtual ICollection<Excel> Excels { get; set; } = new HashSet<Excel>();
 }

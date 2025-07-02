@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Enums;
+using SFManagement.Interfaces;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
@@ -33,7 +34,7 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
     {
         if (assetType.HasValue)
         {
-             var clients = await _clientService.GetFilteredAssetHolders(assetType.Value);
+             var clients = await _clientService.GetFilteredByWalletIdentifierType(assetType.Value);
              return _mapper.Map<List<ClientResponse>>(clients);
         }
 
@@ -48,12 +49,10 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
     // }
     
     [HttpPost]
-    [Route("{clientId}/send-brazilian-real")]
-    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid clientId, FiatAssetTransactionRequest request)
+    [Route("{id}/send-brazilian-real")]
+    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid id, FiatAssetTransactionRequest request)
     {
-        var client = await _clientService.Get(clientId);
-        
-        return await _fiatAssetTransactionService.SendBrazilianReais(client, request);
+        return await _fiatAssetTransactionService.SendBrazilianReais(id, request);
     }
     
     [HttpGet]

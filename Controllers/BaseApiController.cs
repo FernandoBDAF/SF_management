@@ -20,12 +20,12 @@ public class BaseApiController<TEntity, TRequest, TResponse> : ControllerBase wh
         _mapper = mapper;
     }
     
-    public BaseApiController(BaseService<TEntity> service, IMapper mapper, BaseService<AssetWallet> assetWalletService, 
-    BaseService<WalletIdentifier> walletIdentifierService)
-    {
-        _service = service;
-        _mapper = mapper;
-    }
+    // public BaseApiController(BaseService<TEntity> service, IMapper mapper, BaseService<AssetWallet> assetWalletService, 
+    // BaseService<WalletIdentifier> walletIdentifierService)
+    // {
+    //     _service = service;
+    //     _mapper = mapper;
+    // }
 
     [HttpGet]
     public virtual async Task<List<TResponse>> Get()

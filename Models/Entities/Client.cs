@@ -1,14 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
-using SFManagement.Models.Transactions;
+﻿using System.ComponentModel.DataAnnotations;
+using SFManagement.Interfaces;
 
 namespace SFManagement.Models.Entities;
 
-public class Client : BaseAssetHolder
+public class Client : BaseDomain, IAssetHolder<Client>
 {
+    [Required] public Guid BaseAssetHolderId { get; set; }
+    
     public DateTime? Birthday { get; set; }
-
-    public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
-
-    public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
 }

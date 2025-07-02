@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Enums;
+using SFManagement.Interfaces;
+using SFManagement.Models;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
@@ -20,11 +21,11 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
         if (!model.WalletIdentifierId.HasValue || model.AssetWalletId == Guid.Empty)
         {
             var walletIdentifierId = context.WalletIdentifiers
-                .Where(x => x.ClientId == model.ClientId && x.AssetType == AssetType.BrazilianReal)
+                .Where(x => x.BaseAssetHolderId == model.ClientId && x.AssetType == AssetType.BrazilianReal)
                 .Select(x => x.Id).SingleOrDefault();
             
             var assetWalletId = context.AssetWallets
-                .Where(x => x.BankId == model.BankId && x.AssetType == AssetType.BrazilianReal)
+                .Where(x => x.BaseAssetHolderId == model.BankId && x.AssetType == AssetType.BrazilianReal)
                 .Select(x => x.Id).SingleOrDefault();
 
             if ((walletIdentifierId == Guid.Empty && !model.FinancialBehaviorId.HasValue) || assetWalletId == Guid.Empty)
@@ -41,17 +42,18 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
         return transaction;
     }
     
-    public async Task<FiatAssetTransaction> SendBrazilianReais(BaseAssetHolder assetHolder, FiatAssetTransactionRequest transaction)
+    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid baseAssetHolderId, FiatAssetTransactionRequest transaction)
     {
+        var assetHolder = await context.BaseAssetHolders
+            .Include(x => x.AssetWallets)
+            .FirstOrDefaultAsync(x => x.Id == baseAssetHolderId) ?? throw new Exception($"Asset Holder not found");
+
         var aw = assetHolder.AssetWallets.FirstOrDefault(x => x.AssetType == AssetType.BrazilianReal) ?? throw new Exception($"Asset Wallet for Brazilian Real does not exist");
 
         var wi = await context.WalletIdentifiers
             .FirstOrDefaultAsync(x => 
                 x.AssetType == AssetType.BrazilianReal && (
-                    (x.ClientId.HasValue && x.ClientId == transaction.ClientId) ||
-                    (x.MemberId.HasValue && x.MemberId == transaction.MemberId) ||
-                    (x.PokerManagerId.HasValue && x.PokerManagerId == transaction.PokerManagerId) ||
-                    (x.BankId.HasValue && x.BankId == transaction.BankId)
+                    (x.BaseAssetHolderId == transaction.BaseAssetHolderId)
                 )) ?? throw new Exception($"Wallet Identifier for Brazilian Real does not exist");
 
 

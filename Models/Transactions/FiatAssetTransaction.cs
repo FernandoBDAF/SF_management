@@ -1,9 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Globalization;
-using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore;
-using SFManagement.Enums;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFManagement.Models.Transactions;
 

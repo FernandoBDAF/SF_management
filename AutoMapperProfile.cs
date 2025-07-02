@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using SFManagement.Models;
+using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
+using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
@@ -32,17 +34,15 @@ public class AutoMapperProfile : Profile
         CreateMap<PokerManagerRequest, PokerManager>();
 
         CreateMap<AssetWallet, AssetWalletResponse>()
-            .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
-            .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
-            .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
-            .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
+            .ForMember(dest => dest.BaseAssetHolderName,
+                opt =>
+                    opt.MapFrom(src => src.BaseAssetHolder.Name));
         CreateMap<AssetWalletRequest, AssetWallet>();
 
         CreateMap<WalletIdentifier, WalletIdentifierResponse>()
-            .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : null))
-            .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member != null ? src.Member.Name : null))
-            .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank != null ? src.Bank.Name : null))
-            .ForMember(dest => dest.PokerManagerName, opt => opt.MapFrom(src => src.PokerManager != null ? src.PokerManager.Name : null));
+            .ForMember(dest => dest.BaseAssetHolderName,
+                opt =>
+                    opt.MapFrom(src => src.BaseAssetHolder.Name));
         CreateMap<WalletIdentifierRequest, WalletIdentifier>();
 
         CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
@@ -86,8 +86,5 @@ public class AutoMapperProfile : Profile
         // CreateMap<InternalTransactionRequest, InternalTransaction>();
 
         CreateMap<ApplicationUser, UserResponse>();
-
-        CreateMap<AvgRate, AvgRateResponse>();
-        CreateMap<AvgRateRequest, AvgRate>();
     }
 }

@@ -22,20 +22,18 @@ public class PokerManagerController(
     private readonly PokerManagerService _pokerManagerService = service;
     private readonly FiatAssetTransactionService _fiatAssetTransactionService = fiatAssetTransactionService;
 
-    [HttpGet]
-    [Route("wallets/{managerId}")]
-    public async Task<List<AssetWalletResponse>> GetWalletsByManagerId(Guid managerId)
-    {
-        return _mapper.Map<List<AssetWalletResponse>>(await assetWalletService.GetWalletsByManagerId(managerId));
-    }
+    // [HttpGet]
+    // [Route("wallets/{managerId}")]
+    // public async Task<List<AssetWalletResponse>> GetWalletsByManagerId(Guid managerId)
+    // {
+    //     return _mapper.Map<List<AssetWalletResponse>>(await assetWalletService.GetWalletsByManagerId(managerId));
+    // }
     
     [HttpPost]
-    [Route("{pokerManagerId}/send-brazilian-real")]
-    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid pokerManagerId, FiatAssetTransactionRequest request)
+    [Route("{id}/send-brazilian-real")]
+    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid id, FiatAssetTransactionRequest request)
     {
-        var pokerManager = await _pokerManagerService.Get(pokerManagerId) ?? throw new AppException("Poker manager not found");
-        
-        return await _fiatAssetTransactionService.SendBrazilianReais(pokerManager, request);
+        return await _fiatAssetTransactionService.SendBrazilianReais(id, request);
     }
     
     [HttpGet]

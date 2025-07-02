@@ -28,7 +28,7 @@ public class
     [Route("bank-transactions")]
     public async Task<TableResponse<FiatAssetTransactionResponse>> BankTransactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
-        var bankAssetWalletIds = await _bankService.GetBankAssetWalletIds();
+        var bankAssetWalletIds = await _bankService.GetAssetHolderAssetWalletIds();
         
         var response = new TableResponse<FiatAssetTransactionResponse>
         {
@@ -55,7 +55,7 @@ public class
     [Route("direct-transactions")]
     public async Task<TableResponse<FiatAssetTransactionResponse>> DirectTransactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
-        var bankAssetWalletIds = await _bankService.GetBankAssetWalletIds();
+        var bankAssetWalletIds = await _bankService.GetAssetHolderAssetWalletIds();
         
         var response = new TableResponse<FiatAssetTransactionResponse>
         {

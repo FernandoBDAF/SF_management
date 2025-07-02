@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
-using SFManagement.Enums;
 using SFManagement.Models.Entities;
-using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services;

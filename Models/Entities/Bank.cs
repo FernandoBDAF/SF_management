@@ -1,16 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
+using SFManagement.Interfaces;
 using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.Entities;
 
-public class Bank : BaseAssetHolder
+public class Bank : BaseDomain, IAssetHolder<Bank>
 {
+    [Required] public Guid BaseAssetHolderId { get; set; }
+    
     [Required] public int Code { get; set; }
     
-    public virtual ICollection<Ofx> Ofxs { get; set; }
-    
-    // public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
-    //
-    // public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
+    public virtual ICollection<Ofx> Ofxs { get; set; } = new HashSet<Ofx>();
 }

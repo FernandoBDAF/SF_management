@@ -43,22 +43,12 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             .Include(x => x.FinancialBehavior)
                 
             .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.Bank)
+            .ThenInclude(y => y.BaseAssetHolder)
             .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.Client)
-            .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.Member)
-            .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.PokerManager)
 
             .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.Bank)
+            .ThenInclude(y => y.BaseAssetHolder)
             .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.Client)
-            .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.Member)
-            .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.PokerManager)
             .ToListAsync()));
         
         return allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToArray();
@@ -91,22 +81,12 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         var allTransactions = new List<TEntity>();
         allTransactions.AddRange((await bankTransactionsQuery
             .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.Bank)
+            .ThenInclude(y => y.BaseAssetHolder)
             .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.Client)
-            .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.Member)
-            .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.PokerManager)
 
             .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.Bank)
+            .ThenInclude(y => y.BaseAssetHolder)
             .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.Client)
-            .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.Member)
-            .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.PokerManager)
             .ToListAsync()));
             // .Select(_mapper.Map<FiatAssetTransactionResponse>));
         

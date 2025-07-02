@@ -13,19 +13,23 @@
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/AddressController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AddressController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/AssetWalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/AssetWalletController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/ContactPhoneController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ContactPhoneController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/FiatAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/Address.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Support/Address.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/AssetWallet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/AssetWallet.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/AvgRate.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Support/AvgRate.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/ContactPhone.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Support/ContactPhone.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/InitialBalance.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Support/InitialBalance.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/SettlementTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/SettlementTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/AssetWalletService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AssetWalletService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ClientService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClientService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/FinancialBehaviorController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/FinancialBehaviorController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/InitialBalanceController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/InitialBalanceController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/MemberController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/MemberController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/ContactPhoneService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ContactPhoneService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/FinancialBehaviorService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FinancialBehaviorService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/InitialBalanceService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/InitialBalanceService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/PokerManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/PokerManagerService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionRequest.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,49 +127,4 @@
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="false" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs</url>
-          <line>51</line>
-          <properties documentPath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" containingFunctionPresentation="Method 'Transactions'">
-            <startOffsets>
-              <option value="1788" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1869" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="20" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs</url>
-          <line>46</line>
-          <properties documentPath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" containingFunctionPresentation="Method 'Transactions'">
-            <startOffsets>
-              <option value="1550" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1715" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="21" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs</url>
-          <line>35</line>
-          <properties documentPath="$PROJECT_DIR$/Controllers/v1/DigitalAssetTransactionController.cs" containingFunctionPresentation="Method 'Transactions'">
-            <startOffsets>
-              <option value="1299" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1430" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
 </project>
