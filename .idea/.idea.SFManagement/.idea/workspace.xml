@@ -12,19 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250618013038_Initial.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250618013038_Initial.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250701163100_rename tags.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250701163100_rename tags.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250701205207_adjusts tag rename.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250701205207_adjusts tag rename.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250701214257_make WI optional in transactions.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250701214257_make WI optional in transactions.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Support/Referral.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Support/Referral.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ClientService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClientService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/BankService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BankService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

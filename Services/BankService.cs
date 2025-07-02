@@ -1,26 +1,40 @@
-﻿using SFManagement.Data;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using SFManagement.Data;
 using SFManagement.Models.Entities;
+using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class BankService(DataContext context, IHttpContextAccessor httpContextAccessor) : BaseAssetHolderService<Bank>(context,
-    httpContextAccessor)
+public class BankService : BaseAssetHolderService<Bank>
 {
-    
-    // public override async Task<Bank> Update(Guid id, Bank obj)
-    // {
-    //     var existing = await context.Banks.FirstOrDefaultAsync(x => x.Id == id);
 
-    //     if (existing == null) throw new AppException("Not found bank");
+    public BankService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
+        httpContextAccessor)
+    {
+    }
 
-    //     // existing.InitialValue = obj.InitialValue;
-    //     existing.Code = obj.Code;
-    //     existing.Name = obj.Name;
+    // Method to handle BankRequest and create both BaseAssetHolder and Bank
+    public async Task<Bank> AddFromRequest(BankRequest request)
+    {
+        // Create BaseAssetHolder using helper method
+        var baseAssetHolder = await CreateBaseAssetHolder(
+            request.Name
+        );
 
-    //     context.Banks.Update(existing);
+        // Create Bank using the BaseAssetHolder's ID
+        var bank = new Bank
+        {
+            BaseAssetHolderId = baseAssetHolder.Id,
+            Code = int.TryParse(request.Code, out int code) ? code : 0
+        };
 
-    //     await context.SaveChangesAsync();
+        // Use base service to add Bank (handles audit automatically)
+        var result = await base.Add(bank);
 
-    //     return obj;
-    // }
+        // Return the bank with BaseAssetHolder included
+        return await context.Banks
+            .Include(b => b.BaseAssetHolder)
+            .FirstOrDefaultAsync(b => b.Id == result.Id);
+    }
 }

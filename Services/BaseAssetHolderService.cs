@@ -11,7 +11,7 @@ using SFManagement.Models.AssetInfrastructure;
 namespace SFManagement.Services;
 
 public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor) 
-    : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain, IAssetHolder<TEntity>
+    : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain
 {
     public async Task<Guid[]> GetAssetHolderAssetWalletIds()
     {
@@ -473,5 +473,23 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .ToListAsync();
             
         return assetHolders;
+    }
+
+    // Helper method to create BaseAssetHolder using base service pattern
+    protected async Task<BaseAssetHolder> CreateBaseAssetHolder(string name, string email = null, string cpf = null, string cnpj = null)
+    {
+        var baseAssetHolder = new BaseAssetHolder
+        {
+            Name = name,
+            Email = email,
+            Cpf = cpf,
+            Cnpj = cnpj
+        };
+
+        // Use the base service pattern for consistency
+        await context.BaseAssetHolders.AddAsync(baseAssetHolder);
+        await context.SaveChangesAsync();
+        
+        return baseAssetHolder;
     }
 }

@@ -10,9 +10,24 @@ namespace SFManagement.Controllers.v1;
 [ApiController]
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class BankController(BaseService<Bank> service, IMapper mapper, BankService bankService) : BaseApiController<Bank, BankRequest, BankResponse>(service, mapper)
+public class BankController : BaseApiController<Bank, BankRequest, BankResponse>
 {
-    private readonly BankService _bankService = bankService;
+    private readonly BankService _bankService;
+    private readonly IMapper _mapper;
+
+    public BankController(BankService service, IMapper mapper) : base(service, mapper)
+    {
+        _bankService = service;
+        _mapper = mapper;
+    }
+
+    [HttpPost]
+    [Route("")]
+    public virtual async Task<BankResponse> Post(BankRequest request)
+    {
+        var bank = await _bankService.AddFromRequest(request);
+        return _mapper.Map<BankResponse>(bank);
+    }
 
     [HttpGet]
     [Route("{id}/balance")]

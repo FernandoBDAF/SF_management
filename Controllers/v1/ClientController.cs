@@ -16,15 +16,22 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
 {
     private readonly ClientService _clientService;
     private readonly FiatAssetTransactionService _fiatAssetTransactionService;
-
     private readonly IMapper _mapper;
 
     public ClientController(ClientService service, FiatAssetTransactionService fiatAssetTransactionService, 
-        IMapper mapper, ClientService clientService) : base(service, mapper)
+        IMapper mapper) : base(service, mapper)
     {
         _fiatAssetTransactionService = fiatAssetTransactionService;
-        _clientService = clientService;
+        _clientService = service;
         _mapper = mapper;
+    }
+
+    [HttpPost]
+    [Route("")]
+    public virtual async Task<ClientResponse> Post(ClientRequest request)
+    {
+        var client = await _clientService.AddFromRequest(request);
+        return _mapper.Map<ClientResponse>(client);
     }
     
     [HttpGet]

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using SFManagement.Models;
 using SFManagement.Services;
 using SFManagement.ViewModels;
-using SFManagement.Models.Entities;
 
 namespace SFManagement.Controllers;
 

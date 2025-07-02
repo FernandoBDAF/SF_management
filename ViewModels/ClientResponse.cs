@@ -13,5 +13,4 @@ public class ClientResponse : BaseAssetHolderResponse
     public InitialBalanceResponse[]? InitialBalances { get; set; }
     
     public ContactPhoneResponse[]? ContactPhones { get; set; }
-    
 }

@@ -7,6 +7,8 @@ public class Member : BaseDomain, IAssetHolder<Member>
 {
     [Required] public Guid BaseAssetHolderId { get; set; }
     
+    public virtual BaseAssetHolder BaseAssetHolder { get; set; }
+    
     public double Share { get; set; }
     
     public DateTime? Birthday { get; set; }

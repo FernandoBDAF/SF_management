@@ -11,23 +11,30 @@ namespace SFManagement.Controllers.v1;
 [ApiController]
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class PokerManagerController(
-    PokerManagerService service,
-    FiatAssetTransactionService fiatAssetTransactionService,
-    IMapper mapper,
-    AssetWalletService assetWalletService)
-    : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>(service, mapper)
+public class PokerManagerController : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>
 {
-    private readonly IMapper _mapper = mapper;
-    private readonly PokerManagerService _pokerManagerService = service;
-    private readonly FiatAssetTransactionService _fiatAssetTransactionService = fiatAssetTransactionService;
+    private readonly IMapper _mapper;
+    private readonly PokerManagerService _pokerManagerService;
+    private readonly FiatAssetTransactionService _fiatAssetTransactionService;
 
-    // [HttpGet]
-    // [Route("wallets/{managerId}")]
-    // public async Task<List<AssetWalletResponse>> GetWalletsByManagerId(Guid managerId)
-    // {
-    //     return _mapper.Map<List<AssetWalletResponse>>(await assetWalletService.GetWalletsByManagerId(managerId));
-    // }
+    public PokerManagerController(
+        PokerManagerService service,
+        FiatAssetTransactionService fiatAssetTransactionService,
+        IMapper mapper)
+        : base(service, mapper)
+    {
+        _mapper = mapper;
+        _pokerManagerService = service;
+        _fiatAssetTransactionService = fiatAssetTransactionService;
+    }
+
+    [HttpPost]
+    [Route("")]
+    public virtual async Task<PokerManagerResponse> Post(PokerManagerRequest request)
+    {
+        var pokerManager = await _pokerManagerService.AddFromRequest(request);
+        return _mapper.Map<PokerManagerResponse>(pokerManager);
+    }
     
     [HttpPost]
     [Route("{id}/send-brazilian-real")]
@@ -51,7 +58,6 @@ public class PokerManagerController(
     {
         return await _pokerManagerService.GetAssetHolderWithTransactionsAsStatement(id);
     }
-
 
     // [HttpGet]
     // [Route("profit/{managerId}")]

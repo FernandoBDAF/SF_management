@@ -1,4 +1,6 @@
-﻿namespace SFManagement.ViewModels;
+﻿using SFManagement.Models.Transactions;
+
+namespace SFManagement.ViewModels;
 
 public class OfxResponse : BaseResponse
 {
