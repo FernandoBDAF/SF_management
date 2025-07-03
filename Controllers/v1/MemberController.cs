@@ -26,7 +26,7 @@ public class MemberController : BaseApiController<Member, MemberRequest, MemberR
 
     [HttpPost]
     [Route("")]
-    public virtual async Task<MemberResponse> Post(MemberRequest request)
+    public override async Task<MemberResponse> Post(MemberRequest request)
     {
         var member = await _memberService.AddFromRequest(request);
         return _mapper.Map<MemberResponse>(member);

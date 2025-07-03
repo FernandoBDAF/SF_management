@@ -12,8 +12,8 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250702203159_Initial")]
-    partial class Initial
+    [Migration("20250702233252_name size")]
+    partial class namesize
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -378,8 +378,8 @@ namespace SFManagement.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1145,38 +1145,46 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Entities.Bank", b =>
                 {
-                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
                         .WithOne("Bank")
                         .HasForeignKey("SFManagement.Models.Entities.Bank", "BaseAssetHolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BaseAssetHolder");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.Client", b =>
                 {
-                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
                         .WithOne("Client")
                         .HasForeignKey("SFManagement.Models.Entities.Client", "BaseAssetHolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BaseAssetHolder");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.Member", b =>
                 {
-                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
                         .WithOne("Member")
                         .HasForeignKey("SFManagement.Models.Entities.Member", "BaseAssetHolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BaseAssetHolder");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.PokerManager", b =>
                 {
-                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
                         .WithOne("PokerManager")
                         .HasForeignKey("SFManagement.Models.Entities.PokerManager", "BaseAssetHolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BaseAssetHolder");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Support.Address", b =>

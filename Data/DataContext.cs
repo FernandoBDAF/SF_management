@@ -46,25 +46,25 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
 
         // Configure the one-to-one relationships between BaseAssetHolder and specific entities
         modelBuilder.Entity<Client>()
-            .HasOne<BaseAssetHolder>()
+            .HasOne(c => c.BaseAssetHolder)
             .WithOne(bah => bah.Client)
             .HasForeignKey<Client>(c => c.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Bank>()
-            .HasOne<BaseAssetHolder>()
+            .HasOne(b => b.BaseAssetHolder)
             .WithOne(bah => bah.Bank)
             .HasForeignKey<Bank>(b => b.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Member>()
-            .HasOne<BaseAssetHolder>()
+            .HasOne(m => m.BaseAssetHolder)
             .WithOne(bah => bah.Member)
             .HasForeignKey<Member>(m => m.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<PokerManager>()
-            .HasOne<BaseAssetHolder>()
+            .HasOne(pm => pm.BaseAssetHolder)
             .WithOne(bah => bah.PokerManager)
             .HasForeignKey<PokerManager>(pm => pm.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Cascade);

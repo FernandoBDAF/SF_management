@@ -26,6 +26,8 @@ public class WalletIdentifierResponse : BaseResponse
 
     public decimal? DefaultParentCommission { get; set; }
     
+    public Guid BaseAssetHolderId { get; set; }
+    
     public string? BaseAssetHolderName { get; set; }
     
     public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }

@@ -4,13 +4,7 @@ namespace SFManagement.ViewModels;
 
 public class AddressRequest
 {
-    public Guid? BankId { get; set; }
-    
-    public Guid? ClientId { get; set; }
-    
-    public Guid? MemberId { get; set; }
-    
-    public Guid? PokerManagerId { get; set; }
+    public Guid? BaseAssetHolderId { get; set; }
     
     public string? Postcode { get; set; }
     

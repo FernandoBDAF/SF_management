@@ -30,7 +30,8 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
 
             if ((walletIdentifierId == Guid.Empty && !model.FinancialBehaviorId.HasValue) || assetWalletId == Guid.Empty)
             {
-                throw new ArgumentException("To create a transaction is needed an AssetWallet + an Wallet identifiers or an FinancialBehaviourId");
+                throw new ArgumentException($"To create a transaction is needed an AssetWallet (recieved: {model.BankId} got: {assetWalletId}) " +
+                                            $"+ an Wallet identifiers (recieved: {model.ClientId} got: {walletIdentifierId}) or an FinancialBehaviourId");
             }
 
             model.WalletIdentifierId = walletIdentifierId == Guid.Empty ? null : walletIdentifierId;

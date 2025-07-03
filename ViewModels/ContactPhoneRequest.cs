@@ -10,11 +10,5 @@ public class ContactPhoneRequest
     
     public string? SearchFor { get; set; }
     
-    public Guid? ClientId { get; set; }
-    
-    public Guid? MemberId { get; set; }
-    
-    public Guid? BankId { get; set; }
-    
-    public Guid? PokerManagerId { get; set; }
+    public Guid? BaseAssetHolderId { get; set; }
 }

@@ -36,9 +36,9 @@ public class WalletIdentifier : BaseDomain
     
     public virtual Referral? Referral { get; set; }
     
-    public virtual ICollection<FiatAssetTransaction> FiatAssetTransactions { get; set; }
+    public virtual ICollection<FiatAssetTransaction> FiatAssetTransactions { get; set; } = new HashSet<FiatAssetTransaction>();
     
-    public virtual ICollection<DigitalAssetTransaction> DigitalAssetTransactions { get; set; }
+    public virtual ICollection<DigitalAssetTransaction> DigitalAssetTransactions { get; set; } = new HashSet<DigitalAssetTransaction>();
     
-    public virtual ICollection<SettlementTransaction> SettlementTransactions { get; set; }
+    public virtual ICollection<SettlementTransaction> SettlementTransactions { get; set; } = new HashSet<SettlementTransaction>();
 }

@@ -8,9 +8,12 @@ namespace SFManagement.Services;
 
 public class MemberService : BaseAssetHolderService<Member>
 {
+    private readonly IHttpContextAccessor httpContextAccessor;
+
     public MemberService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     // Method to handle MemberRequest and create both BaseAssetHolder and Member

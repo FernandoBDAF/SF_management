@@ -8,10 +8,11 @@ namespace SFManagement.Services;
 
 public class BankService : BaseAssetHolderService<Bank>
 {
-
+    private readonly IHttpContextAccessor httpContextAccessor;
     public BankService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     // Method to handle BankRequest and create both BaseAssetHolder and Bank

@@ -8,9 +8,11 @@ namespace SFManagement.Services;
 
 public class ClientService : BaseAssetHolderService<Client>
 {
+    private readonly IHttpContextAccessor httpContextAccessor;
     public ClientService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     // Method to handle ClientRequest and create both BaseAssetHolder and Client

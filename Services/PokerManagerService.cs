@@ -8,9 +8,12 @@ namespace SFManagement.Services;
 
 public class PokerManagerService : BaseAssetHolderService<PokerManager>
 {
+    private readonly IHttpContextAccessor httpContextAccessor;
+
     public PokerManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     // Method to handle PokerManagerRequest and create both BaseAssetHolder and PokerManager

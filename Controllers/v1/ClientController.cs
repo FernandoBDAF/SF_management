@@ -28,7 +28,7 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
 
     [HttpPost]
     [Route("")]
-    public virtual async Task<ClientResponse> Post(ClientRequest request)
+    public override async Task<ClientResponse> Post(ClientRequest request)
     {
         var client = await _clientService.AddFromRequest(request);
         return _mapper.Map<ClientResponse>(client);
@@ -37,15 +37,15 @@ public class ClientController : BaseApiController<Client, ClientRequest, ClientR
     [HttpGet]
     [Route("wallet-identifier-has")]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    public async Task<List<ClientResponse>> GetFiltered([FromQuery] AssetType? assetType)
+    public async Task<List<BaseAssetHolderResponse>> GetFiltered([FromQuery] AssetType? assetType)
     {
-        if (assetType.HasValue)
+        if (!assetType.HasValue)
         {
-             var clients = await _clientService.GetFilteredByWalletIdentifierType(assetType.Value);
-             return _mapper.Map<List<ClientResponse>>(clients);
+            throw new ArgumentException("Asset Type must be specified", nameof(assetType));
         }
-
-        return await base.Get();
+        
+        var clients = await _clientService.GetFilteredByWalletIdentifierType(assetType.Value);
+        return _mapper.Map<List<BaseAssetHolderResponse>>(clients);
     }
 
     // [HttpPut]

@@ -7,7 +7,7 @@ namespace SFManagement.Models.Entities;
 
 public class BaseAssetHolder : BaseDomain, IAssetHolder<BaseAssetHolder>
 {
-    [Required] [MaxLength(20)] public string Name { get; set; }
+    [Required] [MaxLength(40)] public string Name { get; set; }
 
     [MaxLength(40)] public string? Email { get; set; }
     

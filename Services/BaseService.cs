@@ -70,7 +70,7 @@ public class BaseService<TEntity> where TEntity : BaseDomain
 
         entity.UpdatedAt = DateTime.Now;
 
-        // Copy properties from obj to entity
+        // Copy properLissMfdifiebByto entity
         foreach (var property in typeof(TEntity).GetProperties())
         {
             if (property.Name != "Id" && property.Name != "CreatedAt" && property.Name != "LastModifiedBy")
@@ -81,9 +81,8 @@ public class BaseService<TEntity> where TEntity : BaseDomain
                     // Skip empty GUIDs
                     if (property.PropertyType == typeof(Guid) && (Guid)value == Guid.Empty)
                         continue;
-                    if (property.PropertyType == typeof(Guid?) && ((Guid?)value) == Guid.Empty)
+                    if (property.PropertyType == typeof(Guid) && (Guid)value == Guid.Empty)
                         continue;
-                        
                     property.SetValue(entity, value);
                 }
             }

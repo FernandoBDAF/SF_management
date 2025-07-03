@@ -8,7 +8,7 @@ public class ContactPhone : BaseDomain
     
     public int? LocalCode { get; set; }
     
-    [Required] [MaxLength(20)] public string PhoneNumber { get; set; }
+    [Required] [MaxLength(20)] public string PhoneNumber { get; set; } = string.Empty;
     
     [MaxLength(30)] public string? SearchFor { get; set; }
     

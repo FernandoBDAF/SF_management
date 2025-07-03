@@ -12,7 +12,7 @@ public class Address : BaseDomain
     
     [MaxLength(20)] public string? Country { get; set; }
     
-    [Required] [MaxLength(10)] public string Postcode { get; set; }
+    [Required] [MaxLength(10)] public string Postcode { get; set; } = string.Empty;
 
     [MaxLength(30)] public string? Complement { get; set; }
     

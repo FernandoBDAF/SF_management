@@ -8,7 +8,7 @@ public class Bank : BaseDomain, IAssetHolder<Bank>
 {
     [Required] public Guid BaseAssetHolderId { get; set; }
     
-    public virtual BaseAssetHolder BaseAssetHolder { get; set; }
+    public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
     [Required] public int Code { get; set; }
     

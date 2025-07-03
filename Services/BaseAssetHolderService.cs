@@ -13,6 +13,94 @@ namespace SFManagement.Services;
 public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor) 
     : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain
 {
+    public override async Task<List<TEntity>> List()
+    {
+        var query = _entity.AsQueryable();
+        
+        // Include BaseAssetHolder for all specific asset holder entities
+        if (typeof(TEntity) == typeof(Bank))
+        {
+            query = ((IQueryable<Bank>)query).Include(b => b.BaseAssetHolder).Cast<TEntity>();
+        }
+        else if (typeof(TEntity) == typeof(Client))
+        {
+            query = ((IQueryable<Client>)query).Include(c => c.BaseAssetHolder).Cast<TEntity>();
+        }
+        else if (typeof(TEntity) == typeof(Member))
+        {
+            query = ((IQueryable<Member>)query).Include(m => m.BaseAssetHolder).Cast<TEntity>();
+        }
+        else if (typeof(TEntity) == typeof(PokerManager))
+        {
+            query = ((IQueryable<PokerManager>)query).Include(pm => pm.BaseAssetHolder).Cast<TEntity>();
+        }
+        
+        return await query.Where(x => !x.DeletedAt.HasValue).OrderByDescending(x => x.CreatedAt).ToListAsync();
+    }
+
+    public override async Task<TEntity?> Get(Guid id)
+    {
+        // Get the BaseAssetHolder first since the ID is always from BaseAssetHolder
+        var baseAssetHolder = await context.BaseAssetHolders
+            .Include(c => c.AssetWallets)
+            .Include(c => c.WalletIdentifiers)
+            .Include(c => c.Address)
+            .Include(c => c.ContactPhones)
+            .Include(c => c.InitialBalances)
+            .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
+        
+        if (baseAssetHolder == null)
+            return null;
+        
+        if (typeof(TEntity) == typeof(Bank))
+        {
+            var bank = await context.Banks
+                .FirstOrDefaultAsync(x => x.BaseAssetHolderId == id && !x.DeletedAt.HasValue);
+            if (bank != null)
+            {
+                bank.BaseAssetHolder = baseAssetHolder;
+                return bank as TEntity;
+            }
+        }
+        else if (typeof(TEntity) == typeof(Client))
+        {
+            var client = await context.Clients
+                .FirstOrDefaultAsync(x => x.BaseAssetHolderId == id && !x.DeletedAt.HasValue);
+            if (client != null)
+            {
+                client.BaseAssetHolder = baseAssetHolder;
+                return client as TEntity;
+            }
+        }
+        else if (typeof(TEntity) == typeof(Member))
+        {
+            var member = await context.Members
+                .FirstOrDefaultAsync(x => x.BaseAssetHolderId == id && !x.DeletedAt.HasValue);
+            if (member != null)
+            {
+                member.BaseAssetHolder = baseAssetHolder;
+                return member as TEntity;
+            }
+        }
+        else if (typeof(TEntity) == typeof(PokerManager))
+        {
+            var pokerManager = await context.PokerManagers
+                .FirstOrDefaultAsync(x => x.BaseAssetHolderId == id && !x.DeletedAt.HasValue);
+            if (pokerManager != null)
+            {
+                pokerManager.BaseAssetHolder = baseAssetHolder;
+                return pokerManager as TEntity;
+            }
+        }
+        else if (typeof(TEntity) == typeof(BaseAssetHolder))
+        {
+            return baseAssetHolder as TEntity;
+        }
+        
+        // Fallback to base implementation for other entity types
+        return await base.Get(id);
+    }
+
     public async Task<Guid[]> GetAssetHolderAssetWalletIds()
     {
         var assetHolderType = GetAssetHolderTypeForEntity<TEntity>();
@@ -29,9 +117,33 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     {
         var assetHolderType = GetAssetHolderTypeForEntity<TEntity>();
         
-        var baseAssetHolders = await context.BaseAssetHolders
-            .Where(c => c.AssetHolderType == assetHolderType && 
-                       c.WalletIdentifiers.Any(wi => wi.AssetType == assetType && !wi.DeletedAt.HasValue))
+        // Build query based on the specific entity type to avoid using computed property
+        IQueryable<BaseAssetHolder> query = context.BaseAssetHolders;
+        
+        if (typeof(TEntity) == typeof(Client))
+        {
+            query = query.Include(bah => bah.Client)
+                .Where(bah => bah.Client != null);
+        }
+        else if (typeof(TEntity) == typeof(Bank))
+        {
+            query = query.Include(bah => bah.Bank)
+                .Where(bah => bah.Bank != null);
+        }
+        else if (typeof(TEntity) == typeof(Member))
+        {
+            query = query.Include(bah => bah.Member)
+                .Where(bah => bah.Member != null);
+        }
+        else if (typeof(TEntity) == typeof(PokerManager))
+        {
+            query = query.Include(bah => bah.PokerManager)
+                .Where(bah => bah.PokerManager != null);
+        }
+        
+        var baseAssetHolders = await query
+            .Include(bah => bah.WalletIdentifiers)
+            .Where(bah => bah.WalletIdentifiers.Any(wi => wi.AssetType == assetType && !wi.DeletedAt.HasValue))
             .ToListAsync();
 
         return baseAssetHolders;

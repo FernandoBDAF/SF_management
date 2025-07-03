@@ -30,7 +30,7 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
 
     [HttpPost]
     [Route("")]
-    public virtual async Task<PokerManagerResponse> Post(PokerManagerRequest request)
+    public override async Task<PokerManagerResponse> Post(PokerManagerRequest request)
     {
         var pokerManager = await _pokerManagerService.AddFromRequest(request);
         return _mapper.Map<PokerManagerResponse>(pokerManager);

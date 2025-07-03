@@ -7,7 +7,7 @@ public class Client : BaseDomain, IAssetHolder<Client>
 {
     [Required] public Guid BaseAssetHolderId { get; set; }
     
-    public virtual BaseAssetHolder BaseAssetHolder { get; set; }
+    public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
     public DateTime? Birthday { get; set; }
 }

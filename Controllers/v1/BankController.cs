@@ -23,7 +23,7 @@ public class BankController : BaseApiController<Bank, BankRequest, BankResponse>
 
     [HttpPost]
     [Route("")]
-    public virtual async Task<BankResponse> Post(BankRequest request)
+    public override async Task<BankResponse> Post(BankRequest request)
     {
         var bank = await _bankService.AddFromRequest(request);
         return _mapper.Map<BankResponse>(bank);

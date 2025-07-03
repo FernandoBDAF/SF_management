@@ -83,15 +83,21 @@ public class AutoMapperProfile : Profile
     {
         // Bank mappings
         CreateMap<Bank, BankResponse>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address))
-            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code.ToString()));
-            
+            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code.ToString()))
+            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.BaseAssetHolder.WalletIdentifiers))
+            .ForMember(dest => dest.AssetWallets, opt => opt.MapFrom(src => src.BaseAssetHolder.AssetWallets))
+            .ForMember(dest => dest.InitialBalances, opt => opt.MapFrom(src => src.BaseAssetHolder.InitialBalances))
+            .ForMember(dest => dest.ContactPhones, opt => opt.MapFrom(src => src.BaseAssetHolder.ContactPhones));
+
         // Client mappings
         CreateMap<Client, ClientResponse>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
@@ -104,6 +110,7 @@ public class AutoMapperProfile : Profile
             
         // Member mappings
         CreateMap<Member, MemberResponse>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
@@ -116,6 +123,7 @@ public class AutoMapperProfile : Profile
             
         // PokerManager mappings
         CreateMap<PokerManager, PokerManagerResponse>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
@@ -125,5 +133,17 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.AssetWallets, opt => opt.MapFrom(src => src.BaseAssetHolder.AssetWallets))
             .ForMember(dest => dest.InitialBalances, opt => opt.MapFrom(src => src.BaseAssetHolder.InitialBalances))
             .ForMember(dest => dest.ContactPhones, opt => opt.MapFrom(src => src.BaseAssetHolder.ContactPhones));
+        
+        CreateMap<BaseAssetHolder, BaseAssetHolderResponse>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.Cpf))
+            .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.Cnpj))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.WalletIdentifiers))
+            .ForMember(dest => dest.AssetWallets, opt => opt.MapFrom(src => src.AssetWallets))
+            .ForMember(dest => dest.InitialBalances, opt => opt.MapFrom(src => src.InitialBalances))
+            .ForMember(dest => dest.ContactPhones, opt => opt.MapFrom(src => src.ContactPhones));
     }
 }
