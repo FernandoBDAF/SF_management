@@ -38,6 +38,13 @@ public class AssetWalletService(DataContext context, IHttpContextAccessor httpCo
     //     return null;
     // }
 
+    public async Task<List<AssetWallet>> GetAssetWallets(Guid assetHolderId)
+    {
+        return await context.AssetWallets
+            .Where(x => x.BaseAssetHolderId == assetHolderId && !x.DeletedAt.HasValue)
+            .ToListAsync();
+    }
+
     public override async Task<AssetWallet?> Get(Guid id)
     {
         var query = context.AssetWallets

@@ -16,7 +16,8 @@ public class WalletIdentifierController(
     : BaseApiController<WalletIdentifier, WalletIdentifierRequest, WalletIdentifierResponse>(service, mapper)
 {
     private readonly IMapper _mapper = mapper;
-
+    
+    // all WI connected to a  
     // [HttpGet]
     // [Route("nickname-client/{clientId}")]
     // public async Task<List<WalletIdentifierResponse>> GetNicknames(Guid clientId)

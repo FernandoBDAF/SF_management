@@ -34,6 +34,7 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
     
     public DbSet<FiatAssetTransaction> FiatAssetTransactions { get; set; }
     public DbSet<DigitalAssetTransaction> DigitalAssetTransactions { get; set; }
+    public DbSet<SettlementTransaction> SettlementTransactions { get; set; }
     
     public DbSet<Ofx> Ofxs { get; set; }
     public DbSet<OfxTransaction> OfxTransactions { get; set; }

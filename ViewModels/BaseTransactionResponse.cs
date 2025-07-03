@@ -5,7 +5,7 @@ namespace SFManagement.ViewModels;
 
 public class BaseTransactionResponse : BaseResponse
 {
-    public DateTime? Date { get; set; }
+    public DateTime Date { get; set; }
     
     public virtual WalletIdentifierResponse? WalletIdentifier { get; set; }
     

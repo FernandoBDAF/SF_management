@@ -76,6 +76,9 @@ public class AutoMapperProfile : Profile
         CreateMap<FinancialBehavior, FinancialBehaviorResponse>();
         CreateMap<FinancialBehaviorRequest, FinancialBehavior>();
 
+        CreateMap<SettlementTransaction, SettlementTransactionResponse>();
+        CreateMap<SettlementTransactionRequest, SettlementTransaction>();
+
         CreateMap<ApplicationUser, UserResponse>();
     }
     
