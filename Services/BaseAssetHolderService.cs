@@ -170,14 +170,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
 
     public async Task<Dictionary<AssetType, decimal>> GetBalancesByAssetType(Guid baseAssetHolderId)
     {
-        var assetHolder = await context.BaseAssetHolders
-            .Include(bah => bah.AssetWallets)
-            .Include(bah => bah.WalletIdentifiers)
-            .FirstOrDefaultAsync(bah => bah.Id == baseAssetHolderId);
-            
-        if (assetHolder == null)
-            throw new Exception("BaseAssetHolder not found");
-            
+        var assetHolder = await GetAssetHolderWithTransactions(baseAssetHolderId);
         var balances = new Dictionary<AssetType, decimal>();
 
         foreach (var aw in assetHolder.AssetWallets)
@@ -190,7 +183,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 }
                 var assetType = aw.AssetType;
                 var value = tx.TransactionDirection == TransactionDirection.Income ?
-                    (tx.AssetAmount) : -(tx.AssetAmount);
+                    tx.AssetAmount : -tx.AssetAmount;
                 if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
                 balances[assetType] += value;
             }
@@ -203,7 +196,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 }
                 var assetType = aw.AssetType;
                 var value = tx.TransactionDirection == TransactionDirection.Income ?
-                    (tx.AssetAmount) : -(tx.AssetAmount);
+                    tx.AssetAmount : -tx.AssetAmount;
                 if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
                 balances[assetType] += value;
             }
@@ -230,7 +223,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 {
                     var assetType = wi.AssetType;
                     var value = tx.TransactionDirection == TransactionDirection.Income ?
-                        -(tx.AssetAmount) : (tx.AssetAmount);
+                        -tx.AssetAmount : tx.AssetAmount;
                     if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
                     balances[assetType] += value;
                 }
@@ -245,7 +238,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 
                 var assetType = wi.AssetType;
                 var value = tx.TransactionDirection == TransactionDirection.Income ?
-                    -(tx.AssetAmount) : (tx.AssetAmount);
+                    -tx.AssetAmount : tx.AssetAmount;
                 if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
                 balances[assetType] += value;
             }
