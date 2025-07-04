@@ -78,6 +78,7 @@ public class AutoMapperProfile : Profile
 
         CreateMap<SettlementTransaction, SettlementTransactionResponse>();
         CreateMap<SettlementTransactionRequest, SettlementTransaction>();
+        CreateMap<SettlementTransaction, SettlementTransactionSimplifiedResponse>();
 
         CreateMap<ApplicationUser, UserResponse>();
     }

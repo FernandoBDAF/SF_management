@@ -17,4 +17,6 @@ public class BaseTransactionRequest
     public TransactionDirection? TransactionDirection { get; set; }
     
     public Guid? FinancialBehaviorId { get; set; }
+    
+    public AssetType? AssetType { get; set; }
 }
