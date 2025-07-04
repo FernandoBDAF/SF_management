@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SFManagement.Authorization;
 using SFManagement.Enums;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
@@ -63,6 +64,7 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
 
     
     [HttpGet]
+    [RequirePermission("read:wallet-identifiers")]
     [Route("{id}/wallet-identifiers-connected")]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     public async Task<WalletIdentifiersConnectedResponse> GetWalletIdentifiersFromOthers(Guid id)
@@ -118,7 +120,9 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
         return response;
     }
     
+
     [HttpPost]
+    [RequireRole("admin")]
     [Route("{assetHolderId}/settlement-by-date")]
     public async Task<SettlementTransactionByDateResponse> CreateSettlementTransactionsByDate(
         Guid assetHolderId, 

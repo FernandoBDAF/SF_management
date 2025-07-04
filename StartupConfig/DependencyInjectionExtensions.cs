@@ -11,6 +11,7 @@ using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.Settings;
+using SFManagement.Authorization;
 
 namespace SFManagement.StartupConfig;
 
@@ -29,7 +30,7 @@ public static class DependencyInjectionExtensions
         var securityScheme = new OpenApiSecurityScheme
         {
             Name = "Authorization",
-            Description = "JWT Authorization header info using bearer tokens",
+            Description = "Auth0 JWT Authorization header info using bearer tokens",
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.Http,
             Scheme = "bearer",
@@ -87,14 +88,44 @@ public static class DependencyInjectionExtensions
 
     public static void AddAuthServices(this WebApplicationBuilder builder)
     {
+        // Configure Auth0 settings
+        builder.Services.Configure<Auth0Settings>(builder.Configuration.GetSection("Auth0"));
+
+        // Add Auth0 user service
+        builder.Services.AddScoped<IAuth0UserService, Auth0UserService>();
+
+        // Configure authorization policies
         builder.Services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
-                .Build());
+                .Build())
+            .AddPolicy("Role:admin", policy => policy.Requirements.Add(new RoleRequirement(Auth0Roles.Admin)))
+            .AddPolicy("Role:manager", policy => policy.Requirements.Add(new RoleRequirement(Auth0Roles.Manager)))
+            .AddPolicy("Role:user", policy => policy.Requirements.Add(new RoleRequirement(Auth0Roles.User)))
+            .AddPolicy("Role:viewer", policy => policy.Requirements.Add(new RoleRequirement(Auth0Roles.Viewer)))
+            .AddPolicy("Permission:read:users", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadUsers)))
+            .AddPolicy("Permission:create:users", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateUsers)))
+            .AddPolicy("Permission:update:users", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateUsers)))
+            .AddPolicy("Permission:delete:users", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteUsers)))
+            .AddPolicy("Permission:read:clients", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadClients)))
+            .AddPolicy("Permission:create:clients", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateClients)))
+            .AddPolicy("Permission:update:clients", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateClients)))
+            .AddPolicy("Permission:delete:clients", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteClients)))
+            .AddPolicy("Permission:read:transactions", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadTransactions)))
+            .AddPolicy("Permission:create:transactions", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateTransactions)))
+            .AddPolicy("Permission:update:transactions", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateTransactions)))
+            .AddPolicy("Permission:delete:transactions", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteTransactions)))
+            .AddPolicy("Permission:read:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadFinancialData)))
+            .AddPolicy("Permission:create:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateFinancialData)))
+            .AddPolicy("Permission:update:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateFinancialData)))
+            .AddPolicy("Permission:delete:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteFinancialData)));
 
-        builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+        // Add authorization handlers
+        builder.Services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
+        // Configure JWT Bearer authentication for Auth0
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -102,21 +133,10 @@ public static class DependencyInjectionExtensions
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(o =>
         {
+            o.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
+            o.Audience = builder.Configuration["Auth0:Audience"];
             o.RequireHttpsMetadata = false;
             o.SaveToken = true;
-            o.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero,
-                ValidIssuer = builder.Configuration["JWT:Issuer"],
-                ValidAudience = builder.Configuration["JWT:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    builder.Configuration["JWT:Key"]
-                ))
-            };
         });
     }
 
@@ -157,8 +177,7 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<FinancialBehaviorService>();
         // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
         // builder.Services.AddScoped<InternalTransactionService>();
-        builder.Services.AddScoped<UserResolverService>();
-        builder.Services.AddScoped<UserService>();
+        // Note: UserService and UserResolverService will be removed as they're replaced by Auth0
     }
 
     public static void AddHealthCheckServices(this WebApplicationBuilder builder)

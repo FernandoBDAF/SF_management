@@ -13,15 +13,28 @@
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ApplicationDbContextSeed.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Authorization.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/UserController.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Support/Referral.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Support/Referral.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/PokerManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/PokerManagerService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/SettlementTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/SettlementTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementClosingsResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementClosingsResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementTransactionRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/DataContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Data/DataContext.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SFManagement.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SFManagement.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/UserService.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/JWT.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/StartupConfig/DependencyInjectionExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserResolverService.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/AddRoleRequest.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/AuthenticationModel.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/RegisterRequest.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/TokenRequest.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/UserResponse.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/AddRoleRequestValidator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/RegisterRequestValidator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/Validators/TokenRequestValidator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +81,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "XThreadsFramesViewSplitterKey": "0.33114755",
-    "git-widget-placeholder": "hmg",
+    "git-widget-placeholder": "auth0/implementation",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",

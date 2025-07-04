@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFManagement.Models;
@@ -7,10 +6,9 @@ using SFManagement.Models.Entities;
 using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 
-
 namespace SFManagement.Data;
 
-public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
+public class DataContext : DbContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -121,8 +119,18 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
         var userId = Guid.Empty;
         var user = _httpContextAccessor.HttpContext?.User;
 
-        if (user != null && user.Claims.Count() > 0 && user.Claims != null && user.Claims.Any(c => c.Type == "uid"))
-            Guid.TryParse(user.Claims.FirstOrDefault(c => c.Type == "uid").Value, out userId);
+        // Extract user ID from Auth0 JWT claims
+        if (user != null && user.Identity?.IsAuthenticated == true)
+        {
+            var subClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(subClaim))
+            {
+                // For Auth0, the sub claim contains the user ID
+                // You might want to store this as a string or create a mapping table
+                // For now, we'll use a hash of the sub claim as a Guid
+                userId = Guid.Parse(subClaim.Replace("|", "").Substring(0, 32));
+            }
+        }
 
         foreach (var auditableEntity in ChangeTracker.Entries<BaseDomain>())
             if (auditableEntity.State == EntityState.Added)
