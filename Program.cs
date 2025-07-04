@@ -42,6 +42,7 @@ try
 
     builder.Services.AddFluentValidation(config =>
     {
+        // why is this here?
         config.RegisterValidatorsFromAssemblyContaining<WalletTransactionValidator>();
     });
 

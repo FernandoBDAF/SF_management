@@ -1,7 +1,6 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
-namespace SFManagement.Services;
+namespace SFManagement.Authorization;
 
 public interface IAuth0UserService
 {
@@ -53,4 +52,4 @@ public class Auth0UserService : IAuth0UserService
     {
         return _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
     }
-} 
+}

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
 using SFManagement.Services;
 using System.Security.Claims;
 
