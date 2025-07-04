@@ -42,6 +42,7 @@ try
 
     builder.Services.AddFluentValidation(config =>
     {
+        // why is this here?
         config.RegisterValidatorsFromAssemblyContaining<WalletTransactionValidator>();
     });
 
@@ -82,9 +83,6 @@ try
     app.UseHttpsRedirection();
     app.UseStaticFiles();
 
-    // Add authentication logging middleware
-    app.UseAuthenticationLogging();
-
     // if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     // {
         app.UseDeveloperExceptionPage();
@@ -102,6 +100,10 @@ try
     // }
 
     app.UseAuthentication();
+    
+    // Add authentication logging middleware AFTER authentication
+    app.UseAuthenticationLogging();
+    
     app.UseAuthorization();
     app.UseMiddleware<ErrorHandlerMiddleware>();
     app.MapControllers();
