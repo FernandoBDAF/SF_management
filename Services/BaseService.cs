@@ -44,21 +44,9 @@ public class BaseService<TEntity> where TEntity : BaseDomain
 
     public virtual async Task<TEntity> Add(TEntity obj)
     {
-        obj.CreatedAt = DateTime.Now;
-
-        var user = _httpContextAccessor.HttpContext?.User;
-        if (user != null && user.Claims.Any(c => c.Type == "uid"))
-        {
-            var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-            if (Guid.TryParse(userIdClaim, out Guid userId))
-            {
-                obj.LastModifiedBy = userId;
-            }
-        }
-        
+        // DataContext will handle CreatedAt, CreatedBy, and LastModifiedBy automatically
         await _entity.AddAsync(obj);
         await context.SaveChangesAsync();
-
         return obj;
     }
 
@@ -68,12 +56,14 @@ public class BaseService<TEntity> where TEntity : BaseDomain
         if (entity == null)
             throw new KeyNotFoundException($"Entity with id {id} not found");
 
-        entity.UpdatedAt = DateTime.Now;
+        // DataContext will handle UpdatedAt and LastModifiedBy automatically
 
-        // Copy properLissMfdifiebByto entity
+        // Copy properties to entity
         foreach (var property in typeof(TEntity).GetProperties())
         {
-            if (property.Name != "Id" && property.Name != "CreatedAt" && property.Name != "LastModifiedBy")
+            if (property.Name != "Id" && property.Name != "CreatedAt" && 
+                property.Name != "UpdatedAt" && property.Name != "LastModifiedBy" && 
+                property.Name != "DeletedAt")
             {
                 var value = property.GetValue(obj);
                 if (value != null)
@@ -81,27 +71,13 @@ public class BaseService<TEntity> where TEntity : BaseDomain
                     // Skip empty GUIDs
                     if (property.PropertyType == typeof(Guid) && (Guid)value == Guid.Empty)
                         continue;
-                    if (property.PropertyType == typeof(Guid) && (Guid)value == Guid.Empty)
-                        continue;
                     property.SetValue(entity, value);
                 }
             }
         }
 
-        // Set LastModifiedBy after property copying
-        var user = _httpContextAccessor.HttpContext?.User;
-        if (user != null && user.Claims.Any(c => c.Type == "uid"))
-        {
-            var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-            if (Guid.TryParse(userIdClaim, out Guid userId))
-            {
-                entity.LastModifiedBy = userId;
-            }
-        }
-
         _entity.Update(entity);
         await context.SaveChangesAsync();
-
         return entity;
     }
 
@@ -110,18 +86,8 @@ public class BaseService<TEntity> where TEntity : BaseDomain
         var obj = await _entity.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
         if (obj != null)
         {
-            obj.DeletedAt = DateTime.Now;
+            obj.DeletedAt = DateTime.UtcNow; // DataContext will set DeletedBy automatically
             
-            var user = _httpContextAccessor.HttpContext?.User;
-            if (user != null && user.Claims.Any(c => c.Type == "uid"))
-            {
-                var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-                if (Guid.TryParse(userIdClaim, out Guid userId))
-                {
-                    obj.LastModifiedBy = userId;
-                }
-            }
-
             _entity.Update(obj);
             await context.SaveChangesAsync();
         }

@@ -18,7 +18,6 @@ public class ErrorHandlerMiddleware
     {
         try
         {
-            _logger.LogInformation("Handling request to ${path}", context.Request.Path);
             await _next(context);
         }
         catch (Exception error)

@@ -178,6 +178,9 @@ public static class DependencyInjectionExtensions
         // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
         // builder.Services.AddScoped<InternalTransactionService>();
         // Note: UserService and UserResolverService will be removed as they're replaced by Auth0
+        
+        // Add logging service
+        builder.Services.AddScoped<ILoggingService, LoggingService>();
     }
 
     public static void AddHealthCheckServices(this WebApplicationBuilder builder)
