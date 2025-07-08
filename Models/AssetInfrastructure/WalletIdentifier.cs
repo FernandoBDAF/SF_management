@@ -10,7 +10,7 @@ namespace SFManagement.Models.AssetInfrastructure;
 public class WalletIdentifier : BaseDomain
 {
     [Required] public Guid BaseAssetHolderId { get; set; }
-    public virtual BaseAssetHolder BaseAssetHolder { get; set; }
+    public virtual BaseAssetHolder BaseAssetHolder { get; set; } = new();
     
     public AssetType AssetType { get; set; }
     

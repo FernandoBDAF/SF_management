@@ -14,10 +14,10 @@ public class BaseTransaction : BaseDomain
     public virtual FinancialBehavior? FinancialBehavior { get; set; }
 
     public Guid? WalletIdentifierId { get; set; }
-    public virtual WalletIdentifier? WalletIdentifier { get; set; }
+    public virtual WalletIdentifier WalletIdentifier { get; set; } = new();
     
     [Required] public Guid AssetWalletId { get; set; }
-    public virtual AssetWallet? AssetWallet { get; set; }
+    public virtual AssetWallet AssetWallet { get; set; } = new();
     
     [Required] [Precision(18, 2)] public decimal AssetAmount { get; set; }
     
@@ -26,4 +26,6 @@ public class BaseTransaction : BaseDomain
     [MaxLength(50)] public string? Description { get; set; }
     
     public DateTime? ApprovedAt { get; set; }
+    
+    public Guid? AgencyInvoiceId { get; set; }
 }
