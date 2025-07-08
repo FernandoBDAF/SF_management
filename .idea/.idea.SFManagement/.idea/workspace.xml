@@ -11,18 +11,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Support/Referral.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Support/Referral.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/PokerManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/PokerManagerService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/SettlementTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/SettlementTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementClosingsResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementClosingsResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementTransactionRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementTransactionResponse.cs" afterDir="false" />
-    </list>
+    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,6 +24,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/cfb818c048ae47dd82876f184821857d17e00/45/5fc806ca/IAuthorizationRequirement.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/515227dbc86331faf5687261f2e50bb8e1ff111d611dc4d906ece21f96c976/SqlServerExecutionStrategy.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bbcfe7ab04c9c5e854e8084459eb29d1ba45cca1ecfec1ad876fafa1267/ConfigurationManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c7afd9724cf757c4a8469dba2bdc22ab5ac111c91f431dbfefc992dacb3e8635/ControllerBase.cs" root0="SKIP_HIGHLIGHTING" />
@@ -68,7 +58,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "XThreadsFramesViewSplitterKey": "0.33114755",
-    "git-widget-placeholder": "hmg",
+    "git-widget-placeholder": "log/implementation",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",

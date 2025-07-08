@@ -80,7 +80,7 @@ public class AutoMapperProfile : Profile
         CreateMap<SettlementTransactionRequest, SettlementTransaction>();
         CreateMap<SettlementTransaction, SettlementTransactionSimplifiedResponse>();
 
-        CreateMap<ApplicationUser, UserResponse>();
+        // Note: ApplicationUser and UserResponse mappings removed as they're replaced by Auth0
     }
     
     private void CreateBaseAssetHolderMappings()

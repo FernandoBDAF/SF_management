@@ -1,24 +1,19 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFManagement.Models;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
-
+using SFManagement.Services;
+using Microsoft.Extensions.Logging;
 
 namespace SFManagement.Data;
 
-public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
+    public class DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor, ILoggingService loggingService) : DbContext(options)
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly ILoggingService _loggingService = loggingService;
 
-    public DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-    
     public DbSet<BaseAssetHolder> BaseAssetHolders { get; set; }
     public DbSet<Bank> Banks { get; set; }
     public DbSet<Client> Clients { get; set; }
@@ -118,36 +113,82 @@ public class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, G
 
     private void SetDefaultProperties()
     {
-        var userId = Guid.Empty;
-        var user = _httpContextAccessor.HttpContext?.User;
-
-        if (user != null && user.Claims.Count() > 0 && user.Claims != null && user.Claims.Any(c => c.Type == "uid"))
-            Guid.TryParse(user.Claims.FirstOrDefault(c => c.Type == "uid").Value, out userId);
-
+        var userId = GetCurrentUserId();
+        
         foreach (var auditableEntity in ChangeTracker.Entries<BaseDomain>())
+        {
             if (auditableEntity.State == EntityState.Added)
             {
-                if (auditableEntity.Entity.CreatedAt == new DateTime() || auditableEntity.Entity.CreatedAt == null)
-                    auditableEntity.Entity.CreatedAt = DateTime.Now;
+                auditableEntity.Entity.CreatedAt = DateTime.UtcNow;
+                auditableEntity.Entity.LastModifiedBy = userId;
+                
+                // Log creation event
+                _loggingService.LogDataAccess("create", auditableEntity.Entity.GetType().Name, 
+                    auditableEntity.Entity.Id, new { 
+                        EntityType = auditableEntity.Entity.GetType().Name,
+                        EntityId = auditableEntity.Entity.Id,
+                        CreatedBy = userId,
+                        CreatedAt = auditableEntity.Entity.CreatedAt
+                    });
             }
             else if (auditableEntity.State == EntityState.Modified)
             {
                 if (auditableEntity.Entity.DeletedAt.HasValue)
                 {
+                    // Soft delete operation
                     auditableEntity.Property(p => p.UpdatedAt).IsModified = false;
-
-                    if (auditableEntity.Entity.DeletedAt == new DateTime() || auditableEntity.Entity.DeletedAt == null)
-                        auditableEntity.Entity.DeletedAt = DateTime.Now;
+                    
+                    if (auditableEntity.Entity.DeletedAt == DateTime.MinValue)
+                    {
+                        auditableEntity.Entity.DeletedAt = DateTime.UtcNow;
+                        auditableEntity.Entity.LastModifiedBy = userId;
+                        
+                        // Log deletion event
+                        _loggingService.LogDataAccess("delete", auditableEntity.Entity.GetType().Name, 
+                            auditableEntity.Entity.Id, new { 
+                                EntityType = auditableEntity.Entity.GetType().Name,
+                                EntityId = auditableEntity.Entity.Id,
+                                DeletedBy = userId,
+                                DeletedAt = auditableEntity.Entity.DeletedAt
+                            });
+                    }
                 }
                 else
                 {
-                    if (auditableEntity.Entity.UpdatedAt == new DateTime() || auditableEntity.Entity.UpdatedAt == null)
-                        auditableEntity.Entity.UpdatedAt = DateTime.Now;
+                    // Regular update operation
+                    auditableEntity.Entity.UpdatedAt = DateTime.UtcNow;
+                    auditableEntity.Entity.LastModifiedBy = userId;
+                    
+                    // Log update event
+                    _loggingService.LogDataAccess("update", auditableEntity.Entity.GetType().Name, 
+                        auditableEntity.Entity.Id, new { 
+                            EntityType = auditableEntity.Entity.GetType().Name,
+                            EntityId = auditableEntity.Entity.Id,
+                            UpdatedBy = userId,
+                            UpdatedAt = auditableEntity.Entity.UpdatedAt
+                        });
                 }
             }
-            else
+        }
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+        
+        if (user != null && user.Identity?.IsAuthenticated == true)
+        {
+            var subClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(subClaim))
             {
-                auditableEntity.Property(p => p.CreatedAt).IsModified = false;
+                // Generate consistent Guid from Auth0 sub claim
+                var hash = System.Security.Cryptography.SHA256.Create();
+                var hashBytes = hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(subClaim));
+                return new Guid(hashBytes.Take(16).ToArray());
             }
+        }
+        
+        // Return a default system user ID if no authenticated user
+        return Guid.Parse("00000000-0000-0000-0000-000000000000");
     }
 }
