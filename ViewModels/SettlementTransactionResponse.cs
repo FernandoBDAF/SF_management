@@ -18,7 +18,7 @@ public class SettlementTransactionSimplifiedResponse : BaseResponse
 {
     public DateTime Date { get; set; }
     public string? Description { get; set; }
-    public virtual FinancialBehaviorResponse? FinancialBehavior { get; set; }
+    public virtual CategoryResponse? FinancialBehavior { get; set; }
     public DateTime? ApprovedAt { get; set; }
     public Guid? ApprovedBy { get; set; }
     

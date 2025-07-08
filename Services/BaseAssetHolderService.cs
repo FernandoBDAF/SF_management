@@ -11,7 +11,7 @@ using SFManagement.Models.AssetInfrastructure;
 namespace SFManagement.Services;
 
 public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor) 
-    : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain
+    : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain, IAssetHolder
 {
     public override async Task<List<TEntity>> List()
     {
@@ -51,7 +51,8 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         
         if (baseAssetHolder == null)
             return null;
-        
+            
+        // Simplify with generic to not repeat the code
         if (typeof(TEntity) == typeof(Bank))
         {
             var bank = await context.Banks

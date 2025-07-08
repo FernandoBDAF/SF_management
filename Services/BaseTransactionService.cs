@@ -40,7 +40,7 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         
         var allTransactions = new List<TEntity>();
         allTransactions.AddRange((await transactionsQuery
-            .Include(x => x.FinancialBehavior)
+            .Include(x => x.Category)
                 
             .Include(x => x.WalletIdentifier)
             .ThenInclude(y => y.BaseAssetHolder)

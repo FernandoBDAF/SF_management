@@ -1,10 +1,10 @@
 ﻿namespace SFManagement.ViewModels;
 
-public class FinancialBehaviorResponse : BaseResponse
+public class CategoryResponse : BaseResponse
 {
     public string? Description { get; set; }
 
     public Guid? ParentId { get; set; }
 
-    public List<FinancialBehaviorResponse>? Children { get; set; }
+    public List<CategoryResponse>? Children { get; set; }
 }

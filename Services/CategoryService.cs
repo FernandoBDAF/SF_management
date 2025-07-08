@@ -5,9 +5,9 @@ using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class FinancialBehaviorService : BaseService<FinancialBehavior>
+public class CategoryService : BaseService<Category>
 {
-    public FinancialBehaviorService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
+    public CategoryService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
         httpContextAccessor)
     {
     }
@@ -21,19 +21,19 @@ public class FinancialBehaviorService : BaseService<FinancialBehavior>
     //     return new BalanceResponse(financialBehavior);
     // }
 
-    public override async Task<List<FinancialBehavior>> List()
+    public override async Task<List<Category>> List()
     {
-        var query = await context.FinancialBehaviors.Where(x => !x.FinancialBehaviorId.HasValue).ToListAsync();
+        var query = await context.Categories.Where(x => !x.CategoryId.HasValue).ToListAsync();
 
         foreach (var financialBehavior in query) await GetChildren(financialBehavior);
 
         return query;
     }
 
-    private async Task<List<FinancialBehavior>> GetChildren(FinancialBehavior financialBehavior)
+    private async Task<List<Category>> GetChildren(Category category)
     {
-        var chds = await context.FinancialBehaviors
-            .Where(x => x.FinancialBehaviorId == financialBehavior.Id && x.DeletedAt == null)
+        var chds = await context.Categories
+            .Where(x => x.CategoryId == category.Id && x.DeletedAt == null)
             .ToListAsync();
 
         foreach (var chd in chds) await GetChildren(chd);

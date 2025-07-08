@@ -173,8 +173,8 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<BaseTransactionService<SettlementTransaction>, SettlementTransactionService>();
         builder.Services.AddScoped<SettlementTransactionService>();
         
-        builder.Services.AddScoped<BaseService<FinancialBehavior>, FinancialBehaviorService>();
-        builder.Services.AddScoped<FinancialBehaviorService>();
+        builder.Services.AddScoped<BaseService<Category>, CategoryService>();
+        builder.Services.AddScoped<CategoryService>();
         // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();
         // builder.Services.AddScoped<InternalTransactionService>();
         // Note: UserService and UserResolverService will be removed as they're replaced by Auth0

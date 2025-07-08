@@ -203,7 +203,7 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
                     TransactionDirection = transactionRequest.TransactionDirection,
                     Description = null, // Not provided in reduced request
                     WalletIdentifierId = transactionRequest.WalletIdentifierId,
-                    FinancialBehaviorId = null, // Not provided in reduced request
+                    CategoryId = null, // Not provided in reduced request
                     Rake = transactionRequest.Rake,
                     RakeCommission = transactionRequest.RakeCommission,
                     RakeBack = transactionRequest.RakeBack

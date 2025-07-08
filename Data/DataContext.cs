@@ -22,7 +22,7 @@ namespace SFManagement.Data;
     
     public DbSet<Address> Addresses { get; set; }
     public DbSet<InitialBalance> InitialBalances { get; set; }
-    public DbSet<FinancialBehavior> FinancialBehaviors { get; set; }
+    public DbSet<Category> Categories { get; set; }
     
     public DbSet<AssetWallet> AssetWallets { get; set; }
     public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }

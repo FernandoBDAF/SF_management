@@ -73,8 +73,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Excel, ExcelResponse>();
         CreateMap<ExcelRequest, Excel>();
 
-        CreateMap<FinancialBehavior, FinancialBehaviorResponse>();
-        CreateMap<FinancialBehaviorRequest, FinancialBehavior>();
+        CreateMap<Category, CategoryResponse>();
+        CreateMap<CategoryRequest, Category>();
 
         CreateMap<SettlementTransaction, SettlementTransactionResponse>();
         CreateMap<SettlementTransactionRequest, SettlementTransaction>();

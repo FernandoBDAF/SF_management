@@ -2,7 +2,7 @@
 
 namespace SFManagement.ViewModels.Validators;
 
-public class FinancialBehaviorRequestValidator : AbstractValidator<FinancialBehaviorRequest>
+public class FinancialBehaviorRequestValidator : AbstractValidator<CategoryRequest>
 {
     public FinancialBehaviorRequestValidator()
     {

@@ -4,7 +4,7 @@ using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.Entities;
 
-public class PokerManager : BaseDomain, IAssetHolder<PokerManager>
+public class PokerManager : BaseDomain, IAssetHolder
 {
     // public ManagerType ManagerType { get; set; }
     

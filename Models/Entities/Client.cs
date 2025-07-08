@@ -3,7 +3,7 @@ using SFManagement.Interfaces;
 
 namespace SFManagement.Models.Entities;
 
-public class Client : BaseDomain, IAssetHolder<Client>
+public class Client : BaseDomain, IAssetHolder
 {
     [Required] public Guid BaseAssetHolderId { get; set; }
     

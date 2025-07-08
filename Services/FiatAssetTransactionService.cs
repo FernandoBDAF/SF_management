@@ -28,7 +28,7 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
                 .Where(x => x.BaseAssetHolderId == model.BankId && x.AssetType == AssetType.BrazilianReal)
                 .Select(x => x.Id).SingleOrDefault();
 
-            if ((walletIdentifierId == Guid.Empty && !model.FinancialBehaviorId.HasValue) || assetWalletId == Guid.Empty)
+            if ((walletIdentifierId == Guid.Empty && !model.CategoryId.HasValue) || assetWalletId == Guid.Empty)
             {
                 throw new ArgumentException($"To create a transaction is needed an AssetWallet (recieved: {model.BankId} got: {assetWalletId}) " +
                                             $"+ an Wallet identifiers (recieved: {model.ClientId} got: {walletIdentifierId}) or an FinancialBehaviourId");

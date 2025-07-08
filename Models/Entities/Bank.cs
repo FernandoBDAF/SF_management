@@ -4,7 +4,7 @@ using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.Entities;
 
-public class Bank : BaseDomain, IAssetHolder<Bank>
+public class Bank : BaseDomain, IAssetHolder
 {
     [Required] public Guid BaseAssetHolderId { get; set; }
     

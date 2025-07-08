@@ -1,6 +1,6 @@
 ﻿namespace SFManagement.ViewModels;
 
-public class FinancialBehaviorRequest
+public class CategoryRequest
 {
     public string? Description { get; set; }
 

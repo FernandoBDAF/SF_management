@@ -9,29 +9,29 @@ namespace SFManagement.Controllers.v1;
 [ApiController]
 [Route("api/v{verion:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class FinancialBehaviorController : BaseApiController<FinancialBehavior, FinancialBehaviorRequest, 
-    FinancialBehaviorResponse>
+public class CategoryController : BaseApiController<Category, CategoryRequest, 
+    CategoryResponse>
 {
     private readonly IMapper _mapper;
-    private readonly FinancialBehaviorService _financialBehaviorService;
+    private readonly CategoryService _categoryService;
 
-    public FinancialBehaviorController(FinancialBehaviorService financialBehavior, 
-        BaseService<FinancialBehavior> service, IMapper mapper) : base(service, mapper)
+    public CategoryController(CategoryService category, 
+        BaseService<Category> service, IMapper mapper) : base(service, mapper)
     {
-        _financialBehaviorService = financialBehavior;
+        _categoryService = category;
         _mapper = mapper;
     }
 
-    public override async Task<List<FinancialBehaviorResponse>> Get()
+    public override async Task<List<CategoryResponse>> Get()
     {
-        return _mapper.Map<List<FinancialBehaviorResponse>>(await _financialBehaviorService.List());
+        return _mapper.Map<List<CategoryResponse>>(await _categoryService.List());
     }
 
     // [HttpGet]
     // [Route("balance/{tagId}")]
     // public async Task<BalanceResponse> Balance(Guid tagId)
     // {
-    //     return await _financialBehaviorService.GetBalance(tagId);
+    //     return await _categoryService.GetBalance(tagId);
     // }
 
     // [HttpGet]

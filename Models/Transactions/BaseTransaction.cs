@@ -10,8 +10,8 @@ public class BaseTransaction : BaseDomain
 {
     [Required] public DateTime Date { get; set; }
     
-    public Guid? FinancialBehaviorId { get; set; }
-    public virtual FinancialBehavior? FinancialBehavior { get; set; }
+    public Guid? CategoryId { get; set; }
+    public virtual Category? Category { get; set; }
 
     public Guid? WalletIdentifierId { get; set; }
     public virtual WalletIdentifier? WalletIdentifier { get; set; }

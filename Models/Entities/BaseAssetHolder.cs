@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using SFManagement.Enums;
 using SFManagement.Interfaces;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Support;
 
 namespace SFManagement.Models.Entities;
 
-public class BaseAssetHolder : BaseDomain, IAssetHolder<BaseAssetHolder>
+public class BaseAssetHolder : BaseDomain, IAssetHolder
 {
     [Required] [MaxLength(40)] public string Name { get; set; }
 
