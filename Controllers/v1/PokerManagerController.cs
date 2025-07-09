@@ -94,10 +94,6 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
                     Id = walletIdentifier.Id,
                     InputForTransactions = walletIdentifier.InputForTransactions,
                     AssetType = walletIdentifier.AssetWallet.AssetType,
-                    RouteInfo = walletIdentifier.RouteInfo,
-                    IdentifierInfo = walletIdentifier.IdentifierInfo,
-                    DescriptiveInfo = walletIdentifier.DescriptiveInfo,
-                    ExtraInfo = walletIdentifier.ExtraInfo,
                     Referral = walletIdentifier.Referral != null ? new ReferralInfo
                     {
                         Id = walletIdentifier.Referral.Id,

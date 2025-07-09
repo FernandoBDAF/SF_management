@@ -2,6 +2,12 @@ namespace SFManagement.Enums;
 
 public enum WalletType
 {
-    // Miscellaneous
-    ContaCorrente = 1,
+    // Fiat Assets
+    BankWallet = 1,
+    
+    // Poker Assets  
+    PokerWallet = 2,
+    
+    // Crypto Assets
+    CryptoWallet = 3
 }

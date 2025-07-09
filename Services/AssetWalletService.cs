@@ -1,61 +1,110 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models.AssetInfrastructure;
+using SFManagement.Enums;
 
 namespace SFManagement.Services;
 
 public class AssetWalletService(DataContext context, IHttpContextAccessor httpContextAccessor)
     : BaseService<AssetWallet>(context, httpContextAccessor)
 {
-
     public override async Task<AssetWallet> Add(AssetWallet obj)
     {
-        var hasAssetWalletType = await context.BaseAssetHolders
-            .Include(ah => ah.AssetWallets)
-            .AnyAsync(ah => ah.AssetWallets.Any(aw => aw.Id == obj.Id));
+        // Check if BaseAssetHolder already has an AssetWallet for this AssetType
+        var existingWallet = await context.AssetWallets
+            .FirstOrDefaultAsync(aw => aw.BaseAssetHolderId == obj.BaseAssetHolderId && 
+                                     aw.AssetType == obj.AssetType && 
+                                     !aw.DeletedAt.HasValue);
         
-        if (hasAssetWalletType == true)
+        if (existingWallet != null)
         {
-            throw new Exception($"Only one asset wallet is allowed.");
+            throw new InvalidOperationException($"BaseAssetHolder already has an AssetWallet for {obj.AssetType}");
         }
         
         return await base.Add(obj);
     }
 
-    // public async Task<List<AssetWallet>> GetWalletsByManagerId(Guid managerId)
-    // {
-    //     // return await context.Wallets.Where(x => x.ManagerId == managerId).ToListAsync();
-    //     await Task.Yield();
-    //     return null;
-    // }
-    //
-    // public async Task<BalanceResponse> GetBalance(Guid walletId)
-    // {
-    //     // var assetWallet = await context.Wallets.Include(x => x.Transactions).Include(x => x.InternalTransactions)
-    //     //     .FirstOrDefaultAsync(x => x.Id == walletId);
-    //     // return new BalanceResponse(assetWallet, null);
-    //     await Task.Yield();
-    //     return null;
-    // }
-
     public async Task<List<AssetWallet>> GetAssetWallets(Guid assetHolderId)
     {
         return await context.AssetWallets
-            .Where(x => x.BaseAssetHolderId == assetHolderId && !x.DeletedAt.HasValue)
+            .Include(aw => aw.BaseAssetHolder)
+            .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
+            .Where(aw => aw.BaseAssetHolderId == assetHolderId && !aw.DeletedAt.HasValue)
+            .ToListAsync();
+    }
+
+    public async Task<List<AssetWallet>> GetAssetWalletsByType(AssetType assetType)
+    {
+        return await context.AssetWallets
+            .Include(aw => aw.BaseAssetHolder)
+            .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
+            .Where(aw => aw.AssetType == assetType && !aw.DeletedAt.HasValue)
             .ToListAsync();
     }
 
     public override async Task<AssetWallet?> Get(Guid id)
     {
-        var query = context.AssetWallets
-            .Include(w => w.BaseAssetHolder)
-            .Include(w => w.WalletIdentifiers);
+        return await context.AssetWallets
+            .Include(aw => aw.BaseAssetHolder)
+            .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
+            .FirstOrDefaultAsync(aw => aw.Id == id && !aw.DeletedAt.HasValue);
+    }
 
-        var wallet = await query.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
-        
-        if (wallet == null)
-            return null;
+    public async Task<AssetWallet?> GetByBaseAssetHolderAndType(Guid baseAssetHolderId, AssetType assetType)
+    {
+        return await context.AssetWallets
+            .Include(aw => aw.BaseAssetHolder)
+            .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
+            .FirstOrDefaultAsync(aw => aw.BaseAssetHolderId == baseAssetHolderId && 
+                                     aw.AssetType == assetType && 
+                                     !aw.DeletedAt.HasValue);
+    }
 
-        return wallet;
+    // Get wallets with their identifiers grouped by wallet type
+    public async Task<Dictionary<WalletType, List<WalletIdentifier>>> GetWalletIdentifiersByType(Guid assetWalletId)
+    {
+        var assetWallet = await context.AssetWallets
+            .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
+            .FirstOrDefaultAsync(aw => aw.Id == assetWalletId && !aw.DeletedAt.HasValue);
+
+        if (assetWallet == null)
+            return new Dictionary<WalletType, List<WalletIdentifier>>();
+
+        return assetWallet.WalletIdentifiers
+            .GroupBy(wi => wi.WalletType)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    // Get balance summary for an asset wallet
+    public async Task<decimal> GetAssetWalletBalance(Guid assetWalletId)
+    {
+        var walletIdentifiers = await context.WalletIdentifiers
+            .Where(wi => wi.AssetWalletId == assetWalletId && !wi.DeletedAt.HasValue)
+            .Select(wi => wi.Id)
+            .ToListAsync();
+
+        if (!walletIdentifiers.Any())
+            return 0;
+
+        // Calculate balance from all transaction types
+        var fiatBalance = await context.FiatAssetTransactions
+            .Where(ft => !ft.DeletedAt.HasValue && 
+                        (walletIdentifiers.Contains(ft.SenderWalletIdentifierId) || 
+                         walletIdentifiers.Contains(ft.ReceiverWalletIdentifierId)))
+            .SumAsync(ft => walletIdentifiers.Contains(ft.ReceiverWalletIdentifierId) ? ft.AssetAmount : -ft.AssetAmount);
+
+        var digitalBalance = await context.DigitalAssetTransactions
+            .Where(dt => !dt.DeletedAt.HasValue && 
+                        (walletIdentifiers.Contains(dt.SenderWalletIdentifierId) || 
+                         walletIdentifiers.Contains(dt.ReceiverWalletIdentifierId)))
+            .SumAsync(dt => walletIdentifiers.Contains(dt.ReceiverWalletIdentifierId) ? dt.AssetAmount : -dt.AssetAmount);
+
+        var settlementBalance = await context.SettlementTransactions
+            .Where(st => !st.DeletedAt.HasValue && 
+                        (walletIdentifiers.Contains(st.SenderWalletIdentifierId) || 
+                         walletIdentifiers.Contains(st.ReceiverWalletIdentifierId)))
+            .SumAsync(st => walletIdentifiers.Contains(st.ReceiverWalletIdentifierId) ? st.AssetAmount : -st.AssetAmount);
+
+        return fiatBalance + digitalBalance + settlementBalance;
     }
 }
