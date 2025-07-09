@@ -3,10 +3,11 @@ namespace SFManagement.Enums;
 public enum AssetType
 {
     // Miscellaneous
+    ContaCorrente = 1,
 
     // Fiat
-    BrazilianReal = 11,
-    USDollar = 12,
+    BrazilianReal = 21,
+    USDollar = 22,
 
     // Poker in USDollar
     PokerStars = 101,

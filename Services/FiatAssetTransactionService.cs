@@ -18,24 +18,14 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
 
     public override async Task<FiatAssetTransaction> Add(FiatAssetTransaction model)
     {
-        if (!model.WalletIdentifierId.HasValue || model.AssetWalletId == Guid.Empty)
+        // Note: The old properties (WalletIdentifierId, AssetWalletId, ClientId, BankId) 
+        // need to be replaced with SenderWalletIdentifierId and ReceiverWalletIdentifierId
+        // This method needs to be updated based on your specific business logic
+        // for determining sender and receiver wallet identifiers
+        
+        if (model.SenderWalletIdentifierId == Guid.Empty || model.ReceiverWalletIdentifierId == Guid.Empty)
         {
-            var walletIdentifierId = context.WalletIdentifiers
-                .Where(x => x.BaseAssetHolderId == model.ClientId && x.AssetType == AssetType.BrazilianReal)
-                .Select(x => x.Id).SingleOrDefault();
-            
-            var assetWalletId = context.AssetWallets
-                .Where(x => x.BaseAssetHolderId == model.BankId && x.AssetType == AssetType.BrazilianReal)
-                .Select(x => x.Id).SingleOrDefault();
-
-            if ((walletIdentifierId == Guid.Empty && !model.CategoryId.HasValue) || assetWalletId == Guid.Empty)
-            {
-                throw new ArgumentException($"To create a transaction is needed an AssetWallet (recieved: {model.BankId} got: {assetWalletId}) " +
-                                            $"+ an Wallet identifiers (recieved: {model.ClientId} got: {walletIdentifierId}) or an FinancialBehaviourId");
-            }
-
-            model.WalletIdentifierId = walletIdentifierId == Guid.Empty ? null : walletIdentifierId;
-            model.AssetWalletId = assetWalletId;
+            throw new ArgumentException("Both SenderWalletIdentifierId and ReceiverWalletIdentifierId are required for transactions");
         }
         
         var transaction = await base.Add(model);
@@ -47,25 +37,30 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
     {
         var assetHolder = await context.BaseAssetHolders
             .Include(x => x.AssetWallets)
+                .ThenInclude(aw => aw.WalletIdentifiers)
             .FirstOrDefaultAsync(x => x.Id == baseAssetHolderId) ?? throw new Exception($"Asset Holder not found");
 
-        var aw = assetHolder.AssetWallets.FirstOrDefault(x => x.AssetType == AssetType.BrazilianReal) ?? throw new Exception($"Asset Wallet for Brazilian Real does not exist");
+        var senderWallet = assetHolder.AssetWallets.FirstOrDefault(x => x.AssetType == AssetType.BrazilianReal) 
+            ?? throw new Exception($"Asset Wallet for Brazilian Real does not exist");
 
-        var wi = await context.WalletIdentifiers
+        var senderIdentifier = senderWallet.WalletIdentifiers.FirstOrDefault()
+            ?? throw new Exception($"No wallet identifier found for the sender wallet");
+
+        // Find receiver wallet identifier based on the transaction request
+        var receiverIdentifier = await context.WalletIdentifiers
+            .Include(wi => wi.AssetWallet)
             .FirstOrDefaultAsync(x => 
-                x.AssetType == AssetType.BrazilianReal && (
-                    (x.BaseAssetHolderId == transaction.BaseAssetHolderId)
-                )) ?? throw new Exception($"Wallet Identifier for Brazilian Real does not exist");
-
+                x.AssetWallet.AssetType == AssetType.BrazilianReal && 
+                x.AssetWallet.BaseAssetHolderId == transaction.BaseAssetHolderId) 
+            ?? throw new Exception($"Receiver Wallet Identifier for Brazilian Real does not exist");
 
         var fiatTransaction = new FiatAssetTransaction
         {
-            AssetWalletId = aw.Id,
-            WalletIdentifierId = wi.Id,
+            SenderWalletIdentifierId = senderIdentifier.Id,
+            ReceiverWalletIdentifierId = receiverIdentifier.Id,
             Date = transaction.Date ?? DateTime.Now,
             Description = transaction.Description,
-            AssetAmount = transaction.AssetAmount ?? 0,
-            TransactionDirection = TransactionDirection.Expense
+            AssetAmount = transaction.AssetAmount ?? 0
         };
 
         await context.FiatAssetTransactions.AddAsync(fiatTransaction);

@@ -38,7 +38,7 @@ public class AutoMapperProfile : Profile
         CreateMap<WalletIdentifier, WalletIdentifierResponse>()
             .ForMember(dest => dest.BaseAssetHolderName,
                 opt =>
-                    opt.MapFrom(src => src.BaseAssetHolder.Name));
+                    opt.MapFrom(src => src.AssetWallet.BaseAssetHolder.Name));
         CreateMap<WalletIdentifierRequest, WalletIdentifier>();
 
         CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();

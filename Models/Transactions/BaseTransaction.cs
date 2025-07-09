@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using SFManagement.Enums;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Support;
 
@@ -13,15 +12,15 @@ public class BaseTransaction : BaseDomain
     public Guid? CategoryId { get; set; }
     public virtual Category? Category { get; set; }
 
-    public Guid? WalletIdentifierId { get; set; }
-    public virtual WalletIdentifier? WalletIdentifier { get; set; }
-    
-    [Required] public Guid AssetWalletId { get; set; }
-    public virtual AssetWallet? AssetWallet { get; set; }
+    // Sender
+    [Required] public Guid SenderWalletIdentifierId { get; set; }
+    public virtual WalletIdentifier SenderWalletIdentifier { get; set; }
+
+    // Receiver
+    [Required] public Guid ReceiverWalletIdentifierId { get; set; }
+    public virtual WalletIdentifier ReceiverWalletIdentifier { get; set; }
     
     [Required] [Precision(18, 2)] public decimal AssetAmount { get; set; }
-    
-    [Required] public TransactionDirection TransactionDirection { get; set; }
     
     [MaxLength(50)] public string? Description { get; set; }
     

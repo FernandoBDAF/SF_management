@@ -1,4 +1,3 @@
-using AutoMapper;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -23,8 +22,16 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             Show = quantity
         };
         
+        // Get all wallet identifiers for the specified asset wallets
+        var walletIdentifierIds = await context.WalletIdentifiers
+            .Where(wi => assetWalletIds.Contains(wi.AssetWalletId))
+            .Select(wi => wi.Id)
+            .ToListAsync();
+        
         var transactionsQuery = _entity
-            .Where(x => !x.DeletedAt.HasValue && assetWalletIds.Contains(x.AssetWalletId));
+            .Where(x => !x.DeletedAt.HasValue && 
+                (walletIdentifierIds.Contains(x.SenderWalletIdentifierId) || 
+                 walletIdentifierIds.Contains(x.ReceiverWalletIdentifierId)));
         
         if (startDate.HasValue)
         {
@@ -41,14 +48,12 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         var allTransactions = new List<TEntity>();
         allTransactions.AddRange((await transactionsQuery
             .Include(x => x.Category)
-                
-            .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.BaseAssetHolder)
-            .Include(x => x.WalletIdentifier)
-
-            .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.BaseAssetHolder)
-            .Include(x => x.AssetWallet)
+            .Include(x => x.SenderWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(aw => aw.BaseAssetHolder)
+            .Include(x => x.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(aw => aw.BaseAssetHolder)
             .ToListAsync()));
         
         return allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToArray();
@@ -63,8 +68,19 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             Show = quantity
         };
         
+        // Get all wallet identifiers for the specified asset wallets (if any)
+        var walletIdentifierIds = assetWalletIds != null 
+            ? await context.WalletIdentifiers
+                .Where(wi => assetWalletIds.Contains(wi.AssetWalletId))
+                .Select(wi => wi.Id)
+                .ToListAsync()
+            : new List<Guid>();
+        
         var bankTransactionsQuery = _entity
-            .Where(x => !x.DeletedAt.HasValue && (assetWalletIds == null || !assetWalletIds.Contains(x.AssetWalletId)));
+            .Where(x => !x.DeletedAt.HasValue && 
+                (assetWalletIds == null || 
+                 (!walletIdentifierIds.Contains(x.SenderWalletIdentifierId) && 
+                  !walletIdentifierIds.Contains(x.ReceiverWalletIdentifierId))));
         
         if (startDate.HasValue)
         {
@@ -80,16 +96,14 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         
         var allTransactions = new List<TEntity>();
         allTransactions.AddRange((await bankTransactionsQuery
-            .Include(x => x.WalletIdentifier)
-            .ThenInclude(y => y.BaseAssetHolder)
-            .Include(x => x.WalletIdentifier)
-
-            .Include(x => x.AssetWallet)
-            .ThenInclude(y => y.BaseAssetHolder)
-            .Include(x => x.AssetWallet)
+            .Include(x => x.SenderWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(aw => aw.BaseAssetHolder)
+            .Include(x => x.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(aw => aw.BaseAssetHolder)
             .ToListAsync()));
-            // .Select(_mapper.Map<FiatAssetTransactionResponse>));
-        
+            
         return allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToArray();
     }
 }

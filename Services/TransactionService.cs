@@ -7,6 +7,11 @@ using SFManagement.Models.Entities;
 
 namespace SFManagement.Services;
 
+// NOTE: This service has all methods commented out. When implementing them,
+// ensure they use the new transaction model with:
+// - SenderWalletIdentifierId and ReceiverWalletIdentifierId instead of AssetWalletId/WalletIdentifierId
+// - Navigation through wallet identifiers to get asset wallets and asset holders
+// - Updated Include statements for the new relationships
 public class TransactionService<TEntity> where TEntity : BaseAssetHolder
 {
     public readonly DbSet<TEntity> _entity;

@@ -6,67 +6,24 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SFManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AspNetRoles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BaseAssetHolders",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     Cpf = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Cnpj = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -74,131 +31,26 @@ namespace SFManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FinancialBehaviors",
+                name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FinancialBehaviorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    FinancialBehavior = table.Column<int>(type: "int", nullable: true),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FinancialBehaviors", x => x.Id);
+                    table.PrimaryKey("PK_Categories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FinancialBehaviors_FinancialBehaviors_FinancialBehaviorId",
-                        column: x => x.FinancialBehaviorId,
-                        principalTable: "FinancialBehaviors",
+                        name: "FK_Categories_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
-                columns: table => new
-                {
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
-                columns: table => new
-                {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
-                columns: table => new
-                {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -216,7 +68,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -239,7 +91,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -262,7 +114,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -285,7 +137,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -311,7 +163,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -337,7 +189,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -361,7 +213,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -383,7 +235,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -401,27 +253,32 @@ namespace SFManagement.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AssetType = table.Column<int>(type: "int", nullable: false),
+                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RouteInfo = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     IdentifierInfo = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     DescriptiveInfo = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     ExtraInfo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     InputForTransactions = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WalletIdentifiers", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_WalletIdentifiers_AssetWallets_AssetWalletId",
+                        column: x => x.AssetWalletId,
+                        principalTable: "AssetWallets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_WalletIdentifiers_BaseAssetHolders_BaseAssetHolderId",
                         column: x => x.BaseAssetHolderId,
                         principalTable: "BaseAssetHolders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -434,7 +291,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -458,7 +315,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -480,20 +337,20 @@ namespace SFManagement.Migrations
                     AssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ActiveUntil = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ParentCommission = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Referral", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Referral_BaseAssetHolders_BaseAssetHolderId",
-                        column: x => x.BaseAssetHolderId,
+                        name: "FK_Referral_BaseAssetHolders_AssetHolderId",
+                        column: x => x.AssetHolderId,
                         principalTable: "BaseAssetHolders",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Referral_WalletIdentifiers_WalletIdentifierId",
                         column: x => x.WalletIdentifierId,
@@ -503,7 +360,7 @@ namespace SFManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SettlementTransaction",
+                name: "SettlementTransactions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -513,35 +370,35 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FinancialBehaviorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SenderWalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReceiverWalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AssetAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    TransactionDirection = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SettlementTransaction", x => x.Id);
+                    table.PrimaryKey("PK_SettlementTransactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SettlementTransaction_AssetWallets_AssetWalletId",
-                        column: x => x.AssetWalletId,
-                        principalTable: "AssetWallets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SettlementTransaction_FinancialBehaviors_FinancialBehaviorId",
-                        column: x => x.FinancialBehaviorId,
-                        principalTable: "FinancialBehaviors",
+                        name: "FK_SettlementTransactions_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_SettlementTransaction_WalletIdentifiers_WalletIdentifierId",
-                        column: x => x.WalletIdentifierId,
+                        name: "FK_SettlementTransactions_WalletIdentifiers_ReceiverWalletIdentifierId",
+                        column: x => x.ReceiverWalletIdentifierId,
                         principalTable: "WalletIdentifiers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SettlementTransactions_WalletIdentifiers_SenderWalletIdentifierId",
+                        column: x => x.SenderWalletIdentifierId,
+                        principalTable: "WalletIdentifiers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -558,7 +415,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -583,13 +440,12 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FinancialBehaviorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SenderWalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReceiverWalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AssetAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    TransactionDirection = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -597,26 +453,28 @@ namespace SFManagement.Migrations
                 {
                     table.PrimaryKey("PK_DigitalAssetTransactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DigitalAssetTransactions_AssetWallets_AssetWalletId",
-                        column: x => x.AssetWalletId,
-                        principalTable: "AssetWallets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_DigitalAssetTransactions_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DigitalAssetTransactions_Excels_ExcelId",
                         column: x => x.ExcelId,
                         principalTable: "Excels",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_DigitalAssetTransactions_FinancialBehaviors_FinancialBehaviorId",
-                        column: x => x.FinancialBehaviorId,
-                        principalTable: "FinancialBehaviors",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_DigitalAssetTransactions_WalletIdentifiers_WalletIdentifierId",
-                        column: x => x.WalletIdentifierId,
+                        name: "FK_DigitalAssetTransactions_WalletIdentifiers_ReceiverWalletIdentifierId",
+                        column: x => x.ReceiverWalletIdentifierId,
                         principalTable: "WalletIdentifiers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DigitalAssetTransactions_WalletIdentifiers_SenderWalletIdentifierId",
+                        column: x => x.SenderWalletIdentifierId,
+                        principalTable: "WalletIdentifiers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -628,13 +486,12 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FinancialBehaviorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    WalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AssetWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SenderWalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReceiverWalletIdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AssetAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    TransactionDirection = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -642,26 +499,28 @@ namespace SFManagement.Migrations
                 {
                     table.PrimaryKey("PK_FiatAssetTransactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FiatAssetTransactions_AssetWallets_AssetWalletId",
-                        column: x => x.AssetWalletId,
-                        principalTable: "AssetWallets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_FiatAssetTransactions_FinancialBehaviors_FinancialBehaviorId",
-                        column: x => x.FinancialBehaviorId,
-                        principalTable: "FinancialBehaviors",
+                        name: "FK_FiatAssetTransactions_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_FiatAssetTransactions_OfxTransactions_OfxTransactionId",
                         column: x => x.OfxTransactionId,
                         principalTable: "OfxTransactions",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_FiatAssetTransactions_WalletIdentifiers_WalletIdentifierId",
-                        column: x => x.WalletIdentifierId,
+                        name: "FK_FiatAssetTransactions_WalletIdentifiers_ReceiverWalletIdentifierId",
+                        column: x => x.ReceiverWalletIdentifierId,
                         principalTable: "WalletIdentifiers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FiatAssetTransactions_WalletIdentifiers_SenderWalletIdentifierId",
+                        column: x => x.SenderWalletIdentifierId,
+                        principalTable: "WalletIdentifiers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -680,7 +539,7 @@ namespace SFManagement.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -705,45 +564,6 @@ namespace SFManagement.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoleClaims_RoleId",
-                table: "AspNetRoleClaims",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
-                table: "AspNetRoles",
-                column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserClaims_UserId",
-                table: "AspNetUserClaims",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserLogins_UserId",
-                table: "AspNetUserLogins",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_RoleId",
-                table: "AspNetUserRoles",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "EmailIndex",
-                table: "AspNetUsers",
-                column: "NormalizedEmail");
-
-            migrationBuilder.CreateIndex(
-                name: "UserNameIndex",
-                table: "AspNetUsers",
-                column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AssetWallets_BaseAssetHolderId",
                 table: "AssetWallets",
                 column: "BaseAssetHolderId");
@@ -753,6 +573,11 @@ namespace SFManagement.Migrations
                 table: "Banks",
                 column: "BaseAssetHolderId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_CategoryId",
+                table: "Categories",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_BaseAssetHolderId",
@@ -766,9 +591,9 @@ namespace SFManagement.Migrations
                 column: "BaseAssetHolderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DigitalAssetTransactions_AssetWalletId",
+                name: "IX_DigitalAssetTransactions_CategoryId",
                 table: "DigitalAssetTransactions",
-                column: "AssetWalletId");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DigitalAssetTransactions_ExcelId",
@@ -776,14 +601,14 @@ namespace SFManagement.Migrations
                 column: "ExcelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DigitalAssetTransactions_FinancialBehaviorId",
+                name: "IX_DigitalAssetTransactions_ReceiverWalletIdentifierId",
                 table: "DigitalAssetTransactions",
-                column: "FinancialBehaviorId");
+                column: "ReceiverWalletIdentifierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DigitalAssetTransactions_WalletIdentifierId",
+                name: "IX_DigitalAssetTransactions_SenderWalletIdentifierId",
                 table: "DigitalAssetTransactions",
-                column: "WalletIdentifierId");
+                column: "SenderWalletIdentifierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Excels_PokerManagerId",
@@ -801,14 +626,9 @@ namespace SFManagement.Migrations
                 column: "ExcelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FiatAssetTransactions_AssetWalletId",
+                name: "IX_FiatAssetTransactions_CategoryId",
                 table: "FiatAssetTransactions",
-                column: "AssetWalletId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FiatAssetTransactions_FinancialBehaviorId",
-                table: "FiatAssetTransactions",
-                column: "FinancialBehaviorId");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FiatAssetTransactions_OfxTransactionId",
@@ -816,14 +636,14 @@ namespace SFManagement.Migrations
                 column: "OfxTransactionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FiatAssetTransactions_WalletIdentifierId",
+                name: "IX_FiatAssetTransactions_ReceiverWalletIdentifierId",
                 table: "FiatAssetTransactions",
-                column: "WalletIdentifierId");
+                column: "ReceiverWalletIdentifierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FinancialBehaviors_FinancialBehaviorId",
-                table: "FinancialBehaviors",
-                column: "FinancialBehaviorId");
+                name: "IX_FiatAssetTransactions_SenderWalletIdentifierId",
+                table: "FiatAssetTransactions",
+                column: "SenderWalletIdentifierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InitialBalances_BaseAssetHolderId",
@@ -853,9 +673,9 @@ namespace SFManagement.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Referral_BaseAssetHolderId",
+                name: "IX_Referral_AssetHolderId",
                 table: "Referral",
-                column: "BaseAssetHolderId");
+                column: "AssetHolderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Referral_WalletIdentifierId",
@@ -864,19 +684,24 @@ namespace SFManagement.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_SettlementTransaction_AssetWalletId",
-                table: "SettlementTransaction",
+                name: "IX_SettlementTransactions_CategoryId",
+                table: "SettlementTransactions",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SettlementTransactions_ReceiverWalletIdentifierId",
+                table: "SettlementTransactions",
+                column: "ReceiverWalletIdentifierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SettlementTransactions_SenderWalletIdentifierId",
+                table: "SettlementTransactions",
+                column: "SenderWalletIdentifierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WalletIdentifiers_AssetWalletId",
+                table: "WalletIdentifiers",
                 column: "AssetWalletId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettlementTransaction_FinancialBehaviorId",
-                table: "SettlementTransaction",
-                column: "FinancialBehaviorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettlementTransaction_WalletIdentifierId",
-                table: "SettlementTransaction",
-                column: "WalletIdentifierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WalletIdentifiers_BaseAssetHolderId",
@@ -889,21 +714,6 @@ namespace SFManagement.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Addresses");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoleClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserLogins");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserRoles");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
                 name: "Clients");
@@ -927,13 +737,7 @@ namespace SFManagement.Migrations
                 name: "Referral");
 
             migrationBuilder.DropTable(
-                name: "SettlementTransaction");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "SettlementTransactions");
 
             migrationBuilder.DropTable(
                 name: "DigitalAssetTransactions");
@@ -942,13 +746,10 @@ namespace SFManagement.Migrations
                 name: "OfxTransactions");
 
             migrationBuilder.DropTable(
-                name: "AssetWallets");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Excels");
-
-            migrationBuilder.DropTable(
-                name: "FinancialBehaviors");
 
             migrationBuilder.DropTable(
                 name: "WalletIdentifiers");
@@ -958,6 +759,9 @@ namespace SFManagement.Migrations
 
             migrationBuilder.DropTable(
                 name: "PokerManagers");
+
+            migrationBuilder.DropTable(
+                name: "AssetWallets");
 
             migrationBuilder.DropTable(
                 name: "Banks");

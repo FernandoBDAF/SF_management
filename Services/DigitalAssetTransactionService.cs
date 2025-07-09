@@ -5,14 +5,18 @@ namespace SFManagement.Services;
 
 public class DigitalAssetTransactionService : BaseTransactionService<DigitalAssetTransaction>
 {
-
     public DigitalAssetTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) :
         base(context, httpContextAccessor)
     {
     }
 
+    // NOTE: Most methods in this service are commented out. When implementing them,
+    // ensure they use the new transaction model with SenderWalletIdentifierId and ReceiverWalletIdentifierId
+    // instead of the old AssetWalletId and WalletIdentifierId properties.
+
     // public override async Task<DigitalAssetTransaction> Add(DigitalAssetTransaction obj)
     // {
+    //     // When implementing: ensure obj.SenderWalletIdentifierId and obj.ReceiverWalletIdentifierId are set
     //     obj = await base.Add(obj);
     //     return obj;
     // }

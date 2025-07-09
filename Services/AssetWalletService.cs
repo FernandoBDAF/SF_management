@@ -48,7 +48,8 @@ public class AssetWalletService(DataContext context, IHttpContextAccessor httpCo
     public override async Task<AssetWallet?> Get(Guid id)
     {
         var query = context.AssetWallets
-            .Include(w => w.BaseAssetHolder);
+            .Include(w => w.BaseAssetHolder)
+            .Include(w => w.WalletIdentifiers);
 
         var wallet = await query.FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
         

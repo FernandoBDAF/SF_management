@@ -1,15 +1,58 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using SFManagement.Models;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
-using Microsoft.Extensions.Logging;
 
 namespace SFManagement.Data;
 
-    public class DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor, ILoggingService loggingService) : DbContext(options)
+// Design-time factory for EF tools
+public class DataContextFactory : IDesignTimeDbContextFactory<DataContext>
+{
+    public DataContext CreateDbContext(string[] args)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<DataContext>();
+        
+        // Read configuration from appsettings.json for design-time
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
+        
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        
+        optionsBuilder.UseSqlServer(connectionString);
+        
+        // Create minimal services for design-time
+        var httpContextAccessor = new HttpContextAccessor();
+        var loggingService = new DesignTimeLoggingService();
+        
+        return new DataContext(optionsBuilder.Options, httpContextAccessor, loggingService);
+    }
+}
+
+// Minimal logging service for design-time
+public class DesignTimeLoggingService : ILoggingService
+{
+    public void LogUserAction(string action, string resource, object? data = null, LogLevel level = LogLevel.Information) { }
+    public void LogSecurityEvent(string eventType, string details, LogLevel level = LogLevel.Warning) { }
+    public void LogDataAccess(string operation, string entityType, Guid? entityId = null, object? changes = null) { }
+    public void LogFinancialOperation(string operation, decimal amount, string currency, Guid? clientId = null) { }
+    public void LogAuthenticationEvent(string eventType, string userId, bool success, string? reason = null) { }
+    public void LogAuthorizationEvent(string resource, string action, bool granted, string? reason = null) { }
+}
+
+// Minimal HttpContextAccessor for design-time
+public class HttpContextAccessor : IHttpContextAccessor
+{
+    public HttpContext? HttpContext { get; set; }
+}
+
+public class DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor, ILoggingService loggingService) : DbContext(options)
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly ILoggingService _loggingService = loggingService;
@@ -67,9 +110,9 @@ namespace SFManagement.Data;
 
         // Configure WalletIdentifier relationships
         modelBuilder.Entity<WalletIdentifier>()
-            .HasOne(wi => wi.BaseAssetHolder)
-            .WithMany(bah => bah.WalletIdentifiers)
-            .HasForeignKey(wi => wi.BaseAssetHolderId)
+            .HasOne(wi => wi.AssetWallet)
+            .WithMany(aw => aw.WalletIdentifiers)
+            .HasForeignKey(wi => wi.AssetWalletId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Configure AssetWallet relationships
@@ -79,30 +122,57 @@ namespace SFManagement.Data;
             .HasForeignKey(aw => aw.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure transaction relationships
-        // modelBuilder.Entity<DigitalAssetTransaction>()
-        //     .HasOne(dat => dat.WalletIdentifier)
-        //     .WithMany(wi => wi.DigitalAssetTransactions)
-        //     .HasForeignKey(dat => dat.WalletIdentifierId)
-        //     .OnDelete(DeleteBehavior.Restrict);
+        // Configure FiatAssetTransaction sender/receiver relationships
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasOne(ft => ft.SenderWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(ft => ft.SenderWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // modelBuilder.Entity<DigitalAssetTransaction>()
-        //     .HasOne(dat => dat.AssetWallet)
-        //     .WithMany(aw => aw.DigitalAssetTransactions)
-        //     .HasForeignKey(dat => dat.AssetWalletId)
-        //     .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasOne(ft => ft.ReceiverWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(ft => ft.ReceiverWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // modelBuilder.Entity<FiatAssetTransaction>()
-        //     .HasOne(fat => fat.WalletIdentifier)
-        //     .WithMany(wi => wi.FiatAssetTransactions)
-        //     .HasForeignKey(fat => fat.WalletIdentifierId)
-        //     .OnDelete(DeleteBehavior.Restrict);
+        // Configure DigitalAssetTransaction sender/receiver relationships
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasOne(dt => dt.SenderWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(dt => dt.SenderWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // modelBuilder.Entity<FiatAssetTransaction>()
-        //     .HasOne(fat => fat.AssetWallet)
-        //     .WithMany(aw => aw.FiatAssetTransactions)
-        //     .HasForeignKey(fat => fat.AssetWalletId)
-        //     .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasOne(dt => dt.ReceiverWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(dt => dt.ReceiverWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure SettlementTransaction sender/receiver relationships
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasOne(st => st.SenderWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(st => st.SenderWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasOne(st => st.ReceiverWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(st => st.ReceiverWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure other transaction relationships
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasOne(ft => ft.OfxTransaction)
+            .WithMany()
+            .HasForeignKey(ft => ft.OfxTransactionId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasOne(dt => dt.Excel)
+            .WithMany()
+            .HasForeignKey(dt => dt.ExcelId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

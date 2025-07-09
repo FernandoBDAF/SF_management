@@ -10,6 +10,12 @@ using SFManagement.Models.AssetInfrastructure;
 
 namespace SFManagement.Services;
 
+// IMPORTANT: This service contains several methods that need major updates for the new transaction model:
+// - GetFilteredByWalletIdentifierType: Update to use AssetWallet.WalletIdentifiers navigation
+// - GetBalancesByAssetType: Update to query transactions via SenderWalletIdentifierId/ReceiverWalletIdentifierId
+// - GetAssetHolderWithTransactions: Update to use new transaction relationships
+// - GetAssetHolderWithTransactionsNoCascade: Update transaction queries and projections
+// - GetAssetHolderWithTransactionsAsStatement: Update transaction processing logic
 public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor) 
     : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain, IAssetHolder
 {
@@ -43,7 +49,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         // Get the BaseAssetHolder first since the ID is always from BaseAssetHolder
         var baseAssetHolder = await context.BaseAssetHolders
             .Include(c => c.AssetWallets)
-            .Include(c => c.WalletIdentifiers)
+                .ThenInclude(aw => aw.WalletIdentifiers)
             .Include(c => c.Address)
             .Include(c => c.ContactPhones)
             .Include(c => c.InitialBalances)
@@ -102,6 +108,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         return await base.Get(id);
     }
 
+    // this method may be removed
     public async Task<Guid[]> GetAssetHolderAssetWalletIds()
     {
         var assetHolderType = GetAssetHolderTypeForEntity<TEntity>();
@@ -143,8 +150,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         }
         
         var baseAssetHolders = await query
-            .Include(bah => bah.WalletIdentifiers)
-            .Where(bah => bah.WalletIdentifiers.Any(wi => wi.AssetType == assetType && !wi.DeletedAt.HasValue))
+            .Include(bah => bah.AssetWallets)
+                .ThenInclude(aw => aw.WalletIdentifiers)
+            .Where(bah => bah.AssetWallets.Any(aw => 
+                aw.WalletIdentifiers.Any(wi => wi.AssetWallet.AssetType == assetType && !wi.DeletedAt.HasValue)))
             .ToListAsync();
 
         return baseAssetHolders;
@@ -163,6 +172,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         };
     }
 
+    // this method may be removed
     public class AssetBalance
     {
         public AssetType AssetType { get; set; }
@@ -171,366 +181,274 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
 
     public async Task<Dictionary<AssetType, decimal>> GetBalancesByAssetType(Guid baseAssetHolderId)
     {
-        var assetHolder = await GetAssetHolderWithTransactions(baseAssetHolderId);
         var balances = new Dictionary<AssetType, decimal>();
 
-        foreach (var aw in assetHolder.AssetWallets)
+        var walletIdentifiers = await context.WalletIdentifiers
+            .Include(wi => wi.AssetWallet)
+            .Where(wi => wi.AssetWallet.BaseAssetHolderId == baseAssetHolderId && !wi.DeletedAt.HasValue)
+            .ToListAsync();
+
+        var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();
+       
+        var digitalTransactions = await context.DigitalAssetTransactions
+            .Where(dt => !dt.DeletedAt.HasValue && 
+                (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) || 
+                 walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)))
+            .Include(dt => dt.SenderWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+            .Include(dt => dt.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+            .ToArrayAsync() ?? [];
+
+        var fiatTransactions = await context.FiatAssetTransactions
+            .Where(ft => !ft.DeletedAt.HasValue && 
+                (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) || 
+                 walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)))
+            .Include(ft => ft.SenderWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+            .Include(ft => ft.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+            .ToArrayAsync() ?? [];
+
+        // Process digital asset transactions
+        foreach (var tx in digitalTransactions)
         {
-            foreach (var tx in aw.DigitalAssetTransactions ?? Enumerable.Empty<DigitalAssetTransaction>())
-            {
-                if (tx.DeletedAt.HasValue)
-                {
-                    continue;
-                }
-                var assetType = aw.AssetType;
-                var value = tx.TransactionDirection == TransactionDirection.Income ?
-                    tx.AssetAmount : -tx.AssetAmount;
-                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-                balances[assetType] += value;
-            }
+            var isReceiver = walletIdentifierIds.Contains(tx.ReceiverWalletIdentifierId);
+            var assetType = isReceiver ? tx.ReceiverWalletIdentifier.AssetWallet.AssetType : tx.SenderWalletIdentifier.AssetWallet.AssetType;
             
-            foreach (var tx in aw.FiatAssetTransactions ?? Enumerable.Empty<FiatAssetTransaction>())
-            {
-                if (tx.DeletedAt.HasValue)
-                {
-                    continue;
-                }
-                var assetType = aw.AssetType;
-                var value = tx.TransactionDirection == TransactionDirection.Income ?
-                    tx.AssetAmount : -tx.AssetAmount;
-                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-                balances[assetType] += value;
-            }
+            // If this asset holder is the receiver, it's income (positive)
+            // If this asset holder is the sender, it's expense (negative)
+            var value = isReceiver ? tx.AssetAmount : -tx.AssetAmount;
+            
+            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+            balances[assetType] += value;
         }
 
-        foreach (var wi in assetHolder.WalletIdentifiers)
+        // Process fiat asset transactions
+        foreach (var tx in fiatTransactions)
         {
-            foreach (var tx in wi.DigitalAssetTransactions)
-            {
-                if (tx.DeletedAt.HasValue)
-                {
-                    continue;
-                }
-                
-                if (tx.BalanceAs.HasValue)
-                {
-                    var assetType = tx.BalanceAs ?? AssetType.BrazilianReal;
-                    var value = tx.TransactionDirection == TransactionDirection.Income ?
-                        (tx.AssetAmount * (tx.ConversionRate ?? 1)) : -(tx.AssetAmount * (tx.ConversionRate ?? 1));
-                    if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-                    balances[assetType] += value;
-                }
-                else
-                {
-                    var assetType = wi.AssetType;
-                    var value = tx.TransactionDirection == TransactionDirection.Income ?
-                        -tx.AssetAmount : tx.AssetAmount;
-                    if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-                    balances[assetType] += value;
-                }
-            }
+            var isReceiver = walletIdentifierIds.Contains(tx.ReceiverWalletIdentifierId);
+            var assetType = isReceiver ? tx.ReceiverWalletIdentifier.AssetWallet.AssetType : tx.SenderWalletIdentifier.AssetWallet.AssetType;
             
-            foreach (var tx in wi.FiatAssetTransactions)
-            {
-                if (tx.DeletedAt.HasValue)
-                {
-                    continue;
-                }
-                
-                var assetType = wi.AssetType;
-                var value = tx.TransactionDirection == TransactionDirection.Income ?
-                    -tx.AssetAmount : tx.AssetAmount;
-                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-                balances[assetType] += value;
-            }
+            // If this asset holder is the receiver, it's income (positive)
+            // If this asset holder is the sender, it's expense (negative)
+            var value = isReceiver ? tx.AssetAmount : -tx.AssetAmount;
+            
+            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+            balances[assetType] += value;
         }
 
         return balances;
     }
     
-    public async Task<BaseAssetHolder> GetAssetHolderWithTransactions(Guid baseAssetHolderId)
-    {
-        var query = context.BaseAssetHolders.AsQueryable();
-        query = query
-            .Include(c => c.AssetWallets)
-            .ThenInclude(aw => aw.DigitalAssetTransactions)
-            .Include(c => c.AssetWallets)
-            .ThenInclude(aw => aw.FiatAssetTransactions)
-
-            .Include(c => c.WalletIdentifiers)
-            .ThenInclude(wi => wi.DigitalAssetTransactions)
-            .Include(c => c.WalletIdentifiers)
-            .ThenInclude(wi => wi.FiatAssetTransactions);
-            
-        var assetHolder = await query.FirstOrDefaultAsync(x => 
-                                  x.Id == baseAssetHolderId) ?? throw new Exception("AssetHolder not found");
-
-        return assetHolder;
-    }
-    
-    public async Task<BaseAssetHolder> GetAssetHolderWithTransactionsNoCascade(Guid baseAssetHolderId)
-    {
-        // Use a completely different approach with projection to avoid cascade
-        var query = context.BaseAssetHolders.AsQueryable();
+    // public async Task<BaseAssetHolder> GetAssetHolderWithTransactionsNoCascade(Guid baseAssetHolderId)
+    // {
+    //     // Use a completely different approach with projection to avoid cascade
+    //     var query = context.BaseAssetHolders.AsQueryable();
         
-        // First, get the asset holder with basic info
-        var assetHolder = await query
-            .Include(c => c.AssetWallets)
-            .Include(c => c.WalletIdentifiers)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == baseAssetHolderId) ?? throw new Exception("AssetHolder not found");
+    //     // First, get the asset holder with basic info
+    //     var assetHolder = await query
+    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.WalletIdentifiers)
+    //         .AsNoTracking()
+    //         .FirstOrDefaultAsync(x => x.Id == baseAssetHolderId) ?? throw new Exception("AssetHolder not found");
 
-        // Now load transactions separately with minimal includes
-        foreach (var aw in assetHolder.AssetWallets)
-        {
-            // Load DigitalAssetTransactions with minimal WalletIdentifier info
-            aw.DigitalAssetTransactions = await context.DigitalAssetTransactions
-                .Where(dat => dat.AssetWalletId == aw.Id && !dat.DeletedAt.HasValue)
-                .Select(dat => new DigitalAssetTransaction
-                {
-                    Id = dat.Id,
-                    Date = dat.Date,
-                    Description = dat.Description,
-                    AssetAmount = dat.AssetAmount,
-                    TransactionDirection = dat.TransactionDirection,
-                    BalanceAs = dat.BalanceAs,
-                    ConversionRate = dat.ConversionRate,
-                    Rate = dat.Rate,
-                    AssetWalletId = dat.AssetWalletId,
-                    WalletIdentifierId = dat.WalletIdentifierId,
-                    WalletIdentifier = new WalletIdentifier
-                    {
-                        InputForTransactions = dat.WalletIdentifier.InputForTransactions,
-                        AssetType = dat.WalletIdentifier.AssetType,
-                        BaseAssetHolder = new BaseAssetHolder
-                        {
-                            Id = dat.WalletIdentifier.BaseAssetHolder.Id, 
-                            Name = dat.WalletIdentifier.BaseAssetHolder.Name
-                        },
+    //     // Now load transactions separately with minimal includes
+    //     foreach (var aw in assetHolder.AssetWallets)
+    //     {
+    //         // Load DigitalAssetTransactions with minimal WalletIdentifier info
+    //         aw.DigitalAssetTransactions = await context.DigitalAssetTransactions
+    //             .Where(dat => dat.AssetWalletId == aw.Id && !dat.DeletedAt.HasValue)
+    //             .Select(dat => new DigitalAssetTransaction
+    //             {
+    //                 Id = dat.Id,
+    //                 Date = dat.Date,
+    //                 Description = dat.Description,
+    //                 AssetAmount = dat.AssetAmount,
+    //                 TransactionDirection = dat.TransactionDirection,
+    //                 BalanceAs = dat.BalanceAs,
+    //                 ConversionRate = dat.ConversionRate,
+    //                 Rate = dat.Rate,
+    //                 AssetWalletId = dat.AssetWalletId,
+    //                 WalletIdentifierId = dat.WalletIdentifierId,
+    //                 WalletIdentifier = new WalletIdentifier
+    //                 {
+    //                     InputForTransactions = dat.WalletIdentifier.InputForTransactions,
+    //                     AssetType = dat.WalletIdentifier.AssetType,
+    //                     BaseAssetHolder = new BaseAssetHolder
+    //                     {
+    //                         Id = dat.WalletIdentifier.BaseAssetHolder.Id, 
+    //                         Name = dat.WalletIdentifier.BaseAssetHolder.Name
+    //                     },
                        
-                    }
-                })
-                .ToListAsync();
+    //                 }
+    //             })
+    //             .ToListAsync();
 
-            // Load FiatAssetTransactions with minimal WalletIdentifier info
-            aw.FiatAssetTransactions = await context.FiatAssetTransactions
-                .Where(fat => fat.AssetWalletId == aw.Id && !fat.DeletedAt.HasValue)
-                .Select(fat => new FiatAssetTransaction
-                {
-                    Id = fat.Id,
-                    Date = fat.Date,
-                    Description = fat.Description,
-                    AssetAmount = fat.AssetAmount,
-                    TransactionDirection = fat.TransactionDirection,
-                    AssetWalletId = fat.AssetWalletId,
-                    WalletIdentifierId = fat.WalletIdentifierId,
-                    WalletIdentifier = new WalletIdentifier
-                    {
-                        Id = fat.WalletIdentifier.Id,
-                        InputForTransactions = fat.WalletIdentifier.InputForTransactions,
-                        AssetType = fat.WalletIdentifier.AssetType,
-                        BaseAssetHolder = new BaseAssetHolder 
-                            { 
-                                Id = fat.WalletIdentifier.BaseAssetHolder.Id,
-                                Name = fat.WalletIdentifier.BaseAssetHolder.Name 
-                            },
-                    }
-                })
-                .ToListAsync();
-        }
+    //         // Load FiatAssetTransactions with minimal WalletIdentifier info
+    //         aw.FiatAssetTransactions = await context.FiatAssetTransactions
+    //             .Where(fat => fat.AssetWalletId == aw.Id && !fat.DeletedAt.HasValue)
+    //             .Select(fat => new FiatAssetTransaction
+    //             {
+    //                 Id = fat.Id,
+    //                 Date = fat.Date,
+    //                 Description = fat.Description,
+    //                 AssetAmount = fat.AssetAmount,
+    //                 TransactionDirection = fat.TransactionDirection,
+    //                 AssetWalletId = fat.AssetWalletId,
+    //                 WalletIdentifierId = fat.WalletIdentifierId,
+    //                 WalletIdentifier = new WalletIdentifier
+    //                 {
+    //                     Id = fat.WalletIdentifier.Id,
+    //                     InputForTransactions = fat.WalletIdentifier.InputForTransactions,
+    //                     AssetType = fat.WalletIdentifier.AssetType,
+    //                     BaseAssetHolder = new BaseAssetHolder 
+    //                         { 
+    //                             Id = fat.WalletIdentifier.BaseAssetHolder.Id,
+    //                             Name = fat.WalletIdentifier.BaseAssetHolder.Name 
+    //                         },
+    //                 }
+    //             })
+    //             .ToListAsync();
+    //     }
 
-        foreach (var wi in assetHolder.WalletIdentifiers)
-        {
-            // Load DigitalAssetTransactions with minimal AssetWallet info
-            wi.DigitalAssetTransactions = await context.DigitalAssetTransactions
-                .Where(dat => dat.WalletIdentifierId == wi.Id && !dat.DeletedAt.HasValue)
-                .Select(dat => new DigitalAssetTransaction
-                {
-                    Id = dat.Id,
-                    Date = dat.Date,
-                    Description = dat.Description,
-                    AssetAmount = dat.AssetAmount,
-                    TransactionDirection = dat.TransactionDirection,
-                    BalanceAs = dat.BalanceAs,
-                    ConversionRate = dat.ConversionRate,
-                    Rate = dat.Rate,
-                    AssetWalletId = dat.AssetWalletId,
-                    WalletIdentifierId = dat.WalletIdentifierId,
-                    AssetWallet = new AssetWallet
-                    {
-                        Id = dat.AssetWallet.Id,
-                        AssetType = dat.AssetWallet.AssetType,
-                        BaseAssetHolder = new BaseAssetHolder
-                        {
-                            Id = dat.AssetWallet.BaseAssetHolder.Id, 
-                            Name = dat.AssetWallet.BaseAssetHolder.Name
-                        },
-                    }
-                })
-                .ToListAsync();
+    //     foreach (var wi in assetHolder.WalletIdentifiers)
+    //     {
+    //         // Load DigitalAssetTransactions with minimal AssetWallet info
+    //         wi.DigitalAssetTransactions = await context.DigitalAssetTransactions
+    //             .Where(dat => dat.WalletIdentifierId == wi.Id && !dat.DeletedAt.HasValue)
+    //             .Select(dat => new DigitalAssetTransaction
+    //             {
+    //                 Id = dat.Id,
+    //                 Date = dat.Date,
+    //                 Description = dat.Description,
+    //                 AssetAmount = dat.AssetAmount,
+    //                 TransactionDirection = dat.TransactionDirection,
+    //                 BalanceAs = dat.BalanceAs,
+    //                 ConversionRate = dat.ConversionRate,
+    //                 Rate = dat.Rate,
+    //                 AssetWalletId = dat.AssetWalletId,
+    //                 WalletIdentifierId = dat.WalletIdentifierId,
+    //                 AssetWallet = new AssetWallet
+    //                 {
+    //                     Id = dat.AssetWallet.Id,
+    //                     AssetType = dat.AssetWallet.AssetType,
+    //                     BaseAssetHolder = new BaseAssetHolder
+    //                     {
+    //                         Id = dat.AssetWallet.BaseAssetHolder.Id, 
+    //                         Name = dat.AssetWallet.BaseAssetHolder.Name
+    //                     },
+    //                 }
+    //             })
+    //             .ToListAsync();
 
-            // Load FiatAssetTransactions with minimal AssetWallet info
-            wi.FiatAssetTransactions = await context.FiatAssetTransactions
-                .Where(fat => fat.WalletIdentifierId == wi.Id && !fat.DeletedAt.HasValue)
-                .Select(fat => new FiatAssetTransaction
-                {
-                    Id = fat.Id,
-                    Date = fat.Date,
-                    Description = fat.Description,
-                    AssetAmount = fat.AssetAmount,
-                    TransactionDirection = fat.TransactionDirection,
-                    AssetWalletId = fat.AssetWalletId,
-                    WalletIdentifierId = fat.WalletIdentifierId,
-                    AssetWallet = new AssetWallet
-                    {
-                        Id = fat.AssetWallet.Id,
-                        AssetType = fat.AssetWallet.AssetType,
-                        BaseAssetHolder = new BaseAssetHolder
-                        {
-                            Id = fat.AssetWallet.BaseAssetHolder.Id, 
-                            Name = fat.AssetWallet.BaseAssetHolder.Name
-                        },
-                    }
-                })
-                .ToListAsync();
-        }
+    //         // Load FiatAssetTransactions with minimal AssetWallet info
+    //         wi.FiatAssetTransactions = await context.FiatAssetTransactions
+    //             .Where(fat => fat.WalletIdentifierId == wi.Id && !fat.DeletedAt.HasValue)
+    //             .Select(fat => new FiatAssetTransaction
+    //             {
+    //                 Id = fat.Id,
+    //                 Date = fat.Date,
+    //                 Description = fat.Description,
+    //                 AssetAmount = fat.AssetAmount,
+    //                 TransactionDirection = fat.TransactionDirection,
+    //                 AssetWalletId = fat.AssetWalletId,
+    //                 WalletIdentifierId = fat.WalletIdentifierId,
+    //                 AssetWallet = new AssetWallet
+    //                 {
+    //                     Id = fat.AssetWallet.Id,
+    //                     AssetType = fat.AssetWallet.AssetType,
+    //                     BaseAssetHolder = new BaseAssetHolder
+    //                     {
+    //                         Id = fat.AssetWallet.BaseAssetHolder.Id, 
+    //                         Name = fat.AssetWallet.BaseAssetHolder.Name
+    //                     },
+    //                 }
+    //             })
+    //             .ToListAsync();
+    //     }
 
-        return assetHolder;
-    }
+    //     return assetHolder;
+    // }
 
     public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactionsAsStatement(Guid baseAssetHolderId)
     {
-        var assetHolder = await GetAssetHolderWithTransactionsNoCascade(baseAssetHolderId);
+        var walletIdentifiers = await context.WalletIdentifiers
+            .Include(wi => wi.AssetWallet)
+            .Where(wi => wi.AssetWallet.BaseAssetHolderId == baseAssetHolderId && !wi.DeletedAt.HasValue)
+            .ToListAsync();
+
+        var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();
+    
+        var digitalTransactions = await context.DigitalAssetTransactions
+            .Where(dt => !dt.DeletedAt.HasValue && 
+                (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) || 
+                 walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)))
+            .Include(dt => dt.SenderWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+                    .ThenInclude(wi => wi.BaseAssetHolder)
+            .Include(dt => dt.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+                    .ThenInclude(wi => wi.BaseAssetHolder)
+            .ToArrayAsync() ?? [];
         
         var allTransactions = new List<StatementTransactionResponse>();
-        
-        // Process AssetWallet transactions
-        foreach (var aw in assetHolder.AssetWallets ?? Enumerable.Empty<AssetWallet>())
+
+        foreach (var dat in digitalTransactions)
         {
-            // Process DigitalAssetTransactions from AssetWallet
-            if (aw.DigitalAssetTransactions != null)
+            allTransactions.Add(new StatementTransactionResponse
             {
-                foreach (var dat in aw.DigitalAssetTransactions)
-                {
-                    var adjustedAmount = dat.AssetAmount;
-                    // For AssetWallet: Income (1) = positive, Expense (2) = negative
-                    if (dat.TransactionDirection == TransactionDirection.Expense)
-                    {
-                        adjustedAmount = -adjustedAmount;
-                    }
-                    
-                    // Get counter party name (WalletIdentifier's asset holder)
-                    var counterPartyName =  dat.WalletIdentifier?.BaseAssetHolder.Name;
-                    
-                    allTransactions.Add(new StatementTransactionResponse
-                    {
-                        Id = dat.Id,
-                        Date = dat.Date,
-                        Description = dat.Description,
-                        AssetAmount = adjustedAmount,
-                        BalanceAs = dat.BalanceAs,
-                        ConversionRate = dat.ConversionRate,
-                        Rate = dat.Rate,
-                        AssetType = aw.AssetType,
-                        CounterPartyName = counterPartyName,
-                        WalletIdentifierInput = dat.WalletIdentifier?.InputForTransactions
-                    });
-                }
-            }
-            
-            // Process FiatAssetTransactions from AssetWallet
-            if (aw.FiatAssetTransactions != null)
-            {
-                foreach (var fat in aw.FiatAssetTransactions)
-                {
-                    var adjustedAmount = fat.AssetAmount;
-                    // For AssetWallet: Income (1) = positive, Expense (2) = negative
-                    if (fat.TransactionDirection == TransactionDirection.Expense)
-                    {
-                        adjustedAmount = -adjustedAmount;
-                    }
-                    
-                    // Get counter party name (WalletIdentifier's asset holder)
-                    var counterPartyName = fat.WalletIdentifier.BaseAssetHolder.Name;
-                    
-                    allTransactions.Add(new StatementTransactionResponse
-                    {
-                        Id = fat.Id,
-                        Date = fat.Date,
-                        Description = fat.Description,
-                        AssetAmount = adjustedAmount,
-                        BalanceAs = null, // Fiat transactions don't have BalanceAs
-                        ConversionRate = null, // Fiat transactions don't have ConversionRate
-                        Rate = null, // Fiat transactions don't have Rate
-                        AssetType = aw.AssetType,
-                        CounterPartyName = counterPartyName,
-                        WalletIdentifierInput = fat.WalletIdentifier?.InputForTransactions
-                    });
-                }
-            }
+                Id = dat.Id,
+                Date = dat.Date,
+                Description = dat.Description,
+                AssetAmount = dat.SenderWalletIdentifierId == dat.Id ? -dat.AssetAmount : dat.AssetAmount,
+                BalanceAs = dat.BalanceAs,
+                ConversionRate = dat.ConversionRate,
+                Rate = dat.Rate,
+                AssetType = dat.SenderWalletIdentifier.AssetWallet.AssetType,
+                CounterPartyName = dat.SenderWalletIdentifierId == dat.Id ? dat.ReceiverWalletIdentifier.AssetWallet.BaseAssetHolder.Name : dat.SenderWalletIdentifier.AssetWallet.BaseAssetHolder.Name,
+                WalletIdentifierInput = dat.SenderWalletIdentifierId == dat.Id ? dat.SenderWalletIdentifier.InputForTransactions : dat.ReceiverWalletIdentifier.InputForTransactions
+            });
         }
         
-        // Process WalletIdentifier transactions
-        foreach (var wi in assetHolder.WalletIdentifiers ?? Enumerable.Empty<WalletIdentifier>())
+        foreach (var wi in walletIdentifiers)
         {
-            // Process DigitalAssetTransactions from WalletIdentifier
-            if (wi.DigitalAssetTransactions != null)
+            if (wi.GetDigitalAssetTransactions(context) != null)
             {
-                foreach (var dat in wi.DigitalAssetTransactions)
+                foreach (var dat in wi.GetDigitalAssetTransactions(context))
                 {
-                    var adjustedAmount = dat.AssetAmount;
-                    // For WalletIdentifier: Income (1) = negative, Expense (2) = positive
-                    if (dat.TransactionDirection == TransactionDirection.Income)
-                    {
-                        adjustedAmount = -adjustedAmount;
-                    }
-                    
-                    // Get counter party name (AssetWallet's asset holder)
-                    var counterPartyName = dat.AssetWallet.BaseAssetHolder.Name;
-                    
                     allTransactions.Add(new StatementTransactionResponse
                     {
                         Id = dat.Id,
                         Date = dat.Date,
                         Description = dat.Description,
-                        AssetAmount = adjustedAmount,
+                        AssetAmount = dat.SenderWalletIdentifierId == dat.Id ? -dat.AssetAmount : dat.AssetAmount,
                         BalanceAs = dat.BalanceAs,
                         ConversionRate = dat.ConversionRate,
                         Rate = dat.Rate,
-                        AssetType = wi.AssetType,
-                        CounterPartyName = counterPartyName,
-                        WalletIdentifierInput = wi.InputForTransactions
+                        AssetType = dat.SenderWalletIdentifier.AssetWallet.AssetType,
+                        CounterPartyName = dat.SenderWalletIdentifierId == dat.Id ? dat.ReceiverWalletIdentifier.AssetWallet.BaseAssetHolder.Name : dat.SenderWalletIdentifier.AssetWallet.BaseAssetHolder.Name,
+                        WalletIdentifierInput = dat.SenderWalletIdentifierId == dat.Id ? dat.SenderWalletIdentifier.InputForTransactions : dat.ReceiverWalletIdentifier.InputForTransactions
                     });
                 }
             }
-            
-            // Process FiatAssetTransactions from WalletIdentifier
-            if (wi.FiatAssetTransactions != null)
+
+            if (wi.GetFiatAssetTransactions(context) != null)
             {
-                foreach (var fat in wi.FiatAssetTransactions)
+                foreach (var fat in wi.GetFiatAssetTransactions(context))
                 {
-                    var adjustedAmount = fat.AssetAmount;
-                    // For WalletIdentifier: Income (1) = negative, Expense (2) = positive
-                    if (fat.TransactionDirection == TransactionDirection.Income)
-                    {
-                        adjustedAmount = -adjustedAmount;
-                    }
-                    
-                    // Get counter party name (AssetWallet's asset holder)
-                    var counterPartyName = fat.AssetWallet.BaseAssetHolder.Name;
-                    
                     allTransactions.Add(new StatementTransactionResponse
                     {
                         Id = fat.Id,
                         Date = fat.Date,
                         Description = fat.Description,
-                        AssetAmount = adjustedAmount,
+                        AssetAmount = fat.SenderWalletIdentifierId == fat.Id ? -fat.AssetAmount : fat.AssetAmount,
                         BalanceAs = null, // Fiat transactions don't have BalanceAs
                         ConversionRate = null, // Fiat transactions don't have ConversionRate
                         Rate = null, // Fiat transactions don't have Rate
-                        AssetType = wi.AssetType,
-                        CounterPartyName = counterPartyName,
-                        WalletIdentifierInput = wi.InputForTransactions
+                        AssetType = fat.SenderWalletIdentifier.AssetWallet.AssetType,
+                        CounterPartyName = fat.SenderWalletIdentifierId == fat.Id ? fat.ReceiverWalletIdentifier.AssetWallet.BaseAssetHolder.Name : fat.SenderWalletIdentifier.AssetWallet.BaseAssetHolder.Name,
+                        WalletIdentifierInput = fat.SenderWalletIdentifierId == fat.Id ? fat.SenderWalletIdentifier.InputForTransactions : fat.ReceiverWalletIdentifier.InputForTransactions
                     });
                 }
             }
@@ -538,47 +456,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         
         return new StatementAssetHolderWithTransactions
         {
-            Id = assetHolder.Id,
-            Name = assetHolder.Name,
-            Transactions = allTransactions.ToArray()
+            Id = baseAssetHolderId,
+            Name = context.BaseAssetHolders.FirstOrDefault(x => x.Id == baseAssetHolderId)?.Name ?? "",
+            Transactions = [.. allTransactions]
         };
-    }
-
-    // Example method showing how to use the new BaseAssetHolder properties
-    public async Task<string> GetAssetHolderTypeName(Guid baseAssetHolderId)
-    {
-        var assetHolder = await context.BaseAssetHolders
-            .Include(bah => bah.Client)
-            .Include(bah => bah.Bank)
-            .Include(bah => bah.Member)
-            .Include(bah => bah.PokerManager)
-            .FirstOrDefaultAsync(bah => bah.Id == baseAssetHolderId) ?? throw new Exception("BaseAssetHolder not found");
-
-        // Use the computed property to get the type
-        return assetHolder.AssetHolderType switch
-        {
-            AssetHolderType.Client => "Client",
-            AssetHolderType.Bank => "Bank", 
-            AssetHolderType.Member => "Member",
-            AssetHolderType.PokerManager => "Poker Manager",
-            AssetHolderType.Unknown => "Unknown",
-            _ => "Unknown"
-        };
-    }
-    
-    // Example method showing how to get the specific entity for filtering
-    public async Task<List<BaseAssetHolder>> GetAssetHoldersByType(AssetHolderType type)
-    {
-        // Need to include navigation properties for AssetHolderType computed property to work
-        var assetHolders = await context.BaseAssetHolders
-            .Include(bah => bah.Client)
-            .Include(bah => bah.Bank)
-            .Include(bah => bah.Member)
-            .Include(bah => bah.PokerManager)
-            .Where(bah => bah.AssetHolderType == type)
-            .ToListAsync();
-            
-        return assetHolders;
     }
 
     // Helper method to create BaseAssetHolder using base service pattern

@@ -70,6 +70,10 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
     public async Task<WalletIdentifiersConnectedResponse> GetWalletIdentifiersFromOthers(Guid id)
     {
         var groupedWalletIdentifiers = await _pokerManagerService.GetWalletIdentifiersFromOthers(id);
+
+        var settlementTransactions = await _settlementTransactionService.GetClosings(id);
+
+        var lastSettlementTransactions = settlementTransactions.OrderByDescending(st => st.Key).FirstOrDefault().Value;
         
         var response = new WalletIdentifiersConnectedResponse();
         
@@ -79,18 +83,17 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
             
             foreach (var walletIdentifier in group.Value)
             {
-                var assetHolderType = walletIdentifier.BaseAssetHolder.AssetHolderType;
+                var assetHolderType = walletIdentifier.AssetWallet.BaseAssetHolder.AssetHolderType;
                 
                 // Get the most recent settlement transaction
-                var lastSettlementTransaction = walletIdentifier.SettlementTransactions
-                    .OrderByDescending(st => st.CreatedAt)
-                    .FirstOrDefault();
+                var lastSettlementTransaction = lastSettlementTransactions
+                .Where(st => st.SenderWalletIdentifierId == walletIdentifier.Id || st.ReceiverWalletIdentifierId == walletIdentifier.Id);
                 
                 walletIdentifierResponses.Add(new WalletIdentifierWithAssetHolderResponse
                 {
                     Id = walletIdentifier.Id,
                     InputForTransactions = walletIdentifier.InputForTransactions,
-                    AssetType = walletIdentifier.AssetType,
+                    AssetType = walletIdentifier.AssetWallet.AssetType,
                     RouteInfo = walletIdentifier.RouteInfo,
                     IdentifierInfo = walletIdentifier.IdentifierInfo,
                     DescriptiveInfo = walletIdentifier.DescriptiveInfo,
@@ -104,8 +107,8 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
                         ParentCommission = walletIdentifier.Referral.ParentCommission
                     } : null,
                     LastSettlementTransaction = lastSettlementTransaction != null ? _mapper.Map<SettlementTransactionSimplifiedResponse>(lastSettlementTransaction) : null,
-                    BaseAssetHolderId = walletIdentifier.BaseAssetHolder.Id,
-                    BaseAssetHolderName = walletIdentifier.BaseAssetHolder.Name,
+                    BaseAssetHolderId = walletIdentifier.AssetWallet.BaseAssetHolder.Id,
+                    BaseAssetHolderName = walletIdentifier.AssetWallet.BaseAssetHolder.Name,
                     AssetHolderType = assetHolderType
                 });
             }
