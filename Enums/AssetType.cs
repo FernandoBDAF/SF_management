@@ -2,10 +2,13 @@ namespace SFManagement.Enums;
 
 public enum AssetType
 {
-    // Fiat
-    BrazilianReal = 1,
+    // Miscellaneous
 
-    // Poker
+    // Fiat
+    BrazilianReal = 11,
+    USDollar = 12,
+
+    // Poker in USDollar
     PokerStars = 101,
     GgPoker = 102,
     YaPoker = 103,
