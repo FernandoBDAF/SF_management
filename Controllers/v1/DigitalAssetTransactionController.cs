@@ -7,7 +7,7 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class
     DigitalAssetTransactionController : BaseApiController<DigitalAssetTransaction, DigitalAssetTransactionRequest,
@@ -46,9 +46,9 @@ public class
         var transactions = await _digitalAssetTransactionService
             .GetAssetHolderTransactions(pokerManagerAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
         
-        response.Total = transactions.Length;
+        response.Total = transactions.Total;
         
-        response.Data = _mapper.Map<List<DigitalAssetTransactionResponse>>(transactions);
+        response.Data = _mapper.Map<List<DigitalAssetTransactionResponse>>(transactions.Data);
         
         return response;
     }

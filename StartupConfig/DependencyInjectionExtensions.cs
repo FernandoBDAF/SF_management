@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SFManagement.Interfaces;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Support;
@@ -142,9 +143,13 @@ public static class DependencyInjectionExtensions
 
     public static void AddScopedServices(this WebApplicationBuilder builder)
     {
+        // Domain services
+        builder.Services.AddScoped<IAssetHolderDomainService, AssetHolderDomainService>();
+        
+        // Entity services
         builder.Services.AddScoped<BaseService<Address>, AddressService>();
         builder.Services.AddScoped<AddressService>();
-        builder.Services.AddScoped<BaseService<Bank>, BankService>();
+        builder.Services.AddScoped<BaseAssetHolderService<Bank>, BankService>();
         builder.Services.AddScoped<BankService>();
         builder.Services.AddScoped<BaseAssetHolderService<Client>, ClientService>();
         builder.Services.AddScoped<ClientService>();
@@ -152,15 +157,16 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<ContactPhoneService>();
         builder.Services.AddScoped<BaseService<InitialBalance>, InitialBalanceService>();
         builder.Services.AddScoped<InitialBalanceService>();
-        builder.Services.AddScoped<BaseService<Member>, MemberService>();
+        builder.Services.AddScoped<BaseAssetHolderService<Member>, MemberService>();
         builder.Services.AddScoped<MemberService>();
-        builder.Services.AddScoped<BaseService<PokerManager>, PokerManagerService>();
+        builder.Services.AddScoped<BaseAssetHolderService<PokerManager>, PokerManagerService>();
         builder.Services.AddScoped<PokerManagerService>();
         builder.Services.AddScoped<BaseService<AssetWallet>, AssetWalletService>();
         builder.Services.AddScoped<AssetWalletService>();
         builder.Services.AddScoped<BaseService<WalletIdentifier>, WalletIdentifierService>();
         builder.Services.AddScoped<WalletIdentifierService>();
         
+        // Transaction services
         builder.Services.AddScoped<BaseTransactionService<FiatAssetTransaction>, FiatAssetTransactionService>();
         builder.Services.AddScoped<FiatAssetTransactionService>();
         builder.Services.AddScoped<OfxService>();
@@ -173,6 +179,7 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<BaseTransactionService<SettlementTransaction>, SettlementTransactionService>();
         builder.Services.AddScoped<SettlementTransactionService>();
         
+        // Other services
         builder.Services.AddScoped<BaseService<Category>, CategoryService>();
         builder.Services.AddScoped<CategoryService>();
         // builder.Services.AddScoped<BaseService<InternalTransaction>, InternalTransactionService>();

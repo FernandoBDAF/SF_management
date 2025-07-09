@@ -21,6 +21,9 @@ public class DataContextFactory : IDesignTimeDbContextFactory<DataContext>
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("/Users/fernandobarroso/.microsoft/usersecrets/ed746e9e-1446-47fe-a708-fc3380b65b06/secrets.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("/etc/secrets/secrets.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
             .Build();
         
         var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -226,6 +229,158 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         modelBuilder.Entity<SettlementTransaction>()
             .HasIndex(st => st.DeletedAt)
             .HasDatabaseName("IX_SettlementTransaction_DeletedAt");
+
+        // ===== STRATEGIC INDEXES FOR PERFORMANCE =====
+        
+        // BaseAssetHolder indexes for frequently queried columns
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.Name)
+            .HasDatabaseName("IX_BaseAssetHolder_Name");
+
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.DeletedAt)
+            .HasDatabaseName("IX_BaseAssetHolder_DeletedAt");
+
+        // Bank indexes
+        modelBuilder.Entity<Bank>()
+            .HasIndex(b => b.BaseAssetHolderId)
+            .HasDatabaseName("IX_Bank_BaseAssetHolderId");
+
+        modelBuilder.Entity<Bank>()
+            .HasIndex(b => b.DeletedAt)
+            .HasDatabaseName("IX_Bank_DeletedAt");
+
+        // Client indexes
+        modelBuilder.Entity<Client>()
+            .HasIndex(c => c.BaseAssetHolderId)
+            .HasDatabaseName("IX_Client_BaseAssetHolderId");
+
+        modelBuilder.Entity<Client>()
+            .HasIndex(c => c.DeletedAt)
+            .HasDatabaseName("IX_Client_DeletedAt");
+
+        // Member indexes
+        modelBuilder.Entity<Member>()
+            .HasIndex(m => m.BaseAssetHolderId)
+            .HasDatabaseName("IX_Member_BaseAssetHolderId");
+            
+        modelBuilder.Entity<Member>()
+            .HasIndex(m => m.DeletedAt)
+            .HasDatabaseName("IX_Member_DeletedAt");
+
+        // PokerManager indexes
+        modelBuilder.Entity<PokerManager>()
+            .HasIndex(pm => pm.BaseAssetHolderId)
+            .HasDatabaseName("IX_PokerManager_BaseAssetHolderId");
+
+        modelBuilder.Entity<PokerManager>()
+            .HasIndex(pm => pm.DeletedAt)
+            .HasDatabaseName("IX_PokerManager_DeletedAt");
+
+        // AssetWallet indexes
+        modelBuilder.Entity<AssetWallet>()
+            .HasIndex(aw => aw.BaseAssetHolderId)
+            .HasDatabaseName("IX_AssetWallet_BaseAssetHolderId");
+
+        modelBuilder.Entity<AssetWallet>()
+            .HasIndex(aw => aw.AssetType)
+            .HasDatabaseName("IX_AssetWallet_AssetType");
+
+        modelBuilder.Entity<AssetWallet>()
+            .HasIndex(aw => new { aw.BaseAssetHolderId, aw.AssetType })
+            .HasDatabaseName("IX_AssetWallet_BaseAssetHolder_AssetType");
+
+        modelBuilder.Entity<AssetWallet>()
+            .HasIndex(aw => aw.DeletedAt)
+            .HasDatabaseName("IX_AssetWallet_DeletedAt");
+
+        // WalletIdentifier indexes
+        modelBuilder.Entity<WalletIdentifier>()
+            .HasIndex(wi => wi.AssetWalletId)
+            .HasDatabaseName("IX_WalletIdentifier_AssetWalletId");
+
+        modelBuilder.Entity<WalletIdentifier>()
+            .HasIndex(wi => wi.DeletedAt)
+            .HasDatabaseName("IX_WalletIdentifier_DeletedAt");
+
+        // ===== DATABASE CONSTRAINTS FOR DATA INTEGRITY =====
+        
+        // Member Share precision and range constraint
+        modelBuilder.Entity<Member>()
+            .Property(m => m.Share)
+            .HasPrecision(5, 4); // Allows values like 0.9999 (99.99%)
+
+        // Email uniqueness constraint (when not null)
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.Email)
+            .IsUnique()
+            .HasFilter("[Email] IS NOT NULL")
+            .HasDatabaseName("UQ_BaseAssetHolder_Email");
+
+        // CPF uniqueness constraint (when not null)
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.Cpf)
+            .IsUnique()
+            .HasFilter("[Cpf] IS NOT NULL")
+            .HasDatabaseName("UQ_BaseAssetHolder_Cpf");
+
+        // CNPJ uniqueness constraint (when not null)
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.Cnpj)
+            .IsUnique()
+            .HasFilter("[Cnpj] IS NOT NULL")
+            .HasDatabaseName("UQ_BaseAssetHolder_Cnpj");
+
+        // Bank Code uniqueness constraint
+        modelBuilder.Entity<Bank>()
+            .HasIndex(b => b.Code)
+            .IsUnique()
+            .HasFilter("[DeletedAt] IS NULL")
+            .HasDatabaseName("UQ_Bank_Code_Active");
+
+        // Asset amount constraints (must be positive for most transactions)
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasCheckConstraint("CK_FiatAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasCheckConstraint("CK_DigitalAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasCheckConstraint("CK_SettlementTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+        // Member Share range constraint
+        modelBuilder.Entity<Member>()
+            .HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 1");
+
+        // Ensure transaction dates are not in the future
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasCheckConstraint("CK_FiatAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasCheckConstraint("CK_DigitalAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasCheckConstraint("CK_SettlementTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+        // Ensure Client and Member birthdays are not in the future
+        modelBuilder.Entity<Client>()
+            .HasCheckConstraint("CK_Client_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
+
+        modelBuilder.Entity<Member>()
+            .HasCheckConstraint("CK_Member_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
+
+        // Ensure transaction sender and receiver are different
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasCheckConstraint("CK_FiatAssetTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasCheckConstraint("CK_DigitalAssetTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasCheckConstraint("CK_SettlementTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

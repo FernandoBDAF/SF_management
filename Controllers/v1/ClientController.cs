@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SFManagement.Enums;
-using SFManagement.Interfaces;
+using SFManagement.Controllers;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
@@ -10,71 +9,117 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class ClientController : BaseApiController<Client, ClientRequest, ClientResponse>
+public class ClientController : BaseAssetHolderController<Client, ClientRequest, ClientResponse>
 {
     private readonly ClientService _clientService;
     private readonly FiatAssetTransactionService _fiatAssetTransactionService;
-    private readonly IMapper _mapper;
 
-    public ClientController(ClientService service, FiatAssetTransactionService fiatAssetTransactionService, 
-        IMapper mapper) : base(service, mapper)
+    public ClientController(
+        ClientService service, 
+        FiatAssetTransactionService fiatAssetTransactionService,
+        IMapper mapper,
+        ILogger<BaseAssetHolderController<Client, ClientRequest, ClientResponse>> logger,
+        WalletIdentifierService walletIdentifierService) 
+        : base(service, walletIdentifierService, mapper, logger)
     {
-        _fiatAssetTransactionService = fiatAssetTransactionService;
         _clientService = service;
-        _mapper = mapper;
+        _fiatAssetTransactionService = fiatAssetTransactionService;
     }
 
-    [HttpPost]
-    [Route("")]
-    public override async Task<ClientResponse> Post(ClientRequest request)
+    /// <summary>
+    /// Creates an entity from request - Client-specific implementation
+    /// </summary>
+    protected override async Task<Client> CreateEntityFromRequest(ClientRequest request)
     {
-        var client = await _clientService.AddFromRequest(request);
-        return _mapper.Map<ClientResponse>(client);
+        return await _clientService.AddFromRequest(request);
     }
-    
+
+    /// <summary>
+    /// Updates an entity from request - Client-specific implementation
+    /// </summary>
+    protected override async Task<Client> UpdateEntityFromRequest(Guid id, ClientRequest request)
+    {
+        return await _clientService.UpdateFromRequest(id, request);
+    }
+
+    /// <summary>
+    /// Gets client-specific statistics including age information
+    /// </summary>
+    [HttpGet("{id}/client-statistics")]
+    [ProducesResponseType(typeof(ClientStatistics), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetClientStatistics(Guid id)
+    {
+        try
+        {
+            var statistics = await _clientService.GetClientStatistics(id);
+            return Ok(statistics);
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("retrieving client-specific statistics for");
+        }
+    }
+
+    /// <summary>
+    /// Send Brazilian Real transaction for client
+    /// </summary>
+    [HttpPost("{id}/send-brazilian-real")]
+    [ProducesResponseType(typeof(FiatAssetTransaction), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SendBrazilianReais(Guid id, [FromBody] FiatAssetTransactionRequest request)
+    {
+        try
+        {
+            var transaction = await _fiatAssetTransactionService.SendBrazilianReais(id, request);
+            return Ok(transaction);
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("processing Brazilian Real transaction for");
+        }
+    }
+
+    /// <summary>
+    /// Check if wallet identifier exists
+    /// </summary>
     [HttpGet]
     [Route("wallet-identifier-has")]
-    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    public async Task<List<BaseAssetHolderResponse>> GetFiltered([FromQuery] AssetType? assetType)
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    public async Task<IActionResult> WalletIdentifierHas([FromQuery] string input)
     {
-        if (!assetType.HasValue)
+        try
         {
-            throw new ArgumentException("Asset Type must be specified", nameof(assetType));
+            // This endpoint needs to be implemented based on your business logic
+            // For now, I'll add a placeholder that you can implement
+            throw new NotImplementedException("WalletIdentifierHas endpoint needs to be implemented");
         }
-        
-        var clients = await _clientService.GetFilteredByWalletIdentifierType(assetType.Value);
-        return _mapper.Map<List<BaseAssetHolderResponse>>(clients);
+        catch (Exception)
+        {
+            return HandleGenericException("checking wallet identifier for");
+        }
     }
 
-    // [HttpPut]
-    // [Route("initial-balance/{clientId}")]
-    // public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
-    // {
-    //     return await _clientService.UpdateInitialValue(clientId, request);
-    // }
-    
-    [HttpPost]
-    [Route("{id}/send-brazilian-real")]
-    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid id, FiatAssetTransactionRequest request)
-    {
-        return await _fiatAssetTransactionService.SendBrazilianReais(id, request);
-    }
-    
+    /// <summary>
+    /// Get or manage initial balance for client
+    /// </summary>
     [HttpGet]
-    [Route("{id}/balance")]
-    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
+    [Route("initial-balance/{clientId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetInitialBalance(Guid clientId)
     {
-        return await _clientService.GetBalancesByAssetType(id);
-    }
-    
-    [HttpGet]
-    [Route("{id}/transactions")]
-    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactions(Guid id)
-    {
-        return await _clientService.GetTransactionsStatementForAssetHolder(id);
+        try
+        {
+            // This endpoint needs to be implemented based on your business logic
+            // For now, I'll add a placeholder that you can implement
+            throw new NotImplementedException("GetInitialBalance endpoint needs to be implemented");
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("retrieving initial balance for");
+        }
     }
 }

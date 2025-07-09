@@ -14,10 +14,17 @@ public class WalletIdentifier : BaseDomain
     [Required] public Guid AssetWalletId { get; set; }
     public virtual AssetWallet AssetWallet { get; set; }
 
+    // this is not mapped to the database, but is used to validate the request
+    [NotMapped]
+    public Guid? BaseAssetHolderId { get; set; }
+
     public WalletType WalletType { get; set; }
-    
-    [Required, MaxLength(30)]
-    public string InputForTransactions { get; set; }
+
+    // this is not mapped to the database, but is used to validate the request
+    [NotMapped]
+    public AssetType? AssetType { get; set; }
+
+    public decimal? DefaultParentCommission { get; set; }
     
     // Store metadata as JSON string in database
     [Column(TypeName = "nvarchar(2000)")]
@@ -27,8 +34,73 @@ public class WalletIdentifier : BaseDomain
     [NotMapped]
     public Dictionary<string, string> Metadata
     {
-        get => JsonSerializer.Deserialize<Dictionary<string, string>>(MetadataJson) ?? new();
+        get
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(MetadataJson) || MetadataJson == "{}")
+                    return new Dictionary<string, string>();
+                    
+                return JsonSerializer.Deserialize<Dictionary<string, string>>(MetadataJson) ?? new Dictionary<string, string>();
+            }
+            catch (JsonException)
+            {
+                // If JSON is invalid, return empty dictionary and log the issue
+                // This prevents the application from crashing due to malformed JSON
+                return new Dictionary<string, string>();
+            }
+        }
         set => MetadataJson = JsonSerializer.Serialize(value);
+    }
+    
+    /// <summary>
+    /// Helper method to set metadata from individual fields
+    /// </summary>
+    public void SetMetadataFromFields(string? inputForTransactions = null, 
+                                    string? playerNickname = null, 
+                                    string? playerEmail = null,
+                                    string? accountStatus = null,
+                                    string? accountNumber = null,
+                                    string? routingNumber = null,
+                                    string? walletAddress = null,
+                                    string? walletCategory = null,
+                                    string? pixKey = null,
+                                    string? accountType = null)
+    {
+        var metadata = new Dictionary<string, string>();
+        
+        // Add fields based on wallet type
+        if (WalletType == WalletType.PokerWallet)
+        {
+            if (!string.IsNullOrEmpty(inputForTransactions))
+                metadata[PokerWalletMetadata.InputForTransactions.ToString()] = inputForTransactions;
+            if (!string.IsNullOrEmpty(playerNickname))
+                metadata[PokerWalletMetadata.PlayerNickname.ToString()] = playerNickname;
+            if (!string.IsNullOrEmpty(playerEmail))
+                metadata[PokerWalletMetadata.PlayerEmail.ToString()] = playerEmail;
+            if (!string.IsNullOrEmpty(accountStatus))
+                metadata[PokerWalletMetadata.AccountStatus.ToString()] = accountStatus;
+        }
+        else if (WalletType == WalletType.BankWallet)
+        {
+            if (!string.IsNullOrEmpty(pixKey))
+                metadata[BankWalletMetadata.PixKey.ToString()] = pixKey;
+            if (!string.IsNullOrEmpty(accountType))
+                metadata[BankWalletMetadata.AccountType.ToString()] = accountType;
+            if (!string.IsNullOrEmpty(accountNumber))
+                metadata[BankWalletMetadata.AccountNumber.ToString()] = accountNumber;
+            if (!string.IsNullOrEmpty(routingNumber))
+                metadata[BankWalletMetadata.RoutingNumber.ToString()] = routingNumber;
+        }
+        else if (WalletType == WalletType.CryptoWallet)
+        {
+            if (!string.IsNullOrEmpty(walletAddress))
+                metadata[CryptoWalletMetadata.WalletAddress.ToString()] = walletAddress;
+            if (!string.IsNullOrEmpty(walletCategory))
+                metadata[CryptoWalletMetadata.WalletCategory.ToString()] = walletCategory;
+        }
+        
+        Metadata = metadata;
     }
     
     public virtual Referral? Referral { get; set; }
@@ -49,7 +121,8 @@ public class WalletIdentifier : BaseDomain
     {
         var requiredFields = new[]
         {
-            BankWalletMetadata.BankName,
+            BankWalletMetadata.PixKey,
+            BankWalletMetadata.AccountType,
             BankWalletMetadata.AccountNumber,
             BankWalletMetadata.RoutingNumber
         };
@@ -63,7 +136,6 @@ public class WalletIdentifier : BaseDomain
     {
         var requiredFields = new[]
         {
-            PokerWalletMetadata.SiteName,
             PokerWalletMetadata.InputForTransactions
         };
         

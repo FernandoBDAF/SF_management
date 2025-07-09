@@ -9,4 +9,4 @@ public enum BankWalletMetadata
     BranchCode,         // Bank branch code
     RoutingNumber,      // Bank routing number
     PixKey,             // Pix key
-} 
+}

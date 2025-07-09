@@ -7,7 +7,7 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class
     FiatAssetTransactionController : BaseApiController<FiatAssetTransaction, FiatAssetTransactionRequest, FiatAssetTransactionResponse>
@@ -44,9 +44,9 @@ public class
         var transactions = await _fiatAssetTransactionService
             .GetAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
         
-        response.Total = transactions.Length;
+        response.Total = transactions.Total;
         
-        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions);
+        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions.Data);
         
         return response;
     }
@@ -66,9 +66,9 @@ public class
         var transactions = await _fiatAssetTransactionService
             .GetNonAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
         
-        response.Total = transactions.Length;
+        response.Total = transactions.Total;
         
-        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions);
+        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions.Data);
         
         return response;
     }

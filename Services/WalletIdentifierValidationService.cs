@@ -8,13 +8,7 @@ public class WalletIdentifierValidationService
     public ValidationResult ValidateWalletIdentifier(WalletIdentifier wallet)
     {
         var result = new ValidationResult();
-        
-        // Basic validation
-        if (string.IsNullOrEmpty(wallet.InputForTransactions))
-        {
-            result.AddError("InputForTransactions", "InputForTransactions is required");
-        }
-        
+                
         // Metadata validation based on wallet type
         if (!wallet.ValidateMetadata())
         {
@@ -40,15 +34,19 @@ public class WalletIdentifierValidationService
     
     private void ValidateBankWallet(WalletIdentifier wallet, ValidationResult result)
     {
-        var bankName = wallet.GetBankMetadata(BankWalletMetadata.BankName);
+        var pixKey = wallet.GetBankMetadata(BankWalletMetadata.PixKey);
         var accountNumber = wallet.GetBankMetadata(BankWalletMetadata.AccountNumber);
+        var routingNumber = wallet.GetBankMetadata(BankWalletMetadata.RoutingNumber);
         var accountType = wallet.GetBankMetadata(BankWalletMetadata.AccountType);
         
-        if (string.IsNullOrEmpty(bankName))
-            result.AddError("BankName", "Bank name is required for bank wallets");
+        if (string.IsNullOrEmpty(pixKey))
+            result.AddError("PixKey", "Pix key is required for bank wallets");
             
         if (string.IsNullOrEmpty(accountNumber))
             result.AddError("AccountNumber", "Account number is required for bank wallets");
+            
+        if (string.IsNullOrEmpty(routingNumber))
+            result.AddError("RoutingNumber", "Routing number is required for bank wallets");
             
         if (string.IsNullOrEmpty(accountType))
             result.AddError("AccountType", "Account type is required for bank wallets");
@@ -60,22 +58,10 @@ public class WalletIdentifierValidationService
     
     private void ValidatePokerWallet(WalletIdentifier wallet, ValidationResult result)
     {
-        var siteName = wallet.GetPokerMetadata(PokerWalletMetadata.SiteName);
-        var playerNickname = wallet.GetPokerMetadata(PokerWalletMetadata.PlayerNickname);
-        var playerEmail = wallet.GetPokerMetadata(PokerWalletMetadata.PlayerEmail);
-        
-        if (string.IsNullOrEmpty(siteName))
-            result.AddError("SiteName", "Site name is required for poker wallets");
-            
-        if (string.IsNullOrEmpty(playerNickname))
-            result.AddError("PlayerNickname", "Player nickname is required for poker wallets");
-            
-        if (string.IsNullOrEmpty(playerEmail))
-            result.AddError("PlayerEmail", "Player email is required for poker wallets");
-            
-        // Validate email format
-        if (!IsValidEmail(playerEmail))
-            result.AddError("PlayerEmail", "Invalid email format");
+        var inputForTransactions = wallet.GetPokerMetadata(PokerWalletMetadata.InputForTransactions);
+
+        if (string.IsNullOrEmpty(inputForTransactions))
+            result.AddError("InputForTransactions", "Input for transactions is required for poker wallets");
     }
     
     private void ValidateCryptoWallet(WalletIdentifier wallet, ValidationResult result)

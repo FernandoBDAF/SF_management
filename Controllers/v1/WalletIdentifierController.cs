@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SFManagement.Enums;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Services;
 using SFManagement.ViewModels;
@@ -7,7 +8,7 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class WalletIdentifierController(
     BaseService<WalletIdentifier> service,
@@ -17,11 +18,4 @@ public class WalletIdentifierController(
 {
     private readonly IMapper _mapper = mapper;
     
-    // all WI connected to a  
-    // [HttpGet]
-    // [Route("nickname-client/{clientId}")]
-    // public async Task<List<WalletIdentifierResponse>> GetNicknames(Guid clientId)
-    // {
-    //     return _mapper.Map<List<WalletIdentifierResponse>>(await walletIdentifierService.GetByClientId(clientId));
-    // }
 }

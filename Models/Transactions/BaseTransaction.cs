@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using SFManagement.Enums;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Support;
 
@@ -72,10 +73,10 @@ public class BaseTransaction : BaseDomain
     public string GetWalletIdentifierInput(Guid walletIdentifierId)
     {
         if (SenderWalletIdentifierId == walletIdentifierId)
-            return SenderWalletIdentifier?.InputForTransactions ?? "";
+            return SenderWalletIdentifier?.GetPokerMetadata(PokerWalletMetadata.InputForTransactions) ?? "";
         
         if (ReceiverWalletIdentifierId == walletIdentifierId)
-            return ReceiverWalletIdentifier?.InputForTransactions ?? "";
+            return ReceiverWalletIdentifier?.GetPokerMetadata(PokerWalletMetadata.InputForTransactions) ?? "";
             
         throw new ArgumentException("Wallet identifier is not involved in this transaction");
     }

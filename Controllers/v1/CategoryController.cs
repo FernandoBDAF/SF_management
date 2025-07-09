@@ -7,7 +7,7 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class CategoryController : BaseApiController<Category, CategoryRequest, 
     CategoryResponse>
@@ -22,9 +22,11 @@ public class CategoryController : BaseApiController<Category, CategoryRequest,
         _mapper = mapper;
     }
 
-    public override async Task<List<CategoryResponse>> Get()
+    public override async Task<IActionResult> Get()
     {
-        return _mapper.Map<List<CategoryResponse>>(await _categoryService.List());
+        var categories = await _categoryService.List();
+        var response = _mapper.Map<List<CategoryResponse>>(categories);
+        return Ok(response);
     }
 
     // [HttpGet]
