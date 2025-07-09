@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Support;
@@ -15,7 +16,7 @@ public class BaseTransaction : BaseDomain
     // Sender
     [Required] public Guid SenderWalletIdentifierId { get; set; }
     public virtual WalletIdentifier SenderWalletIdentifier { get; set; }
-
+    
     // Receiver
     [Required] public Guid ReceiverWalletIdentifierId { get; set; }
     public virtual WalletIdentifier ReceiverWalletIdentifier { get; set; }
@@ -25,4 +26,57 @@ public class BaseTransaction : BaseDomain
     [MaxLength(50)] public string? Description { get; set; }
     
     public DateTime? ApprovedAt { get; set; }
+
+    // Helper methods for transaction direction and counterparty
+    public bool IsReceiver(Guid walletIdentifierId) => ReceiverWalletIdentifierId == walletIdentifierId;
+
+    public bool IsSender(Guid walletIdentifierId) => SenderWalletIdentifierId == walletIdentifierId;
+
+    public WalletIdentifier GetCounterpartyForWalletIdentifier(Guid walletIdentifierId)
+    {
+        if (SenderWalletIdentifierId == walletIdentifierId)
+            return ReceiverWalletIdentifier;
+        
+        if (ReceiverWalletIdentifierId == walletIdentifierId)
+            return SenderWalletIdentifier;
+            
+        throw new ArgumentException("Wallet identifier is not involved in this transaction");
+    }
+
+    public decimal GetSignedAmountForWalletIdentifier(Guid walletIdentifierId)
+    {
+        if (SenderWalletIdentifierId == walletIdentifierId)
+            return -AssetAmount; // Outgoing (negative)
+        
+        if (ReceiverWalletIdentifierId == walletIdentifierId)
+            return AssetAmount; // Incoming (positive)
+            
+        throw new ArgumentException("Wallet identifier is not involved in this transaction");
+    }
+
+    [NotMapped]
+    public bool IsInternalTransfer => SenderWalletIdentifier?.AssetWallet?.BaseAssetHolderId == 
+                                     ReceiverWalletIdentifier?.AssetWallet?.BaseAssetHolderId;
+
+    public string GetCounterPartyName(Guid walletIdentifierId)
+    {
+        if (SenderWalletIdentifierId == walletIdentifierId)
+            return ReceiverWalletIdentifier?.AssetWallet?.BaseAssetHolder?.Name ?? "Unknown";
+        
+        if (ReceiverWalletIdentifierId == walletIdentifierId)
+            return SenderWalletIdentifier?.AssetWallet?.BaseAssetHolder?.Name ?? "Unknown";
+            
+        throw new ArgumentException("Wallet identifier is not involved in this transaction");
+    }
+
+    public string GetWalletIdentifierInput(Guid walletIdentifierId)
+    {
+        if (SenderWalletIdentifierId == walletIdentifierId)
+            return SenderWalletIdentifier?.InputForTransactions ?? "";
+        
+        if (ReceiverWalletIdentifierId == walletIdentifierId)
+            return ReceiverWalletIdentifier?.InputForTransactions ?? "";
+            
+        throw new ArgumentException("Wallet identifier is not involved in this transaction");
+    }
 }

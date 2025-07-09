@@ -42,6 +42,6 @@ public class BankController : BaseApiController<Bank, BankRequest, BankResponse>
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactions(Guid id)
     {
-        return await _bankService.GetAssetHolderWithTransactionsAsStatement(id);
+        return await _bankService.GetTransactionsStatementForAssetHolder(id);
     }
 }

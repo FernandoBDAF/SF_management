@@ -7,46 +7,56 @@ namespace SFManagement.Services;
 
 public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntity : BaseTransaction
 {
-    
     public BaseTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) 
         : base(context, httpContextAccessor)
     {
     }
     
-    public async Task<TEntity[]> GetAssetHolderTransactions(Guid[] assetWalletIds, DateTime? startDate,
-        DateTime? endDate, int quantity, int page)
+    public async Task<TableResponse<TEntity>> GetAssetHolderTransactions(
+        Guid[] assetWalletIds, 
+        DateTime? startDate,
+        DateTime? endDate, 
+        int quantity = 100, 
+        int page = 0)
     {
-        var response = new TableResponse<TEntity>
-        {
-            Page = page,
-            Show = quantity
-        };
-        
         // Get all wallet identifiers for the specified asset wallets
         var walletIdentifierIds = await context.WalletIdentifiers
-            .Where(wi => assetWalletIds.Contains(wi.AssetWalletId))
+            .Where(wi => assetWalletIds.Contains(wi.AssetWalletId) && !wi.DeletedAt.HasValue)
             .Select(wi => wi.Id)
             .ToListAsync();
-        
-        var transactionsQuery = _entity
+
+        if (!walletIdentifierIds.Any())
+        {
+            return new TableResponse<TEntity>
+            {
+                Data = new List<TEntity>(),
+                Total = 0,
+                Page = page,
+                Show = quantity
+            };
+        }
+
+        var query = _entity
             .Where(x => !x.DeletedAt.HasValue && 
                 (walletIdentifierIds.Contains(x.SenderWalletIdentifierId) || 
                  walletIdentifierIds.Contains(x.ReceiverWalletIdentifierId)));
-        
+
+        // Apply date filters
         if (startDate.HasValue)
-        {
-            transactionsQuery = transactionsQuery.Where(x => x.Date >= startDate.Value);
-        }
-        
+            query = query.Where(x => x.Date >= startDate.Value);
+
         if (endDate.HasValue)
-        {
-            transactionsQuery = transactionsQuery.Where(x => x.Date <= endDate.Value);
-        }
-        
-        response.Total = await transactionsQuery.CountAsync();
-        
-        var allTransactions = new List<TEntity>();
-        allTransactions.AddRange((await transactionsQuery
+            query = query.Where(x => x.Date <= endDate.Value);
+
+        // Get total count
+        var total = await query.CountAsync();
+
+        // Get paginated results with optimized includes
+        var transactions = await query
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.CreatedAt)
+            .Skip(page * quantity)
+            .Take(quantity)
             .Include(x => x.Category)
             .Include(x => x.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetWallet)
@@ -54,56 +64,119 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             .Include(x => x.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi.AssetWallet)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .ToListAsync()));
-        
-        return allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToArray();
-    }
-    
-    public async Task<TEntity[]> GetNonAssetHolderTransactions(Guid[]? assetWalletIds, DateTime? startDate,
-        DateTime? endDate, int quantity, int page)
-    {
-        var response = new TableResponse<TEntity>
+            .ToListAsync();
+
+        return new TableResponse<TEntity>
         {
+            Data = transactions,
+            Total = total,
             Page = page,
             Show = quantity
         };
-        
+    }
+    
+    public async Task<TableResponse<TEntity>> GetNonAssetHolderTransactions(
+        Guid[]? assetWalletIds, 
+        DateTime? startDate,
+        DateTime? endDate, 
+        int quantity = 100, 
+        int page = 0)
+    {
         // Get all wallet identifiers for the specified asset wallets (if any)
-        var walletIdentifierIds = assetWalletIds != null 
-            ? await context.WalletIdentifiers
-                .Where(wi => assetWalletIds.Contains(wi.AssetWalletId))
-                .Select(wi => wi.Id)
-                .ToListAsync()
-            : new List<Guid>();
+        var walletIdentifierIds = new List<Guid>();
         
-        var bankTransactionsQuery = _entity
+        if (assetWalletIds != null && assetWalletIds.Any())
+        {
+            walletIdentifierIds = await context.WalletIdentifiers
+                .Where(wi => assetWalletIds.Contains(wi.AssetWalletId) && !wi.DeletedAt.HasValue)
+                .Select(wi => wi.Id)
+                .ToListAsync();
+        }
+
+        var query = _entity
             .Where(x => !x.DeletedAt.HasValue && 
-                (assetWalletIds == null || 
+                (assetWalletIds == null || !assetWalletIds.Any() ||
                  (!walletIdentifierIds.Contains(x.SenderWalletIdentifierId) && 
                   !walletIdentifierIds.Contains(x.ReceiverWalletIdentifierId))));
-        
+
+        // Apply date filters
         if (startDate.HasValue)
-        {
-            bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date >= startDate.Value);
-        }
-        
+            query = query.Where(x => x.Date >= startDate.Value);
+
         if (endDate.HasValue)
-        {
-            bankTransactionsQuery = bankTransactionsQuery.Where(x => x.Date <= endDate.Value);
-        }
-        
-        response.Total = await bankTransactionsQuery.CountAsync();
-        
-        var allTransactions = new List<TEntity>();
-        allTransactions.AddRange((await bankTransactionsQuery
+            query = query.Where(x => x.Date <= endDate.Value);
+
+        // Get total count
+        var total = await query.CountAsync();
+
+        // Get paginated results with optimized includes
+        var transactions = await query
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.CreatedAt)
+            .Skip(page * quantity)
+            .Take(quantity)
+            .Include(x => x.Category)
             .Include(x => x.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetWallet)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(x => x.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi.AssetWallet)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .ToListAsync()));
-            
-        return allTransactions.OrderBy(x => x.Date).Skip(page * quantity).Take(quantity).ToArray();
+            .ToListAsync();
+
+        return new TableResponse<TEntity>
+        {
+            Data = transactions,
+            Total = total,
+            Page = page,
+            Show = quantity
+        };
+    }
+
+    public async Task<TEntity[]> GetTransactionsByWalletIdentifier(
+        Guid walletIdentifierId, 
+        DateTime? startDate = null,
+        DateTime? endDate = null, 
+        int quantity = 100, 
+        int page = 0)
+    {
+        var query = _entity
+            .Where(x => !x.DeletedAt.HasValue && 
+                (x.SenderWalletIdentifierId == walletIdentifierId || 
+                 x.ReceiverWalletIdentifierId == walletIdentifierId));
+
+        // Apply date filters
+        if (startDate.HasValue)
+            query = query.Where(x => x.Date >= startDate.Value);
+
+        if (endDate.HasValue)
+            query = query.Where(x => x.Date <= endDate.Value);
+
+        return await query
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.CreatedAt)
+            .Skip(page * quantity)
+            .Take(quantity)
+            .Include(x => x.Category)
+            .Include(x => x.SenderWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(aw => aw.BaseAssetHolder)
+            .Include(x => x.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(aw => aw.BaseAssetHolder)
+            .ToArrayAsync();
+    }
+
+    public async Task<decimal> GetBalanceForWalletIdentifier(Guid walletIdentifierId)
+    {
+        var incomingSum = await _entity
+            .Where(x => !x.DeletedAt.HasValue && x.ReceiverWalletIdentifierId == walletIdentifierId)
+            .SumAsync(x => x.AssetAmount);
+
+        var outgoingSum = await _entity
+            .Where(x => !x.DeletedAt.HasValue && x.SenderWalletIdentifierId == walletIdentifierId)
+            .SumAsync(x => x.AssetAmount);
+
+        return incomingSum - outgoingSum;
     }
 }

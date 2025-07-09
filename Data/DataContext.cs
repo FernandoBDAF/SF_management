@@ -173,6 +173,59 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .WithMany()
             .HasForeignKey(dt => dt.ExcelId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Configure transaction indexes for performance on concrete tables
+        
+        // FiatAssetTransaction indexes
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasIndex(ft => ft.Date)
+            .HasDatabaseName("IX_FiatAssetTransaction_Date");
+
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasIndex(ft => new { ft.SenderWalletIdentifierId, ft.Date })
+            .HasDatabaseName("IX_FiatAssetTransaction_Sender_Date");
+
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasIndex(ft => new { ft.ReceiverWalletIdentifierId, ft.Date })
+            .HasDatabaseName("IX_FiatAssetTransaction_Receiver_Date");
+
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasIndex(ft => ft.DeletedAt)
+            .HasDatabaseName("IX_FiatAssetTransaction_DeletedAt");
+
+        // DigitalAssetTransaction indexes
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasIndex(dt => dt.Date)
+            .HasDatabaseName("IX_DigitalAssetTransaction_Date");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasIndex(dt => new { dt.SenderWalletIdentifierId, dt.Date })
+            .HasDatabaseName("IX_DigitalAssetTransaction_Sender_Date");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasIndex(dt => new { dt.ReceiverWalletIdentifierId, dt.Date })
+            .HasDatabaseName("IX_DigitalAssetTransaction_Receiver_Date");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasIndex(dt => dt.DeletedAt)
+            .HasDatabaseName("IX_DigitalAssetTransaction_DeletedAt");
+
+        // SettlementTransaction indexes
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasIndex(st => st.Date)
+            .HasDatabaseName("IX_SettlementTransaction_Date");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasIndex(st => new { st.SenderWalletIdentifierId, st.Date })
+            .HasDatabaseName("IX_SettlementTransaction_Sender_Date");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasIndex(st => new { st.ReceiverWalletIdentifierId, st.Date })
+            .HasDatabaseName("IX_SettlementTransaction_Receiver_Date");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasIndex(st => st.DeletedAt)
+            .HasDatabaseName("IX_SettlementTransaction_DeletedAt");
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -6,17 +6,13 @@ public class BaseTransactionRequest
 {
     public DateTime? Date { get; set; }
     
-    public Guid? WalletIdentifierId { get; set; }
-    
-    public Guid?  AssetWalletId { get; set; }
+    // Sender and Receiver wallet identifiers (new model)
+    public Guid? SenderWalletIdentifierId { get; set; }
+    public Guid? ReceiverWalletIdentifierId { get; set; }
 
     public string? Description { get; set; }
     
     public decimal? AssetAmount { get; set; }
     
-    public TransactionDirection? TransactionDirection { get; set; }
-    
-    public Guid? FinancialBehaviorId { get; set; }
-    
-    public AssetType? AssetType { get; set; }
+    public Guid? CategoryId { get; set; }
 }

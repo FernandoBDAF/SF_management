@@ -59,7 +59,7 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
     [Route("{id}/transactions")]
     public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactions(Guid id)
     {
-        return await _pokerManagerService.GetAssetHolderWithTransactionsAsStatement(id);
+        return await _pokerManagerService.GetTransactionsStatementForAssetHolder(id);
     }
 
     
