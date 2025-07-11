@@ -9,5 +9,13 @@ public class Client : BaseDomain, IAssetHolder
     
     public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
+    [DataType(DataType.Date)]
     public DateTime? Birthday { get; set; }
+    
+    /// <summary>
+    /// Calculates the age of the client based on their birthday
+    /// </summary>
+    public int? Age => Birthday.HasValue ? 
+        DateTime.Now.Year - Birthday.Value.Year - 
+        (DateTime.Now.DayOfYear < Birthday.Value.DayOfYear ? 1 : 0) : null;
 }

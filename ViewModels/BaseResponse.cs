@@ -11,4 +11,6 @@ public class BaseResponse
     public DateTime? DeletedAt { get; set; }
 
     public Guid? CreatorId { get; set; }
+
+    public string? MetadataJson { get; set; }
 }

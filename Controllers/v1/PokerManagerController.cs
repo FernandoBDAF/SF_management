@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Authorization;
-using SFManagement.Enums;
+using SFManagement.Enums.WalletsMetadata;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
@@ -10,11 +10,10 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class PokerManagerController : BaseApiController<PokerManager, PokerManagerRequest, PokerManagerResponse>
+public class PokerManagerController : BaseAssetHolderController<PokerManager, PokerManagerRequest, PokerManagerResponse>
 {
-    private readonly IMapper _mapper;
     private readonly PokerManagerService _pokerManagerService;
     private readonly FiatAssetTransactionService _fiatAssetTransactionService;
     private readonly SettlementTransactionService _settlementTransactionService;
@@ -23,112 +22,136 @@ public class PokerManagerController : BaseApiController<PokerManager, PokerManag
         PokerManagerService service,
         FiatAssetTransactionService fiatAssetTransactionService,
         SettlementTransactionService settlementTransactionService,
-        IMapper mapper)
-        : base(service, mapper)
+        IMapper mapper,
+        ILogger<BaseAssetHolderController<PokerManager, PokerManagerRequest, PokerManagerResponse>> logger,
+        WalletIdentifierService walletIdentifierService)
+        : base(service, walletIdentifierService, mapper, logger)
     {
-        _mapper = mapper;
         _pokerManagerService = service;
         _fiatAssetTransactionService = fiatAssetTransactionService;
         _settlementTransactionService = settlementTransactionService;
     }
 
-    [HttpPost]
-    [Route("")]
-    public override async Task<PokerManagerResponse> Post(PokerManagerRequest request)
+    /// <summary>
+    /// Creates an entity from request - PokerManager-specific implementation
+    /// </summary>
+    protected override async Task<PokerManager> CreateEntityFromRequest(PokerManagerRequest request)
     {
-        var pokerManager = await _pokerManagerService.AddFromRequest(request);
-        return _mapper.Map<PokerManagerResponse>(pokerManager);
-    }
-    
-    [HttpPost]
-    [Route("{id}/send-brazilian-real")]
-    public async Task<FiatAssetTransaction> SendBrazilianReais(Guid id, FiatAssetTransactionRequest request)
-    {
-        return await _fiatAssetTransactionService.SendBrazilianReais(id, request);
-    }
-    [HttpGet]
-    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    [Route("{id}/balance")]
-    public async Task<Dictionary<AssetType,decimal>> Balance(Guid id)
-    {
-        return await _pokerManagerService.GetBalancesByAssetType(id);
+        return await _pokerManagerService.AddFromRequest(request);
     }
 
-    [HttpGet]
-    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    [Route("{id}/transactions")]
-    public async Task<StatementAssetHolderWithTransactions> GetAssetHolderWithTransactions(Guid id)
+    /// <summary>
+    /// Updates an entity from request - PokerManager-specific implementation
+    /// </summary>
+    protected override async Task<PokerManager> UpdateEntityFromRequest(Guid id, PokerManagerRequest request)
     {
-        return await _pokerManagerService.GetAssetHolderWithTransactionsAsStatement(id);
+        return await _pokerManagerService.UpdateFromRequest(id, request);
     }
-
     
-    [HttpGet]
-    [RequirePermission("read:wallet-identifiers")]
-    [Route("{id}/wallet-identifiers-connected")]
-    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    public async Task<WalletIdentifiersConnectedResponse> GetWalletIdentifiersFromOthers(Guid id)
+    /// <summary>
+    /// Send Brazilian Real transaction for poker manager
+    /// </summary>
+    [HttpPost("{id}/send-brazilian-real")]
+    [ProducesResponseType(typeof(FiatAssetTransaction), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SendBrazilianReais(Guid id, [FromBody] FiatAssetTransactionRequest request)
     {
-        var groupedWalletIdentifiers = await _pokerManagerService.GetWalletIdentifiersFromOthers(id);
-        
-        var response = new WalletIdentifiersConnectedResponse();
-        
-        foreach (var group in groupedWalletIdentifiers.OrderBy(g => g.Key))
+        try
         {
-            var walletIdentifierResponses = new List<WalletIdentifierWithAssetHolderResponse>();
+            var transaction = await _fiatAssetTransactionService.SendBrazilianReais(id, request);
+            return Ok(transaction);
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("processing Brazilian Real transaction for");
+        }
+    }
+    
+    /// <summary>
+    /// Get wallet identifiers connected to other asset holders
+    /// </summary>
+    [HttpGet("{id}/wallet-identifiers-connected")]
+    [RequirePermission("read:wallet-identifiers")]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    [ProducesResponseType(typeof(WalletIdentifiersConnectedResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetWalletIdentifiersFromOthers(Guid id)
+    {
+        try
+        {
+            var groupedWalletIdentifiers = await _pokerManagerService.GetWalletIdentifiersFromOthers(id);
+            var settlementTransactions = await _settlementTransactionService.GetClosings(id);
+            var lastSettlementTransactions = settlementTransactions.OrderByDescending(st => st.Key).FirstOrDefault().Value;
             
-            foreach (var walletIdentifier in group.Value)
+            var response = new WalletIdentifiersConnectedResponse();
+            
+            foreach (var group in groupedWalletIdentifiers.OrderBy(g => g.Key))
             {
-                var assetHolderType = walletIdentifier.BaseAssetHolder.AssetHolderType;
+                var walletIdentifierResponses = new List<WalletIdentifierWithAssetHolderResponse>();
                 
-                // Get the most recent settlement transaction
-                var lastSettlementTransaction = walletIdentifier.SettlementTransactions
-                    .OrderByDescending(st => st.CreatedAt)
-                    .FirstOrDefault();
-                
-                walletIdentifierResponses.Add(new WalletIdentifierWithAssetHolderResponse
+                foreach (var walletIdentifier in group.Value)
                 {
-                    Id = walletIdentifier.Id,
-                    InputForTransactions = walletIdentifier.InputForTransactions,
-                    AssetType = walletIdentifier.AssetType,
-                    RouteInfo = walletIdentifier.RouteInfo,
-                    IdentifierInfo = walletIdentifier.IdentifierInfo,
-                    DescriptiveInfo = walletIdentifier.DescriptiveInfo,
-                    ExtraInfo = walletIdentifier.ExtraInfo,
-                    Referral = walletIdentifier.Referral != null ? new ReferralInfo
+                    var assetHolderType = walletIdentifier.AssetPool.BaseAssetHolder.AssetHolderType;
+                    
+                    // Get the most recent settlement transaction
+                    var lastSettlementTransaction = lastSettlementTransactions
+                    .Where(st => st.SenderWalletIdentifierId == walletIdentifier.Id || st.ReceiverWalletIdentifierId == walletIdentifier.Id);
+                    
+                    walletIdentifierResponses.Add(new WalletIdentifierWithAssetHolderResponse
                     {
-                        Id = walletIdentifier.Referral.Id,
-                        AssetHolderId = walletIdentifier.Referral.AssetHolderId,
-                        Name = walletIdentifier.Referral.AssetHolder.Name,
-                        ActiveUntil = walletIdentifier.Referral.ActiveUntil,
-                        ParentCommission = walletIdentifier.Referral.ParentCommission
-                    } : null,
-                    LastSettlementTransaction = lastSettlementTransaction != null ? _mapper.Map<SettlementTransactionSimplifiedResponse>(lastSettlementTransaction) : null,
-                    BaseAssetHolderId = walletIdentifier.BaseAssetHolder.Id,
-                    BaseAssetHolderName = walletIdentifier.BaseAssetHolder.Name,
-                    AssetHolderType = assetHolderType
+                        Id = walletIdentifier.Id,
+                        InputForTransactions = walletIdentifier.GetPokerMetadata(PokerWalletMetadata.InputForTransactions),
+                        AssetType = walletIdentifier.AssetPool.AssetType,
+                        Referral = walletIdentifier.Referral != null ? new ReferralInfo
+                        {
+                            Id = walletIdentifier.Referral.Id,
+                            AssetHolderId = walletIdentifier.Referral.AssetHolderId,
+                            Name = walletIdentifier.Referral.AssetHolder.Name,
+                            ActiveUntil = walletIdentifier.Referral.ActiveUntil,
+                            ParentCommission = walletIdentifier.Referral.ParentCommission
+                        } : null,
+                        LastSettlementTransaction = lastSettlementTransaction != null ? _mapper.Map<SettlementTransactionSimplifiedResponse>(lastSettlementTransaction) : null,
+                        BaseAssetHolderId = walletIdentifier.AssetPool.BaseAssetHolder.Id,
+                        BaseAssetHolderName = walletIdentifier.AssetPool.BaseAssetHolder.Name,
+                        AssetHolderType = assetHolderType
+                    });
+                }
+                
+                response.AssetTypeGroups.Add(new WalletIdentifierGroup
+                {
+                    AssetType = group.Key,
+                    WalletIdentifiers = walletIdentifierResponses
                 });
             }
             
-            response.AssetTypeGroups.Add(new WalletIdentifierGroup
-            {
-                AssetType = group.Key,
-                WalletIdentifiers = walletIdentifierResponses
-            });
+            return Ok(response);
         }
-        
-        return response;
+        catch (Exception)
+        {
+            return HandleGenericException("retrieving wallet identifiers for");
+        }
     }
     
-
-    [HttpPost]
+    /// <summary>
+    /// Create settlement transactions by date
+    /// </summary>
+    [HttpPost("{assetHolderId}/settlement-by-date")]
     [RequireRole("admin")]
-    [Route("{assetHolderId}/settlement-by-date")]
-    public async Task<SettlementTransactionByDateResponse> CreateSettlementTransactionsByDate(
+    [ProducesResponseType(typeof(SettlementTransactionByDateResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateSettlementTransactionsByDate(
         Guid assetHolderId, 
         [FromBody] SettlementTransactionByDateRequest request)
     {
-        return await _settlementTransactionService.CreateSettlementTransactionsByDate(assetHolderId, request);
+        try
+        {
+            var result = await _settlementTransactionService.CreateSettlementTransactionsByDate(assetHolderId, request);
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("creating settlement transactions for");
+        }
     }
 
     // [HttpGet]

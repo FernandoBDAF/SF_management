@@ -7,7 +7,7 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class
     FiatAssetTransactionController : BaseApiController<FiatAssetTransaction, FiatAssetTransactionRequest, FiatAssetTransactionResponse>
@@ -28,7 +28,7 @@ public class
     [Route("bank-transactions")]
     public async Task<TableResponse<FiatAssetTransactionResponse>> BankTransactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
-        var bankAssetWalletIds = await _bankService.GetAssetHolderAssetWalletIds();
+        var bankAssetPoolIds = await _bankService.GetAssetHolderAssetPoolIds();
         
         var response = new TableResponse<FiatAssetTransactionResponse>
         {
@@ -36,17 +36,17 @@ public class
             Total = 0
         };
 
-        if (bankAssetWalletIds.Length == 0)
+        if (bankAssetPoolIds.Length == 0)
         {
             return response;
         }
         
         var transactions = await _fiatAssetTransactionService
-            .GetAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+            .GetAssetHolderTransactions(bankAssetPoolIds, null, null, quantity ?? 100, page ?? 0);
         
-        response.Total = transactions.Length;
+        response.Total = transactions.Total;
         
-        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions);
+        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions.Data);
         
         return response;
     }
@@ -55,7 +55,7 @@ public class
     [Route("direct-transactions")]
     public async Task<TableResponse<FiatAssetTransactionResponse>> DirectTransactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
-        var bankAssetWalletIds = await _bankService.GetAssetHolderAssetWalletIds();
+        var bankAssetPoolIds = await _bankService.GetAssetHolderAssetPoolIds();
         
         var response = new TableResponse<FiatAssetTransactionResponse>
         {
@@ -64,11 +64,11 @@ public class
         };
 
         var transactions = await _fiatAssetTransactionService
-            .GetNonAssetHolderTransactions(bankAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+            .GetNonAssetHolderTransactions(bankAssetPoolIds, null, null, quantity ?? 100, page ?? 0);
         
-        response.Total = transactions.Length;
+        response.Total = transactions.Total;
         
-        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions);
+        response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions.Data);
         
         return response;
     }

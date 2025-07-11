@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using SFManagement.Models;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
+using SFManagement.Enums;
+using SFManagement.Enums.WalletsMetadata;
 
 namespace SFManagement;
 
@@ -29,20 +30,98 @@ public class AutoMapperProfile : Profile
         CreateMap<InitialBalance, InitialBalanceResponse>();
         CreateMap<InitialBalanceRequest, InitialBalance>();
 
-        CreateMap<AssetWallet, AssetWalletResponse>()
+        CreateMap<AssetPool, AssetPoolResponse>()
             .ForMember(dest => dest.BaseAssetHolderName,
                 opt =>
-                    opt.MapFrom(src => src.BaseAssetHolder.Name));
-        CreateMap<AssetWalletRequest, AssetWallet>();
+                    opt.MapFrom(src => src.BaseAssetHolder != null ? src.BaseAssetHolder.Name : "Company"));
+        CreateMap<AssetPoolRequest, AssetPool>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolderId))
+            .AfterMap((src, dest, context) =>
+            {
+                // Additional validation to prevent company pools through regular endpoint
+                if (dest.BaseAssetHolderId == Guid.Empty)
+                {
+                    throw new ArgumentException("BaseAssetHolderId cannot be empty. For company pools, use the CompanyAssetPoolController.");
+                }
+                if (!dest.BaseAssetHolderId.HasValue)
+                {
+                    throw new ArgumentException("BaseAssetHolderId is required. For company pools, use the CompanyAssetPoolController.");
+                }
+            });
+
+        // Company Asset Pool mappings
+        CreateMap<CompanyAssetPoolRequest, AssetPool>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => (Guid?)null))
+            .ForMember(dest => dest.BaseAssetHolder, opt => opt.Ignore())
+            .ForMember(dest => dest.WalletIdentifiers, opt => opt.Ignore());
+
+        CreateMap<AssetPool, CompanyAssetPoolResponse>()
+            .ForMember(dest => dest.WalletIdentifierCount, opt => opt.MapFrom(src => src.WalletIdentifiers.Count))
+            .ForMember(dest => dest.CurrentBalance, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.TransactionCount, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.LastTransactionDate, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.Description, opt => opt.Ignore()) // Future enhancement
+            .ForMember(dest => dest.BusinessJustification, opt => opt.Ignore()) // Future enhancement
+            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.WalletIdentifiers));
 
         CreateMap<WalletIdentifier, WalletIdentifierResponse>()
-            .ForMember(dest => dest.BaseAssetHolderName,
-                opt =>
-                    opt.MapFrom(src => src.BaseAssetHolder.Name));
-        CreateMap<WalletIdentifierRequest, WalletIdentifier>();
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder != null ? src.AssetPool.BaseAssetHolder.Id : (Guid?)null))
+            .ForMember(dest => dest.BaseAssetHolderName, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder != null ? src.AssetPool.BaseAssetHolder.Name : "Company"))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetPool.AssetType))
+            // .ForMember(dest => dest.ReferralId, opt => opt.MapFrom(src => src.Referral.Id))
+            .AfterMap((src, dest, context) =>
+            {
+                // Extract metadata fields based on wallet type
+                switch (src.WalletType)
+                {
+                    case WalletType.PokerWallet:
+                        dest.InputForTransactions = src.GetPokerMetadata(PokerWalletMetadata.InputForTransactions);
+                        dest.PlayerNickname = src.GetPokerMetadata(PokerWalletMetadata.PlayerNickname);
+                        dest.PlayerEmail = src.GetPokerMetadata(PokerWalletMetadata.PlayerEmail);
+                        dest.AccountStatus = src.GetPokerMetadata(PokerWalletMetadata.AccountStatus);
+                        break;
+                        
+                    case WalletType.BankWallet:
+                        dest.PixKey = src.GetBankMetadata(BankWalletMetadata.PixKey);
+                        dest.AccountType = src.GetBankMetadata(BankWalletMetadata.AccountType);
+                        dest.RoutingNumber = src.GetBankMetadata(BankWalletMetadata.RoutingNumber);
+                        dest.AccountNumber = src.GetBankMetadata(BankWalletMetadata.AccountNumber);
+                        break;
+                        
+                    case WalletType.CryptoWallet:
+                        dest.WalletAddress = src.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress);
+                        dest.WalletCategory = src.GetCryptoMetadata(CryptoWalletMetadata.WalletCategory);
+                        break;
+                        
+                    case WalletType.Internal:
+                        // Internal wallets have no specific metadata fields to extract
+                        break;
+                }
+            });
+        CreateMap<WalletIdentifierRequest, WalletIdentifier>()
+            .AfterMap((src, dest, context) =>
+            {
+                // If individual metadata fields are provided, use them to construct the metadata
+                // This takes precedence over the raw MetadataJson
+                if (HasIndividualMetadataFields(src))
+                {
+                    dest.SetMetadataFromFields(
+                        inputForTransactions: src.InputForTransactions,
+                        playerNickname: src.PlayerNickname,
+                        playerEmail: src.PlayerEmail,
+                        accountStatus: src.AccountStatus,
+                        accountNumber: src.AccountNumber,
+                        routingNumber: src.RoutingNumber,
+                        walletAddress: src.WalletAddress,
+                        walletCategory: src.WalletCategory,
+                        pixKey: src.PixKey,
+                        accountType: src.AccountType
+                    );
+                }
+            });
 
         CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
-            // .ForMember(dest => dest.ClientNameAw, act => act.MapFrom(src => src.AssetWallet.Client.Name))   
+            // .ForMember(dest => dest.ClientNameAw, act => act.MapFrom(src => src.AssetPool.Client.Name))   
             // .ForMember(dest => dest.ClientNameWi, act => act.MapFrom(src => src.WalletIdentifier.Client.Name));
             
         CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();
@@ -83,6 +162,23 @@ public class AutoMapperProfile : Profile
         // Note: ApplicationUser and UserResponse mappings removed as they're replaced by Auth0
     }
     
+    /// <summary>
+    /// Helper method to check if any individual metadata fields are provided
+    /// </summary>
+    private static bool HasIndividualMetadataFields(WalletIdentifierRequest request)
+    {
+        return !string.IsNullOrEmpty(request.InputForTransactions) ||
+               !string.IsNullOrEmpty(request.PlayerNickname) ||
+               !string.IsNullOrEmpty(request.PlayerEmail) ||
+               !string.IsNullOrEmpty(request.AccountStatus) ||
+               !string.IsNullOrEmpty(request.PixKey) ||
+               !string.IsNullOrEmpty(request.AccountType) ||
+               !string.IsNullOrEmpty(request.AccountNumber) ||
+               !string.IsNullOrEmpty(request.RoutingNumber) ||
+               !string.IsNullOrEmpty(request.WalletAddress) ||
+               !string.IsNullOrEmpty(request.WalletCategory);
+    }
+    
     private void CreateBaseAssetHolderMappings()
     {
         // Bank mappings
@@ -93,11 +189,8 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address))
-            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code.ToString()))
-            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.BaseAssetHolder.WalletIdentifiers))
-            .ForMember(dest => dest.AssetWallets, opt => opt.MapFrom(src => src.BaseAssetHolder.AssetWallets))
-            .ForMember(dest => dest.InitialBalances, opt => opt.MapFrom(src => src.BaseAssetHolder.InitialBalances))
-            .ForMember(dest => dest.ContactPhones, opt => opt.MapFrom(src => src.BaseAssetHolder.ContactPhones));
+            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code.ToString()));
+            // Removed collection mappings - these properties no longer exist in response models
 
         // Client mappings
         CreateMap<Client, ClientResponse>()
@@ -107,10 +200,8 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address))
-            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.BaseAssetHolder.WalletIdentifiers))
-            .ForMember(dest => dest.AssetWallets, opt => opt.MapFrom(src => src.BaseAssetHolder.AssetWallets))
-            .ForMember(dest => dest.InitialBalances, opt => opt.MapFrom(src => src.BaseAssetHolder.InitialBalances))
-            .ForMember(dest => dest.ContactPhones, opt => opt.MapFrom(src => src.BaseAssetHolder.ContactPhones));
+            .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday));
+            // Removed collection mappings - these properties no longer exist in response models
             
         // Member mappings
         CreateMap<Member, MemberResponse>()
@@ -120,10 +211,9 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address))
-            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.BaseAssetHolder.WalletIdentifiers))
-            .ForMember(dest => dest.Wallets, opt => opt.MapFrom(src => src.BaseAssetHolder.AssetWallets))
-            .ForMember(dest => dest.InitialBalances, opt => opt.MapFrom(src => src.BaseAssetHolder.InitialBalances))
-            .ForMember(dest => dest.ContactPhones, opt => opt.MapFrom(src => src.BaseAssetHolder.ContactPhones));
+            .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday))
+            .ForMember(dest => dest.Share, opt => opt.MapFrom(src => src.Share));
+            // Removed collection mappings - these properties no longer exist in response models
             
         // PokerManager mappings
         CreateMap<PokerManager, PokerManagerResponse>()
@@ -132,11 +222,7 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address))
-            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.BaseAssetHolder.WalletIdentifiers))
-            .ForMember(dest => dest.AssetWallets, opt => opt.MapFrom(src => src.BaseAssetHolder.AssetWallets))
-            .ForMember(dest => dest.InitialBalances, opt => opt.MapFrom(src => src.BaseAssetHolder.InitialBalances))
-            .ForMember(dest => dest.ContactPhones, opt => opt.MapFrom(src => src.BaseAssetHolder.ContactPhones));
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address));
         
         CreateMap<BaseAssetHolder, BaseAssetHolderResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.Id))
@@ -144,10 +230,7 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.Cnpj))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.WalletIdentifiers))
-            .ForMember(dest => dest.AssetWallets, opt => opt.MapFrom(src => src.AssetWallets))
-            .ForMember(dest => dest.InitialBalances, opt => opt.MapFrom(src => src.InitialBalances))
-            .ForMember(dest => dest.ContactPhones, opt => opt.MapFrom(src => src.ContactPhones));
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
+            // Removed collection mappings - these properties no longer exist in response models
     }
 }

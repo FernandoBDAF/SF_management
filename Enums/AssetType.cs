@@ -5,8 +5,8 @@ public enum AssetType
     // Miscellaneous
 
     // Fiat
-    BrazilianReal = 11,
-    USDollar = 12,
+    BrazilianReal = 21,
+    USDollar = 22,
 
     // Poker in USDollar
     PokerStars = 101,
@@ -15,6 +15,7 @@ public enum AssetType
     AmericasCardRoom = 104,
     SupremaPoker = 105,
     AstroPayICash = 106,
+    LuxonPoker = 107,
 
     // Crypto
     Bitcoin = 201,

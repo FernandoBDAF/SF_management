@@ -7,7 +7,7 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 public class OfxController : BaseApiController<Ofx, OfxRequest, OfxResponse>
 {
@@ -24,18 +24,22 @@ public class OfxController : BaseApiController<Ofx, OfxRequest, OfxResponse>
     }
 
     [HttpGet]
-    public override async Task<List<OfxResponse>> Get()
+    public override async Task<IActionResult> Get()
     {
-        return _mapper.Map<List<Ofx>, List<OfxResponse>>(await _ofxService.List());
+        var ofxs = await _ofxService.List();
+        var response = _mapper.Map<List<Ofx>, List<OfxResponse>>(ofxs);
+        return Ok(response);
     }
 
-    public override async Task<OfxResponse> Post(OfxRequest model)
+    public override async Task<IActionResult> Post(OfxRequest model)
     {
-        return _mapper.Map<OfxResponse>(await _ofxService.Add(model.PostFile, model.BankId));
+        var result = await _ofxService.Add(model.PostFile, model.BankId);
+        var response = _mapper.Map<OfxResponse>(result);
+        return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
     }
 
-    public override Task<OfxResponse> Put(Guid id, OfxRequest model)
+    public override Task<IActionResult> Put(Guid id, OfxRequest model)
     {
-        throw new NotImplementedException("Transação não permitida");
+        return Task.FromResult<IActionResult>(BadRequest("Transação não permitida"));
     }
 }

@@ -4,7 +4,7 @@ using SFManagement.Models.Transactions;
 
 namespace SFManagement.ViewModels;
 
-public class AssetWalletResponse : BaseResponse
+public class AssetPoolResponse : BaseResponse
 {
     public AssetType AssetType { get; set; }
     
@@ -14,6 +14,5 @@ public class AssetWalletResponse : BaseResponse
     
     public string? BaseAssetHolderName { get; set; }
     
-    public virtual ICollection<FiatAssetTransaction>? FiatAssetTransactions { get; set; }
-    public virtual ICollection<DigitalAssetTransaction>? DigitalAssetTransactions { get; set; }
+    public List<WalletIdentifierResponse> WalletIdentifiers { get; set; } = new List<WalletIdentifierResponse>();
 }

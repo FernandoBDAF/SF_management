@@ -8,7 +8,7 @@ using SFManagement.Services;
 // namespace SFManagement.Controllers.v1;
 //
 // [ApiController]
-// [Route("api/v{verion:apiVersion}/[controller]")]
+// [Route("api/v{version:apiVersion}/[controller]")]
 // [ApiVersion("1.0")]
 // public class AvgRateController : BaseApiController<AvgRate, AvgRateRequest, AvgRateResponse>
 // {

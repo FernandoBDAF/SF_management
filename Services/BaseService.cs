@@ -31,8 +31,8 @@ public class BaseService<TEntity> where TEntity : BaseDomain
         if (typeof(TEntity) == typeof(BaseAssetHolder))
         {
             query = ((IQueryable<BaseAssetHolder>)query)
-                .Include(c => c.AssetWallets)
-                .Include(c => c.WalletIdentifiers)
+                .Include(c => c.AssetPools)
+                .ThenInclude(c => c.WalletIdentifiers)
                 .Include(c => c.Address)
                 .Include(c => c.ContactPhones)
                 .Include(c => c.InitialBalances)

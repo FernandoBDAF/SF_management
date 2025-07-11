@@ -104,6 +104,13 @@ try
     // Add authentication logging middleware AFTER authentication
     app.UseAuthenticationLogging();
     
+    // Add detailed request/response logging middleware (especially for debugging 400 errors)
+    // Only enable in development or when debugging issues
+    if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("EnableDetailedLogging"))
+    {
+        app.UseRequestResponseLogging();
+    }
+    
     app.UseAuthorization();
     app.UseMiddleware<ErrorHandlerMiddleware>();
     app.MapControllers();

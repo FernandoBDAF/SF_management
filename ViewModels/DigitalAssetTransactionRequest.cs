@@ -10,7 +10,5 @@ public class DigitalAssetTransactionRequest : BaseTransactionRequest
     
     public decimal? Rate { get; set; }
     
-    public decimal? Profit { get; set; }
-    
     public Guid? ExcelId { get; set; }
 }

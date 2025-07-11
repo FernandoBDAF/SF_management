@@ -14,7 +14,7 @@ public class ExcelTransaction : BaseDomain
     
     [MaxLength(50)] public string? Description { get; set; }
 
-    public TransactionDirection TransactionDirection { get; set; }
+    // public TransactionDirection TransactionDirection { get; set; }
 
     [MaxLength(40)] public string? ExcelNickname { get; set; }
     

@@ -1,15 +1,61 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using SFManagement.Models;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
-using Microsoft.Extensions.Logging;
 
 namespace SFManagement.Data;
 
-    public class DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor, ILoggingService loggingService) : DbContext(options)
+// Design-time factory for EF tools
+public class DataContextFactory : IDesignTimeDbContextFactory<DataContext>
+{
+    public DataContext CreateDbContext(string[] args)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<DataContext>();
+        
+        // Read configuration from appsettings.json for design-time
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("/Users/fernandobarroso/.microsoft/usersecrets/ed746e9e-1446-47fe-a708-fc3380b65b06/secrets.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("/etc/secrets/secrets.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+        
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        
+        optionsBuilder.UseSqlServer(connectionString);
+        
+        // Create minimal services for design-time
+        var httpContextAccessor = new HttpContextAccessor();
+        var loggingService = new DesignTimeLoggingService();
+        
+        return new DataContext(optionsBuilder.Options, httpContextAccessor, loggingService);
+    }
+}
+
+// Minimal logging service for design-time
+public class DesignTimeLoggingService : ILoggingService
+{
+    public void LogUserAction(string action, string resource, object? data = null, LogLevel level = LogLevel.Information) { }
+    public void LogSecurityEvent(string eventType, string details, LogLevel level = LogLevel.Warning) { }
+    public void LogDataAccess(string operation, string entityType, Guid? entityId = null, object? changes = null) { }
+    public void LogFinancialOperation(string operation, decimal amount, string currency, Guid? clientId = null) { }
+    public void LogAuthenticationEvent(string eventType, string userId, bool success, string? reason = null) { }
+    public void LogAuthorizationEvent(string resource, string action, bool granted, string? reason = null) { }
+}
+
+// Minimal HttpContextAccessor for design-time
+public class HttpContextAccessor : IHttpContextAccessor
+{
+    public HttpContext? HttpContext { get; set; }
+}
+
+public class DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor, ILoggingService loggingService) : DbContext(options)
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly ILoggingService _loggingService = loggingService;
@@ -24,7 +70,7 @@ namespace SFManagement.Data;
     public DbSet<InitialBalance> InitialBalances { get; set; }
     public DbSet<Category> Categories { get; set; }
     
-    public DbSet<AssetWallet> AssetWallets { get; set; }
+    public DbSet<AssetPool> AssetPools { get; set; }
     public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }
     
     public DbSet<FiatAssetTransaction> FiatAssetTransactions { get; set; }
@@ -67,42 +113,274 @@ namespace SFManagement.Data;
 
         // Configure WalletIdentifier relationships
         modelBuilder.Entity<WalletIdentifier>()
-            .HasOne(wi => wi.BaseAssetHolder)
-            .WithMany(bah => bah.WalletIdentifiers)
-            .HasForeignKey(wi => wi.BaseAssetHolderId)
+            .HasOne(wi => wi.AssetPool)
+            .WithMany(aw => aw.WalletIdentifiers)
+            .HasForeignKey(wi => wi.AssetPoolId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure AssetWallet relationships
-        modelBuilder.Entity<AssetWallet>()
+        // Configure AssetPool relationships
+        modelBuilder.Entity<AssetPool>()
             .HasOne(aw => aw.BaseAssetHolder)
-            .WithMany(bah => bah.AssetWallets)
+            .WithMany(bah => bah.AssetPools)
             .HasForeignKey(aw => aw.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure transaction relationships
-        // modelBuilder.Entity<DigitalAssetTransaction>()
-        //     .HasOne(dat => dat.WalletIdentifier)
-        //     .WithMany(wi => wi.DigitalAssetTransactions)
-        //     .HasForeignKey(dat => dat.WalletIdentifierId)
-        //     .OnDelete(DeleteBehavior.Restrict);
+        // Configure FiatAssetTransaction sender/receiver relationships
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasOne(ft => ft.SenderWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(ft => ft.SenderWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // modelBuilder.Entity<DigitalAssetTransaction>()
-        //     .HasOne(dat => dat.AssetWallet)
-        //     .WithMany(aw => aw.DigitalAssetTransactions)
-        //     .HasForeignKey(dat => dat.AssetWalletId)
-        //     .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasOne(ft => ft.ReceiverWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(ft => ft.ReceiverWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // modelBuilder.Entity<FiatAssetTransaction>()
-        //     .HasOne(fat => fat.WalletIdentifier)
-        //     .WithMany(wi => wi.FiatAssetTransactions)
-        //     .HasForeignKey(fat => fat.WalletIdentifierId)
-        //     .OnDelete(DeleteBehavior.Restrict);
+        // Configure DigitalAssetTransaction sender/receiver relationships
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasOne(dt => dt.SenderWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(dt => dt.SenderWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // modelBuilder.Entity<FiatAssetTransaction>()
-        //     .HasOne(fat => fat.AssetWallet)
-        //     .WithMany(aw => aw.FiatAssetTransactions)
-        //     .HasForeignKey(fat => fat.AssetWalletId)
-        //     .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasOne(dt => dt.ReceiverWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(dt => dt.ReceiverWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure SettlementTransaction sender/receiver relationships
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasOne(st => st.SenderWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(st => st.SenderWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasOne(st => st.ReceiverWalletIdentifier)
+            .WithMany()
+            .HasForeignKey(st => st.ReceiverWalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure other transaction relationships
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasOne(ft => ft.OfxTransaction)
+            .WithMany()
+            .HasForeignKey(ft => ft.OfxTransactionId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasOne(dt => dt.Excel)
+            .WithMany()
+            .HasForeignKey(dt => dt.ExcelId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // Configure transaction indexes for performance on concrete tables
+        
+        // FiatAssetTransaction indexes
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasIndex(ft => ft.Date)
+            .HasDatabaseName("IX_FiatAssetTransaction_Date");
+
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasIndex(ft => new { ft.SenderWalletIdentifierId, ft.Date })
+            .HasDatabaseName("IX_FiatAssetTransaction_Sender_Date");
+
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasIndex(ft => new { ft.ReceiverWalletIdentifierId, ft.Date })
+            .HasDatabaseName("IX_FiatAssetTransaction_Receiver_Date");
+
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasIndex(ft => ft.DeletedAt)
+            .HasDatabaseName("IX_FiatAssetTransaction_DeletedAt");
+
+        // DigitalAssetTransaction indexes
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasIndex(dt => dt.Date)
+            .HasDatabaseName("IX_DigitalAssetTransaction_Date");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasIndex(dt => new { dt.SenderWalletIdentifierId, dt.Date })
+            .HasDatabaseName("IX_DigitalAssetTransaction_Sender_Date");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasIndex(dt => new { dt.ReceiverWalletIdentifierId, dt.Date })
+            .HasDatabaseName("IX_DigitalAssetTransaction_Receiver_Date");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasIndex(dt => dt.DeletedAt)
+            .HasDatabaseName("IX_DigitalAssetTransaction_DeletedAt");
+
+        // SettlementTransaction indexes
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasIndex(st => st.Date)
+            .HasDatabaseName("IX_SettlementTransaction_Date");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasIndex(st => new { st.SenderWalletIdentifierId, st.Date })
+            .HasDatabaseName("IX_SettlementTransaction_Sender_Date");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasIndex(st => new { st.ReceiverWalletIdentifierId, st.Date })
+            .HasDatabaseName("IX_SettlementTransaction_Receiver_Date");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasIndex(st => st.DeletedAt)
+            .HasDatabaseName("IX_SettlementTransaction_DeletedAt");
+
+        // ===== STRATEGIC INDEXES FOR PERFORMANCE =====
+        
+        // BaseAssetHolder indexes for frequently queried columns
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.Name)
+            .HasDatabaseName("IX_BaseAssetHolder_Name");
+
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.DeletedAt)
+            .HasDatabaseName("IX_BaseAssetHolder_DeletedAt");
+
+        // Bank indexes
+        modelBuilder.Entity<Bank>()
+            .HasIndex(b => b.BaseAssetHolderId)
+            .HasDatabaseName("IX_Bank_BaseAssetHolderId");
+
+        modelBuilder.Entity<Bank>()
+            .HasIndex(b => b.DeletedAt)
+            .HasDatabaseName("IX_Bank_DeletedAt");
+
+        // Client indexes
+        modelBuilder.Entity<Client>()
+            .HasIndex(c => c.BaseAssetHolderId)
+            .HasDatabaseName("IX_Client_BaseAssetHolderId");
+
+        modelBuilder.Entity<Client>()
+            .HasIndex(c => c.DeletedAt)
+            .HasDatabaseName("IX_Client_DeletedAt");
+
+        // Member indexes
+        modelBuilder.Entity<Member>()
+            .HasIndex(m => m.BaseAssetHolderId)
+            .HasDatabaseName("IX_Member_BaseAssetHolderId");
+            
+        modelBuilder.Entity<Member>()
+            .HasIndex(m => m.DeletedAt)
+            .HasDatabaseName("IX_Member_DeletedAt");
+
+        // PokerManager indexes
+        modelBuilder.Entity<PokerManager>()
+            .HasIndex(pm => pm.BaseAssetHolderId)
+            .HasDatabaseName("IX_PokerManager_BaseAssetHolderId");
+
+        modelBuilder.Entity<PokerManager>()
+            .HasIndex(pm => pm.DeletedAt)
+            .HasDatabaseName("IX_PokerManager_DeletedAt");
+
+        // AssetPool indexes
+        modelBuilder.Entity<AssetPool>()
+            .HasIndex(aw => aw.BaseAssetHolderId)
+            .HasDatabaseName("IX_AssetPool_BaseAssetHolderId");
+
+        modelBuilder.Entity<AssetPool>()
+            .HasIndex(aw => aw.AssetType)
+            .HasDatabaseName("IX_AssetPool_AssetType");
+
+        modelBuilder.Entity<AssetPool>()
+            .HasIndex(aw => new { aw.BaseAssetHolderId, aw.AssetType })
+            .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetType");
+
+        modelBuilder.Entity<AssetPool>()
+            .HasIndex(aw => aw.DeletedAt)
+            .HasDatabaseName("IX_AssetPool_DeletedAt");
+
+        // WalletIdentifier indexes
+        modelBuilder.Entity<WalletIdentifier>()
+            .HasIndex(wi => wi.AssetPoolId)
+            .HasDatabaseName("IX_WalletIdentifier_AssetPoolId");
+
+        modelBuilder.Entity<WalletIdentifier>()
+            .HasIndex(wi => wi.DeletedAt)
+            .HasDatabaseName("IX_WalletIdentifier_DeletedAt");
+
+        // ===== DATABASE CONSTRAINTS FOR DATA INTEGRITY =====
+        
+        // Member Share precision and range constraint
+        modelBuilder.Entity<Member>()
+            .Property(m => m.Share)
+            .HasPrecision(5, 4); // Allows values like 0.9999 (99.99%)
+
+        // Email uniqueness constraint (when not null)
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.Email)
+            .IsUnique()
+            .HasFilter("[Email] IS NOT NULL")
+            .HasDatabaseName("UQ_BaseAssetHolder_Email");
+
+        // CPF uniqueness constraint (when not null)
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.Cpf)
+            .IsUnique()
+            .HasFilter("[Cpf] IS NOT NULL")
+            .HasDatabaseName("UQ_BaseAssetHolder_Cpf");
+
+        // CNPJ uniqueness constraint (when not null)
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.Cnpj)
+            .IsUnique()
+            .HasFilter("[Cnpj] IS NOT NULL")
+            .HasDatabaseName("UQ_BaseAssetHolder_Cnpj");
+
+        // Bank Code uniqueness constraint
+        modelBuilder.Entity<Bank>()
+            .HasIndex(b => b.Code)
+            .IsUnique()
+            .HasFilter("[DeletedAt] IS NULL")
+            .HasDatabaseName("UQ_Bank_Code_Active");
+
+        // Asset amount constraints (must be positive for most transactions)
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasCheckConstraint("CK_FiatAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasCheckConstraint("CK_DigitalAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasCheckConstraint("CK_SettlementTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+        // Member Share range constraint
+        modelBuilder.Entity<Member>()
+            .HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 1");
+
+        // Ensure transaction dates are not in the future
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasCheckConstraint("CK_FiatAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasCheckConstraint("CK_DigitalAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasCheckConstraint("CK_SettlementTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+        // Ensure Client and Member birthdays are not in the future
+        modelBuilder.Entity<Client>()
+            .HasCheckConstraint("CK_Client_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
+
+        modelBuilder.Entity<Member>()
+            .HasCheckConstraint("CK_Member_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
+
+        // Ensure transaction sender and receiver are different
+        modelBuilder.Entity<FiatAssetTransaction>()
+            .HasCheckConstraint("CK_FiatAssetTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+
+        modelBuilder.Entity<DigitalAssetTransaction>()
+            .HasCheckConstraint("CK_DigitalAssetTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+
+        modelBuilder.Entity<SettlementTransaction>()
+            .HasCheckConstraint("CK_SettlementTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

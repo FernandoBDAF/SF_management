@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
+using SFManagement.Interfaces;
 using SFManagement.Models.Entities;
 using SFManagement.ViewModels;
 
@@ -8,34 +9,40 @@ namespace SFManagement.Services;
 
 public class BankService : BaseAssetHolderService<Bank>
 {
-    private readonly IHttpContextAccessor httpContextAccessor;
-    public BankService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
-        httpContextAccessor)
+    public BankService(
+        DataContext context, 
+        IHttpContextAccessor httpContextAccessor,
+        IAssetHolderDomainService domainService) 
+        : base(context, httpContextAccessor, domainService)
     {
-        this.httpContextAccessor = httpContextAccessor;
     }
 
-    // Method to handle BankRequest and create both BaseAssetHolder and Bank
+    /// <summary>
+    /// Creates a new bank with comprehensive validation
+    /// </summary>
     public async Task<Bank> AddFromRequest(BankRequest request)
     {
-        // Create BaseAssetHolder using helper method
-        var baseAssetHolder = await CreateBaseAssetHolder(
-            request.Name
+        return await base.AddFromRequest(
+            request,
+            baseAssetHolder => new Bank
+            {
+                BaseAssetHolderId = baseAssetHolder.Id,
+                Code = request.Code
+            },
+            _domainService.ValidateBankCreation
         );
+    }
 
-        // Create Bank using the BaseAssetHolder's ID
-        var bank = new Bank
-        {
-            BaseAssetHolderId = baseAssetHolder.Id,
-            Code = int.TryParse(request.Code, out int code) ? code : 0
-        };
-
-        // Use base service to add Bank (handles audit automatically)
-        var result = await base.Add(bank);
-
-        // Return the bank with BaseAssetHolder included
-        return await context.Banks
-            .Include(b => b.BaseAssetHolder)
-            .FirstOrDefaultAsync(b => b.Id == result.Id);
+    /// <summary>
+    /// Updates a bank with validation
+    /// </summary>
+    public async Task<Bank> UpdateFromRequest(Guid bankId, BankRequest request)
+    {
+        return await base.UpdateFromRequest(
+            bankId,
+            request,
+            (bank, req) => bank.Code = req.Code,
+            _domainService.ValidateBankCreation
+        );
     }
 }

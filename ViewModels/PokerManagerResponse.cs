@@ -4,13 +4,7 @@ namespace SFManagement.ViewModels;
 
 public class PokerManagerResponse : BaseAssetHolderResponse
 {
-    public ExcelResponse[]? Excels { get; set; }
-    
-    public InitialBalanceResponse[]? InitialBalances { get; set; }
-    
-    public ContactPhoneResponse[]? ContactPhones { get; set; }
-    
-    public AssetWalletResponse[]? AssetWallets { get; set; }
-    
-    public WalletIdentifierResponse[]? WalletIdentifiers { get; set; }
+    // Remove redundant collections - these should be accessed through separate endpoints
+    // Excels, InitialBalances, ContactPhones, AssetPools, WalletIdentifiers create circular references
+    // and performance issues in responses. Use dedicated endpoints instead.
 }

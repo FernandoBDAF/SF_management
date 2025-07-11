@@ -1,21 +1,23 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using SFManagement.Enums;
-using SFManagement.Interfaces;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Support;
 
 namespace SFManagement.Models.Entities;
 
-public class BaseAssetHolder : BaseDomain, IAssetHolder
+public class BaseAssetHolder : BaseDomain
 {
     [Required] [MaxLength(40)] public string Name { get; set; }
 
-    [MaxLength(40)] public string? Email { get; set; }
-    
+    [MaxLength(40)] 
+    [EmailAddress]
+    public string? Email { get; set; }
     
     [MaxLength(20)] public string? Cpf { get; set; }
     
     [MaxLength(20)] public string? Cnpj { get; set; }
+    
     public virtual Address? Address { get; set; }
     
     // Navigation properties to specific asset holder types (only one will have a value)
@@ -50,23 +52,19 @@ public class BaseAssetHolder : BaseDomain, IAssetHolder
         }
     }
     
+    /// <summary>
+    /// Validates that exactly one entity type is set (mutually exclusive)
+    /// </summary>
+    [NotMapped]
+    public bool HasSingleEntityType => 
+        (Client != null ? 1 : 0) + (Bank != null ? 1 : 0) + 
+        (Member != null ? 1 : 0) + (PokerManager != null ? 1 : 0) == 1;
+    
     public virtual ICollection<Referral> Referral { get; set; } = new HashSet<Referral>();
     
-    public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
-    
-    public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } = new HashSet<WalletIdentifier>();
+    public virtual ICollection<AssetPool> AssetPools { get; set; } = new HashSet<AssetPool>();
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
     
     public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
-}
-
-// Enum to represent the different asset holder types
-public enum AssetHolderType
-{
-    Unknown = 0,
-    Client = 1,
-    Bank = 2,
-    Member = 3,
-    PokerManager = 4
 }

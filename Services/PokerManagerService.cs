@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
+using SFManagement.Interfaces;
 using SFManagement.Models.Entities;
 using SFManagement.ViewModels;
 using SFManagement.Enums;
@@ -9,28 +10,60 @@ namespace SFManagement.Services;
 
 public class PokerManagerService : BaseAssetHolderService<PokerManager>
 {
-    private readonly IHttpContextAccessor httpContextAccessor;
-
-    public PokerManagerService(DataContext context, IHttpContextAccessor httpContextAccessor) : base(context,
-        httpContextAccessor)
+    public PokerManagerService(
+        DataContext context, 
+        IHttpContextAccessor httpContextAccessor,
+        IAssetHolderDomainService domainService) 
+        : base(context, httpContextAccessor, domainService)
     {
-        this.httpContextAccessor = httpContextAccessor;
     }
     
-    //Get all wallet identifiers of other AssetHolders for all AssetWallet types a Manager have
+    /// <summary>
+    /// Creates a new poker manager with comprehensive validation
+    /// </summary>
+    public async Task<PokerManager> AddFromRequest(PokerManagerRequest request)
+    {
+        return await base.AddFromRequest(
+            request,
+            baseAssetHolder => new PokerManager
+            {
+                BaseAssetHolderId = baseAssetHolder.Id
+            },
+            _domainService.ValidatePokerManagerCreation
+        );
+    }
+
+    /// <summary>
+    /// Updates a poker manager with validation
+    /// </summary>
+    public async Task<PokerManager> UpdateFromRequest(Guid pokerManagerId, PokerManagerRequest request)
+    {
+        return await base.UpdateFromRequest(
+            pokerManagerId,
+            request,
+            (pokerManager, req) => 
+            {
+                // PokerManager doesn't have additional properties to update beyond BaseAssetHolder
+                // This is here for consistency and future extensibility
+            },
+            _domainService.ValidatePokerManagerCreation
+        );
+    }
+    
+    //Get all wallet identifiers of other AssetHolders for all AssetPool types a Manager have
     public async Task<Dictionary<AssetType, List<WalletIdentifier>>> GetWalletIdentifiersFromOthers(Guid pokerManagerId)
     {
         // Get the poker manager with their asset wallets
         var pokerManager = await context.PokerManagers
             .Include(pm => pm.BaseAssetHolder)
-            .ThenInclude(bah => bah.AssetWallets)
+            .ThenInclude(bah => bah.AssetPools)
             .FirstOrDefaultAsync(pm => pm.BaseAssetHolderId == pokerManagerId);
 
         if (pokerManager == null)
             throw new Exception("PokerManager not found");
 
         // Get all asset types that this poker manager has
-        var assetTypes = pokerManager.BaseAssetHolder.AssetWallets
+        var assetTypes = pokerManager.BaseAssetHolder.AssetPools
             .Where(aw => !aw.DeletedAt.HasValue)
             .Select(aw => aw.AssetType)
             .Distinct()
@@ -42,57 +75,26 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
         // Get all wallet identifiers from other asset holders (excluding this poker manager)
         // that match the asset types this poker manager has
         var walletIdentifiers = await context.WalletIdentifiers
-            .Include(wi => wi.BaseAssetHolder)
-            .ThenInclude(bah => bah.Client)
-            .Include(wi => wi.BaseAssetHolder)
-            .ThenInclude(bah => bah.Bank)
-            .Include(wi => wi.BaseAssetHolder)
-            .ThenInclude(bah => bah.Member)
-            .Include(wi => wi.BaseAssetHolder)
-            .ThenInclude(bah => bah.PokerManager)
+            .Include(wi => wi.AssetPool)
+            .ThenInclude(aw => aw.BaseAssetHolder)
+            .ThenInclude(aw => aw.Client)
             .Include(wi => wi.Referral)
             .ThenInclude(r => r.AssetHolder)
-            .Include(wi => wi.SettlementTransactions.Where(st => !st.DeletedAt.HasValue))
-            .Where(wi => assetTypes.Contains(wi.AssetType) && 
-                        !wi.DeletedAt.HasValue &&
-                        wi.BaseAssetHolderId != pokerManager.BaseAssetHolderId)
+            // .Include(wi => wi.SettlementTransactions.Where(st => !st.DeletedAt.HasValue))
+            // .Where(wi => assetTypes.Contains(wi.AssetType) && 
+            //             !wi.DeletedAt.HasValue &&
+            //             wi.BaseAssetHolderId != pokerManager.BaseAssetHolderId)
             .ToListAsync();
 
         // Group by asset type
         var groupedWalletIdentifiers = walletIdentifiers
-            .GroupBy(wi => wi.AssetType)
+            .GroupBy(wi => wi.AssetPool.AssetType)
             .ToDictionary(
                 group => group.Key,
                 group => group.ToList()
             );
 
         return groupedWalletIdentifiers;
-    }
-
-    // Method to handle PokerManagerRequest and create both BaseAssetHolder and PokerManager
-    public async Task<PokerManager> AddFromRequest(PokerManagerRequest request)
-    {
-        // Create BaseAssetHolder using helper method
-        var baseAssetHolder = await CreateBaseAssetHolder(
-            request.Name, 
-            request.Email, 
-            request.Cpf, 
-            request.Cnpj
-        );
-
-        // Create PokerManager using the BaseAssetHolder's ID
-        var pokerManager = new PokerManager
-        {
-            BaseAssetHolderId = baseAssetHolder.Id
-        };
-
-        // Use base service to add PokerManager (handles audit automatically)
-        var result = await base.Add(pokerManager);
-
-        // Return the poker manager with BaseAssetHolder included
-        return await context.PokerManagers
-            .Include(pm => pm.BaseAssetHolder)
-            .FirstOrDefaultAsync(pm => pm.Id == result.Id);
     }
 
     // public async Task<BalanceResponse> GetBalance(Guid managerId, DateTime? date)

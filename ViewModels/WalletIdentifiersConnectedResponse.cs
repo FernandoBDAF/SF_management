@@ -23,8 +23,6 @@ public class WalletIdentifierWithAssetHolderResponse
     public AssetType AssetType { get; set; }
     public string? RouteInfo { get; set; }
     public string? IdentifierInfo { get; set; }
-    public string? DescriptiveInfo { get; set; }
-    public string? ExtraInfo { get; set; }
     
     // Referral information
     public ReferralInfo? Referral { get; set; }

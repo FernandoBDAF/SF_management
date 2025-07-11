@@ -14,7 +14,6 @@ public class SettlementTransactionRequest : BaseTransactionRequest
 public class ReducedSettlementTransactionRequest
 {
     public decimal AssetAmount { get; set; }
-    public TransactionDirection TransactionDirection { get; set; }
 
     public decimal Rake { get; set; }
     
@@ -22,14 +21,15 @@ public class ReducedSettlementTransactionRequest
     
     public decimal? RakeBack { get; set; }
 
-    public Guid? WalletIdentifierId { get; set; }
+    // Using new transaction model - receiver wallet identifier (client/player)
+    public Guid? ReceiverWalletIdentifierId { get; set; }
 }
 
 public class SettlementTransactionByDateRequest
 {
     public DateTime Date { get; set; }
 
-    public Guid? AssetWalletId { get; set; }
+    public Guid? AssetPoolId { get; set; }
 
     public List<ReducedSettlementTransactionRequest> Transactions { get; set; } = [];
 }

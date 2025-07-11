@@ -6,10 +6,4 @@ public class FiatAssetTransaction : BaseTransaction
 {
     public Guid? OfxTransactionId { get; set; }
     public virtual OfxTransaction? OfxTransaction { get; set; }
-    
-    [NotMapped]
-    public Guid? ClientId { get; set; }
-    
-    [NotMapped]
-    public Guid? BankId { get; set; }
 }

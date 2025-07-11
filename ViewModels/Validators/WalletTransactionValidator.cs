@@ -8,8 +8,8 @@ public class WalletTransactionValidator : AbstractValidator<DigitalAssetTransact
     {
         // RuleFor(x => x.Coins).NotEmpty();
         RuleFor(x => x.Date).NotEmpty();
-        RuleFor(x => x.TransactionDirection).NotEmpty();
-        RuleFor(x => x.AssetWalletId).NotEmpty();
+        RuleFor(x => x.SenderWalletIdentifierId).NotEmpty();
+        RuleFor(x => x.ReceiverWalletIdentifierId).NotEmpty();
         // RuleFor(x => x.ManagerId).NotEmpty();
     }
 }

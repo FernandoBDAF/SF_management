@@ -10,7 +10,7 @@ public class Bank : BaseDomain, IAssetHolder
     
     public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
-    [Required] public int Code { get; set; }
+    [Required] [MaxLength(10)] public string Code { get; set; }
     
     public virtual ICollection<Ofx> Ofxs { get; set; } = new HashSet<Ofx>();
 }

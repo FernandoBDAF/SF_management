@@ -7,13 +7,13 @@ using SFManagement.ViewModels;
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class AssetWalletController : BaseApiController<AssetWallet, AssetWalletRequest, AssetWalletResponse>
+public class AssetPoolController : BaseApiController<AssetPool, AssetPoolRequest, AssetPoolResponse>
 {
-    private readonly AssetWalletService _service;
+    private readonly AssetPoolService _service;
     private readonly IMapper _mapper;
-    public AssetWalletController(AssetWalletService service, IMapper mapper) : base(service, mapper)
+    public AssetPoolController(AssetPoolService service, IMapper mapper) : base(service, mapper)
     {
         _service = service;
         _mapper = mapper;
@@ -22,17 +22,17 @@ public class AssetWalletController : BaseApiController<AssetWallet, AssetWalletR
     [HttpGet]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [Route("asset-holder/{assetHolderId}")]
-    public async Task<List<AssetWalletResponse>> GetAssetWallets(Guid assetHolderId)
+    public async Task<List<AssetPoolResponse>> GetAssetPools(Guid assetHolderId)
     {
-        var assetWallets = await _service.GetAssetWallets(assetHolderId);
-        return _mapper.Map<List<AssetWalletResponse>>(assetWallets);
+        var assetPools = await _service.GetAssetPools(assetHolderId);
+        return _mapper.Map<List<AssetPoolResponse>>(assetPools);
     }
 
     // [HttpGet]
     // [Route("balance/{walletId}")]
     // public async Task<BalanceResponse> Balance(Guid walletId)
     // {
-    //     return await _assetWalletService.GetBalance(walletId);
+    //     return await _AssetPoolService.GetBalance(walletId);
     // }
 
     // [HttpGet]

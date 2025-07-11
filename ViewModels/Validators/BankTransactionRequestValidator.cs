@@ -6,7 +6,8 @@ public class BankTransactionRequestValidator : AbstractValidator<FiatAssetTransa
 {
     public BankTransactionRequestValidator()
     {
-        RuleFor(x => x.TransactionDirection).NotEmpty();
+        RuleFor(x => x.SenderWalletIdentifierId).NotEmpty();
+        RuleFor(x => x.ReceiverWalletIdentifierId).NotEmpty();
         // RuleFor(x => x.BankId).NotEmpty();
         // RuleFor(x => x.Value).NotEmpty();
     }
