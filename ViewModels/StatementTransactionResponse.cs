@@ -23,4 +23,6 @@ public class StatementTransactionResponse
     public string? CounterPartyName { get; set; }
     
     public string? WalletIdentifierInput { get; set; }
+
+    public WalletType WalletType { get; set; }
 }

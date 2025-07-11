@@ -21,22 +21,25 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     
     public override async Task<WalletIdentifier> Add(WalletIdentifier walletIdentifier)
     {
-        if (walletIdentifier.AssetPoolId.Equals(Guid.Empty))
+        if (walletIdentifier.AssetPoolId.Equals(Guid.Empty) || walletIdentifier.AssetPoolId.Equals(null))
         {
-            if (walletIdentifier.BaseAssetHolderId.Equals(Guid.Empty) || !walletIdentifier.AssetType.HasValue)
+            if (walletIdentifier.BaseAssetHolderId.Equals(Guid.Empty) ||
+                walletIdentifier.BaseAssetHolderId.Equals(null) ||
+                !walletIdentifier.AssetType.HasValue)
             {
                 throw new ArgumentException("AssetPoolId or BaseAssetHolderId and AssetType are required");
             }
-            // get the asset wallet
+            
+            // get the asset pool
             var assetPool = await _AssetPoolService.
             GetByBaseAssetHolderAndType(walletIdentifier.BaseAssetHolderId!.Value, walletIdentifier.AssetType.Value);
             
             if (assetPool == null)
             {
-                // create the asset wallet
+                // create the asset pool - FIXED: properly handle null BaseAssetHolderId
                 assetPool = new AssetPool
                 {
-                    BaseAssetHolderId = walletIdentifier.BaseAssetHolderId ?? Guid.Empty,
+                    BaseAssetHolderId = walletIdentifier.BaseAssetHolderId, // Keep null if it's null
                     AssetType = walletIdentifier.AssetType.Value,
                 };
                 assetPool = await _AssetPoolService.Add(assetPool);
@@ -213,6 +216,28 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     public async Task<List<WalletIdentifier>> GetCryptoWalletsByExchange(string exchangeName)
     {
         return await SearchByMetadata(CryptoWalletMetadata.ExchangeName.ToString(), exchangeName);
+    }
+    
+    public async Task<List<WalletIdentifier>> GetInternalWallets()
+    {
+        return await context.WalletIdentifiers
+            .Include(wi => wi.AssetPool)
+                .ThenInclude(aw => aw.BaseAssetHolder)
+            .Include(wi => wi.Referral)
+            .Where(wi => wi.WalletType == WalletType.Internal && !wi.DeletedAt.HasValue)
+            .ToListAsync();
+    }
+    
+    public async Task<List<WalletIdentifier>> GetInternalWalletsByMetadata(string metadataKey, string metadataValue)
+    {
+        return await context.WalletIdentifiers
+            .Include(wi => wi.AssetPool)
+                .ThenInclude(aw => aw.BaseAssetHolder)
+            .Include(wi => wi.Referral)
+            .Where(wi => wi.WalletType == WalletType.Internal && 
+                        wi.MetadataJson.Contains($"\"{metadataKey}\":\"{metadataValue}\"") && 
+                        !wi.DeletedAt.HasValue)
+            .ToListAsync();
     }
     
     // Validation method

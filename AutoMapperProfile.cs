@@ -33,12 +33,40 @@ public class AutoMapperProfile : Profile
         CreateMap<AssetPool, AssetPoolResponse>()
             .ForMember(dest => dest.BaseAssetHolderName,
                 opt =>
-                    opt.MapFrom(src => src.BaseAssetHolder.Name));
-        CreateMap<AssetPoolRequest, AssetPool>();
+                    opt.MapFrom(src => src.BaseAssetHolder != null ? src.BaseAssetHolder.Name : "Company"));
+        CreateMap<AssetPoolRequest, AssetPool>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolderId))
+            .AfterMap((src, dest, context) =>
+            {
+                // Additional validation to prevent company pools through regular endpoint
+                if (dest.BaseAssetHolderId == Guid.Empty)
+                {
+                    throw new ArgumentException("BaseAssetHolderId cannot be empty. For company pools, use the CompanyAssetPoolController.");
+                }
+                if (!dest.BaseAssetHolderId.HasValue)
+                {
+                    throw new ArgumentException("BaseAssetHolderId is required. For company pools, use the CompanyAssetPoolController.");
+                }
+            });
+
+        // Company Asset Pool mappings
+        CreateMap<CompanyAssetPoolRequest, AssetPool>()
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => (Guid?)null))
+            .ForMember(dest => dest.BaseAssetHolder, opt => opt.Ignore())
+            .ForMember(dest => dest.WalletIdentifiers, opt => opt.Ignore());
+
+        CreateMap<AssetPool, CompanyAssetPoolResponse>()
+            .ForMember(dest => dest.WalletIdentifierCount, opt => opt.MapFrom(src => src.WalletIdentifiers.Count))
+            .ForMember(dest => dest.CurrentBalance, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.TransactionCount, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.LastTransactionDate, opt => opt.Ignore()) // Will be set manually
+            .ForMember(dest => dest.Description, opt => opt.Ignore()) // Future enhancement
+            .ForMember(dest => dest.BusinessJustification, opt => opt.Ignore()) // Future enhancement
+            .ForMember(dest => dest.WalletIdentifiers, opt => opt.MapFrom(src => src.WalletIdentifiers));
 
         CreateMap<WalletIdentifier, WalletIdentifierResponse>()
-            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder.Id))
-            .ForMember(dest => dest.BaseAssetHolderName, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder.Name))
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder != null ? src.AssetPool.BaseAssetHolder.Id : (Guid?)null))
+            .ForMember(dest => dest.BaseAssetHolderName, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder != null ? src.AssetPool.BaseAssetHolder.Name : "Company"))
             .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetPool.AssetType))
             // .ForMember(dest => dest.ReferralId, opt => opt.MapFrom(src => src.Referral.Id))
             .AfterMap((src, dest, context) =>
@@ -63,6 +91,10 @@ public class AutoMapperProfile : Profile
                     case WalletType.CryptoWallet:
                         dest.WalletAddress = src.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress);
                         dest.WalletCategory = src.GetCryptoMetadata(CryptoWalletMetadata.WalletCategory);
+                        break;
+                        
+                    case WalletType.Internal:
+                        // Internal wallets have no specific metadata fields to extract
                         break;
                 }
             });

@@ -28,6 +28,9 @@ public class WalletIdentifierValidationService
             case WalletType.CryptoWallet:
                 ValidateCryptoWallet(wallet, result);
                 break;
+            case WalletType.Internal:
+                ValidateInternalWallet(wallet, result);
+                break;
         }
         
         return result;
@@ -79,6 +82,11 @@ public class WalletIdentifierValidationService
         // Validate wallet category
         if (!IsValidCryptoWalletCategory(walletCategory))
             result.AddError("WalletCategory", "Invalid crypto wallet category. Must be 'Hot', 'Cold', or 'Exchange'");
+    }
+    
+    private void ValidateInternalWallet(WalletIdentifier wallet, ValidationResult result)
+    {
+        // No specific validation for Internal wallet type
     }
     
     private bool IsValidAccountType(string? accountType) => 

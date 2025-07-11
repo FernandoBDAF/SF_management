@@ -20,8 +20,9 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         int page = 0)
     {
         // Get all wallet identifiers for the specified asset wallets
+        var assetPoolIdsList = AssetPoolIds.ToList();
         var walletIdentifierIds = await context.WalletIdentifiers
-            .Where(wi => AssetPoolIds.Contains(wi.AssetPoolId) && !wi.DeletedAt.HasValue)
+            .Where(wi => assetPoolIdsList.Contains(wi.AssetPoolId) && !wi.DeletedAt.HasValue)
             .Select(wi => wi.Id)
             .ToListAsync();
 
@@ -87,8 +88,9 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         
         if (AssetPoolIds != null && AssetPoolIds.Any())
         {
+            var assetPoolIdsList = AssetPoolIds.ToList();
             walletIdentifierIds = await context.WalletIdentifiers
-                .Where(wi => AssetPoolIds.Contains(wi.AssetPoolId) && !wi.DeletedAt.HasValue)
+                .Where(wi => assetPoolIdsList.Contains(wi.AssetPoolId!) && !wi.DeletedAt.HasValue)
                 .Select(wi => wi.Id)
                 .ToListAsync();
         }

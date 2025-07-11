@@ -163,6 +163,7 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<PokerManagerService>();
         builder.Services.AddScoped<BaseService<AssetPool>, AssetPoolService>();
         builder.Services.AddScoped<AssetPoolService>();
+        builder.Services.AddScoped<AssetPoolValidationService>();
         builder.Services.AddScoped<BaseService<WalletIdentifier>, WalletIdentifierService>();
         builder.Services.AddScoped<WalletIdentifierService>();
         

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using SFManagement.Enums;
 using SFManagement.Enums.WalletsMetadata;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Support;
@@ -44,6 +45,7 @@ public class BaseTransaction : BaseDomain
         throw new ArgumentException("Wallet identifier is not involved in this transaction");
     }
 
+
     public decimal GetSignedAmountForWalletIdentifier(Guid walletIdentifierId)
     {
         if (SenderWalletIdentifierId == walletIdentifierId)
@@ -53,6 +55,19 @@ public class BaseTransaction : BaseDomain
             return AssetAmount; // Incoming (positive)
             
         throw new ArgumentException("Wallet identifier is not involved in this transaction");
+    }
+
+    public bool HaveBothWalletsSameAccountClassification()
+    {
+        return SenderWalletIdentifier.AccountClassification == ReceiverWalletIdentifier.AccountClassification;
+    }
+
+    public bool IsWalletIdentifierLiability(Guid walletIdentifierId)
+    {
+        if (SenderWalletIdentifierId == walletIdentifierId)
+            return SenderWalletIdentifier.AccountClassification == AccountClassification.LIABILITY;
+        
+        return ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY;
     }
 
     [NotMapped]

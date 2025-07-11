@@ -7,15 +7,17 @@ public class WalletIdentifierRequest
     // validation: AssetPoolId or BaseAssetHolderId+ AssetType are required
     public Guid? AssetPoolId { get; set; }
     
-    public Guid? BaseAssetHolderId { get; set; }
+    public Guid BaseAssetHolderId { get; set; }
 
-    public AssetType AssetType { get; set; }
+    public AssetType? AssetType { get; set; }
 
     public AccountClassification AccountClassification { get; set; }
 
     public WalletType WalletType { get; set; }
+    
+    public decimal? DefaultParentCommission { get; set; }
 
-    public string MetadataJson { get; set; } = "{}";
+    public string? MetadataJson { get; set; }
     
     // Metadata fields - these will be used to construct MetadataJson if provided
     public string? InputForTransactions { get; set; }
@@ -34,5 +36,4 @@ public class WalletIdentifierRequest
     public string? WalletAddress { get; set; }
     public string? WalletCategory { get; set; }
     
-    public decimal? DefaultParentCommission { get; set; }
 }

@@ -13,8 +13,8 @@ namespace SFManagement.Models.AssetInfrastructure;
 
 public class WalletIdentifier : BaseDomain
 {
-    public Guid? AssetPoolId { get; set; }
-    public virtual AssetPool? AssetPool { get; set; }
+    public Guid AssetPoolId { get; set; }
+    public virtual AssetPool AssetPool { get; set; }
 
     // this is not mapped to the database, but is used to validate the request
     [NotMapped]
@@ -101,6 +101,11 @@ public class WalletIdentifier : BaseDomain
             if (!string.IsNullOrEmpty(walletCategory))
                 metadata[CryptoWalletMetadata.WalletCategory.ToString()] = walletCategory;
         }
+        else if (WalletType == WalletType.Internal)
+        {
+            // Internal wallets can have optional metadata, but none is required
+            // For now, we don't set any specific metadata for internal wallets
+        }
         
         Metadata = metadata;
     }
@@ -115,6 +120,7 @@ public class WalletIdentifier : BaseDomain
             WalletType.BankWallet => ValidateBankWalletMetadata(),
             WalletType.PokerWallet => ValidatePokerWalletMetadata(),
             WalletType.CryptoWallet => ValidateCryptoWalletMetadata(),
+            WalletType.Internal => true, // Internal wallets require no metadata validation
             _ => false
         };
     }
@@ -169,6 +175,9 @@ public class WalletIdentifier : BaseDomain
     public string? GetCryptoMetadata(CryptoWalletMetadata field) => 
         WalletType == WalletType.CryptoWallet ? GetMetadataValue(field.ToString()) : null;
     
+    public string? GetInternalMetadata(string field) => 
+        WalletType == WalletType.Internal ? GetMetadataValue(field) : null;
+    
     public void SetBankMetadata(BankWalletMetadata field, string value)
     {
         if (WalletType == WalletType.BankWallet)
@@ -185,6 +194,12 @@ public class WalletIdentifier : BaseDomain
     {
         if (WalletType == WalletType.CryptoWallet)
             SetMetadataValue(field.ToString(), value);
+    }
+    
+    public void SetInternalMetadata(string field, string value)
+    {
+        if (WalletType == WalletType.Internal)
+            SetMetadataValue(field, value);
     }
     
     private string? GetMetadataValue(string key) => 
