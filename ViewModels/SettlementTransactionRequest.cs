@@ -29,7 +29,7 @@ public class SettlementTransactionByDateRequest
 {
     public DateTime Date { get; set; }
 
-    public Guid? AssetWalletId { get; set; }
+    public Guid? AssetPoolId { get; set; }
 
     public List<ReducedSettlementTransactionRequest> Transactions { get; set; } = [];
 }

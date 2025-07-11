@@ -19,7 +19,7 @@ public class BaseApiController<TEntity, TRequest, TResponse> : ControllerBase wh
         _mapper = mapper;
     }
     
-    // public BaseApiController(BaseService<TEntity> service, IMapper mapper, BaseService<AssetWallet> assetWalletService, 
+    // public BaseApiController(BaseService<TEntity> service, IMapper mapper, BaseService<AssetPool> AssetPoolService, 
     // BaseService<WalletIdentifier> walletIdentifierService)
     // {
     //     _service = service;

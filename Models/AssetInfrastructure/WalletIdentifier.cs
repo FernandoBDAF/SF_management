@@ -6,25 +6,27 @@ using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Enums.WalletsMetadata;
+
 
 namespace SFManagement.Models.AssetInfrastructure;
 
 public class WalletIdentifier : BaseDomain
 {
-    [Required] public Guid AssetWalletId { get; set; }
-    public virtual AssetWallet AssetWallet { get; set; }
+    public Guid? AssetPoolId { get; set; }
+    public virtual AssetPool? AssetPool { get; set; }
 
     // this is not mapped to the database, but is used to validate the request
     [NotMapped]
     public Guid? BaseAssetHolderId { get; set; }
+    
+    public AccountClassification AccountClassification { get; set; }
 
     public WalletType WalletType { get; set; }
 
     // this is not mapped to the database, but is used to validate the request
     [NotMapped]
     public AssetType? AssetType { get; set; }
-
-    public decimal? DefaultParentCommission { get; set; }
     
     // Store metadata as JSON string in database
     [Column(TypeName = "nvarchar(2000)")]
@@ -197,10 +199,10 @@ public class WalletIdentifier : BaseDomain
         var transactions = context.DigitalAssetTransactions
         .Where(x => x.SenderWalletIdentifierId == Id || x.ReceiverWalletIdentifierId == Id && (!x.DeletedAt.HasValue || includeDeleted))
         .Include(x => x.SenderWalletIdentifier)
-            .ThenInclude(x => x.AssetWallet)
+            .ThenInclude(x => x.AssetPool)
                 .ThenInclude(x => x.BaseAssetHolder)
         .Include(x => x.ReceiverWalletIdentifier)
-            .ThenInclude(x => x.AssetWallet)
+            .ThenInclude(x => x.AssetPool)
                 .ThenInclude(x => x.BaseAssetHolder)
         .ToArray();
 
@@ -212,10 +214,10 @@ public class WalletIdentifier : BaseDomain
         var transactions = context.FiatAssetTransactions
         .Where(x => x.SenderWalletIdentifierId == Id || x.ReceiverWalletIdentifierId == Id && (!x.DeletedAt.HasValue || includeDeleted))
         .Include(x => x.SenderWalletIdentifier)
-            .ThenInclude(x => x.AssetWallet)
+            .ThenInclude(x => x.AssetPool)
                 .ThenInclude(x => x.BaseAssetHolder)
         .Include(x => x.ReceiverWalletIdentifier)
-            .ThenInclude(x => x.AssetWallet)
+            .ThenInclude(x => x.AssetPool)
                 .ThenInclude(x => x.BaseAssetHolder)
         .ToArray();
 
@@ -227,10 +229,10 @@ public class WalletIdentifier : BaseDomain
         var transactions = context.SettlementTransactions
         .Where(x => x.SenderWalletIdentifierId == Id || x.ReceiverWalletIdentifierId == Id && (!x.DeletedAt.HasValue || includeDeleted))
         .Include(x => x.SenderWalletIdentifier)
-            .ThenInclude(x => x.AssetWallet)
+            .ThenInclude(x => x.AssetPool)
                 .ThenInclude(x => x.BaseAssetHolder)
         .Include(x => x.ReceiverWalletIdentifier)
-            .ThenInclude(x => x.AssetWallet)
+            .ThenInclude(x => x.AssetPool)
                 .ThenInclude(x => x.BaseAssetHolder)
         .ToArray();
 

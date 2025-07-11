@@ -24,9 +24,9 @@ public class ExcelService(
             .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
     }
 
-    public async Task<List<ExcelTransactionResponse>> ImportBuySellTransactions(ExcelRequest request,
-        TransactionDirection walletTransactionType)
-    {
+    // public async Task<List<ExcelTransactionResponse>> ImportBuySellTransactions(ExcelRequest request,
+    //     TransactionDirection walletTransactionType)
+    // {
         // var manager = await context.Managers.FindAsync(request.ManagerId);
         // if (manager == null) throw new AppException("PokerManager not found");
         //
@@ -42,13 +42,13 @@ public class ExcelService(
         //
         // var rows = ReadExcelFile(request.PostFile,
         //     new List<(int, string)>
-        //         { (1, "WalletIdentifier"), (2, "Value"), (3, "AssetWallet"), (6, "CreatedAt"), (8, "Description") });
+        //         { (1, "WalletIdentifier"), (2, "Value"), (3, "AssetPool"), (6, "CreatedAt"), (8, "Description") });
         //
         // foreach (var row in rows)
         // {
         //     var fileNickname = row.FirstOrDefault(x => x.Name == "WalletIdentifier").Value;
         //     var fileCoins = decimal.Parse(row.FirstOrDefault(x => x.Name == "Value").Value, new CultureInfo("pt-BR"));
-        //     var fileWallet = row.FirstOrDefault(x => x.Name == "AssetWallet").Value;
+        //     var fileWallet = row.FirstOrDefault(x => x.Name == "AssetPool").Value;
         //     
         //     var fileDate = row.FirstOrDefault(x => x.Name == "CreatedAt").Value;
         //     var formats = new string[]{ "d/M/yyyy H:mm", "d/M/yy H:mm", "d/M/yy HH:mm", "d/M/yyyy HH:mm" };
@@ -85,9 +85,9 @@ public class ExcelService(
         // await context.SaveChangesAsync();
         //
         // return mapper.Map<List<ExcelTransactionResponse>>(excel.ExcelTransactions);
-        await Task.Yield();
-        return null;
-    }
+    //     await Task.Yield();
+    //     return null;
+    // }
 
     public async Task<List<ExcelTransactionResponse>> ImportTransferTransactions(ExcelRequest request)
     {

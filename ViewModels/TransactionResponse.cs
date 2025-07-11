@@ -72,11 +72,11 @@ public class TransactionResponse
 
     public DateTime Date { get; set; }
 
-    public TransactionDirection BankTransactionType { get; set; }
-
-    public TransactionDirection WalletTransactionType { get; set; }
-
-    public TransactionDirection InternalTransactionType { get; set; }
+    // public TransactionDirection BankTransactionType { get; set; }
+    //
+    // public TransactionDirection WalletTransactionType { get; set; }
+    //
+    // public TransactionDirection InternalTransactionType { get; set; }
 
     public Guid BankId { get; set; }
 

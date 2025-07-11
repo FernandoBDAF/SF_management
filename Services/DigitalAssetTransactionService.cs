@@ -12,7 +12,7 @@ public class DigitalAssetTransactionService : BaseTransactionService<DigitalAsse
 
     // NOTE: Most methods in this service are commented out. When implementing them,
     // ensure they use the new transaction model with SenderWalletIdentifierId and ReceiverWalletIdentifierId
-    // instead of the old AssetWalletId and WalletIdentifierId properties.
+    // instead of the old AssetPoolId and WalletIdentifierId properties.
 
     // public override async Task<DigitalAssetTransaction> Add(DigitalAssetTransaction obj)
     // {
@@ -25,7 +25,7 @@ public class DigitalAssetTransactionService : BaseTransactionService<DigitalAsse
     //     WalletTransactionApproveRequest model)
     // {
     //     // var walletTransaction = await base.Get(walletTransactionId);
-    //     // if (walletTransaction == null) throw new AppException("AssetWallet transaction not found");
+    //     // if (walletTransaction == null) throw new AppException("AssetPool transaction not found");
     //     //
     //     // walletTransaction.ApprovedAt = DateTime.Now;
     //     // walletTransaction.NicknameId = model.NicknameId;
@@ -155,8 +155,8 @@ public class DigitalAssetTransactionService : BaseTransactionService<DigitalAsse
     // public async Task CalcAvgRate(PokerManager manager, DateTime date)
     // {
     //     // var queryWalletTransactions = context.WalletTransactions.AsNoTracking()
-    //     //     .Include(x => x.AssetWallet)
-    //     //     .Where(x => x.AssetWallet.ManagerId == manager.Id && !x.DeletedAt.HasValue &&
+    //     //     .Include(x => x.AssetPool)
+    //     //     .Where(x => x.AssetPool.ManagerId == manager.Id && !x.DeletedAt.HasValue &&
     //     //                 ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
     //     //                  (x.ApprovedAt.HasValue && (x.LinkedToId.HasValue || x.ClientId.HasValue ||
     //     //                                             x.TagId.HasValue ||
@@ -266,17 +266,17 @@ public class DigitalAssetTransactionService : BaseTransactionService<DigitalAsse
     //
     // public async Task CalcProfits(Guid managerId)
     // {
-    //     // foreach (var walletTransaction in await context.WalletTransactions.Include(x => x.AssetWallet).Where(x =>
+    //     // foreach (var walletTransaction in await context.WalletTransactions.Include(x => x.AssetPool).Where(x =>
     //     //              !x.DeletedAt.HasValue && ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
     //     //                                        (x.ApprovedAt.HasValue &&
     //     //                                         (x.LinkedToId.HasValue || x.ClientId.HasValue ||
     //     //                                          x.TagId.HasValue ||
     //     //                                          (x.ManagerId.HasValue && x.WalletId.HasValue)))) &&
     //     //              (x.WalletTransactionType == WalletTransactionType.Income || x.IsCoinBalance == true) &&
-    //     //              x.AssetWallet.ManagerId == managerId).ToListAsync())
+    //     //              x.AssetPool.ManagerId == managerId).ToListAsync())
     //     // {
     //     //     var avgRate = await context.AvgRates.OrderByDescending(x => x.Date).FirstOrDefaultAsync(x =>
-    //     //         x.Date.Date <= walletTransaction.Date.Date && x.ManagerId == walletTransaction.AssetWallet.ManagerId);
+    //     //         x.Date.Date <= walletTransaction.Date.Date && x.ManagerId == walletTransaction.AssetPool.ManagerId);
     //     //
     //     //     if (walletTransaction.IsCoinBalance != true)
     //     //     {

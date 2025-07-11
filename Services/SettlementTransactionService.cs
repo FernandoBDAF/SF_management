@@ -16,16 +16,16 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
     {
         // Get all wallet identifiers for the poker manager's asset wallets
         var walletIdentifierIds = await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
-            .Where(wi => wi.AssetWallet.BaseAssetHolderId == pokerManagerId)
+            .Include(wi => wi.AssetPool)
+            .Where(wi => wi.AssetPool.BaseAssetHolderId == pokerManagerId)
             .Select(wi => wi.Id)
             .ToListAsync();
 
         var transactions = await context.SettlementTransactions
             .Include(st => st.SenderWalletIdentifier)
-                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(wi => wi.AssetPool)
             .Include(st => st.ReceiverWalletIdentifier)
-                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(wi => wi.AssetPool)
             .Where(st => st.DeletedAt == null && 
                         (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) ||
                          walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))
@@ -50,30 +50,30 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
         var errors = new List<SettlementTransactionError>();
         var createdTransactions = new List<SettlementTransaction>();
 
-        // Validate AssetWalletId is provided
-        if (!request.AssetWalletId.HasValue)
+        // Validate AssetPoolId is provided
+        if (!request.AssetPoolId.HasValue)
         {
             response.Success = false;
-            response.Message = "AssetWalletId is required in the request.";
+            response.Message = "AssetPoolId is required in the request.";
             return response;
         }
 
         // Validate asset wallet belongs to the specified asset holder
-        var assetWallet = await context.AssetWallets
+        var assetPool = await context.AssetPools
             .Include(aw => aw.WalletIdentifiers)
-            .FirstOrDefaultAsync(aw => aw.Id == request.AssetWalletId.Value &&
+            .FirstOrDefaultAsync(aw => aw.Id == request.AssetPoolId.Value &&
                                      aw.BaseAssetHolderId == assetHolderId &&
                                      !aw.DeletedAt.HasValue);
 
-        if (assetWallet == null)
+        if (assetPool == null)
         {
             response.Success = false;
-            response.Message = $"Asset wallet {request.AssetWalletId.Value} not found or does not belong to asset holder {assetHolderId}.";
+            response.Message = $"Asset wallet {request.AssetPoolId.Value} not found or does not belong to asset holder {assetHolderId}.";
             return response;
         }
 
         // Get wallet identifier IDs for this asset wallet
-        var walletIdentifierIds = assetWallet.WalletIdentifiers.Select(wi => wi.Id).ToList();
+        var walletIdentifierIds = assetPool.WalletIdentifiers.Select(wi => wi.Id).ToList();
 
         // Check if there are any existing settlement transactions for the same date
         var existingTransactions = await context.SettlementTransactions
@@ -85,7 +85,7 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
         if (existingTransactions)
         {
             response.Success = false;
-            response.Message = $"Settlement transactions already exist for date {request.Date.Date:yyyy-MM-dd} and asset wallet {request.AssetWalletId.Value}.";
+            response.Message = $"Settlement transactions already exist for date {request.Date.Date:yyyy-MM-dd} and asset wallet {request.AssetPoolId.Value}.";
             return response;
         }
 
@@ -113,7 +113,7 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
                         Rake = transactionRequest.Rake,
                         RakeCommission = transactionRequest.RakeCommission,
                         RakeBack = transactionRequest.RakeBack,
-                        ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId
+                        ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId ?? Guid.Empty
                     }
                 });
                 continue;
@@ -132,7 +132,7 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
                         Rake = transactionRequest.Rake,
                         RakeCommission = transactionRequest.RakeCommission,
                         RakeBack = transactionRequest.RakeBack,
-                        ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId
+                        ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId ?? Guid.Empty
                     }
                 });
                 continue;
@@ -140,7 +140,7 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
 
             // Validate wallet identifier exists and belongs to the correct asset wallet
             var walletIdentifier = await context.WalletIdentifiers
-                .Include(wi => wi.AssetWallet)
+                .Include(wi => wi.AssetPool)
                 .FirstOrDefaultAsync(wi => wi.Id == transactionRequest.ReceiverWalletIdentifierId.Value &&
                                          !wi.DeletedAt.HasValue);
             
@@ -156,26 +156,26 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
                         Rake = transactionRequest.Rake,
                         RakeCommission = transactionRequest.RakeCommission,
                         RakeBack = transactionRequest.RakeBack,
-                        ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId
+                        ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId ?? Guid.Empty
                     }
                 });
                 continue;
             }
 
             // Validate that wallet identifier has the same asset type as the asset wallet
-            if (walletIdentifier.AssetWallet.AssetType != assetWallet.AssetType)
+            if (walletIdentifier.AssetPool.AssetType != assetPool.AssetType)
             {
                 errors.Add(new SettlementTransactionError
                 {
                     Index = i,
-                    Error = $"Wallet identifier {transactionRequest.ReceiverWalletIdentifierId.Value} has asset type {walletIdentifier.AssetWallet.AssetType} but asset wallet has asset type {assetWallet.AssetType}",
+                    Error = $"Wallet identifier {transactionRequest.ReceiverWalletIdentifierId.Value} has asset type {walletIdentifier.AssetPool.AssetType} but asset wallet has asset type {assetPool.AssetType}",
                     Transaction = new SettlementTransactionRequest
                     {
                         AssetAmount = transactionRequest.AssetAmount,
                         Rake = transactionRequest.Rake,
                         RakeCommission = transactionRequest.RakeCommission,
                         RakeBack = transactionRequest.RakeBack,
-                        ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId
+                        ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId ?? Guid.Empty
                     }
                 });
                 continue;
@@ -192,7 +192,7 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
         }
 
         // Get a default sender wallet identifier from the asset wallet (first one)
-        var defaultSenderIdentifier = assetWallet.WalletIdentifiers.FirstOrDefault();
+        var defaultSenderIdentifier = assetPool.WalletIdentifiers.FirstOrDefault();
         if (defaultSenderIdentifier == null)
         {
             response.Success = false;

@@ -20,19 +20,19 @@ public class ExcelController : BaseApiController<Excel, ExcelRequest, ExcelRespo
         _excelService = excelService;
     }
 
-    [HttpPost]
-    [Route("import-buy-transactions")]
-    public async Task<List<ExcelTransactionResponse>> ImportBuyTransactions(ExcelRequest request)
-    {
-        return await _excelService.ImportBuySellTransactions(request, TransactionDirection.Expense);
-    }
-
-    [HttpPost]
-    [Route("import-sell-transactions")]
-    public async Task<List<ExcelTransactionResponse>> ImportSellTransactions(ExcelRequest request)
-    {
-        return await _excelService.ImportBuySellTransactions(request, TransactionDirection.Income);
-    }
+    // [HttpPost]
+    // [Route("import-buy-transactions")]
+    // public async Task<List<ExcelTransactionResponse>> ImportBuyTransactions(ExcelRequest request)
+    // {
+    //     // return await _excelService.ImportBuySellTransactions(request, TransactionDirection.Expense);
+    // }
+    //
+    // [HttpPost]
+    // [Route("import-sell-transactions")]
+    // public async Task<List<ExcelTransactionResponse>> ImportSellTransactions(ExcelRequest request)
+    // {
+    //     // return await _excelService.ImportBuySellTransactions(request, TransactionDirection.Income);
+    // }
 
     [HttpPost]
     [Route("import-transfer-transactions")]

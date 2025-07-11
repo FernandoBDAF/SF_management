@@ -22,7 +22,7 @@ namespace SFManagement.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetWallet", b =>
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetPool", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -31,7 +31,7 @@ namespace SFManagement.Migrations
                     b.Property<int>("AssetType")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("BaseAssetHolderId")
+                    b.Property<Guid?>("BaseAssetHolderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -49,18 +49,18 @@ namespace SFManagement.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssetType")
-                        .HasDatabaseName("IX_AssetWallet_AssetType");
+                        .HasDatabaseName("IX_AssetPool_AssetType");
 
                     b.HasIndex("BaseAssetHolderId")
-                        .HasDatabaseName("IX_AssetWallet_BaseAssetHolderId");
+                        .HasDatabaseName("IX_AssetPool_BaseAssetHolderId");
 
                     b.HasIndex("DeletedAt")
-                        .HasDatabaseName("IX_AssetWallet_DeletedAt");
+                        .HasDatabaseName("IX_AssetPool_DeletedAt");
 
                     b.HasIndex("BaseAssetHolderId", "AssetType")
-                        .HasDatabaseName("IX_AssetWallet_BaseAssetHolder_AssetType");
+                        .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetType");
 
-                    b.ToTable("AssetWallets");
+                    b.ToTable("AssetPools");
                 });
 
             modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.WalletIdentifier", b =>
@@ -69,14 +69,14 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AssetWalletId")
+                    b.Property<int>("AccountClassification")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("AssetPoolId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("DefaultParentCommission")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
@@ -96,8 +96,8 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetWalletId")
-                        .HasDatabaseName("IX_WalletIdentifier_AssetWalletId");
+                    b.HasIndex("AssetPoolId")
+                        .HasDatabaseName("IX_WalletIdentifier_AssetPoolId");
 
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_WalletIdentifier_DeletedAt");
@@ -310,6 +310,9 @@ namespace SFManagement.Migrations
 
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("ManagerType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -701,9 +704,6 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("TransactionDirection")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -851,9 +851,6 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("OfxId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("TransactionDirection")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -947,26 +944,25 @@ namespace SFManagement.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetWallet", b =>
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetPool", b =>
                 {
                     b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
-                        .WithMany("AssetWallets")
+                        .WithMany("AssetPools")
                         .HasForeignKey("BaseAssetHolderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("BaseAssetHolder");
                 });
 
             modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.WalletIdentifier", b =>
                 {
-                    b.HasOne("SFManagement.Models.AssetInfrastructure.AssetWallet", "AssetWallet")
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.AssetPool", "AssetPool")
                         .WithMany("WalletIdentifiers")
-                        .HasForeignKey("AssetWalletId")
+                        .HasForeignKey("AssetPoolId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("AssetWallet");
+                    b.Navigation("AssetPool");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.Bank", b =>
@@ -1207,7 +1203,7 @@ namespace SFManagement.Migrations
                     b.Navigation("SenderWalletIdentifier");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetWallet", b =>
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetPool", b =>
                 {
                     b.Navigation("WalletIdentifiers");
                 });
@@ -1226,7 +1222,7 @@ namespace SFManagement.Migrations
                 {
                     b.Navigation("Address");
 
-                    b.Navigation("AssetWallets");
+                    b.Navigation("AssetPools");
 
                     b.Navigation("Bank");
 

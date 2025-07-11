@@ -7,7 +7,7 @@ public class SettlementTransactionResponse : BaseTransactionResponse
 {
     public decimal AssetAmount { get; set; }
     
-    public TransactionDirection? TransactionDirection { get; set; }
+    // public TransactionDirection? TransactionDirection { get; set; }
 
     public decimal Rake { get; set; }
     public decimal RakeCommission { get; set; }
@@ -23,7 +23,7 @@ public class SettlementTransactionSimplifiedResponse : BaseResponse
     public Guid? ApprovedBy { get; set; }
     
     public decimal AssetAmount { get; set; }
-    public TransactionDirection? TransactionDirection { get; set; }
+    // public TransactionDirection? TransactionDirection { get; set; }
     public decimal Rake { get; set; }
     public decimal RakeCommission { get; set; }
     public decimal? RakeBack { get; set; }

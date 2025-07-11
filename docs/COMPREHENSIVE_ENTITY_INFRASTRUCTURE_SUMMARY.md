@@ -33,7 +33,7 @@ public class BaseAssetHolder : BaseDomain
     public bool HasSingleEntityType => /* validation logic */;
 
     // Collections
-    public virtual ICollection<AssetWallet> AssetWallets { get; set; }
+    public virtual ICollection<AssetPool> AssetPools { get; set; }
     public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; }
     public virtual ICollection<InitialBalance> InitialBalances { get; set; }
     public virtual ICollection<ContactPhone> ContactPhones { get; set; }
@@ -268,7 +268,7 @@ public class ClientService : BaseAssetHolderService<Client>
             BaseAssetHolderId = baseStatistics.BaseAssetHolderId,
             HasActiveTransactions = baseStatistics.HasActiveTransactions,
             TotalBalance = baseStatistics.TotalBalance,
-            HasActiveAssetWallets = baseStatistics.HasActiveAssetWallets,
+            HasActiveAssetPools = baseStatistics.HasActiveAssetPools,
             Age = client?.Age,
             CanBeDeleted = baseStatistics.CanBeDeleted
         };
@@ -365,8 +365,8 @@ protected IActionResult HandleValidationException(ValidationException ex)
 - **Client**: BaseAssetHolderId, Birthday, DeletedAt
 - **Member**: BaseAssetHolderId, Share, Birthday, DeletedAt
 - **PokerManager**: BaseAssetHolderId, DeletedAt
-- **AssetWallet**: BaseAssetHolderId, AssetType, composite indexes
-- **WalletIdentifier**: AssetWalletId, DeletedAt
+- **AssetPool**: BaseAssetHolderId, AssetType, composite indexes
+- **WalletIdentifier**: AssetPoolId, DeletedAt
 
 #### Database Constraints
 

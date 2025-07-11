@@ -6,10 +6,10 @@ This document presents the final design for the asset infrastructure system supp
 
 ## Core Architecture
 
-### 1. AssetWallet Model
+### 1. AssetPool Model
 
 ```csharp
-public class AssetWallet : BaseDomain
+public class AssetPool : BaseDomain
 {
     [Required] public Guid BaseAssetHolderId { get; set; }
     public virtual BaseAssetHolder BaseAssetHolder { get; set; }
@@ -24,7 +24,7 @@ public class AssetWallet : BaseDomain
 
 - Links to BaseAssetHolder (Client, Bank, Member, PokerManager)
 - Uses existing AssetType enum (granular: BrazilianReal, PokerStars, Bitcoin, etc.)
-- One AssetWallet per AssetType per BaseAssetHolder
+- One AssetPool per AssetType per BaseAssetHolder
 - Container for multiple WalletIdentifiers
 
 ### 2. WalletIdentifier Model
@@ -32,8 +32,8 @@ public class AssetWallet : BaseDomain
 ```csharp
 public class WalletIdentifier : BaseDomain
 {
-    [Required] public Guid AssetWalletId { get; set; }
-    public virtual AssetWallet AssetWallet { get; set; }
+    [Required] public Guid AssetPoolId { get; set; }
+    public virtual AssetPool AssetPool { get; set; }
 
     public WalletType WalletType { get; set; }  // BankWallet, PokerWallet, CryptoWallet
 
@@ -117,13 +117,13 @@ public enum CryptoWalletMetadata
 
 ### Removed Redundancies:
 
-1. **Currency**: Already defined in AssetWallet.AssetType
-2. **AccountHolder**: Already defined in AssetWallet.BaseAssetHolder
+1. **Currency**: Already defined in AssetPool.AssetType
+2. **AccountHolder**: Already defined in AssetPool.BaseAssetHolder
 3. **Individual Properties**: Replaced with flexible metadata system
 
 ### Clean Separation:
 
-- **AssetWallet**: Defines WHAT asset and WHO owns it
+- **AssetPool**: Defines WHAT asset and WHO owns it
 - **WalletIdentifier**: Defines HOW to access/identify the asset
 - **Metadata**: Defines wallet-specific details
 
@@ -198,7 +198,7 @@ public class WalletIdentifierValidationService
 - **Type-safe Accessors**: GetBankMetadata(), GetPokerMetadata(), etc.
 - **Enhanced Queries**: GetByWalletType(), GetByAssetType()
 
-### AssetWalletService:
+### AssetPoolService:
 
 - **Improved Validation**: Prevents duplicate AssetType per BaseAssetHolder
 - **Balance Calculation**: Aggregates across all WalletIdentifiers
@@ -274,7 +274,7 @@ public class WalletIdentifierValidationService
 // Bank Wallet
 var bankWallet = new WalletIdentifier
 {
-    AssetWalletId = assetWalletId,
+    AssetPoolId = AssetPoolId,
     WalletType = WalletType.BankWallet,
     InputForTransactions = "001-1234-12345-6",
     Metadata = new Dictionary<string, string>
@@ -291,7 +291,7 @@ var bankWallet = new WalletIdentifier
 // Poker Wallet
 var pokerWallet = new WalletIdentifier
 {
-    AssetWalletId = assetWalletId,
+    AssetPoolId = AssetPoolId,
     WalletType = WalletType.PokerWallet,
     InputForTransactions = "player@pokerstars.com",
     Metadata = new Dictionary<string, string>

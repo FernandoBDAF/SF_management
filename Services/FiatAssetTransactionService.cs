@@ -18,7 +18,7 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
 
     public override async Task<FiatAssetTransaction> Add(FiatAssetTransaction model)
     {
-        // Note: The old properties (WalletIdentifierId, AssetWalletId, ClientId, BankId) 
+        // Note: The old properties (WalletIdentifierId, AssetPoolId, ClientId, BankId) 
         // need to be replaced with SenderWalletIdentifierId and ReceiverWalletIdentifierId
         // This method needs to be updated based on your specific business logic
         // for determining sender and receiver wallet identifiers
@@ -36,11 +36,11 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
     public async Task<FiatAssetTransaction> SendBrazilianReais(Guid baseAssetHolderId, FiatAssetTransactionRequest transaction)
     {
         var assetHolder = await context.BaseAssetHolders
-            .Include(x => x.AssetWallets)
+            .Include(x => x.AssetPools)
                 .ThenInclude(aw => aw.WalletIdentifiers)
             .FirstOrDefaultAsync(x => x.Id == baseAssetHolderId) ?? throw new Exception($"Asset Holder not found");
 
-        var senderWallet = assetHolder.AssetWallets.FirstOrDefault(x => x.AssetType == AssetType.BrazilianReal) 
+        var senderWallet = assetHolder.AssetPools.FirstOrDefault(x => x.AssetType == AssetType.BrazilianReal) 
             ?? throw new Exception($"Asset Wallet for Brazilian Real does not exist");
 
         var senderIdentifier = senderWallet.WalletIdentifiers.FirstOrDefault()
@@ -48,19 +48,19 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
 
         // Find receiver wallet identifier based on the transaction request
         var receiverIdentifier = await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
             .FirstOrDefaultAsync(x => 
-                x.AssetWallet.AssetType == AssetType.BrazilianReal && 
-                x.AssetWallet.BaseAssetHolderId == transaction.BaseAssetHolderId) 
+                x.AssetPool.AssetType == AssetType.BrazilianReal && 
+                x.AssetPool.BaseAssetHolderId == transaction.BaseAssetHolderId) 
             ?? throw new Exception($"Receiver Wallet Identifier for Brazilian Real does not exist");
 
         var fiatTransaction = new FiatAssetTransaction
         {
             SenderWalletIdentifierId = senderIdentifier.Id,
             ReceiverWalletIdentifierId = receiverIdentifier.Id,
-            Date = transaction.Date ?? DateTime.Now,
+            Date = transaction.Date,
             Description = transaction.Description,
-            AssetAmount = transaction.AssetAmount ?? 0
+            AssetAmount = transaction.AssetAmount
         };
 
         await context.FiatAssetTransactions.AddAsync(fiatTransaction);

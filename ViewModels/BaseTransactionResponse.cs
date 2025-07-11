@@ -9,7 +9,7 @@ public class BaseTransactionResponse : BaseResponse
     
     public virtual WalletIdentifierResponse? WalletIdentifier { get; set; }
     
-    public virtual AssetWalletResponse? AssetWallet { get; set; }
+    public virtual AssetPoolResponse? AssetPool { get; set; }
 
     public string? Description { get; set; }
     

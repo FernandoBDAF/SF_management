@@ -13,7 +13,7 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
     }
     
     public async Task<TableResponse<TEntity>> GetAssetHolderTransactions(
-        Guid[] assetWalletIds, 
+        Guid[] AssetPoolIds, 
         DateTime? startDate,
         DateTime? endDate, 
         int quantity = 100, 
@@ -21,7 +21,7 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
     {
         // Get all wallet identifiers for the specified asset wallets
         var walletIdentifierIds = await context.WalletIdentifiers
-            .Where(wi => assetWalletIds.Contains(wi.AssetWalletId) && !wi.DeletedAt.HasValue)
+            .Where(wi => AssetPoolIds.Contains(wi.AssetPoolId) && !wi.DeletedAt.HasValue)
             .Select(wi => wi.Id)
             .ToListAsync();
 
@@ -59,10 +59,10 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             .Take(quantity)
             .Include(x => x.Category)
             .Include(x => x.SenderWalletIdentifier)
-                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(x => x.ReceiverWalletIdentifier)
-                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .ToListAsync();
 
@@ -76,7 +76,7 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
     }
     
     public async Task<TableResponse<TEntity>> GetNonAssetHolderTransactions(
-        Guid[]? assetWalletIds, 
+        Guid[]? AssetPoolIds, 
         DateTime? startDate,
         DateTime? endDate, 
         int quantity = 100, 
@@ -85,17 +85,17 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
         // Get all wallet identifiers for the specified asset wallets (if any)
         var walletIdentifierIds = new List<Guid>();
         
-        if (assetWalletIds != null && assetWalletIds.Any())
+        if (AssetPoolIds != null && AssetPoolIds.Any())
         {
             walletIdentifierIds = await context.WalletIdentifiers
-                .Where(wi => assetWalletIds.Contains(wi.AssetWalletId) && !wi.DeletedAt.HasValue)
+                .Where(wi => AssetPoolIds.Contains(wi.AssetPoolId) && !wi.DeletedAt.HasValue)
                 .Select(wi => wi.Id)
                 .ToListAsync();
         }
 
         var query = _entity
             .Where(x => !x.DeletedAt.HasValue && 
-                (assetWalletIds == null || !assetWalletIds.Any() ||
+                (AssetPoolIds == null || !AssetPoolIds.Any() ||
                  (!walletIdentifierIds.Contains(x.SenderWalletIdentifierId) && 
                   !walletIdentifierIds.Contains(x.ReceiverWalletIdentifierId))));
 
@@ -117,10 +117,10 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             .Take(quantity)
             .Include(x => x.Category)
             .Include(x => x.SenderWalletIdentifier)
-                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(x => x.ReceiverWalletIdentifier)
-                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .ToListAsync();
 
@@ -159,10 +159,10 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity> where TEntit
             .Take(quantity)
             .Include(x => x.Category)
             .Include(x => x.SenderWalletIdentifier)
-                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(x => x.ReceiverWalletIdentifier)
-                .ThenInclude(wi => wi.AssetWallet)
+                .ThenInclude(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .ToArrayAsync();
     }

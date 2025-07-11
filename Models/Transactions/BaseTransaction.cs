@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using SFManagement.Enums;
+using SFManagement.Enums.WalletsMetadata;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Support;
 
@@ -56,16 +56,16 @@ public class BaseTransaction : BaseDomain
     }
 
     [NotMapped]
-    public bool IsInternalTransfer => SenderWalletIdentifier?.AssetWallet?.BaseAssetHolderId == 
-                                     ReceiverWalletIdentifier?.AssetWallet?.BaseAssetHolderId;
+    public bool IsInternalTransfer => SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId == 
+                                     ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
 
     public string GetCounterPartyName(Guid walletIdentifierId)
     {
         if (SenderWalletIdentifierId == walletIdentifierId)
-            return ReceiverWalletIdentifier?.AssetWallet?.BaseAssetHolder?.Name ?? "Unknown";
+            return ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolder?.Name ?? "Unknown";
         
         if (ReceiverWalletIdentifierId == walletIdentifierId)
-            return SenderWalletIdentifier?.AssetWallet?.BaseAssetHolder?.Name ?? "Unknown";
+            return SenderWalletIdentifier?.AssetPool?.BaseAssetHolder?.Name ?? "Unknown";
             
         throw new ArgumentException("Wallet identifier is not involved in this transaction");
     }

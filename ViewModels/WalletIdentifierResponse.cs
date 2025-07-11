@@ -5,11 +5,13 @@ namespace SFManagement.ViewModels;
 
 public class WalletIdentifierResponse : BaseResponse
 {
+    public AccountClassification AccountClassification { get; set; }
+
     public AssetType AssetType { get; set; }
 
     public WalletType WalletType { get; set; }
 
-    public Guid AssetWalletId { get; set; }
+    public Guid AssetPoolId { get; set; }
     
     public Guid BaseAssetHolderId { get; set; }
 

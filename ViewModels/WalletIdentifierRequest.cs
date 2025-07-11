@@ -4,12 +4,14 @@ namespace SFManagement.ViewModels;
 
 public class WalletIdentifierRequest
 {
-    // validation: AssetWalletId or BaseAssetHolderId+ AssetType are required
-    public Guid? AssetWalletId { get; set; }
+    // validation: AssetPoolId or BaseAssetHolderId+ AssetType are required
+    public Guid? AssetPoolId { get; set; }
     
     public Guid? BaseAssetHolderId { get; set; }
 
     public AssetType AssetType { get; set; }
+
+    public AccountClassification AccountClassification { get; set; }
 
     public WalletType WalletType { get; set; }
 

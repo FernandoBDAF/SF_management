@@ -2,46 +2,47 @@
 using SFManagement.Data;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Enums;
+using SFManagement.Enums.WalletsMetadata;
 
 namespace SFManagement.Services;
 
 public class WalletIdentifierService : BaseService<WalletIdentifier>
 {
     private readonly WalletIdentifierValidationService _validationService;
-    private readonly AssetWalletService _assetWalletService;
+    private readonly AssetPoolService _AssetPoolService;
     
     public WalletIdentifierService(DataContext context, IHttpContextAccessor httpContextAccessor, 
-    AssetWalletService assetWalletService) : base(context, httpContextAccessor)
+    AssetPoolService AssetPoolService) : base(context, httpContextAccessor)
     {
         _validationService = new WalletIdentifierValidationService();
-        _assetWalletService = assetWalletService;
+        _AssetPoolService = AssetPoolService;
     }
 
     
     public override async Task<WalletIdentifier> Add(WalletIdentifier walletIdentifier)
     {
-        if (walletIdentifier.AssetWalletId.Equals(Guid.Empty))
+        if (walletIdentifier.AssetPoolId.Equals(Guid.Empty))
         {
             if (walletIdentifier.BaseAssetHolderId.Equals(Guid.Empty) || !walletIdentifier.AssetType.HasValue)
             {
-                throw new ArgumentException("AssetWalletId or BaseAssetHolderId and AssetType are required");
+                throw new ArgumentException("AssetPoolId or BaseAssetHolderId and AssetType are required");
             }
             // get the asset wallet
-            var assetWallet = await _assetWalletService.
+            var assetPool = await _AssetPoolService.
             GetByBaseAssetHolderAndType(walletIdentifier.BaseAssetHolderId!.Value, walletIdentifier.AssetType.Value);
             
-            if (assetWallet == null)
+            if (assetPool == null)
             {
                 // create the asset wallet
-                assetWallet = new AssetWallet
+                assetPool = new AssetPool
                 {
                     BaseAssetHolderId = walletIdentifier.BaseAssetHolderId ?? Guid.Empty,
                     AssetType = walletIdentifier.AssetType.Value,
                 };
-                assetWallet = await _assetWalletService.Add(assetWallet);
+                assetPool = await _AssetPoolService.Add(assetPool);
             }
 
-            walletIdentifier.AssetWalletId = assetWallet.Id;
+            walletIdentifier.AssetPoolId = assetPool.Id;
         }
         // Validate before adding
         var validationResult = _validationService.ValidateWalletIdentifier(walletIdentifier);
@@ -70,26 +71,26 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     public override async Task<WalletIdentifier?> Get(Guid id)
     {
         return await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referral)
             .FirstOrDefaultAsync(wi => wi.Id == id && !wi.DeletedAt.HasValue);
     }
     
-    public async Task<List<WalletIdentifier>> GetByAssetWalletId(Guid assetWalletId)
+    public async Task<List<WalletIdentifier>> GetByAssetPoolId(Guid AssetPoolId)
     {
         return await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referral)
-            .Where(wi => wi.AssetWalletId == assetWalletId && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPoolId == AssetPoolId && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
     
     public async Task<List<WalletIdentifier>> GetByWalletType(WalletType walletType)
     {
         return await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referral)
             .Where(wi => wi.WalletType == walletType && !wi.DeletedAt.HasValue)
@@ -99,17 +100,17 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     public async Task<List<WalletIdentifier>> GetByAssetHolder(Guid assetHolderId)
     {
         return await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referral)
-            .Where(wi => wi.AssetWallet.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
 
     public async Task<List<WalletIdentifier>> GetByAssetHolderTypeFiltered(string? assetHolderType, AssetType? assetType, WalletType? walletType)
     {
         var query = context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referral)
             .Where(wi => !wi.DeletedAt.HasValue);
@@ -120,16 +121,16 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             switch (assetHolderType.ToLower())
             {
                 case "client":
-                    query = query.Where(wi => wi.AssetWallet.BaseAssetHolder.Client != null);
+                    query = query.Where(wi => wi.AssetPool.BaseAssetHolder.Client != null);
                     break;
                 case "bank":
-                    query = query.Where(wi => wi.AssetWallet.BaseAssetHolder.Bank != null);
+                    query = query.Where(wi => wi.AssetPool.BaseAssetHolder.Bank != null);
                     break;
                 case "member":
-                    query = query.Where(wi => wi.AssetWallet.BaseAssetHolder.Member != null);
+                    query = query.Where(wi => wi.AssetPool.BaseAssetHolder.Member != null);
                     break;
                 case "pokermanager":
-                    query = query.Where(wi => wi.AssetWallet.BaseAssetHolder.PokerManager != null);
+                    query = query.Where(wi => wi.AssetPool.BaseAssetHolder.PokerManager != null);
                     break;
                 default:
                     // If unknown type, return empty result
@@ -139,7 +140,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
 
         if (assetType.HasValue)
         {
-            query = query.Where(wi => wi.AssetWallet.AssetType == assetType.Value);
+            query = query.Where(wi => wi.AssetPool.AssetType == assetType.Value);
         }
 
         if (walletType.HasValue)
@@ -155,12 +156,12 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     public async Task<List<WalletIdentifier>> GetByAssetHolderAndFilters(Guid assetHolderId, AssetType? assetType, WalletType? walletType)
     {
         var query = context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
-            .Where(wi => !wi.DeletedAt.HasValue && wi.AssetWallet.BaseAssetHolderId == assetHolderId);
+            .Include(wi => wi.AssetPool)
+            .Where(wi => !wi.DeletedAt.HasValue && wi.AssetPool.BaseAssetHolderId == assetHolderId);
 
         if (assetType.HasValue)
         {
-            query = query.Where(wi => wi.AssetWallet.AssetType == assetType.Value);
+            query = query.Where(wi => wi.AssetPool.AssetType == assetType.Value);
         }
 
         if (walletType.HasValue)
@@ -176,20 +177,20 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     public async Task<List<WalletIdentifier>> GetByAssetHolderAndAssetType(Guid assetHolderId, AssetType assetType)
     {
         return await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referral)
-            .Where(wi => wi.AssetWallet.BaseAssetHolderId == assetHolderId && wi.AssetWallet.AssetType == assetType && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool.BaseAssetHolderId == assetHolderId && wi.AssetPool.AssetType == assetType && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
     
     public async Task<List<WalletIdentifier>> GetByAssetType(AssetType assetType)
     {
         return await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referral)
-            .Where(wi => wi.AssetWallet.AssetType == assetType && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool.AssetType == assetType && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
     
@@ -197,7 +198,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     public async Task<List<WalletIdentifier>> SearchByMetadata(string metadataKey, string metadataValue)
     {
         return await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referral)
             .Where(wi => wi.MetadataJson.Contains($"\"{metadataKey}\":\"{metadataValue}\"") && !wi.DeletedAt.HasValue)

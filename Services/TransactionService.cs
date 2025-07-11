@@ -9,7 +9,7 @@ namespace SFManagement.Services;
 
 // NOTE: This service has all methods commented out. When implementing them,
 // ensure they use the new transaction model with:
-// - SenderWalletIdentifierId and ReceiverWalletIdentifierId instead of AssetWalletId/WalletIdentifierId
+// - SenderWalletIdentifierId and ReceiverWalletIdentifierId instead of AssetPoolId/WalletIdentifierId
 // - Navigation through wallet identifiers to get asset wallets and asset holders
 // - Updated Include statements for the new relationships
 public class TransactionService<TEntity> where TEntity : BaseAssetHolder
@@ -25,7 +25,7 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
         _mapper = mapper;
     }
     
-    // public async Task<TableResponse<FiatAssetTransactionResponse>> GetBankFiatAssetTransactions(Guid[] bankAssetWalletIds, DateTime? startDate,
+    // public async Task<TableResponse<FiatAssetTransactionResponse>> GetBankFiatAssetTransactions(Guid[] bankAssetPoolIds, DateTime? startDate,
     //     DateTime? endDate, int quantity, int page)
     // {
     //     var response = new TableResponse<FiatAssetTransactionResponse>
@@ -35,7 +35,7 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     //     };
     //     
     //     var transactionsQuery = _context.FiatAssetTransactions
-    //         .Where(x => !x.DeletedAt.HasValue && bankAssetWalletIds.Contains(x.AssetWalletId));
+    //         .Where(x => !x.DeletedAt.HasValue && bankAssetPoolIds.Contains(x.AssetPoolId));
     //     
     //     if (startDate.HasValue)
     //     {
@@ -60,13 +60,13 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     //             .Include(x => x.WalletIdentifier)
     //                 .ThenInclude(y => y.PokerManager)
     //             
-    //             .Include(x => x.AssetWallet)
+    //             .Include(x => x.AssetPool)
     //                 .ThenInclude(y => y.Bank)
-    //             .Include(x => x.AssetWallet)
+    //             .Include(x => x.AssetPool)
     //                 .ThenInclude(y => y.Client)
-    //             .Include(x => x.AssetWallet)
+    //             .Include(x => x.AssetPool)
     //                 .ThenInclude(y => y.Member)
-    //             .Include(x => x.AssetWallet)
+    //             .Include(x => x.AssetPool)
     //                 .ThenInclude(y => y.PokerManager)
     //             .ToListAsync())
     //         .Select(_mapper.Map<FiatAssetTransactionResponse>));
@@ -76,7 +76,7 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     //     return response;
         // }
         //
-    // public async Task<TableResponse<FiatAssetTransactionResponse>> GetNonBankFiatAssetTransactions(Guid[]? bankAssetWalletIds, DateTime? startDate,
+    // public async Task<TableResponse<FiatAssetTransactionResponse>> GetNonBankFiatAssetTransactions(Guid[]? bankAssetPoolIds, DateTime? startDate,
     //     DateTime? endDate, int quantity, int page)
     // {
     //     var response = new TableResponse<FiatAssetTransactionResponse>
@@ -86,7 +86,7 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     //     };
     //     
     //     var bankTransactionsQuery = _context.FiatAssetTransactions
-    //         .Where(x => !x.DeletedAt.HasValue && (bankAssetWalletIds == null || !bankAssetWalletIds.Contains(x.AssetWalletId)));
+    //         .Where(x => !x.DeletedAt.HasValue && (bankAssetPoolIds == null || !bankAssetPoolIds.Contains(x.AssetPoolId)));
     //     
     //     if (startDate.HasValue)
     //     {
@@ -111,13 +111,13 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     //                 .Include(x => x.WalletIdentifier)
     //                     .ThenInclude(y => y.PokerManager)
     //                 
-    //                 .Include(x => x.AssetWallet)
+    //                 .Include(x => x.AssetPool)
     //                     .ThenInclude(y => y.Bank)
-    //                 .Include(x => x.AssetWallet)
+    //                 .Include(x => x.AssetPool)
     //                     .ThenInclude(y => y.Client)
-    //                 .Include(x => x.AssetWallet)
+    //                 .Include(x => x.AssetPool)
     //                     .ThenInclude(y => y.Member)
-    //                 .Include(x => x.AssetWallet)
+    //                 .Include(x => x.AssetPool)
     //                     .ThenInclude(y => y.PokerManager)
     //             .ToListAsync())
     //         .Select(_mapper.Map<FiatAssetTransactionResponse>));
@@ -127,7 +127,7 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     //     return response;
         // }
         //
-    // public async Task<TableResponse<DigitalAssetTransactionResponse>> GetPokerManagerDigitalAssetTransactions(Guid[] pokerManagerAssetWalletIds, DateTime? startDate,
+    // public async Task<TableResponse<DigitalAssetTransactionResponse>> GetPokerManagerDigitalAssetTransactions(Guid[] pokerManagerAssetPoolIds, DateTime? startDate,
     //     DateTime? endDate, int quantity, int page)
     // {
     //     var response = new TableResponse<DigitalAssetTransactionResponse>
@@ -137,7 +137,7 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     //     };
     //     
     //     var transactionsQuery = _context.DigitalAssetTransactions
-    //         .Where(x => !x.DeletedAt.HasValue && pokerManagerAssetWalletIds.Contains(x.AssetWalletId));
+    //         .Where(x => !x.DeletedAt.HasValue && pokerManagerAssetPoolIds.Contains(x.AssetPoolId));
     //     
     //     if (startDate.HasValue)
     //     {
@@ -162,13 +162,13 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     //                 .Include(x => x.WalletIdentifier)
     //                     .ThenInclude(y => y.PokerManager)
     //                 
-    //                 .Include(x => x.AssetWallet)
+    //                 .Include(x => x.AssetPool)
     //                     .ThenInclude(y => y.Bank)
-    //                 .Include(x => x.AssetWallet)
+    //                 .Include(x => x.AssetPool)
     //                     .ThenInclude(y => y.Client)
-    //                 .Include(x => x.AssetWallet)
+    //                 .Include(x => x.AssetPool)
     //                     .ThenInclude(y => y.Member)
-    //                 .Include(x => x.AssetWallet)
+    //                 .Include(x => x.AssetPool)
     //                     .ThenInclude(y => y.PokerManager)
     //             .ToListAsync())
     //         .Select(_mapper.Map<DigitalAssetTransactionResponse>));
@@ -188,72 +188,72 @@ public class TransactionService<TEntity> where TEntity : BaseAssetHolder
     // {
     //     var query = (IQueryable<BaseAssetHolder>)_entity.AsQueryable();
     //     query = query
-    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.AssetPools)
     //         .ThenInclude(aw => aw.DigitalAssetTransactions!)
     //         .ThenInclude(dat => dat.WalletIdentifier)
     //         .ThenInclude(wi => wi.Bank)
-    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.AssetPools)
     //         .ThenInclude(aw => aw.DigitalAssetTransactions)
     //         .ThenInclude(dat => dat.WalletIdentifier)
     //         .ThenInclude(wi => wi.Client)
-    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.AssetPools)
     //         .ThenInclude(aw => aw.DigitalAssetTransactions)
     //         .ThenInclude(dat => dat.WalletIdentifier)
     //         .ThenInclude(wi => wi.Member)
-    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.AssetPools)
     //         .ThenInclude(aw => aw.DigitalAssetTransactions)
     //         .ThenInclude(dat => dat.WalletIdentifier)
     //         .ThenInclude(wi => wi.PokerManager)
     //
-    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.AssetPools)
     //         .ThenInclude(aw => aw.FiatAssetTransactions)
     //         .ThenInclude(fat => fat.WalletIdentifier)
     //         .ThenInclude(wi => wi.Bank)
-    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.AssetPools)
     //         .ThenInclude(aw => aw.FiatAssetTransactions)
     //         .ThenInclude(fat => fat.WalletIdentifier)
     //         .ThenInclude(wi => wi.Client)
-    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.AssetPools)
     //         .ThenInclude(aw => aw.FiatAssetTransactions)
     //         .ThenInclude(fat => fat.WalletIdentifier)
     //         .ThenInclude(wi => wi.Member)
-    //         .Include(c => c.AssetWallets)
+    //         .Include(c => c.AssetPools)
     //         .ThenInclude(aw => aw.FiatAssetTransactions)
     //         .ThenInclude(fat => fat.WalletIdentifier)
     //         .ThenInclude(wi => wi.PokerManager)
     //
     //         .Include(c => c.WalletIdentifiers)
     //         .ThenInclude(aw => aw.DigitalAssetTransactions)
-    //         .ThenInclude(dat => dat.AssetWallet)
+    //         .ThenInclude(dat => dat.AssetPool)
     //         .ThenInclude(wi => wi.Bank)
     //         .Include(c => c.WalletIdentifiers)
     //         .ThenInclude(aw => aw.DigitalAssetTransactions)
-    //         .ThenInclude(dat => dat.AssetWallet)
+    //         .ThenInclude(dat => dat.AssetPool)
     //         .ThenInclude(wi => wi.Client)
     //         .Include(c => c.WalletIdentifiers)
     //         .ThenInclude(aw => aw.DigitalAssetTransactions)
-    //         .ThenInclude(dat => dat.AssetWallet)
+    //         .ThenInclude(dat => dat.AssetPool)
     //         .ThenInclude(wi => wi.Member)
     //         .Include(c => c.WalletIdentifiers)
     //         .ThenInclude(aw => aw.DigitalAssetTransactions)
-    //         .ThenInclude(dat => dat.AssetWallet)
+    //         .ThenInclude(dat => dat.AssetPool)
     //         .ThenInclude(wi => wi.PokerManager)
     //
     //         .Include(c => c.WalletIdentifiers)
     //         .ThenInclude(aw => aw.FiatAssetTransactions)
-    //         .ThenInclude(fat => fat.AssetWallet)
+    //         .ThenInclude(fat => fat.AssetPool)
     //         .ThenInclude(wi => wi.Bank)
     //         .Include(c => c.WalletIdentifiers)
     //         .ThenInclude(aw => aw.FiatAssetTransactions)
-    //         .ThenInclude(fat => fat.AssetWallet)
+    //         .ThenInclude(fat => fat.AssetPool)
     //         .ThenInclude(wi => wi.Client)
     //         .Include(c => c.WalletIdentifiers)
     //         .ThenInclude(aw => aw.FiatAssetTransactions)
-    //         .ThenInclude(fat => fat.AssetWallet)
+    //         .ThenInclude(fat => fat.AssetPool)
     //         .ThenInclude(wi => wi.Member)
     //         .Include(c => c.WalletIdentifiers)
     //         .ThenInclude(aw => aw.FiatAssetTransactions)!
-    //         .ThenInclude(fat => fat.AssetWallet)
+    //         .ThenInclude(fat => fat.AssetPool)
     //         .ThenInclude(wi => wi.PokerManager);
     //         
     //

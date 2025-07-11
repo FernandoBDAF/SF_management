@@ -65,7 +65,7 @@ public class MemberService : BaseAssetHolderService<Member>
             BaseAssetHolderId = baseStatistics.BaseAssetHolderId,
             HasActiveTransactions = baseStatistics.HasActiveTransactions,
             TotalBalance = baseStatistics.TotalBalance,
-            HasActiveAssetWallets = baseStatistics.HasActiveAssetWallets,
+            HasActiveAssetPools = baseStatistics.HasActiveAssetPools,
             Share = member?.Share ?? 0.0,
             IsActiveShare = member?.IsActiveShare ?? false,
             CanBeDeleted = baseStatistics.CanBeDeleted
@@ -82,7 +82,7 @@ public class MemberStatistics
     public Guid BaseAssetHolderId { get; set; }
     public bool HasActiveTransactions { get; set; }
     public decimal TotalBalance { get; set; }
-    public bool HasActiveAssetWallets { get; set; }
+    public bool HasActiveAssetPools { get; set; }
     public double Share { get; set; }
     public bool IsActiveShare { get; set; }
     public bool CanBeDeleted { get; set; }

@@ -3,7 +3,6 @@ namespace SFManagement.Enums;
 public enum AssetType
 {
     // Miscellaneous
-    ContaCorrente = 1,
 
     // Fiat
     BrazilianReal = 21,
@@ -16,6 +15,7 @@ public enum AssetType
     AmericasCardRoom = 104,
     SupremaPoker = 105,
     AstroPayICash = 106,
+    LuxonPoker = 107,
 
     // Crypto
     Bitcoin = 201,

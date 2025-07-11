@@ -30,7 +30,7 @@ public class
     [Route("poker-manager-transactions")]
     public async Task<TableResponse<DigitalAssetTransactionResponse>> Transactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
-        var pokerManagerAssetWalletIds = await _pokerManagerService.GetAssetHolderAssetWalletIds();
+        var pokerManagerAssetPoolIds = await _pokerManagerService.GetAssetHolderAssetPoolIds();
         
         var response = new TableResponse<DigitalAssetTransactionResponse>
         {
@@ -38,13 +38,13 @@ public class
             Total = 0
         };
 
-        if (pokerManagerAssetWalletIds.Length == 0)
+        if (pokerManagerAssetPoolIds.Length == 0)
         {
             return response;
         }
         
         var transactions = await _digitalAssetTransactionService
-            .GetAssetHolderTransactions(pokerManagerAssetWalletIds, null, null, quantity ?? 100, page ?? 0);
+            .GetAssetHolderTransactions(pokerManagerAssetPoolIds, null, null, quantity ?? 100, page ?? 0);
         
         response.Total = transactions.Total;
         

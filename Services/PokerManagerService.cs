@@ -50,20 +50,20 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
         );
     }
     
-    //Get all wallet identifiers of other AssetHolders for all AssetWallet types a Manager have
+    //Get all wallet identifiers of other AssetHolders for all AssetPool types a Manager have
     public async Task<Dictionary<AssetType, List<WalletIdentifier>>> GetWalletIdentifiersFromOthers(Guid pokerManagerId)
     {
         // Get the poker manager with their asset wallets
         var pokerManager = await context.PokerManagers
             .Include(pm => pm.BaseAssetHolder)
-            .ThenInclude(bah => bah.AssetWallets)
+            .ThenInclude(bah => bah.AssetPools)
             .FirstOrDefaultAsync(pm => pm.BaseAssetHolderId == pokerManagerId);
 
         if (pokerManager == null)
             throw new Exception("PokerManager not found");
 
         // Get all asset types that this poker manager has
-        var assetTypes = pokerManager.BaseAssetHolder.AssetWallets
+        var assetTypes = pokerManager.BaseAssetHolder.AssetPools
             .Where(aw => !aw.DeletedAt.HasValue)
             .Select(aw => aw.AssetType)
             .Distinct()
@@ -75,7 +75,7 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
         // Get all wallet identifiers from other asset holders (excluding this poker manager)
         // that match the asset types this poker manager has
         var walletIdentifiers = await context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
+            .Include(wi => wi.AssetPool)
             .ThenInclude(aw => aw.BaseAssetHolder)
             .ThenInclude(aw => aw.Client)
             .Include(wi => wi.Referral)
@@ -88,7 +88,7 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
 
         // Group by asset type
         var groupedWalletIdentifiers = walletIdentifiers
-            .GroupBy(wi => wi.AssetWallet.AssetType)
+            .GroupBy(wi => wi.AssetPool.AssetType)
             .ToDictionary(
                 group => group.Key,
                 group => group.ToList()

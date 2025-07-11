@@ -62,7 +62,7 @@ public class BaseAssetHolder : BaseDomain
     
     public virtual ICollection<Referral> Referral { get; set; } = new HashSet<Referral>();
     
-    public virtual ICollection<AssetWallet> AssetWallets { get; set; } = new HashSet<AssetWallet>();
+    public virtual ICollection<AssetPool> AssetPools { get; set; } = new HashSet<AssetPool>();
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
     

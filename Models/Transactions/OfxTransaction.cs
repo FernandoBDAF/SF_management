@@ -27,8 +27,8 @@ public class OfxTransaction : BaseDomain
                 CultureInfo.InvariantCulture, out var value))
         {
             Value = value;
-            TransactionDirection = TransactionDirection =
-                Value > decimal.Zero ? TransactionDirection.Income : TransactionDirection.Expense;
+            // TransactionDirection = TransactionDirection =
+            //     Value > decimal.Zero ? TransactionDirection.Income : TransactionDirection.Expense;
             Value = Value > decimal.Zero ? Value : decimal.Negate(Value);
         }
     
@@ -44,7 +44,7 @@ public class OfxTransaction : BaseDomain
     
     [MaxLength(40)] public string? Description { get; set; }
     
-    [Required] public TransactionDirection TransactionDirection { get; set; }
+    // [Required] public TransactionDirection TransactionDirection { get; set; }
 
     [Required] [MaxLength(40)] public string FitId { get; set; }
     

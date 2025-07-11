@@ -61,7 +61,7 @@ public class ClientService : BaseAssetHolderService<Client>
             BaseAssetHolderId = baseStatistics.BaseAssetHolderId,
             HasActiveTransactions = baseStatistics.HasActiveTransactions,
             TotalBalance = baseStatistics.TotalBalance,
-            HasActiveAssetWallets = baseStatistics.HasActiveAssetWallets,
+            HasActiveAssetPools = baseStatistics.HasActiveAssetPools,
             Age = client?.Age,
             CanBeDeleted = baseStatistics.CanBeDeleted
         };
@@ -77,7 +77,7 @@ public class ClientStatistics
     public Guid BaseAssetHolderId { get; set; }
     public bool HasActiveTransactions { get; set; }
     public decimal TotalBalance { get; set; }
-    public bool HasActiveAssetWallets { get; set; }
+    public bool HasActiveAssetPools { get; set; }
     public int? Age { get; set; }
     public bool CanBeDeleted { get; set; }
 }

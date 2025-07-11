@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
-using SFManagement.Models;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 using SFManagement.Enums;
+using SFManagement.Enums.WalletsMetadata;
 
 namespace SFManagement;
 
@@ -30,16 +30,16 @@ public class AutoMapperProfile : Profile
         CreateMap<InitialBalance, InitialBalanceResponse>();
         CreateMap<InitialBalanceRequest, InitialBalance>();
 
-        CreateMap<AssetWallet, AssetWalletResponse>()
+        CreateMap<AssetPool, AssetPoolResponse>()
             .ForMember(dest => dest.BaseAssetHolderName,
                 opt =>
                     opt.MapFrom(src => src.BaseAssetHolder.Name));
-        CreateMap<AssetWalletRequest, AssetWallet>();
+        CreateMap<AssetPoolRequest, AssetPool>();
 
         CreateMap<WalletIdentifier, WalletIdentifierResponse>()
-            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.AssetWallet.BaseAssetHolder.Id))
-            .ForMember(dest => dest.BaseAssetHolderName, opt => opt.MapFrom(src => src.AssetWallet.BaseAssetHolder.Name))
-            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetWallet.AssetType))
+            .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder.Id))
+            .ForMember(dest => dest.BaseAssetHolderName, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder.Name))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetPool.AssetType))
             // .ForMember(dest => dest.ReferralId, opt => opt.MapFrom(src => src.Referral.Id))
             .AfterMap((src, dest, context) =>
             {
@@ -86,16 +86,10 @@ public class AutoMapperProfile : Profile
                         accountType: src.AccountType
                     );
                 }
-                
-                // Set the DefaultParentCommission if provided
-                if (src.DefaultParentCommission.HasValue)
-                {
-                    dest.DefaultParentCommission = src.DefaultParentCommission;
-                }
             });
 
         CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>();
-            // .ForMember(dest => dest.ClientNameAw, act => act.MapFrom(src => src.AssetWallet.Client.Name))   
+            // .ForMember(dest => dest.ClientNameAw, act => act.MapFrom(src => src.AssetPool.Client.Name))   
             // .ForMember(dest => dest.ClientNameWi, act => act.MapFrom(src => src.WalletIdentifier.Client.Name));
             
         CreateMap<FiatAssetTransactionRequest, FiatAssetTransaction>();

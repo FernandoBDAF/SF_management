@@ -69,16 +69,16 @@ public class BalanceResponse
     //     //         : decimal.Negate(x.Value));
     // }
     //
-    // public BalanceResponse(AssetWallet assetWallet, DateTime? date)
+    // public BalanceResponse(AssetPool AssetPool, DateTime? date)
     // {
-    //     // Coins = assetWallet.IntialCoins;
+    //     // Coins = AssetPool.IntialCoins;
     //     //
-    //     // Coins += assetWallet.Transactions
+    //     // Coins += AssetPool.Transactions
     //     //     .Where(x => x.Date < date && !x.DeletedAt.HasValue &&
     //     //                 (!x.ApprovedAt.HasValue || (x.ApprovedAt.HasValue && x.LinkedToId.HasValue))).Sum(x =>
     //     //         x.WalletTransactionType == WalletTransactionType.Income ? decimal.Negate(x.Coins) : x.Coins);
     //     //
-    //     // Coins += assetWallet.InternalTransactions.Where(x => x.Date < date && !x.DeletedAt.HasValue).Sum(x =>
+    //     // Coins += AssetPool.InternalTransactions.Where(x => x.Date < date && !x.DeletedAt.HasValue).Sum(x =>
     //     //     x.InternalTransactionType == InternalTransactionType.Income
     //     //         ? decimal.Negate(x.Coins ?? decimal.Zero)
     //     //         : x.Coins ?? decimal.Zero);

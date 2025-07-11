@@ -39,8 +39,8 @@ public class BaseTransaction : BaseDomain
     public string GetWalletIdentifierInput(Guid walletIdentifierId) { ... }
 
     [NotMapped]
-    public bool IsInternalTransfer => SenderWalletIdentifier?.AssetWallet?.BaseAssetHolderId ==
-                                     ReceiverWalletIdentifier?.AssetWallet?.BaseAssetHolderId;
+    public bool IsInternalTransfer => SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId ==
+                                     ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
 }
 ```
 
@@ -152,12 +152,12 @@ public class BaseTransactionService<TEntity> : BaseService<TEntity>
 {
     // Optimized pagination with proper ordering
     public async Task<TableResponse<TEntity>> GetAssetHolderTransactions(
-        Guid[] assetWalletIds, DateTime? startDate, DateTime? endDate,
+        Guid[] AssetPoolIds, DateTime? startDate, DateTime? endDate,
         int quantity = 100, int page = 0)
 
     // Exclude specific asset holders
     public async Task<TableResponse<TEntity>> GetNonAssetHolderTransactions(
-        Guid[]? assetWalletIds, DateTime? startDate, DateTime? endDate,
+        Guid[]? AssetPoolIds, DateTime? startDate, DateTime? endDate,
         int quantity = 100, int page = 0)
 
     // Single wallet identifier transactions
@@ -251,8 +251,8 @@ public WalletIdentifier GetCounterpartyForWalletIdentifier(Guid walletIdentifier
 // Internal transfer detection
 [NotMapped]
 public bool IsInternalTransfer =>
-    SenderWalletIdentifier?.AssetWallet?.BaseAssetHolderId ==
-    ReceiverWalletIdentifier?.AssetWallet?.BaseAssetHolderId;
+    SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId ==
+    ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
 ```
 
 ## 7. ViewModels & API Contracts
@@ -296,7 +296,7 @@ public class BaseTransactionRequest
 ### Asset Infrastructure
 
 - **WalletIdentifier**: Direct integration with wallet metadata
-- **AssetWallet**: Asset type determination
+- **AssetPool**: Asset type determination
 - **BaseAssetHolder**: Owner identification
 
 ### Audit & Logging

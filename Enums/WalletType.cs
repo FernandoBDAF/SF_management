@@ -9,5 +9,8 @@ public enum WalletType
     PokerWallet = 2,
     
     // Crypto Assets
-    CryptoWallet = 3
+    CryptoWallet = 3,
+
+    // Internal Transactions
+    Internal = 4,
 }

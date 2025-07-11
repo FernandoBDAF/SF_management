@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Authorization;
-using SFManagement.Controllers;
-using SFManagement.Enums;
+using SFManagement.Enums.WalletsMetadata;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
@@ -92,7 +91,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
                 
                 foreach (var walletIdentifier in group.Value)
                 {
-                    var assetHolderType = walletIdentifier.AssetWallet.BaseAssetHolder.AssetHolderType;
+                    var assetHolderType = walletIdentifier.AssetPool.BaseAssetHolder.AssetHolderType;
                     
                     // Get the most recent settlement transaction
                     var lastSettlementTransaction = lastSettlementTransactions
@@ -102,7 +101,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
                     {
                         Id = walletIdentifier.Id,
                         InputForTransactions = walletIdentifier.GetPokerMetadata(PokerWalletMetadata.InputForTransactions),
-                        AssetType = walletIdentifier.AssetWallet.AssetType,
+                        AssetType = walletIdentifier.AssetPool.AssetType,
                         Referral = walletIdentifier.Referral != null ? new ReferralInfo
                         {
                             Id = walletIdentifier.Referral.Id,
@@ -112,8 +111,8 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
                             ParentCommission = walletIdentifier.Referral.ParentCommission
                         } : null,
                         LastSettlementTransaction = lastSettlementTransaction != null ? _mapper.Map<SettlementTransactionSimplifiedResponse>(lastSettlementTransaction) : null,
-                        BaseAssetHolderId = walletIdentifier.AssetWallet.BaseAssetHolder.Id,
-                        BaseAssetHolderName = walletIdentifier.AssetWallet.BaseAssetHolder.Name,
+                        BaseAssetHolderId = walletIdentifier.AssetPool.BaseAssetHolder.Id,
+                        BaseAssetHolderName = walletIdentifier.AssetPool.BaseAssetHolder.Name,
                         AssetHolderType = assetHolderType
                     });
                 }

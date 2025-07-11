@@ -28,8 +28,8 @@ public class AssetHolderDomainService : IAssetHolderDomainService
         if (hasActiveTransactions) return false;
         
         // Check for active asset wallets with balances
-        var hasActiveAssetWallets = await HasActiveAssetWallets(assetHolderId);
-        if (hasActiveAssetWallets) return false;
+        var hasActiveAssetPools = await HasActiveAssetPools(assetHolderId);
+        if (hasActiveAssetPools) return false;
         
         // Check for active referrals - commented out as Referrals table doesn't exist yet
         // var hasActiveReferrals = await _context.Referrals
@@ -148,7 +148,7 @@ public class AssetHolderDomainService : IAssetHolderDomainService
     public async Task<bool> HasActiveTransactions(Guid assetHolderId)
     {
         var walletIdentifierIds = await _context.WalletIdentifiers
-            .Where(wi => wi.AssetWallet.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
             .Select(wi => wi.Id)
             .ToListAsync();
         
@@ -182,8 +182,8 @@ public class AssetHolderDomainService : IAssetHolderDomainService
     public async Task<decimal> GetTotalBalance(Guid assetHolderId)
     {
         var walletIdentifiers = await _context.WalletIdentifiers
-            .Include(wi => wi.AssetWallet)
-            .Where(wi => wi.AssetWallet.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
+            .Include(wi => wi.AssetPool)
+            .Where(wi => wi.AssetPool.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
             .ToListAsync();
         
         var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();
@@ -318,9 +318,9 @@ public class AssetHolderDomainService : IAssetHolderDomainService
         return result;
     }
 
-    public async Task<bool> HasActiveAssetWallets(Guid assetHolderId)
+    public async Task<bool> HasActiveAssetPools(Guid assetHolderId)
     {
-        return await _context.AssetWallets
+        return await _context.AssetPools
             .AnyAsync(aw => aw.BaseAssetHolderId == assetHolderId && !aw.DeletedAt.HasValue);
     }
 

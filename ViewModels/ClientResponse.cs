@@ -14,6 +14,6 @@ public class ClientResponse : BaseAssetHolderResponse
         (DateTime.Now.DayOfYear < Birthday.Value.DayOfYear ? 1 : 0) : null;
     
     // Remove redundant collections - these should be accessed through separate endpoints
-    // WalletIdentifiers, AssetWallets, InitialBalances, ContactPhones create circular references
+    // WalletIdentifiers, AssetPools, InitialBalances, ContactPhones create circular references
     // and performance issues in responses. Use dedicated endpoints instead.
 }

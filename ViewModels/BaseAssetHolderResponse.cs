@@ -12,9 +12,9 @@ public class BaseAssetHolderResponse : BaseResponse
     
     public AddressResponse? Address { get; set; }
 
-    public List<AssetWalletResponse> AssetWallets { get; set; } = new List<AssetWalletResponse>();
+    public List<AssetPoolResponse> AssetPools { get; set; } = new List<AssetPoolResponse>();
     
     // Remove redundant collections - these should be accessed through separate endpoints
-    // Collections like AssetWallets, WalletIdentifiers, etc. create circular references
+    // Collections like AssetPools, WalletIdentifiers, etc. create circular references
     // and performance issues in responses
 }

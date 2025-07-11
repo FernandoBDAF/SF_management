@@ -70,7 +70,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
     public DbSet<InitialBalance> InitialBalances { get; set; }
     public DbSet<Category> Categories { get; set; }
     
-    public DbSet<AssetWallet> AssetWallets { get; set; }
+    public DbSet<AssetPool> AssetPools { get; set; }
     public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }
     
     public DbSet<FiatAssetTransaction> FiatAssetTransactions { get; set; }
@@ -113,15 +113,15 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
 
         // Configure WalletIdentifier relationships
         modelBuilder.Entity<WalletIdentifier>()
-            .HasOne(wi => wi.AssetWallet)
+            .HasOne(wi => wi.AssetPool)
             .WithMany(aw => aw.WalletIdentifiers)
-            .HasForeignKey(wi => wi.AssetWalletId)
+            .HasForeignKey(wi => wi.AssetPoolId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure AssetWallet relationships
-        modelBuilder.Entity<AssetWallet>()
+        // Configure AssetPool relationships
+        modelBuilder.Entity<AssetPool>()
             .HasOne(aw => aw.BaseAssetHolder)
-            .WithMany(bah => bah.AssetWallets)
+            .WithMany(bah => bah.AssetPools)
             .HasForeignKey(aw => aw.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -277,27 +277,27 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .HasIndex(pm => pm.DeletedAt)
             .HasDatabaseName("IX_PokerManager_DeletedAt");
 
-        // AssetWallet indexes
-        modelBuilder.Entity<AssetWallet>()
+        // AssetPool indexes
+        modelBuilder.Entity<AssetPool>()
             .HasIndex(aw => aw.BaseAssetHolderId)
-            .HasDatabaseName("IX_AssetWallet_BaseAssetHolderId");
+            .HasDatabaseName("IX_AssetPool_BaseAssetHolderId");
 
-        modelBuilder.Entity<AssetWallet>()
+        modelBuilder.Entity<AssetPool>()
             .HasIndex(aw => aw.AssetType)
-            .HasDatabaseName("IX_AssetWallet_AssetType");
+            .HasDatabaseName("IX_AssetPool_AssetType");
 
-        modelBuilder.Entity<AssetWallet>()
+        modelBuilder.Entity<AssetPool>()
             .HasIndex(aw => new { aw.BaseAssetHolderId, aw.AssetType })
-            .HasDatabaseName("IX_AssetWallet_BaseAssetHolder_AssetType");
+            .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetType");
 
-        modelBuilder.Entity<AssetWallet>()
+        modelBuilder.Entity<AssetPool>()
             .HasIndex(aw => aw.DeletedAt)
-            .HasDatabaseName("IX_AssetWallet_DeletedAt");
+            .HasDatabaseName("IX_AssetPool_DeletedAt");
 
         // WalletIdentifier indexes
         modelBuilder.Entity<WalletIdentifier>()
-            .HasIndex(wi => wi.AssetWalletId)
-            .HasDatabaseName("IX_WalletIdentifier_AssetWalletId");
+            .HasIndex(wi => wi.AssetPoolId)
+            .HasDatabaseName("IX_WalletIdentifier_AssetPoolId");
 
         modelBuilder.Entity<WalletIdentifier>()
             .HasIndex(wi => wi.DeletedAt)
