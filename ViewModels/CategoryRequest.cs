@@ -4,5 +4,5 @@ public class CategoryRequest
 {
     public string? Description { get; set; }
 
-    public Guid? ParentId { get; set; }
+    public Guid? CategoryId { get; set; }
 }
