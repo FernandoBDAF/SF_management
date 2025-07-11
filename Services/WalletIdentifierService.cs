@@ -227,6 +227,28 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .Where(wi => wi.WalletType == WalletType.Internal && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
+
+    public async Task<WalletIdentifier?> GetInternalWalletToPairWith(Guid walletIdentifierId)
+    {
+        var walletIdentifier = await Get(walletIdentifierId);
+        if (walletIdentifier == null)
+        {
+            throw new ArgumentException("Wallet identifier not found");
+        }
+
+        if (walletIdentifier.WalletType == WalletType.Internal)
+        {
+            throw new ArgumentException("Wallet identifier is internal");
+        }
+
+        return await context.WalletIdentifiers
+            .Include(wi => wi.AssetPool)
+                .ThenInclude(aw => aw.BaseAssetHolder)
+            .Include(wi => wi.Referral)
+            .FirstOrDefaultAsync(wi => wi.WalletType == WalletType.Internal && 
+            !wi.DeletedAt.HasValue 
+            && wi.AssetPool.AssetType == walletIdentifier.AssetPool.AssetType);
+    }
     
     public async Task<List<WalletIdentifier>> GetInternalWalletsByMetadata(string metadataKey, string metadataValue)
     {

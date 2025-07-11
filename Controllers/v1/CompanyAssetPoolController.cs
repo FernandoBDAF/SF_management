@@ -19,16 +19,31 @@ public class CompanyAssetPoolController : ControllerBase
     private readonly IMapper _mapper;
     private readonly ILogger<CompanyAssetPoolController> _logger;
 
+    private readonly WalletIdentifierService _walletIdentifierService;
+
     public CompanyAssetPoolController(
         AssetPoolService assetPoolService,
         AssetPoolValidationService validationService,
         IMapper mapper,
-        ILogger<CompanyAssetPoolController> logger)
+        ILogger<CompanyAssetPoolController> logger,
+        WalletIdentifierService walletIdentifierService)
     {
         _assetPoolService = assetPoolService;
         _validationService = validationService;
         _mapper = mapper;
         _logger = logger;
+        _walletIdentifierService = walletIdentifierService;
+    }
+
+    [HttpGet("internal-wallet-to-pair-with/{walletIdentifierId}")]
+    [ProducesResponseType(typeof(WalletIdentifierResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetInternalWalletToPairWith(Guid walletIdentifierId)
+    {
+        var walletIdentifiers = await _walletIdentifierService.GetInternalWalletToPairWith(walletIdentifierId);
+        _logger.LogInformation("Internal wallet to pair with {WalletIdentifierId} - RequestId: {RequestId}", 
+            walletIdentifierId, HttpContext.TraceIdentifier);
+        var response = _mapper.Map<WalletIdentifierResponse>(walletIdentifiers);
+        return Ok(response);
     }
 
     /// <summary>

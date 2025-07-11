@@ -152,19 +152,34 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             .Where(ft => !ft.DeletedAt.HasValue && 
                         (walletIdentifiers.Contains(ft.SenderWalletIdentifierId) || 
                          walletIdentifiers.Contains(ft.ReceiverWalletIdentifierId)))
-            .SumAsync(ft => walletIdentifiers.Contains(ft.ReceiverWalletIdentifierId) ? ft.AssetAmount : -ft.AssetAmount);
+            .Include(ft => ft.ReceiverWalletIdentifier)
+            .Include(ft => ft.SenderWalletIdentifier)
+            .SumAsync(ft => walletIdentifiers.Contains(ft.ReceiverWalletIdentifierId) ? 
+            ft.AssetAmount * (ft.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
+            -ft.AssetAmount * (ft.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
+            );
 
         var digitalBalance = await context.DigitalAssetTransactions
             .Where(dt => !dt.DeletedAt.HasValue && 
                         (walletIdentifiers.Contains(dt.SenderWalletIdentifierId) || 
                          walletIdentifiers.Contains(dt.ReceiverWalletIdentifierId)))
-            .SumAsync(dt => walletIdentifiers.Contains(dt.ReceiverWalletIdentifierId) ? dt.AssetAmount : -dt.AssetAmount);
+            .Include(dt => dt.ReceiverWalletIdentifier)
+            .Include(dt => dt.SenderWalletIdentifier)
+            .SumAsync(dt => walletIdentifiers.Contains(dt.ReceiverWalletIdentifierId) ? 
+            dt.AssetAmount * (dt.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
+            -dt.AssetAmount * (dt.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
+            );
 
         var settlementBalance = await context.SettlementTransactions
             .Where(st => !st.DeletedAt.HasValue && 
                         (walletIdentifiers.Contains(st.SenderWalletIdentifierId) || 
                          walletIdentifiers.Contains(st.ReceiverWalletIdentifierId)))
-            .SumAsync(st => walletIdentifiers.Contains(st.ReceiverWalletIdentifierId) ? st.AssetAmount : -st.AssetAmount);
+            .Include(st => st.ReceiverWalletIdentifier)
+            .Include(st => st.SenderWalletIdentifier)
+            .SumAsync(st => walletIdentifiers.Contains(st.ReceiverWalletIdentifierId) ? 
+            st.AssetAmount * (st.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
+            -st.AssetAmount * (st.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
+            );
 
         return fiatBalance + digitalBalance + settlementBalance;
     }
