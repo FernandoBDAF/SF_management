@@ -59,7 +59,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly ILoggingService _loggingService = loggingService;
-
+    
     public DbSet<BaseAssetHolder> BaseAssetHolders { get; set; }
     public DbSet<Bank> Banks { get; set; }
     public DbSet<Client> Clients { get; set; }
@@ -392,7 +392,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
     private void SetDefaultProperties()
     {
         var userId = GetCurrentUserId();
-        
+
         foreach (var auditableEntity in ChangeTracker.Entries<BaseDomain>())
         {
             if (auditableEntity.State == EntityState.Added)
@@ -415,7 +415,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
                 {
                     // Soft delete operation
                     auditableEntity.Property(p => p.UpdatedAt).IsModified = false;
-                    
+
                     if (auditableEntity.Entity.DeletedAt == DateTime.MinValue)
                     {
                         auditableEntity.Entity.DeletedAt = DateTime.UtcNow;

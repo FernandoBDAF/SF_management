@@ -352,8 +352,18 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     public async Task<Guid[]> GetAssetHolderAssetPoolIds()
     {
         var assetHolderType = GetAssetHolderTypeForEntity();
-        var assetPoolIds = await context.BaseAssetHolders
-            .Where(bah => bah.AssetHolderType == assetHolderType)
+        
+        // Use navigation properties instead of computed AssetHolderType property
+        IQueryable<BaseAssetHolder> query = assetHolderType switch
+        {
+            AssetHolderType.Client => context.BaseAssetHolders.Where(bah => bah.Client != null),
+            AssetHolderType.Bank => context.BaseAssetHolders.Where(bah => bah.Bank != null),
+            AssetHolderType.Member => context.BaseAssetHolders.Where(bah => bah.Member != null),
+            AssetHolderType.PokerManager => context.BaseAssetHolders.Where(bah => bah.PokerManager != null),
+            _ => throw new InvalidOperationException($"Unknown asset holder type: {assetHolderType}")
+        };
+        
+        var assetPoolIds = await query
             .Include(bah => bah.AssetPools)
             .SelectMany(bah => bah.AssetPools.Where(aw => !aw.DeletedAt.HasValue).Select(aw => aw.Id))
             .ToArrayAsync();
@@ -454,7 +464,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             {
                 if (!balances.ContainsKey(tx.BalanceAs.Value)) balances[tx.BalanceAs.Value] = 0;
                 balances[tx.BalanceAs.Value] -= signedAmount * tx.ConversionRate.Value;
-                continue;
+                    continue;
             }
 
             if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
@@ -560,16 +570,16 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             {
                 signedAmount = -signedAmount;
             }
-
-            allTransactions.Add(new StatementTransactionResponse
-            {
-                Id = dat.Id,
-                Date = dat.Date,
-                Description = dat.Description,
+                    
+                    allTransactions.Add(new StatementTransactionResponse
+                    {
+                        Id = dat.Id,
+                        Date = dat.Date,
+                        Description = dat.Description,
                 AssetAmount = signedAmount,
-                BalanceAs = dat.BalanceAs,
-                ConversionRate = dat.ConversionRate,
-                Rate = dat.Rate,
+                        BalanceAs = dat.BalanceAs,
+                        ConversionRate = dat.ConversionRate,
+                        Rate = dat.Rate,
                 AssetType = dat.SenderWalletIdentifier.AssetPool.AssetType,
                 CounterPartyName = dat.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = dat.GetWalletIdentifierInput(relevantWalletId),
@@ -588,7 +598,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             {
                 signedAmount = -signedAmount;
             }
-
+                    
                     allTransactions.Add(new StatementTransactionResponse
                     {
                         Id = fat.Id,

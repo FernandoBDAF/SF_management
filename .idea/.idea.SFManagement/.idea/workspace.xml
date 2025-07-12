@@ -14,42 +14,15 @@
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BaseApiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BaseApiController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BaseAssetHolderController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BaseAssetHolderController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/BankController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/CategoryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/CategoryController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/ClientController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/MemberController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/MemberController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/OfxController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/OfxController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/PokerManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/v1/WalletIdentifierController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/v1/WalletIdentifierController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Data/DataContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Data/DataContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Enums/BankWalletMetadata.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Enums/BankWalletMetadata.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Enums/PokerWalletMetadata.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Enums/PokerWalletMetadata.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ErrorHandlerMiddleware.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ErrorHandlerMiddleware.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250709194620_Initial.Designer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/20250709194620_Initial.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Migrations/DataContextModelSnapshot.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/AssetInfrastructure/WalletIdentifier.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/AssetInfrastructure/WalletIdentifier.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/BaseAssetHolder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Transactions/BaseTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/AssetHolderDomainService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AssetHolderDomainService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/AssetWalletService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AssetWalletService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletIdentifierService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/WalletIdentifierValidationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/WalletIdentifierValidationService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/AssetWalletRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/AssetWalletRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/AssetWalletResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/AssetWalletResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/BaseAssetHolderResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseAssetHolderResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/BaseResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/WalletIdentifierRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/WalletIdentifierResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20250703.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20250707.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20250709.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/sf-management-20250709.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/DigitalAssetTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/DigitalAssetTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/OfxResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/OfxResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/OfxTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/OfxTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementClosingsResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementClosingsResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementTransactionResponse.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,7 +70,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "XThreadsFramesViewSplitterKey": "0.33114755",
-    "git-widget-placeholder": "remove__AssetWallet",
+    "git-widget-placeholder": "hmg",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
