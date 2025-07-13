@@ -13,6 +13,4 @@ public class PokerManager : BaseDomain, IAssetHolder
     public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
     public ManagerType? ManagerType { get; set; }
-    
-    public virtual ICollection<Excel> Excels { get; set; } = new HashSet<Excel>();
 }

@@ -175,15 +175,13 @@ public static class DependencyInjectionExtensions
         // Transaction services
         builder.Services.AddScoped<BaseTransactionService<FiatAssetTransaction>, FiatAssetTransactionService>();
         builder.Services.AddScoped<FiatAssetTransactionService>();
-        builder.Services.AddScoped<OfxService>();
-        builder.Services.AddScoped<BaseService<Ofx>, OfxService>();
         // builder.Services.AddScoped<TransactionService>();
         builder.Services.AddScoped<BaseTransactionService<DigitalAssetTransaction>, DigitalAssetTransactionService>();
         builder.Services.AddScoped<DigitalAssetTransactionService>();
-        builder.Services.AddScoped<BaseService<Excel>, ExcelService>();
-        builder.Services.AddScoped<ExcelService>();
         builder.Services.AddScoped<BaseTransactionService<SettlementTransaction>, SettlementTransactionService>();
         builder.Services.AddScoped<SettlementTransactionService>();
+        builder.Services.AddScoped<BaseService<ImportedTransaction>, ImportedTransactionService>();
+        builder.Services.AddScoped<ImportedTransactionService>();
         
         // Other services
         builder.Services.AddScoped<BaseService<Category>, CategoryService>();

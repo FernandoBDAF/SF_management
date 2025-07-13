@@ -77,11 +77,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
     public DbSet<FiatAssetTransaction> FiatAssetTransactions { get; set; }
     public DbSet<DigitalAssetTransaction> DigitalAssetTransactions { get; set; }
     public DbSet<SettlementTransaction> SettlementTransactions { get; set; }
-    
-    public DbSet<Ofx> Ofxs { get; set; }
-    public DbSet<OfxTransaction> OfxTransactions { get; set; }
-    public DbSet<Excel> Excels { get; set; }
-    public DbSet<ExcelTransaction> ExcelTransactions { get; set; }
+    public DbSet<ImportedTransaction> ImportedTransactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -227,18 +223,19 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .HasForeignKey(st => st.ReceiverWalletIdentifierId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure other transaction relationships
-        modelBuilder.Entity<FiatAssetTransaction>()
-            .HasOne(ft => ft.OfxTransaction)
+        // Configure ImportedTransaction relationships
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasOne(it => it.BaseAssetHolder)
             .WithMany()
-            .HasForeignKey(ft => ft.OfxTransactionId)
+            .HasForeignKey(it => it.BaseAssetHolderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasOne(it => it.ReconciledTransaction)
+            .WithMany()
+            .HasForeignKey(it => it.ReconciledTransactionId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        modelBuilder.Entity<DigitalAssetTransaction>()
-            .HasOne(dt => dt.Excel)
-            .WithMany()
-            .HasForeignKey(dt => dt.ExcelId)
-            .OnDelete(DeleteBehavior.SetNull);
 
         // Configure transaction indexes for performance on concrete tables
         
@@ -292,6 +289,43 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         modelBuilder.Entity<SettlementTransaction>()
             .HasIndex(st => st.DeletedAt)
             .HasDatabaseName("IX_SettlementTransaction_DeletedAt");
+
+        // ImportedTransaction indexes
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => it.BaseAssetHolderId)
+            .HasDatabaseName("IX_ImportedTransaction_BaseAssetHolderId");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => it.FileType)
+            .HasDatabaseName("IX_ImportedTransaction_FileType");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => it.FileName)
+            .HasDatabaseName("IX_ImportedTransaction_FileName");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => it.Status)
+            .HasDatabaseName("IX_ImportedTransaction_Status");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => it.ExternalReferenceId)
+            .HasDatabaseName("IX_ImportedTransaction_ExternalReferenceId");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => it.ReconciledTransactionId)
+            .HasDatabaseName("IX_ImportedTransaction_ReconciledTransactionId");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => new { it.BaseAssetHolderId, it.FileType, it.Status })
+            .HasDatabaseName("IX_ImportedTransaction_BaseAssetHolder_FileType_Status");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => new { it.Date, it.Amount })
+            .HasDatabaseName("IX_ImportedTransaction_Date_Amount");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasIndex(it => it.DeletedAt)
+            .HasDatabaseName("IX_ImportedTransaction_DeletedAt");
 
         // ===== STRATEGIC INDEXES FOR PERFORMANCE =====
         
@@ -466,6 +500,26 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         modelBuilder.Entity<SettlementTransaction>()
             .HasCheckConstraint("CK_SettlementTransaction_Different_Sender_Receiver", 
                 "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+
+        // ImportedTransaction constraints
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasCheckConstraint("CK_ImportedTransaction_Amount_Positive", "[Amount] >= 0");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasCheckConstraint("CK_ImportedTransaction_FileSize_Positive", 
+                "[FileSizeBytes] IS NULL OR [FileSizeBytes] > 0");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasCheckConstraint("CK_ImportedTransaction_Date_NotFuture", 
+                "[Date] <= GETDATE()");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasCheckConstraint("CK_ImportedTransaction_ProcessedAt_Logic", 
+                "([Status] = 3 AND [ProcessedAt] IS NOT NULL) OR ([Status] <> 3 AND [ProcessedAt] IS NULL) OR [Status] = 3");
+
+        modelBuilder.Entity<ImportedTransaction>()
+            .HasCheckConstraint("CK_ImportedTransaction_ReconciledAt_Logic", 
+                "([ReconciledTransactionId] IS NOT NULL AND [ReconciledAt] IS NOT NULL) OR ([ReconciledTransactionId] IS NULL AND [ReconciledAt] IS NULL)");
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
