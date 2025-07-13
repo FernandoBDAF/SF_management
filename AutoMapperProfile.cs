@@ -67,33 +67,34 @@ public class AutoMapperProfile : Profile
         CreateMap<WalletIdentifier, WalletIdentifierResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder != null ? src.AssetPool.BaseAssetHolder.Id : (Guid?)null))
             .ForMember(dest => dest.BaseAssetHolderName, opt => opt.MapFrom(src => src.AssetPool.BaseAssetHolder != null ? src.AssetPool.BaseAssetHolder.Name : "Company"))
-            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetPool.AssetType))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
+            .ForMember(dest => dest.AssetGroup, opt => opt.MapFrom(src => src.AssetGroup))
             // .ForMember(dest => dest.ReferralId, opt => opt.MapFrom(src => src.Referral.Id))
             .AfterMap((src, dest, context) =>
             {
                 // Extract metadata fields based on wallet type
-                switch (src.WalletType)
+                switch (src.AssetGroup)
                 {
-                    case WalletType.PokerWallet:
+                    case AssetGroup.PokerAssets:
                         dest.InputForTransactions = src.GetPokerMetadata(PokerWalletMetadata.InputForTransactions);
                         dest.PlayerNickname = src.GetPokerMetadata(PokerWalletMetadata.PlayerNickname);
                         dest.PlayerEmail = src.GetPokerMetadata(PokerWalletMetadata.PlayerEmail);
                         dest.AccountStatus = src.GetPokerMetadata(PokerWalletMetadata.AccountStatus);
                         break;
                         
-                    case WalletType.BankWallet:
+                    case AssetGroup.FiatAssets:
                         dest.PixKey = src.GetBankMetadata(BankWalletMetadata.PixKey);
                         dest.AccountType = src.GetBankMetadata(BankWalletMetadata.AccountType);
                         dest.RoutingNumber = src.GetBankMetadata(BankWalletMetadata.RoutingNumber);
                         dest.AccountNumber = src.GetBankMetadata(BankWalletMetadata.AccountNumber);
                         break;
                         
-                    case WalletType.CryptoWallet:
+                    case AssetGroup.CryptoAssets:
                         dest.WalletAddress = src.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress);
                         dest.WalletCategory = src.GetCryptoMetadata(CryptoWalletMetadata.WalletCategory);
                         break;
                         
-                    case WalletType.Internal:
+                    case AssetGroup.Internal:
                         // Internal wallets have no specific metadata fields to extract
                         break;
                 }
@@ -122,7 +123,7 @@ public class AutoMapperProfile : Profile
 
         CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => "FiatAsset"))
-            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetPool.AssetType))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetType))
             .ForMember(dest => dest.IsInternalTransfer, opt => opt.MapFrom(src => src.IsInternalTransfer))
             .AfterMap((src, dest, context) =>
             {
@@ -148,9 +149,9 @@ public class AutoMapperProfile : Profile
                 }
                 
                 // Map bank info from sender or receiver (prioritize sender)
-                var bankWallet = src.SenderWalletIdentifier.WalletType == WalletType.BankWallet 
+                var bankWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.FiatAssets 
                     ? src.SenderWalletIdentifier 
-                    : src.ReceiverWalletIdentifier.WalletType == WalletType.BankWallet 
+                    : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.FiatAssets 
                         ? src.ReceiverWalletIdentifier 
                         : null;
                         
@@ -180,7 +181,7 @@ public class AutoMapperProfile : Profile
 
         CreateMap<DigitalAssetTransaction, DigitalAssetTransactionResponse>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => "DigitalAsset"))
-            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetPool.AssetType))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetType))
             .ForMember(dest => dest.IsInternalTransfer, opt => opt.MapFrom(src => src.IsInternalTransfer))
             .AfterMap((src, dest, context) =>
             {
@@ -204,9 +205,9 @@ public class AutoMapperProfile : Profile
                 }
                 
                 // Map poker info from sender or receiver (prioritize sender)
-                var pokerWallet = src.SenderWalletIdentifier.WalletType == WalletType.PokerWallet 
+                var pokerWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.PokerAssets 
                     ? src.SenderWalletIdentifier 
-                    : src.ReceiverWalletIdentifier.WalletType == WalletType.PokerWallet 
+                    : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.PokerAssets 
                         ? src.ReceiverWalletIdentifier 
                         : null;
                         
@@ -217,14 +218,14 @@ public class AutoMapperProfile : Profile
                         PlayerNickname = pokerWallet.GetPokerMetadata(PokerWalletMetadata.PlayerNickname),
                         PlayerEmail = pokerWallet.GetPokerMetadata(PokerWalletMetadata.PlayerEmail),
                         AccountStatus = pokerWallet.GetPokerMetadata(PokerWalletMetadata.AccountStatus),
-                        PokerSite = GetPokerSiteFromAssetType(pokerWallet.AssetPool.AssetType)
+                        PokerSite = GetPokerSiteFromAssetType(pokerWallet.AssetType)
                     };
                 }
                 
                 // Map crypto info from sender or receiver (prioritize sender)
-                var cryptoWallet = src.SenderWalletIdentifier.WalletType == WalletType.CryptoWallet 
+                var cryptoWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.CryptoAssets 
                     ? src.SenderWalletIdentifier 
-                    : src.ReceiverWalletIdentifier.WalletType == WalletType.CryptoWallet 
+                    : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.CryptoAssets 
                         ? src.ReceiverWalletIdentifier 
                         : null;
                         
@@ -243,7 +244,7 @@ public class AutoMapperProfile : Profile
                 {
                     dest.ConversionDetails = new ConversionDetails
                     {
-                        FromAsset = src.SenderWalletIdentifier.AssetPool.AssetType,
+                        FromAsset = src.SenderWalletIdentifier.AssetType,
                         ToAsset = src.BalanceAs.Value,
                         FromAmount = src.AssetAmount,
                         ToAmount = src.AssetAmount * src.ConversionRate.Value,
@@ -253,7 +254,7 @@ public class AutoMapperProfile : Profile
             });
             
         CreateMap<DigitalAssetTransactionRequest, DigitalAssetTransaction>();
-
+        
         // CreateMap<(FiatAssetTransaction from, FiatAssetTransaction to), (FiatAssetTransactionResponse from, FiatAssetTransactionResponse to
         //         )>()
         //     .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
@@ -367,7 +368,7 @@ public class AutoMapperProfile : Profile
                 }
             });
         CreateMap<OfxTransactionRequest, OfxTransaction>();
-        
+
         CreateMap<Excel, ExcelResponse>();
         CreateMap<ExcelRequest, Excel>();
 
@@ -376,7 +377,7 @@ public class AutoMapperProfile : Profile
 
         CreateMap<SettlementTransaction, SettlementTransactionResponse>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => "Settlement"))
-            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetPool.AssetType))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetType))
             .ForMember(dest => dest.IsInternalTransfer, opt => opt.MapFrom(src => src.IsInternalTransfer))
             .AfterMap((src, dest, context) =>
             {
@@ -480,9 +481,9 @@ public class AutoMapperProfile : Profile
         var summary = new WalletIdentifierSummary
         {
             Id = walletIdentifier.Id,
-            WalletType = walletIdentifier.WalletType,
+            AssetGroup = walletIdentifier.AssetGroup,
             AccountClassification = walletIdentifier.AccountClassification,
-            AssetType = walletIdentifier.AssetPool.AssetType
+            AssetType = walletIdentifier.AssetType
         };
 
         // Map asset holder information (null for company pools)
@@ -498,12 +499,12 @@ public class AutoMapperProfile : Profile
         }
 
         // Set display metadata based on wallet type
-        summary.DisplayMetadata = walletIdentifier.WalletType switch
+        summary.DisplayMetadata = walletIdentifier.AssetGroup switch
         {
-            WalletType.BankWallet => walletIdentifier.GetBankMetadata(BankWalletMetadata.AccountNumber),
-            WalletType.PokerWallet => walletIdentifier.GetPokerMetadata(PokerWalletMetadata.PlayerNickname),
-            WalletType.CryptoWallet => walletIdentifier.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress),
-            WalletType.Internal => "Internal Wallet",
+            AssetGroup.FiatAssets => walletIdentifier.GetBankMetadata(BankWalletMetadata.AccountNumber),
+            AssetGroup.PokerAssets => walletIdentifier.GetPokerMetadata(PokerWalletMetadata.PlayerNickname),
+            AssetGroup.CryptoAssets => walletIdentifier.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress),
+            AssetGroup.Internal => "Internal Wallet",
             _ => null
         };
 

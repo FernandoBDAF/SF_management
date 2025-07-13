@@ -1,10 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
-using SFManagement.Data;
 using SFManagement.Models.Support;
-using SFManagement.Models.Transactions;
-using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
 using SFManagement.Enums.WalletsMetadata;
 
@@ -15,23 +11,21 @@ public class WalletIdentifier : BaseDomain
 {
     public Guid AssetPoolId { get; set; }
     public virtual AssetPool AssetPool { get; set; }
-
-    // this is not mapped to the database, but is used to validate the request
-    [NotMapped]
-    public Guid? BaseAssetHolderId { get; set; }
+    
+    public virtual Referral? Referral { get; set; }
     
     public AccountClassification AccountClassification { get; set; }
 
-    public WalletType WalletType { get; set; }
-
-    // this is not mapped to the database, but is used to validate the request
-    [NotMapped]
-    public AssetType? AssetType { get; set; }
+    public AssetType AssetType { get; set; }
     
     // Store metadata as JSON string in database
     [Column(TypeName = "nvarchar(2000)")]
     public string MetadataJson { get; set; } = "{}";
     
+    // this is not mapped to the database, but is used to validate the request
+    [NotMapped]
+    public Guid? BaseAssetHolderId { get; set; }
+
     // Navigation property for code usage - not mapped to database
     [NotMapped]
     public Dictionary<string, string> Metadata
@@ -55,6 +49,28 @@ public class WalletIdentifier : BaseDomain
         set => MetadataJson = JsonSerializer.Serialize(value);
     }
     
+    // Helper property to determine AssetGroup based on AssetType
+    [NotMapped]
+    public AssetGroup AssetGroup
+    {
+        get
+        {
+            // Use the validation service method for consistency
+            return Services.WalletIdentifierValidationService.GetAssetGroupForAssetType(AssetType);
+        }
+    }
+    
+    /// <summary>
+    /// Validates that this WalletIdentifier's AssetType is compatible with its AssetPool's AssetGroup
+    /// </summary>
+    public bool IsAssetTypeCompatibleWithAssetPool()
+    {
+        if (AssetPool == null)
+            return false;
+            
+        return Services.WalletIdentifierValidationService.ValidateAssetTypeCompatibility(AssetType, AssetPool.AssetGroup);
+    }
+    
     /// <summary>
     /// Helper method to set metadata from individual fields
     /// </summary>
@@ -72,7 +88,7 @@ public class WalletIdentifier : BaseDomain
         var metadata = new Dictionary<string, string>();
         
         // Add fields based on wallet type
-        if (WalletType == WalletType.PokerWallet)
+        if (AssetGroup == AssetGroup.PokerAssets)
         {
             if (!string.IsNullOrEmpty(inputForTransactions))
                 metadata[PokerWalletMetadata.InputForTransactions.ToString()] = inputForTransactions;
@@ -83,7 +99,7 @@ public class WalletIdentifier : BaseDomain
             if (!string.IsNullOrEmpty(accountStatus))
                 metadata[PokerWalletMetadata.AccountStatus.ToString()] = accountStatus;
         }
-        else if (WalletType == WalletType.BankWallet)
+        else if (AssetGroup == AssetGroup.FiatAssets)
         {
             if (!string.IsNullOrEmpty(pixKey))
                 metadata[BankWalletMetadata.PixKey.ToString()] = pixKey;
@@ -94,14 +110,14 @@ public class WalletIdentifier : BaseDomain
             if (!string.IsNullOrEmpty(routingNumber))
                 metadata[BankWalletMetadata.RoutingNumber.ToString()] = routingNumber;
         }
-        else if (WalletType == WalletType.CryptoWallet)
+        else if (AssetGroup == AssetGroup.CryptoAssets)
         {
             if (!string.IsNullOrEmpty(walletAddress))
                 metadata[CryptoWalletMetadata.WalletAddress.ToString()] = walletAddress;
             if (!string.IsNullOrEmpty(walletCategory))
                 metadata[CryptoWalletMetadata.WalletCategory.ToString()] = walletCategory;
         }
-        else if (WalletType == WalletType.Internal)
+        else if (AssetGroup == AssetGroup.Internal)
         {
             // Internal wallets can have optional metadata, but none is required
             // For now, we don't set any specific metadata for internal wallets
@@ -110,17 +126,15 @@ public class WalletIdentifier : BaseDomain
         Metadata = metadata;
     }
     
-    public virtual Referral? Referral { get; set; }
-    
     // Validation methods
     public bool ValidateMetadata()
     {
-        return WalletType switch
+        return AssetGroup switch
         {
-            WalletType.BankWallet => ValidateBankWalletMetadata(),
-            WalletType.PokerWallet => ValidatePokerWalletMetadata(),
-            WalletType.CryptoWallet => ValidateCryptoWalletMetadata(),
-            WalletType.Internal => true, // Internal wallets require no metadata validation
+            AssetGroup.FiatAssets => ValidateBankWalletMetadata(),
+            AssetGroup.PokerAssets => ValidatePokerWalletMetadata(),
+            AssetGroup.CryptoAssets => ValidateCryptoWalletMetadata(),
+            AssetGroup.Internal => true, // Internal wallets require no metadata validation
             _ => false
         };
     }
@@ -167,38 +181,38 @@ public class WalletIdentifier : BaseDomain
     
     // Type-safe metadata accessors
     public string? GetBankMetadata(BankWalletMetadata field) => 
-        WalletType == WalletType.BankWallet ? GetMetadataValue(field.ToString()) : null;
+        AssetGroup == AssetGroup.FiatAssets ? GetMetadataValue(field.ToString()) : null;
     
     public string? GetPokerMetadata(PokerWalletMetadata field) => 
-        WalletType == WalletType.PokerWallet ? GetMetadataValue(field.ToString()) : null;
+        AssetGroup == AssetGroup.PokerAssets ? GetMetadataValue(field.ToString()) : null;
     
     public string? GetCryptoMetadata(CryptoWalletMetadata field) => 
-        WalletType == WalletType.CryptoWallet ? GetMetadataValue(field.ToString()) : null;
+        AssetGroup == AssetGroup.CryptoAssets ? GetMetadataValue(field.ToString()) : null;
     
     public string? GetInternalMetadata(string field) => 
-        WalletType == WalletType.Internal ? GetMetadataValue(field) : null;
+        AssetGroup == AssetGroup.Internal ? GetMetadataValue(field) : null;
     
     public void SetBankMetadata(BankWalletMetadata field, string value)
     {
-        if (WalletType == WalletType.BankWallet)
+        if (AssetGroup == AssetGroup.FiatAssets)
             SetMetadataValue(field.ToString(), value);
     }
     
     public void SetPokerMetadata(PokerWalletMetadata field, string value)
     {
-        if (WalletType == WalletType.PokerWallet)
+        if (AssetGroup == AssetGroup.PokerAssets)
             SetMetadataValue(field.ToString(), value);
     }
     
     public void SetCryptoMetadata(CryptoWalletMetadata field, string value)
     {
-        if (WalletType == WalletType.CryptoWallet)
+        if (AssetGroup == AssetGroup.CryptoAssets)
             SetMetadataValue(field.ToString(), value);
     }
     
     public void SetInternalMetadata(string field, string value)
     {
-        if (WalletType == WalletType.Internal)
+        if (AssetGroup == AssetGroup.Internal)
             SetMetadataValue(field, value);
     }
     
@@ -207,50 +221,4 @@ public class WalletIdentifier : BaseDomain
     
     private void SetMetadataValue(string key, string value) =>
         Metadata[key] = value;
-
-    // Transaction query methods
-    public IEnumerable<DigitalAssetTransaction> GetDigitalAssetTransactions(DataContext context, bool includeDeleted = false)
-    {
-        var transactions = context.DigitalAssetTransactions
-        .Where(x => x.SenderWalletIdentifierId == Id || x.ReceiverWalletIdentifierId == Id && (!x.DeletedAt.HasValue || includeDeleted))
-        .Include(x => x.SenderWalletIdentifier)
-            .ThenInclude(x => x.AssetPool)
-                .ThenInclude(x => x.BaseAssetHolder)
-        .Include(x => x.ReceiverWalletIdentifier)
-            .ThenInclude(x => x.AssetPool)
-                .ThenInclude(x => x.BaseAssetHolder)
-        .ToArray();
-
-        return transactions;
-    }
-    
-    public IEnumerable<FiatAssetTransaction> GetFiatAssetTransactions(DataContext context, bool includeDeleted = false)
-    {
-        var transactions = context.FiatAssetTransactions
-        .Where(x => x.SenderWalletIdentifierId == Id || x.ReceiverWalletIdentifierId == Id && (!x.DeletedAt.HasValue || includeDeleted))
-        .Include(x => x.SenderWalletIdentifier)
-            .ThenInclude(x => x.AssetPool)
-                .ThenInclude(x => x.BaseAssetHolder)
-        .Include(x => x.ReceiverWalletIdentifier)
-            .ThenInclude(x => x.AssetPool)
-                .ThenInclude(x => x.BaseAssetHolder)
-        .ToArray();
-
-        return transactions;
-    }
-    
-    public IEnumerable<SettlementTransaction> GetSettlementTransactions(DataContext context, bool includeDeleted = false)
-    {
-        var transactions = context.SettlementTransactions
-        .Where(x => x.SenderWalletIdentifierId == Id || x.ReceiverWalletIdentifierId == Id && (!x.DeletedAt.HasValue || includeDeleted))
-        .Include(x => x.SenderWalletIdentifier)
-            .ThenInclude(x => x.AssetPool)
-                .ThenInclude(x => x.BaseAssetHolder)
-        .Include(x => x.ReceiverWalletIdentifier)
-            .ThenInclude(x => x.AssetPool)
-                .ThenInclude(x => x.BaseAssetHolder)
-        .ToArray();
-
-        return transactions;
-    }
 }

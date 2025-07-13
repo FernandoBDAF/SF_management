@@ -283,12 +283,12 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .HasDatabaseName("IX_AssetPool_BaseAssetHolderId");
 
         modelBuilder.Entity<AssetPool>()
-            .HasIndex(aw => aw.AssetType)
-            .HasDatabaseName("IX_AssetPool_AssetType");
+            .HasIndex(aw => aw.AssetGroup)
+            .HasDatabaseName("IX_AssetPool_AssetGroup");
 
         modelBuilder.Entity<AssetPool>()
-            .HasIndex(aw => new { aw.BaseAssetHolderId, aw.AssetType })
-            .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetType");
+            .HasIndex(aw => new { aw.BaseAssetHolderId, aw.AssetGroup })
+            .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetGroup");
 
         modelBuilder.Entity<AssetPool>()
             .HasIndex(aw => aw.DeletedAt)
@@ -298,6 +298,10 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         modelBuilder.Entity<WalletIdentifier>()
             .HasIndex(wi => wi.AssetPoolId)
             .HasDatabaseName("IX_WalletIdentifier_AssetPoolId");
+
+        modelBuilder.Entity<WalletIdentifier>()
+            .HasIndex(wi => wi.AssetType)
+            .HasDatabaseName("IX_WalletIdentifier_AssetType");
 
         modelBuilder.Entity<WalletIdentifier>()
             .HasIndex(wi => wi.DeletedAt)

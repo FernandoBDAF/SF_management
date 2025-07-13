@@ -40,17 +40,17 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
                 .ThenInclude(aw => aw.WalletIdentifiers)
             .FirstOrDefaultAsync(x => x.Id == baseAssetHolderId) ?? throw new Exception($"Asset Holder not found");
 
-        var senderWallet = assetHolder.AssetPools.FirstOrDefault(x => x.AssetType == AssetType.BrazilianReal) 
-            ?? throw new Exception($"Asset Wallet for Brazilian Real does not exist");
+        var senderWallet = assetHolder.AssetPools.FirstOrDefault(x => x.AssetGroup == AssetGroup.FiatAssets) 
+            ?? throw new Exception($"Asset Wallet for Fiat Assets does not exist");
 
-        var senderIdentifier = senderWallet.WalletIdentifiers.FirstOrDefault()
-            ?? throw new Exception($"No wallet identifier found for the sender wallet");
+        var senderIdentifier = senderWallet.WalletIdentifiers.FirstOrDefault(wi => wi.AssetType == AssetType.BrazilianReal)
+            ?? throw new Exception($"No wallet identifier found for Brazilian Real");
 
         // Find receiver wallet identifier based on the transaction request
         var receiverIdentifier = await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
             .FirstOrDefaultAsync(x => 
-                x.AssetPool.AssetType == AssetType.BrazilianReal && 
+                x.AssetType == AssetType.BrazilianReal && 
                 x.AssetPool.BaseAssetHolderId == transaction.BaseAssetHolderId) 
             ?? throw new Exception($"Receiver Wallet Identifier for Brazilian Real does not exist");
 

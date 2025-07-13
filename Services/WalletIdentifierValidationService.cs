@@ -1,102 +1,152 @@
 using SFManagement.Enums;
 using SFManagement.Models.AssetInfrastructure;
-using SFManagement.Enums.WalletsMetadata;
 
 namespace SFManagement.Services;
 
 public class WalletIdentifierValidationService
 {
-    public ValidationResult ValidateWalletIdentifier(WalletIdentifier wallet)
+    public ValidationResult ValidateWalletIdentifier(WalletIdentifier walletIdentifier)
     {
         var result = new ValidationResult();
-                
-        // Metadata validation based on wallet type
-        if (!wallet.ValidateMetadata())
+        
+        // Validate AssetType/AssetGroup compatibility
+        if (!IsAssetTypeCompatibleWithAssetGroup(walletIdentifier.AssetType, walletIdentifier.AssetPool?.AssetGroup))
         {
-            result.AddError("Metadata", $"Invalid metadata for {wallet.WalletType}");
+            result.AddError("AssetType", 
+                $"AssetType '{walletIdentifier.AssetType}' is not compatible with AssetPool's AssetGroup '{walletIdentifier.AssetPool?.AssetGroup}'. " +
+                $"Expected AssetGroup: '{GetExpectedAssetGroup(walletIdentifier.AssetType)}'");
         }
         
-        // Type-specific validation
-        switch (wallet.WalletType)
+        // Validate metadata based on asset group
+        if (!walletIdentifier.ValidateMetadata())
         {
-            case WalletType.BankWallet:
-                ValidateBankWallet(wallet, result);
+            result.AddError("Metadata", $"Invalid metadata for {walletIdentifier.AssetGroup}");
+        }
+        
+        // Additional validation based on asset group
+        switch (walletIdentifier.AssetGroup)
+        {
+            case AssetGroup.FiatAssets:
+                ValidateBankWalletSpecific(walletIdentifier, result);
                 break;
-            case WalletType.PokerWallet:
-                ValidatePokerWallet(wallet, result);
+            case AssetGroup.PokerAssets:
+                ValidatePokerWalletSpecific(walletIdentifier, result);
                 break;
-            case WalletType.CryptoWallet:
-                ValidateCryptoWallet(wallet, result);
+            case AssetGroup.CryptoAssets:
+                ValidateCryptoWalletSpecific(walletIdentifier, result);
                 break;
-            case WalletType.Internal:
-                ValidateInternalWallet(wallet, result);
+            case AssetGroup.Internal:
+                ValidateInternalWalletSpecific(walletIdentifier, result);
                 break;
         }
         
         return result;
     }
     
-    private void ValidateBankWallet(WalletIdentifier wallet, ValidationResult result)
+    /// <summary>
+    /// Validates that an AssetType is compatible with an AssetGroup
+    /// </summary>
+    private static bool IsAssetTypeCompatibleWithAssetGroup(AssetType assetType, AssetGroup? assetGroup)
     {
-        var pixKey = wallet.GetBankMetadata(BankWalletMetadata.PixKey);
-        var accountNumber = wallet.GetBankMetadata(BankWalletMetadata.AccountNumber);
-        var routingNumber = wallet.GetBankMetadata(BankWalletMetadata.RoutingNumber);
-        var accountType = wallet.GetBankMetadata(BankWalletMetadata.AccountType);
-        
-        if (string.IsNullOrEmpty(pixKey))
-            result.AddError("PixKey", "Pix key is required for bank wallets");
+        if (!assetGroup.HasValue)
+            return false;
             
-        if (string.IsNullOrEmpty(accountNumber))
-            result.AddError("AccountNumber", "Account number is required for bank wallets");
-            
-        if (string.IsNullOrEmpty(routingNumber))
-            result.AddError("RoutingNumber", "Routing number is required for bank wallets");
-            
-        if (string.IsNullOrEmpty(accountType))
-            result.AddError("AccountType", "Account type is required for bank wallets");
-            
-        // Validate account type
-        if (!IsValidAccountType(accountType))
-            result.AddError("AccountType", "Invalid account type. Must be 'Checking' or 'Savings'");
+        var expectedAssetGroup = GetExpectedAssetGroup(assetType);
+        return expectedAssetGroup == assetGroup.Value;
     }
     
-    private void ValidatePokerWallet(WalletIdentifier wallet, ValidationResult result)
+    /// <summary>
+    /// Gets the expected AssetGroup for a given AssetType
+    /// </summary>
+    private static AssetGroup GetExpectedAssetGroup(AssetType assetType)
     {
-        var inputForTransactions = wallet.GetPokerMetadata(PokerWalletMetadata.InputForTransactions);
-
-        if (string.IsNullOrEmpty(inputForTransactions))
-            result.AddError("InputForTransactions", "Input for transactions is required for poker wallets");
-    }
-    
-    private void ValidateCryptoWallet(WalletIdentifier wallet, ValidationResult result)
-    {
-        var walletAddress = wallet.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress);
-        var walletCategory = wallet.GetCryptoMetadata(CryptoWalletMetadata.WalletCategory);
-        
-        if (string.IsNullOrEmpty(walletAddress))
-            result.AddError("WalletAddress", "Wallet address is required for crypto wallets");
+        return assetType switch
+        {
+            // Fiat Assets
+            AssetType.BrazilianReal or AssetType.USDollar => AssetGroup.FiatAssets,
             
-        if (string.IsNullOrEmpty(walletCategory))
-            result.AddError("WalletCategory", "Wallet category is required for crypto wallets");
+            // Poker Assets
+            AssetType.PokerStars or AssetType.GgPoker or AssetType.YaPoker or 
+            AssetType.AmericasCardRoom or AssetType.SupremaPoker or 
+            AssetType.AstroPayICash or AssetType.LuxonPoker => AssetGroup.PokerAssets,
             
-        // Validate wallet category
-        if (!IsValidCryptoWalletCategory(walletCategory))
-            result.AddError("WalletCategory", "Invalid crypto wallet category. Must be 'Hot', 'Cold', or 'Exchange'");
+            // Crypto Assets
+            AssetType.Bitcoin or AssetType.Ethereum or AssetType.Litecoin or 
+            AssetType.Ripple or AssetType.BitcoinCash or AssetType.Stellar => AssetGroup.CryptoAssets,
+            
+            // Default to Internal for unknown types
+            _ => AssetGroup.Internal
+        };
     }
     
-    private void ValidateInternalWallet(WalletIdentifier wallet, ValidationResult result)
+    /// <summary>
+    /// Public method to validate AssetType/AssetGroup compatibility (for use in other services)
+    /// </summary>
+    public static bool ValidateAssetTypeCompatibility(AssetType assetType, AssetGroup assetGroup)
     {
-        // No specific validation for Internal wallet type
+        return IsAssetTypeCompatibleWithAssetGroup(assetType, assetGroup);
     }
     
-    private bool IsValidAccountType(string? accountType) => 
-        accountType is "Checking" or "Savings";
+    /// <summary>
+    /// Public method to get expected AssetGroup for an AssetType (for use in other services)
+    /// </summary>
+    public static AssetGroup GetAssetGroupForAssetType(AssetType assetType)
+    {
+        return GetExpectedAssetGroup(assetType);
+    }
+    
+    private void ValidateBankWalletSpecific(WalletIdentifier walletIdentifier, ValidationResult result)
+    {
+        // Add bank-specific validation logic here
+        // For example, validate PIX key format, account number format, etc.
         
-    private bool IsValidEmail(string? email) =>
-        !string.IsNullOrEmpty(email) && email.Contains('@') && email.Contains('.');
+        // Ensure it's actually a fiat asset type
+        if (walletIdentifier.AssetType != AssetType.BrazilianReal && walletIdentifier.AssetType != AssetType.USDollar)
+        {
+            result.AddError("AssetType", $"AssetType '{walletIdentifier.AssetType}' is not a valid fiat asset type for FiatAssets group");
+        }
+    }
+    
+    private void ValidatePokerWalletSpecific(WalletIdentifier walletIdentifier, ValidationResult result)
+    {
+        // Add poker-specific validation logic here
+        // For example, validate player nickname format, etc.
         
-    private bool IsValidCryptoWalletCategory(string? category) =>
-        category is "Hot" or "Cold" or "Exchange";
+        // Ensure it's actually a poker asset type
+        var validPokerTypes = new[] { 
+            AssetType.PokerStars, AssetType.GgPoker, AssetType.YaPoker, 
+            AssetType.AmericasCardRoom, AssetType.SupremaPoker, 
+            AssetType.AstroPayICash, AssetType.LuxonPoker 
+        };
+        
+        if (!validPokerTypes.Contains(walletIdentifier.AssetType))
+        {
+            result.AddError("AssetType", $"AssetType '{walletIdentifier.AssetType}' is not a valid poker asset type for PokerAssets group");
+        }
+    }
+    
+    private void ValidateCryptoWalletSpecific(WalletIdentifier walletIdentifier, ValidationResult result)
+    {
+        // Add crypto-specific validation logic here
+        // For example, validate wallet address format, etc.
+        
+        // Ensure it's actually a crypto asset type
+        var validCryptoTypes = new[] { 
+            AssetType.Bitcoin, AssetType.Ethereum, AssetType.Litecoin, 
+            AssetType.Ripple, AssetType.BitcoinCash, AssetType.Stellar 
+        };
+        
+        if (!validCryptoTypes.Contains(walletIdentifier.AssetType))
+        {
+            result.AddError("AssetType", $"AssetType '{walletIdentifier.AssetType}' is not a valid crypto asset type for CryptoAssets group");
+        }
+    }
+    
+    private void ValidateInternalWalletSpecific(WalletIdentifier walletIdentifier, ValidationResult result)
+    {
+        // Add internal wallet-specific validation logic here
+        // Internal wallets can potentially have any AssetType, but we might want to add specific rules
+    }
 }
 
 public class ValidationResult

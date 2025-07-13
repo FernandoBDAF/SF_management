@@ -9,7 +9,7 @@ public class WalletIdentifierResponse : BaseResponse
 
     public AssetType AssetType { get; set; }
 
-    public WalletType WalletType { get; set; }
+    public AssetGroup AssetGroup { get; set; }
 
     public Guid AssetPoolId { get; set; }
     

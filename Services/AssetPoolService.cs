@@ -26,12 +26,12 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             // Check if BaseAssetHolder already has an AssetPool for this AssetType
             var existingAssetHolderPool = await context.AssetPools
                 .FirstOrDefaultAsync(aw => aw.BaseAssetHolderId == obj.BaseAssetHolderId && 
-                                         aw.AssetType == obj.AssetType && 
+                                         aw.AssetGroup == obj.AssetGroup && 
                                          !aw.DeletedAt.HasValue);
             
             if (existingAssetHolderPool != null)
             {
-                throw new InvalidOperationException($"BaseAssetHolder {obj.BaseAssetHolderId} already has an AssetPool for {obj.AssetType}");
+                throw new InvalidOperationException($"BaseAssetHolder {obj.BaseAssetHolderId} already has an AssetPool for {obj.AssetGroup}");
             }
         }
         else
@@ -39,12 +39,12 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             // Company pool validation - only one company pool per AssetType allowed
             var existingCompanyPool = await context.AssetPools
                 .FirstOrDefaultAsync(aw => aw.BaseAssetHolderId == null && 
-                                         aw.AssetType == obj.AssetType && 
+                                         aw.AssetGroup == obj.AssetGroup && 
                                          !aw.DeletedAt.HasValue);
             
             if (existingCompanyPool != null)
             {
-                throw new InvalidOperationException($"Company already has an AssetPool for {obj.AssetType}. Company pool ID: {existingCompanyPool.Id}");
+                throw new InvalidOperationException($"Company already has an AssetPool for {obj.AssetGroup}. Company pool ID: {existingCompanyPool.Id}");
             }
         }
         
@@ -60,12 +60,12 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             .ToListAsync();
     }
 
-    public async Task<AssetPool?> GetAssetPoolByType(AssetType assetType)
+    public async Task<AssetPool?> GetAssetPoolByGroup(AssetGroup assetGroup)
     {
         return await context.AssetPools
             .Include(aw => aw.BaseAssetHolder)
             .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
-            .Where(aw => aw.AssetType == assetType && !aw.DeletedAt.HasValue)
+            .Where(aw => aw.AssetGroup == assetGroup && !aw.DeletedAt.HasValue)
             .FirstOrDefaultAsync();
     }
 
@@ -77,13 +77,23 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             .FirstOrDefaultAsync(aw => aw.Id == id && !aw.DeletedAt.HasValue);
     }
 
-    public async Task<AssetPool?> GetByBaseAssetHolderAndType(Guid baseAssetHolderId, AssetType assetType)
+    public async Task<AssetPool?> GetCompanyAssetPoolByGroup(AssetGroup assetGroup)
+    {
+        return await context.AssetPools
+            .Include(aw => aw.BaseAssetHolder)
+            .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
+            .FirstOrDefaultAsync(aw => aw.BaseAssetHolderId == null && 
+                                     aw.AssetGroup == assetGroup && 
+                                     !aw.DeletedAt.HasValue);
+    }
+
+    public async Task<AssetPool?> GetByBaseAssetHolderAndType(Guid baseAssetHolderId, AssetGroup assetGroup)
     {
         return await context.AssetPools
             .Include(aw => aw.BaseAssetHolder)
             .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
             .FirstOrDefaultAsync(aw => aw.BaseAssetHolderId == baseAssetHolderId && 
-                                     aw.AssetType == assetType && 
+                                     aw.AssetGroup == assetGroup && 
                                      !aw.DeletedAt.HasValue);
     }
 
@@ -99,14 +109,14 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
     }
 
     /// <summary>
-    /// Gets company pool for specific asset type
+    /// Gets company pool for specific asset group
     /// </summary>
-    public async Task<AssetPool?> GetCompanyAssetPoolByType(AssetType assetType)
+    public async Task<AssetPool?> GetCompanyAssetPoolByType(AssetGroup assetGroup)
     {
         return await context.AssetPools
             .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
             .FirstOrDefaultAsync(aw => aw.BaseAssetHolderId == null && 
-                                     aw.AssetType == assetType && 
+                                     aw.AssetGroup == assetGroup && 
                                      !aw.DeletedAt.HasValue);
     }
 
@@ -122,17 +132,17 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
     }
 
     // Get wallets with their identifiers grouped by wallet type
-    public async Task<Dictionary<WalletType, List<WalletIdentifier>>> GetWalletIdentifiersByType(Guid AssetPoolId)
+    public async Task<Dictionary<AssetGroup, List<WalletIdentifier>>> GetWalletIdentifiersByType(Guid AssetPoolId)
     {
         var assetPool = await context.AssetPools
             .Include(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
             .FirstOrDefaultAsync(aw => aw.Id == AssetPoolId && !aw.DeletedAt.HasValue);
 
         if (assetPool == null)
-            return new Dictionary<WalletType, List<WalletIdentifier>>();
+            return new Dictionary<AssetGroup, List<WalletIdentifier>>();
 
         return assetPool.WalletIdentifiers
-            .GroupBy(wi => wi.WalletType)
+            .GroupBy(wi => wi.AssetGroup)
             .ToDictionary(g => g.Key, g => g.ToList());
     }
 
@@ -187,12 +197,12 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
     /// <summary>
     /// Creates a company-owned asset pool with validation and business logic
     /// </summary>
-    public async Task<AssetPool> CreateCompanyAssetPool(AssetType assetType, string? description = null, string? businessJustification = null)
+    public async Task<AssetPool> CreateCompanyAssetPool(AssetGroup assetGroup, string? description = null, string? businessJustification = null)
     {
         var assetPool = new AssetPool
         {
             BaseAssetHolderId = null, // Explicitly company-owned
-            AssetType = assetType
+            AssetGroup = assetGroup
         };
         
         // Use existing validation through Add method
@@ -207,12 +217,13 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
     /// <summary>
     /// Gets detailed company asset pool information including metrics
     /// </summary>
-    public async Task<AssetPool?> GetCompanyAssetPoolWithMetrics(AssetType assetType)
+    public async Task<AssetPool?> GetCompanyAssetPoolWithMetrics(AssetGroup assetGroup)
     {
         var pool = await context.AssetPools
+            .Include(ap => ap.BaseAssetHolder)
             .Include(ap => ap.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
             .FirstOrDefaultAsync(ap => ap.BaseAssetHolderId == null && 
-                                     ap.AssetType == assetType && 
+                                     ap.AssetGroup == assetGroup && 
                                      !ap.DeletedAt.HasValue);
         
         return pool;
@@ -239,8 +250,8 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             
             summary.AssetTypeBalances.Add(new CompanyAssetTypeBalance
             {
-                AssetType = pool.AssetType,
-                AssetTypeName = pool.AssetType.ToString(),
+                AssetType = (AssetType)pool.AssetGroup,
+                AssetTypeName = pool.AssetGroup.ToString(),
                 Balance = balance,
                 WalletIdentifierCount = pool.WalletIdentifiers.Count,
                 TransactionCount = transactionCount,
@@ -358,8 +369,8 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
         var poolData = new CompanyAssetPoolPeriodData
         {
             AssetPoolId = pool.Id,
-            AssetType = pool.AssetType,
-            AssetTypeName = pool.AssetType.ToString(),
+            AssetType = (AssetType)pool.AssetGroup,
+            AssetTypeName = pool.AssetGroup.ToString(),
             WalletIdentifierCount = walletIdentifierIds.Count
         };
 
@@ -771,14 +782,14 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
 
         activity.LargestTransactionAmount = allAmounts.Any() ? allAmounts.Max() : 0;
 
-        // Find most active asset type
-        var assetTypeActivity = companyPools
-            .GroupBy(p => p.AssetType)
-            .Select(g => new { AssetType = g.Key, Count = g.Sum(p => p.WalletIdentifiers.Count) })
+        // Find most active asset group
+        var assetGroupActivity = companyPools
+            .GroupBy(p => p.AssetGroup)
+            .Select(g => new { AssetGroup = g.Key, Count = g.Sum(p => p.WalletIdentifiers.Count) })
             .OrderByDescending(x => x.Count)
             .FirstOrDefault();
 
-        activity.MostActiveAssetType = assetTypeActivity?.AssetType;
+        activity.MostActiveAssetType = (AssetType?)assetGroupActivity?.AssetGroup;
 
         return activity;
     }

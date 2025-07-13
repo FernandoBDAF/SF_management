@@ -65,7 +65,7 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
         // Get all asset types that this poker manager has
         var assetTypes = pokerManager.BaseAssetHolder.AssetPools
             .Where(aw => !aw.DeletedAt.HasValue)
-            .Select(aw => aw.AssetType)
+            .SelectMany(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue).Select(wi => wi.AssetType))
             .Distinct()
             .ToList();
 
@@ -88,7 +88,7 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
 
         // Group by asset type
         var groupedWalletIdentifiers = walletIdentifiers
-            .GroupBy(wi => wi.AssetPool.AssetType)
+            .GroupBy(wi => wi.AssetType)
             .ToDictionary(
                 group => group.Key,
                 group => group.ToList()

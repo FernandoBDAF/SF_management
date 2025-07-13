@@ -24,4 +24,6 @@ public enum AssetType
     Ripple = 204,
     BitcoinCash = 205,
     Stellar = 206,
+
+    // Internal
 }

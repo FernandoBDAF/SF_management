@@ -24,10 +24,10 @@ public class AssetPoolValidationService
     {
         var result = new AssetPoolValidationResult();
 
-        // Validate AssetType
-        if (!Enum.IsDefined(typeof(AssetType), assetPool.AssetType))
+        // Validate AssetGroup
+        if (!Enum.IsDefined(typeof(AssetGroup), assetPool.AssetGroup))
         {
-            result.AddError("AssetType", "Invalid AssetType specified", "INVALID_ASSET_TYPE");
+            result.AddError("AssetGroup", "Invalid AssetGroup specified", "INVALID_ASSET_GROUP");
             return result; // Early return for critical validation
         }
 
@@ -61,12 +61,12 @@ public class AssetPoolValidationService
         // Check for duplicate AssetPool
         var existingPool = await _context.AssetPools
             .FirstOrDefaultAsync(ap => ap.BaseAssetHolderId == assetPool.BaseAssetHolderId &&
-                                     ap.AssetType == assetPool.AssetType &&
+                                     ap.AssetGroup == assetPool.AssetGroup &&
                                      !ap.DeletedAt.HasValue);
 
         if (existingPool != null)
         {
-            result.AddError("AssetType", $"BaseAssetHolder {assetPool.BaseAssetHolderId} already has an AssetPool for {assetPool.AssetType}", "DUPLICATE_ASSET_POOL");
+            result.AddError("AssetGroup", $"BaseAssetHolder {assetPool.BaseAssetHolderId} already has an AssetPool for {assetPool.AssetGroup}", "DUPLICATE_ASSET_POOL");
         }
     }
 
@@ -78,33 +78,33 @@ public class AssetPoolValidationService
         // Check for existing company pool of same type
         var existingCompanyPool = await _context.AssetPools
             .FirstOrDefaultAsync(ap => ap.BaseAssetHolderId == null &&
-                                     ap.AssetType == assetPool.AssetType &&
+                                     ap.AssetGroup == assetPool.AssetGroup &&
                                      !ap.DeletedAt.HasValue);
 
         if (existingCompanyPool != null)
         {
-            result.AddError("AssetType", $"Company already has an AssetPool for {assetPool.AssetType}. Existing pool ID: {existingCompanyPool.Id}", "DUPLICATE_COMPANY_POOL");
+            result.AddError("AssetGroup", $"Company already has an AssetPool for {assetPool.AssetGroup}. Existing pool ID: {existingCompanyPool.Id}", "DUPLICATE_COMPANY_POOL");
         }
 
-        // Business rule: Validate if company should own this asset type
-        await ValidateCompanyAssetTypeOwnership(assetPool.AssetType, result);
+        // Business rule: Validate if company should own this asset group
+        await ValidateCompanyAssetGroupOwnership(assetPool.AssetGroup, result);
     }
 
     /// <summary>
-    /// Validates business rules for company asset type ownership
+    /// Validates business rules for company asset group ownership
     /// </summary>
-    private async Task ValidateCompanyAssetTypeOwnership(AssetType assetType, AssetPoolValidationResult result)
+    private async Task ValidateCompanyAssetGroupOwnership(AssetGroup assetGroup, AssetPoolValidationResult result)
     {
         // Example business rules - customize based on your requirements
-        var restrictedAssetTypes = new AssetType[]
+        var restrictedAssetGroups = new AssetGroup[]
         {
             // Add asset types that should not be company-owned
-            // AssetType.PersonalCrypto, // Example
+            // AssetGroup.PersonalCrypto, // Example
         };
 
-        if (restrictedAssetTypes.Contains(assetType))
+        if (restrictedAssetGroups.Contains(assetGroup))
         {
-            result.AddError("AssetType", $"Asset type {assetType} cannot be owned by the company", "RESTRICTED_COMPANY_ASSET_TYPE");
+            result.AddError("AssetGroup", $"Asset group {assetGroup} cannot be owned by the company", "RESTRICTED_COMPANY_ASSET_GROUP");
         }
 
         // Additional validation: Check if there are related asset holders that should own this type
@@ -112,9 +112,9 @@ public class AssetPoolValidationService
             .Where(bah => !bah.DeletedAt.HasValue)
             .CountAsync();
 
-        if (relatedAssetHolders == 0 && assetType != AssetType.BrazilianReal)
+        if (relatedAssetHolders == 0 && assetGroup != AssetGroup.FiatAssets)
         {
-            result.AddWarning("AssetType", $"Creating company pool for {assetType} with no asset holders in system", "NO_ASSET_HOLDERS_WARNING");
+            result.AddWarning("AssetGroup", $"Creating company pool for {assetGroup} with no asset holders in system", "NO_ASSET_HOLDERS_WARNING");
         }
     }
 
