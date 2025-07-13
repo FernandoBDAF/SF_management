@@ -133,20 +133,6 @@ public class AutoMapperProfile : Profile
                 // Map receiver wallet summary
                 dest.ReceiverWallet = MapWalletIdentifierSummary(src.ReceiverWalletIdentifier);
                 
-                // Map OFX transaction if available
-                if (src.OfxTransaction != null)
-                {
-                    dest.OfxTransaction = new OfxTransactionSummary
-                    {
-                        Id = src.OfxTransaction.Id,
-                        FitId = src.OfxTransaction.FitId,
-                        Value = src.OfxTransaction.Value,
-                        Date = src.OfxTransaction.Date,
-                        Description = src.OfxTransaction.Description,
-                        BankName = src.OfxTransaction.Ofx?.Bank?.BaseAssetHolder?.Name,
-                        FileName = src.OfxTransaction.Ofx?.FileName
-                    };
-                }
                 
                 // Map bank info from sender or receiver (prioritize sender)
                 var bankWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.FiatAssets 
@@ -190,19 +176,6 @@ public class AutoMapperProfile : Profile
                 
                 // Map receiver wallet summary
                 dest.ReceiverWallet = MapWalletIdentifierSummary(src.ReceiverWalletIdentifier);
-                
-                // Map Excel transaction if available
-                if (src.Excel != null)
-                {
-                    dest.Excel = new ExcelTransactionSummary
-                    {
-                        Id = src.Excel.Id,
-                        FileName = src.Excel.FileName,
-                        FileType = src.Excel.FileType,
-                        PokerManagerName = src.Excel.PokerManager?.BaseAssetHolder?.Name,
-                        ImportedAt = src.Excel.CreatedAt ?? DateTime.UtcNow
-                    };
-                }
                 
                 // Map poker info from sender or receiver (prioritize sender)
                 var pokerWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.PokerAssets 
@@ -260,118 +233,6 @@ public class AutoMapperProfile : Profile
         //     .ForMember(dest => dest.from, opt => opt.MapFrom(src => src.from))
         //     .ForMember(dest => dest.to, opt => opt.MapFrom(src => src.to));
         
-
-        CreateMap<Ofx, OfxResponse>()
-            .AfterMap((src, dest, context) =>
-            {
-                // Map bank summary
-                if (src.Bank?.BaseAssetHolder != null)
-                {
-                    dest.Bank = new BankSummary
-                    {
-                        Id = src.Bank.Id,
-                        Name = src.Bank.BaseAssetHolder.Name,
-                        Code = src.Bank.Code,
-                        Email = src.Bank.BaseAssetHolder.Email
-                    };
-                }
-                
-                // Calculate file statistics
-                var transactions = src.OfxTransactions?.ToList() ?? new List<OfxTransaction>();
-                dest.Statistics = new OfxFileStatistics
-                {
-                    TotalTransactions = transactions.Count,
-                    ProcessedTransactions = transactions.Count, // All loaded transactions are processed
-                    SkippedTransactions = 0, // Would need to be calculated during import
-                    TotalValue = transactions.Sum(t => Math.Abs(t.Value)),
-                    TotalCredits = transactions.Where(t => t.Value > 0).Sum(t => t.Value),
-                    TotalDebits = Math.Abs(transactions.Where(t => t.Value < 0).Sum(t => t.Value)),
-                    EarliestTransactionDate = transactions.Count > 0 ? transactions.Min(t => t.Date) : null,
-                    LatestTransactionDate = transactions.Count > 0 ? transactions.Max(t => t.Date) : null
-                };
-                
-                // Map import info
-                dest.ImportInfo = new OfxImportInfo
-                {
-                    ImportedAt = src.CreatedAt ?? DateTime.UtcNow,
-                    ImportedBy = src.LastModifiedBy,
-                    ProcessingStatus = "Completed",
-                    ImportWarnings = new List<string>()
-                };
-            });
-        CreateMap<OfxRequest, Ofx>();
-
-        CreateMap<OfxTransaction, OfxTransactionResponse>()
-            .AfterMap((src, dest, context) =>
-            {
-                // Map OFX file summary
-                if (src.Ofx != null)
-                {
-                    dest.OfxFile = new OfxFileSummary
-                    {
-                        Id = src.Ofx.Id,
-                        FileName = src.Ofx.FileName,
-                        ImportedAt = src.Ofx.CreatedAt ?? DateTime.UtcNow
-                    };
-                }
-                
-                // Map bank summary
-                if (src.Ofx?.Bank?.BaseAssetHolder != null)
-                {
-                    dest.Bank = new BankSummary
-                    {
-                        Id = src.Ofx.Bank.Id,
-                        Name = src.Ofx.Bank.BaseAssetHolder.Name,
-                        Code = src.Ofx.Bank.Code,
-                        Email = src.Ofx.Bank.BaseAssetHolder.Email
-                    };
-                }
-                
-                // Check if there's a linked fiat asset transaction
-                var linkedFiatTransaction = context.Items.ContainsKey("LinkedFiatTransactions") 
-                    ? ((Dictionary<Guid, FiatAssetTransaction>)context.Items["LinkedFiatTransactions"]).GetValueOrDefault(src.Id)
-                    : null;
-                    
-                if (linkedFiatTransaction != null)
-                {
-                    dest.LinkedTransaction = new FiatAssetTransactionSummary
-                    {
-                        Id = linkedFiatTransaction.Id,
-                        Date = linkedFiatTransaction.Date,
-                        AssetAmount = linkedFiatTransaction.AssetAmount,
-                        Description = linkedFiatTransaction.Description,
-                        ApprovedAt = linkedFiatTransaction.ApprovedAt,
-                        IsInternalTransfer = linkedFiatTransaction.IsInternalTransfer,
-                        CategoryName = linkedFiatTransaction.Category?.Description
-                    };
-                }
-                
-                // Map transaction classification
-                dest.Classification = new OfxTransactionClassification
-                {
-                    IsProcessed = linkedFiatTransaction != null,
-                    DetectedType = DetermineTransactionType(src.Description),
-                    IsPotentialPix = IsLikelyPixTransaction(src.Description),
-                    IsPotentialRecurring = false, // Would need historical analysis
-                    ProcessingNotes = new List<string>()
-                };
-                
-                // Add processing notes based on analysis
-                if (dest.Classification.IsPotentialPix)
-                {
-                    dest.Classification.ProcessingNotes.Add("Detected as potential PIX transaction");
-                }
-                
-                if (Math.Abs(src.Value) > 10000)
-                {
-                    dest.Classification.ProcessingNotes.Add("High-value transaction requiring attention");
-                }
-            });
-        CreateMap<OfxTransactionRequest, OfxTransaction>();
-
-        CreateMap<Excel, ExcelResponse>();
-        CreateMap<ExcelRequest, Excel>();
-
         CreateMap<Category, CategoryResponse>();
         CreateMap<CategoryRequest, Category>();
 
