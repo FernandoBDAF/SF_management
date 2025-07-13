@@ -106,7 +106,9 @@ public class CompanyAssetPoolController : ControllerBase
 
         try
         {
-            var pool = await _assetPoolService.GetCompanyAssetPoolByType(assetType);
+            // Convert AssetType to AssetGroup
+            var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(assetType);
+            var pool = await _assetPoolService.GetCompanyAssetPoolByType(assetGroup);
             
             if (pool == null)
             {
@@ -192,8 +194,9 @@ public class CompanyAssetPoolController : ControllerBase
             }
 
             // Create the pool
+            var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(request.AssetType);
             var createdPool = await _assetPoolService.CreateCompanyAssetPool(
-                request.AssetType, 
+                assetGroup, 
                 request.Description, 
                 request.BusinessJustification);
 
@@ -288,7 +291,9 @@ public class CompanyAssetPoolController : ControllerBase
 
         try
         {
-            var pool = await _assetPoolService.GetCompanyAssetPoolByType(assetType);
+            // Convert AssetType to AssetGroup
+            var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(assetType);
+            var pool = await _assetPoolService.GetCompanyAssetPoolByType(assetGroup);
             
             if (pool == null)
             {

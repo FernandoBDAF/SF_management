@@ -24,5 +24,5 @@ public class StatementTransactionResponse
     
     public string? WalletIdentifierInput { get; set; }
 
-    public WalletType WalletType { get; set; }
+    public AssetGroup AssetGroup { get; set; }
 }

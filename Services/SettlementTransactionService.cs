@@ -162,13 +162,14 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
                 continue;
             }
 
-            // Validate that wallet identifier has the same asset type as the asset wallet
-            if (walletIdentifier.AssetPool.AssetType != assetPool.AssetType)
+            // Validate that wallet identifier's asset type is compatible with the asset pool's asset group
+            var expectedAssetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(walletIdentifier.AssetType);
+            if (expectedAssetGroup != assetPool.AssetGroup)
             {
                 errors.Add(new SettlementTransactionError
                 {
                     Index = i,
-                    Error = $"Wallet identifier {transactionRequest.ReceiverWalletIdentifierId.Value} has asset type {walletIdentifier.AssetPool.AssetType} but asset wallet has asset type {assetPool.AssetType}",
+                    Error = $"Wallet identifier {transactionRequest.ReceiverWalletIdentifierId.Value} has asset type {walletIdentifier.AssetType} (expected group: {expectedAssetGroup}) but asset pool has asset group {assetPool.AssetGroup}",
                     Transaction = new SettlementTransactionRequest
                     {
                         AssetAmount = transactionRequest.AssetAmount,

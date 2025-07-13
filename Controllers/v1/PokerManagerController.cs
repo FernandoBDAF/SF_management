@@ -101,7 +101,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
                     {
                         Id = walletIdentifier.Id,
                         InputForTransactions = walletIdentifier.GetPokerMetadata(PokerWalletMetadata.InputForTransactions),
-                        AssetType = walletIdentifier.AssetPool.AssetType,
+                        AssetType = walletIdentifier.AssetType,
                         Referral = walletIdentifier.Referral != null ? new ReferralInfo
                         {
                             Id = walletIdentifier.Referral.Id,

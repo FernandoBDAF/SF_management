@@ -91,7 +91,7 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("WalletType")
+                    b.Property<int>("AssetGroup")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

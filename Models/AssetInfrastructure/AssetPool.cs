@@ -10,7 +10,7 @@ public class AssetPool : BaseDomain
     public Guid? BaseAssetHolderId { get; set; }
     public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
-    public AssetType AssetType { get; set; }
+    public AssetGroup AssetGroup { get; set; }
     
     public virtual ICollection<WalletIdentifier> WalletIdentifiers { get; set; } = new HashSet<WalletIdentifier>();
 }

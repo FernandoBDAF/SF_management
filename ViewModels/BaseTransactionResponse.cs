@@ -64,7 +64,7 @@ public class BaseTransactionResponse : BaseResponse
 public class WalletIdentifierSummary
 {
     public Guid Id { get; set; }
-    public WalletType WalletType { get; set; }
+    public AssetGroup AssetGroup { get; set; }
     public AccountClassification AccountClassification { get; set; }
     public AssetType AssetType { get; set; }
     

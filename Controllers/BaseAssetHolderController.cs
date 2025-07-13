@@ -268,12 +268,12 @@ public class BaseAssetHolderController<TEntity, TRequest, TResponse> : BaseApiCo
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public virtual async Task<IActionResult> 
-    GetWalletIdentifiers([FromQuery] WalletType? walletType, [FromQuery] AssetType? assetType)
+    GetWalletIdentifiers([FromQuery] AssetGroup? walletType, [FromQuery] AssetType? assetType)
     {
         var requestId = HttpContext.TraceIdentifier;
         var entityType = typeof(TEntity).Name;
         
-        _logger.LogInformation("Retrieving wallet identifiers for {EntityType} - WalletType: {WalletType}, AssetType: {AssetType} - RequestId: {RequestId}", 
+        _logger.LogInformation("Retrieving wallet identifiers for {EntityType} - AssetGroup: {AssetGroup}, AssetType: {AssetType} - RequestId: {RequestId}", 
             entityType, walletType, assetType, requestId);
         
         try
@@ -299,12 +299,12 @@ public class BaseAssetHolderController<TEntity, TRequest, TResponse> : BaseApiCo
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public virtual async Task<IActionResult> 
-    GetWalletIdentifiers(Guid id, [FromQuery] WalletType? walletType, [FromQuery] AssetType? assetType)
+    GetWalletIdentifiers(Guid id, [FromQuery] AssetGroup? walletType, [FromQuery] AssetType? assetType)
     {
         var requestId = HttpContext.TraceIdentifier;
         var entityType = typeof(TEntity).Name;
         
-        _logger.LogInformation("Retrieving wallet identifiers for {EntityType} {EntityId} - WalletType: {WalletType}, AssetType: {AssetType} - RequestId: {RequestId}", 
+        _logger.LogInformation("Retrieving wallet identifiers for {EntityType} {EntityId} - AssetGroup: {AssetGroup}, AssetType: {AssetType} - RequestId: {RequestId}", 
             entityType, id, walletType, assetType, requestId);
         
         try

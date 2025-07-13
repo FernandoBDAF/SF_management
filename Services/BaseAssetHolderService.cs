@@ -373,22 +373,16 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     
     public async Task<List<BaseAssetHolder>> GetFilteredByWalletIdentifierType(AssetType assetType)
     {
-        // Build query based on the specific entity type using strategy pattern
-        IQueryable<BaseAssetHolder> query = context.BaseAssetHolders;
-        
-        if (FilterStrategies.TryGetValue(typeof(TEntity), out var filterStrategy))
-        {
-            query = filterStrategy(query);
-        }
-        
-        var baseAssetHolders = await query
+        var baseAssetHolders = await context.BaseAssetHolders
             .Include(bah => bah.AssetPools)
-                .ThenInclude(aw => aw.WalletIdentifiers)
-            .Where(bah => bah.AssetPools.Any(aw => 
-                aw.WalletIdentifiers.Any(wi => wi.AssetPool.AssetType == assetType && !wi.DeletedAt.HasValue)))
+            .ThenInclude(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue))
+            .Where(bah => !bah.DeletedAt.HasValue)
             .ToListAsync();
 
-        return baseAssetHolders;
+        return baseAssetHolders
+            .Where(bah => bah.AssetPools.Any(aw => 
+                aw.WalletIdentifiers.Any(wi => wi.AssetType == assetType && !wi.DeletedAt.HasValue)))
+            .ToList();
     }
 
     // Helper method to get AssetHolderType for the current entity type
@@ -443,66 +437,61 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 .ThenInclude(wi => wi.AssetPool)
             .ToArrayAsync() ?? [];
 
-        // Process digital asset transactions using helper methods
-        foreach (var tx in digitalTransactions)
-        {
-            var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
-                tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
-            
-            var assetType = tx.IsReceiver(relevantWalletId) ? 
-                tx.ReceiverWalletIdentifier.AssetPool.AssetType : 
-                tx.SenderWalletIdentifier.AssetPool.AssetType;
-            
-            var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
-
-            if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
-            {
-                signedAmount = -signedAmount;
-            }
-
-            if (tx.BalanceAs.HasValue && tx.ConversionRate.HasValue)
-            {
-                if (!balances.ContainsKey(tx.BalanceAs.Value)) balances[tx.BalanceAs.Value] = 0;
-                balances[tx.BalanceAs.Value] -= signedAmount * tx.ConversionRate.Value;
-                    continue;
-            }
-
-            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += signedAmount;
-        }
-
-        // Process fiat asset transactions using helper methods
+        // Process FiatAssetTransactions
         foreach (var tx in fiatTransactions)
         {
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
-            var assetType = tx.IsReceiver(relevantWalletId) ? 
-                tx.ReceiverWalletIdentifier.AssetPool.AssetType : 
-                tx.SenderWalletIdentifier.AssetPool.AssetType;
-            
             var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
-
             if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
             {
                 signedAmount = -signedAmount;
             }
             
-            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+            var assetType = tx.IsReceiver(relevantWalletId) ?
+                tx.ReceiverWalletIdentifier.AssetType :
+                tx.SenderWalletIdentifier.AssetType;
+            
+                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
             balances[assetType] += signedAmount;
         }
 
-        // Process settlement transactions using helper methods
+        // Process DigitalAssetTransactions
+        foreach (var tx in digitalTransactions)
+        {
+            var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
+                tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
+            
+            var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
+            if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
+            {
+                signedAmount = -signedAmount;
+            }
+            
+            var assetType = tx.IsReceiver(relevantWalletId) ?
+                tx.ReceiverWalletIdentifier.AssetType :
+                tx.SenderWalletIdentifier.AssetType;
+            
+                    if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+            balances[assetType] += signedAmount;
+        }
+
+        // Process SettlementTransactions
         foreach (var tx in settlementTransactions)
         {
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
-            var assetType = tx.IsReceiver(relevantWalletId) ? 
-                tx.ReceiverWalletIdentifier.AssetPool.AssetType : 
-                tx.SenderWalletIdentifier.AssetPool.AssetType;
-            
             var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
+            if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
+            {
+                signedAmount = -signedAmount;
+            }
+            
+            var assetType = tx.IsReceiver(relevantWalletId) ?
+                tx.ReceiverWalletIdentifier.AssetType :
+                tx.SenderWalletIdentifier.AssetType;
             
                 if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
             balances[assetType] += signedAmount;
@@ -580,10 +569,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         BalanceAs = dat.BalanceAs,
                         ConversionRate = dat.ConversionRate,
                         Rate = dat.Rate,
-                AssetType = dat.SenderWalletIdentifier.AssetPool.AssetType,
+                AssetType = dat.SenderWalletIdentifier.AssetType,
                 CounterPartyName = dat.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = dat.GetWalletIdentifierInput(relevantWalletId),
-                WalletType = dat.SenderWalletIdentifier.WalletType
+                AssetGroup = dat.SenderWalletIdentifier.AssetGroup
             });
         }
 
@@ -608,10 +597,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         BalanceAs = null, // Fiat transactions don't have BalanceAs
                         ConversionRate = null, // Fiat transactions don't have ConversionRate
                         Rate = null, // Fiat transactions don't have Rate
-                AssetType = fat.SenderWalletIdentifier.AssetPool.AssetType,
+                AssetType = fat.SenderWalletIdentifier.AssetType,
                 CounterPartyName = fat.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = fat.GetWalletIdentifierInput(relevantWalletId),
-                WalletType = fat.SenderWalletIdentifier.WalletType
+                AssetGroup = fat.SenderWalletIdentifier.AssetGroup
             });
         }
 
@@ -630,10 +619,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 BalanceAs = null, // Settlement transactions don't have BalanceAs
                 ConversionRate = null, // Settlement transactions don't have ConversionRate
                 Rate = null, // Settlement transactions don't have Rate
-                AssetType = st.SenderWalletIdentifier.AssetPool.AssetType,
+                AssetType = st.SenderWalletIdentifier.AssetType,
                 CounterPartyName = st.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = st.GetWalletIdentifierInput(relevantWalletId),
-                WalletType = st.SenderWalletIdentifier.WalletType
+                AssetGroup = st.SenderWalletIdentifier.AssetGroup
             });
         }
         
