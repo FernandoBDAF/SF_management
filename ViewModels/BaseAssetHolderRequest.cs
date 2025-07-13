@@ -19,4 +19,10 @@ public class BaseAssetHolderRequest
     
     [StringLength(20)]
     public string? Cnpj { get; set; }
+    
+    /// <summary>
+    /// Optional referrer ID to establish referral relationship during creation
+    /// Frontend should provide the ID of the BaseAssetHolder who is referring this one
+    /// </summary>
+    public Guid? ReferrerId { get; set; }
 }

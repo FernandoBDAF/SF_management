@@ -11,10 +11,11 @@ using SFManagement.Models.AssetInfrastructure;
 
 namespace SFManagement.Services;
 
-public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor, IAssetHolderDomainService domainService) 
+public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor, IAssetHolderDomainService domainService, ReferralService referralService) 
     : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain, IAssetHolder
 {
     protected readonly IAssetHolderDomainService _domainService = domainService;
+    protected readonly ReferralService _referralService = referralService;
 
     // Strategy pattern dictionaries to replace typeof() checks
     private static readonly Dictionary<Type, Func<IQueryable<TEntity>, IQueryable<TEntity>>> IncludeStrategies = new()
@@ -145,7 +146,8 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 request.Name, 
                 request.Email, 
                 request.Cpf, 
-                request.Cnpj
+                request.Cnpj,
+                request.ReferrerId
             );
 
             // Create specific entity using the factory
@@ -635,14 +637,15 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     }
 
     // Helper method to create BaseAssetHolder using base service pattern
-    protected async Task<BaseAssetHolder> CreateBaseAssetHolder(string name, string? email = null, string? cpf = null, string? cnpj = null)
+    protected async Task<BaseAssetHolder> CreateBaseAssetHolder(string name, string? email = null, string? cpf = null, string? cnpj = null, Guid? referrerId = null)
     {
         var baseAssetHolder = new BaseAssetHolder
         {
             Name = name,
             Email = email,
             Cpf = cpf,
-            Cnpj = cnpj
+            Cnpj = cnpj,
+            ReferrerId = referrerId
         };
 
         // Use the base service pattern for consistency

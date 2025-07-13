@@ -10,12 +10,14 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
 {
     private readonly WalletIdentifierValidationService _validationService;
     private readonly AssetPoolService _AssetPoolService;
+    private readonly ReferralService _referralService;
     
     public WalletIdentifierService(DataContext context, IHttpContextAccessor httpContextAccessor, 
-    AssetPoolService AssetPoolService) : base(context, httpContextAccessor)
+    AssetPoolService AssetPoolService, ReferralService referralService) : base(context, httpContextAccessor)
     {
         _validationService = new WalletIdentifierValidationService();
         _AssetPoolService = AssetPoolService;
+        _referralService = referralService;
     }
 
     
@@ -105,7 +107,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .Include(wi => wi.Referral)
+            .Include(wi => wi.Referrals)
             .FirstOrDefaultAsync(wi => wi.Id == id && !wi.DeletedAt.HasValue);
     }
     
@@ -114,7 +116,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .Include(wi => wi.Referral)
+            .Include(wi => wi.Referrals)
             .Where(wi => wi.AssetPoolId == AssetPoolId && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
@@ -124,7 +126,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .Include(wi => wi.Referral)
+            .Include(wi => wi.Referrals)
             .Where(wi => wi.AssetGroup == assetGroup && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
@@ -134,7 +136,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .Include(wi => wi.Referral)
+            .Include(wi => wi.Referrals)
             .Where(wi => wi.AssetPool.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
@@ -220,7 +222,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .Include(wi => wi.Referral)
+            .Include(wi => wi.Referrals)
             .Where(wi => wi.MetadataJson.Contains($"\"{metadataKey}\":\"{metadataValue}\"") && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
@@ -240,7 +242,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .Include(wi => wi.Referral)
+            .Include(wi => wi.Referrals)
             .Where(wi => wi.AssetGroup == AssetGroup.Internal && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
@@ -274,7 +276,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
-            .Include(wi => wi.Referral)
+            .Include(wi => wi.Referrals)
             .Where(wi => wi.AssetGroup == AssetGroup.Internal && 
                         wi.MetadataJson.Contains($"\"{metadataKey}\":\"{metadataValue}\"") && 
                         !wi.DeletedAt.HasValue)

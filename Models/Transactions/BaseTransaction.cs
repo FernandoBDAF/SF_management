@@ -25,7 +25,7 @@ public class BaseTransaction : BaseDomain
     
     [Required] [Precision(18, 2)] public decimal AssetAmount { get; set; }
     
-    [MaxLength(50)] public string? Description { get; set; }
+    [MaxLength(255)] public string? Description { get; set; }
     
     public DateTime? ApprovedAt { get; set; }
 

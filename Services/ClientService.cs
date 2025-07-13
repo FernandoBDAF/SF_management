@@ -13,8 +13,9 @@ public class ClientService : BaseAssetHolderService<Client>
     public ClientService(
         DataContext context, 
         IHttpContextAccessor httpContextAccessor,
-        IAssetHolderDomainService domainService) 
-        : base(context, httpContextAccessor, domainService)
+        IAssetHolderDomainService domainService,
+        ReferralService referralService) 
+        : base(context, httpContextAccessor, domainService, referralService)
     {
     }
 

@@ -60,11 +60,30 @@ public class BaseAssetHolder : BaseDomain
         (Client != null ? 1 : 0) + (Bank != null ? 1 : 0) + 
         (Member != null ? 1 : 0) + (PokerManager != null ? 1 : 0) == 1;
     
-    public virtual ICollection<Referral> Referral { get; set; } = new HashSet<Referral>();
-    
     public virtual ICollection<AssetPool> AssetPools { get; set; } = new HashSet<AssetPool>();
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
     
     public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
+
+    /// <summary>
+    /// The BaseAssetHolder who referred this one (optional)
+    /// Frontend should provide this ID when creating a referred BaseAssetHolder
+    /// </summary>
+    public Guid? ReferrerId { get; set; }
+    public virtual BaseAssetHolder? Referrer { get; set; }
+
+    /// <summary>
+    /// Referrals made BY this BaseAssetHolder (this asset holder is the referrer)
+    /// These are the WalletIdentifiers that this asset holder has referred
+    /// </summary>
+    public virtual ICollection<Referral> ReferralsMade { get; set; } = new HashSet<Referral>();
+    
+    /// <summary>
+    /// Helper property to get referrals received by this BaseAssetHolder
+    /// These are referrals where this asset holder's WalletIdentifiers are being referred by others
+    /// </summary>
+    public IEnumerable<Referral> ReferralsReceived => 
+        AssetPools?.SelectMany(ap => ap.WalletIdentifiers)
+                  ?.SelectMany(wi => wi.Referrals) ?? Enumerable.Empty<Referral>();
 }
