@@ -11,11 +11,12 @@ using SFManagement.Models.AssetInfrastructure;
 
 namespace SFManagement.Services;
 
-public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor, IAssetHolderDomainService domainService, ReferralService referralService) 
+public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor, IAssetHolderDomainService domainService, ReferralService referralService, InitialBalanceService initialBalanceService) 
     : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain, IAssetHolder
 {
     protected readonly IAssetHolderDomainService _domainService = domainService;
     protected readonly ReferralService _referralService = referralService;
+    protected readonly InitialBalanceService _initialBalanceService = initialBalanceService;
 
     // Strategy pattern dictionaries to replace typeof() checks
     private static readonly Dictionary<Type, Func<IQueryable<TEntity>, IQueryable<TEntity>>> IncludeStrategies = new()

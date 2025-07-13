@@ -149,14 +149,14 @@ public static class DependencyInjectionExtensions
         // Entity services
         builder.Services.AddScoped<BaseService<Address>, AddressService>();
         builder.Services.AddScoped<AddressService>();
+        builder.Services.AddScoped<BaseService<InitialBalance>, InitialBalanceService>();
+        builder.Services.AddScoped<InitialBalanceService>();
         builder.Services.AddScoped<BaseAssetHolderService<Bank>, BankService>();
         builder.Services.AddScoped<BankService>();
         builder.Services.AddScoped<BaseAssetHolderService<Client>, ClientService>();
         builder.Services.AddScoped<ClientService>();
         builder.Services.AddScoped<BaseService<ContactPhone>, ContactPhoneService>();
         builder.Services.AddScoped<ContactPhoneService>();
-        builder.Services.AddScoped<BaseService<InitialBalance>, InitialBalanceService>();
-        builder.Services.AddScoped<InitialBalanceService>();
         builder.Services.AddScoped<BaseAssetHolderService<Member>, MemberService>();
         builder.Services.AddScoped<MemberService>();
         builder.Services.AddScoped<BaseAssetHolderService<PokerManager>, PokerManagerService>();

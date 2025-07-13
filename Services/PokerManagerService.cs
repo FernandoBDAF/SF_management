@@ -14,8 +14,9 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
         DataContext context, 
         IHttpContextAccessor httpContextAccessor,
         IAssetHolderDomainService domainService,
-        ReferralService referralService) 
-        : base(context, httpContextAccessor, domainService, referralService)
+        ReferralService referralService,
+        InitialBalanceService initialBalanceService) 
+        : base(context, httpContextAccessor, domainService, referralService, initialBalanceService)
     {
     }
     
