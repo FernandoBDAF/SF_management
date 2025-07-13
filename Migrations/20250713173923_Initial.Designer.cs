@@ -12,8 +12,8 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250711092919_fix WI nullable AP-id")]
-    partial class fixWInullableAPid
+    [Migration("20250713173923_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,7 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AssetType")
+                    b.Property<int>("AssetGroup")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("BaseAssetHolderId")
@@ -51,8 +51,8 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetType")
-                        .HasDatabaseName("IX_AssetPool_AssetType");
+                    b.HasIndex("AssetGroup")
+                        .HasDatabaseName("IX_AssetPool_AssetGroup");
 
                     b.HasIndex("BaseAssetHolderId")
                         .HasDatabaseName("IX_AssetPool_BaseAssetHolderId");
@@ -60,8 +60,8 @@ namespace SFManagement.Migrations
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_AssetPool_DeletedAt");
 
-                    b.HasIndex("BaseAssetHolderId", "AssetType")
-                        .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetType");
+                    b.HasIndex("BaseAssetHolderId", "AssetGroup")
+                        .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetGroup");
 
                     b.ToTable("AssetPools");
                 });
@@ -77,6 +77,9 @@ namespace SFManagement.Migrations
 
                     b.Property<Guid>("AssetPoolId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AssetType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -94,13 +97,13 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("WalletType")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AssetPoolId")
                         .HasDatabaseName("IX_WalletIdentifier_AssetPoolId");
+
+                    b.HasIndex("AssetType")
+                        .HasDatabaseName("IX_WalletIdentifier_AssetType");
 
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_WalletIdentifier_DeletedAt");
@@ -404,9 +407,6 @@ namespace SFManagement.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("FinancialBehavior")
-                        .HasColumnType("int");
 
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
@@ -1070,7 +1070,7 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Transactions.DigitalAssetTransaction", b =>
                 {
                     b.HasOne("SFManagement.Models.Support.Category", "Category")
-                        .WithMany("WalletTransactions")
+                        .WithMany()
                         .HasForeignKey("CategoryId");
 
                     b.HasOne("SFManagement.Models.Transactions.Excel", "Excel")
@@ -1130,7 +1130,7 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Transactions.FiatAssetTransaction", b =>
                 {
                     b.HasOne("SFManagement.Models.Support.Category", "Category")
-                        .WithMany("BankTransactions")
+                        .WithMany()
                         .HasForeignKey("CategoryId");
 
                     b.HasOne("SFManagement.Models.Transactions.OfxTransaction", "OfxTransaction")
@@ -1249,11 +1249,7 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Support.Category", b =>
                 {
-                    b.Navigation("BankTransactions");
-
                     b.Navigation("Children");
-
-                    b.Navigation("WalletTransactions");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Transactions.Excel", b =>

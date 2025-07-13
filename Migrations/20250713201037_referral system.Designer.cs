@@ -12,8 +12,8 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250711033553_Initial")]
-    partial class Initial
+    [Migration("20250713201037_referral system")]
+    partial class referralsystem
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,7 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AssetType")
+                    b.Property<int>("AssetGroup")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("BaseAssetHolderId")
@@ -51,8 +51,8 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetType")
-                        .HasDatabaseName("IX_AssetPool_AssetType");
+                    b.HasIndex("AssetGroup")
+                        .HasDatabaseName("IX_AssetPool_AssetGroup");
 
                     b.HasIndex("BaseAssetHolderId")
                         .HasDatabaseName("IX_AssetPool_BaseAssetHolderId");
@@ -60,8 +60,8 @@ namespace SFManagement.Migrations
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_AssetPool_DeletedAt");
 
-                    b.HasIndex("BaseAssetHolderId", "AssetType")
-                        .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetType");
+                    b.HasIndex("BaseAssetHolderId", "AssetGroup")
+                        .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetGroup");
 
                     b.ToTable("AssetPools");
                 });
@@ -77,6 +77,9 @@ namespace SFManagement.Migrations
 
                     b.Property<Guid>("AssetPoolId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AssetType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -94,13 +97,13 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("WalletType")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AssetPoolId")
                         .HasDatabaseName("IX_WalletIdentifier_AssetPoolId");
+
+                    b.HasIndex("AssetType")
+                        .HasDatabaseName("IX_WalletIdentifier_AssetType");
 
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_WalletIdentifier_DeletedAt");
@@ -183,6 +186,9 @@ namespace SFManagement.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
+                    b.Property<Guid?>("ReferrerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -208,6 +214,9 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("Name")
                         .HasDatabaseName("IX_BaseAssetHolder_Name");
+
+                    b.HasIndex("ReferrerId")
+                        .HasDatabaseName("IX_BaseAssetHolder_ReferrerId");
 
                     b.ToTable("BaseAssetHolders");
                 });
@@ -405,9 +414,6 @@ namespace SFManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("FinancialBehavior")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -512,11 +518,16 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("ActiveFrom")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("ActiveUntil")
-                        .IsRequired()
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("AssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BaseAssetHolderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -540,12 +551,26 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetHolderId");
+                    b.HasIndex("AssetHolderId")
+                        .HasDatabaseName("IX_Referral_AssetHolderId");
+
+                    b.HasIndex("BaseAssetHolderId");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_Referral_DeletedAt");
 
                     b.HasIndex("WalletIdentifierId")
-                        .IsUnique();
+                        .HasDatabaseName("IX_Referral_WalletIdentifierId");
 
-                    b.ToTable("Referral");
+                    b.HasIndex("WalletIdentifierId", "ActiveFrom", "ActiveUntil")
+                        .HasDatabaseName("IX_Referral_Wallet_ActivePeriod");
+
+                    b.ToTable("Referrals", t =>
+                        {
+                            t.HasCheckConstraint("CK_Referral_ActiveDates_Logical", "[ActiveFrom] IS NULL OR [ActiveUntil] IS NULL OR [ActiveFrom] <= [ActiveUntil]");
+
+                            t.HasCheckConstraint("CK_Referral_ParentCommission_Range", "[ParentCommission] IS NULL OR ([ParentCommission] >= 0 AND [ParentCommission] <= 100)");
+                        });
                 });
 
             modelBuilder.Entity("SFManagement.Models.Transactions.DigitalAssetTransaction", b =>
@@ -581,8 +606,8 @@ namespace SFManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<Guid?>("ExcelId")
                         .HasColumnType("uniqueidentifier");
@@ -745,8 +770,8 @@ namespace SFManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
@@ -894,8 +919,8 @@ namespace SFManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
@@ -979,6 +1004,16 @@ namespace SFManagement.Migrations
                     b.Navigation("BaseAssetHolder");
                 });
 
+            modelBuilder.Entity("SFManagement.Models.Entities.BaseAssetHolder", b =>
+                {
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "Referrer")
+                        .WithMany()
+                        .HasForeignKey("ReferrerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Referrer");
+                });
+
             modelBuilder.Entity("SFManagement.Models.Entities.Client", b =>
                 {
                     b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
@@ -1051,15 +1086,19 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Support.Referral", b =>
                 {
                     b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "AssetHolder")
-                        .WithMany("Referral")
+                        .WithMany("ReferralsMade")
                         .HasForeignKey("AssetHolderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
+                        .WithMany("ReferralsReceived")
+                        .HasForeignKey("BaseAssetHolderId");
+
                     b.HasOne("SFManagement.Models.AssetInfrastructure.WalletIdentifier", "WalletIdentifier")
-                        .WithOne("Referral")
-                        .HasForeignKey("SFManagement.Models.Support.Referral", "WalletIdentifierId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("Referrals")
+                        .HasForeignKey("WalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AssetHolder");
@@ -1070,7 +1109,7 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Transactions.DigitalAssetTransaction", b =>
                 {
                     b.HasOne("SFManagement.Models.Support.Category", "Category")
-                        .WithMany("WalletTransactions")
+                        .WithMany()
                         .HasForeignKey("CategoryId");
 
                     b.HasOne("SFManagement.Models.Transactions.Excel", "Excel")
@@ -1130,7 +1169,7 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Transactions.FiatAssetTransaction", b =>
                 {
                     b.HasOne("SFManagement.Models.Support.Category", "Category")
-                        .WithMany("BankTransactions")
+                        .WithMany()
                         .HasForeignKey("CategoryId");
 
                     b.HasOne("SFManagement.Models.Transactions.OfxTransaction", "OfxTransaction")
@@ -1213,7 +1252,7 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.WalletIdentifier", b =>
                 {
-                    b.Navigation("Referral");
+                    b.Navigation("Referrals");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.Bank", b =>
@@ -1239,7 +1278,9 @@ namespace SFManagement.Migrations
 
                     b.Navigation("PokerManager");
 
-                    b.Navigation("Referral");
+                    b.Navigation("ReferralsMade");
+
+                    b.Navigation("ReferralsReceived");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.PokerManager", b =>
@@ -1249,11 +1290,7 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Support.Category", b =>
                 {
-                    b.Navigation("BankTransactions");
-
                     b.Navigation("Children");
-
-                    b.Navigation("WalletTransactions");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Transactions.Excel", b =>

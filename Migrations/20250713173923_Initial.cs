@@ -36,7 +36,6 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FinancialBehavior = table.Column<int>(type: "int", nullable: true),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -87,7 +86,7 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AssetType = table.Column<int>(type: "int", nullable: false),
+                    AssetGroup = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -259,7 +258,7 @@ namespace SFManagement.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AssetPoolId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AccountClassification = table.Column<int>(type: "int", nullable: false),
-                    WalletType = table.Column<int>(type: "int", nullable: false),
+                    AssetType = table.Column<int>(type: "int", nullable: false),
                     MetadataJson = table.Column<string>(type: "nvarchar(2000)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -567,14 +566,14 @@ namespace SFManagement.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AssetPool_AssetType",
+                name: "IX_AssetPool_AssetGroup",
                 table: "AssetPools",
-                column: "AssetType");
+                column: "AssetGroup");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AssetPool_BaseAssetHolder_AssetType",
+                name: "IX_AssetPool_BaseAssetHolder_AssetGroup",
                 table: "AssetPools",
-                columns: new[] { "BaseAssetHolderId", "AssetType" });
+                columns: new[] { "BaseAssetHolderId", "AssetGroup" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AssetPool_BaseAssetHolderId",
@@ -808,6 +807,11 @@ namespace SFManagement.Migrations
                 name: "IX_WalletIdentifier_AssetPoolId",
                 table: "WalletIdentifiers",
                 column: "AssetPoolId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WalletIdentifier_AssetType",
+                table: "WalletIdentifiers",
+                column: "AssetType");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WalletIdentifier_DeletedAt",

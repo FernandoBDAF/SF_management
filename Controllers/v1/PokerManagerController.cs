@@ -102,13 +102,14 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
                         Id = walletIdentifier.Id,
                         InputForTransactions = walletIdentifier.GetPokerMetadata(PokerWalletMetadata.InputForTransactions),
                         AssetType = walletIdentifier.AssetType,
-                        Referral = walletIdentifier.Referral != null ? new ReferralInfo
+                        // Referral information
+                        Referral = walletIdentifier.Referrals.FirstOrDefault() != null ? new ReferralInfo
                         {
-                            Id = walletIdentifier.Referral.Id,
-                            AssetHolderId = walletIdentifier.Referral.AssetHolderId,
-                            Name = walletIdentifier.Referral.AssetHolder.Name,
-                            ActiveUntil = walletIdentifier.Referral.ActiveUntil,
-                            ParentCommission = walletIdentifier.Referral.ParentCommission
+                            Id = walletIdentifier.Referrals.First().Id,
+                            AssetHolderId = walletIdentifier.Referrals.First().AssetHolderId,
+                            Name = walletIdentifier.Referrals.First().AssetHolder.Name,
+                            ActiveUntil = walletIdentifier.Referrals.First().ActiveUntil,
+                            ParentCommission = walletIdentifier.Referrals.First().ParentCommission
                         } : null,
                         LastSettlementTransaction = lastSettlementTransaction != null ? _mapper.Map<SettlementTransactionSimplifiedResponse>(lastSettlementTransaction) : null,
                         BaseAssetHolderId = walletIdentifier.AssetPool.BaseAssetHolder.Id,

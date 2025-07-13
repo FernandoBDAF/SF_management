@@ -12,8 +12,9 @@ public class BankService : BaseAssetHolderService<Bank>
     public BankService(
         DataContext context, 
         IHttpContextAccessor httpContextAccessor,
-        IAssetHolderDomainService domainService) 
-        : base(context, httpContextAccessor, domainService)
+        IAssetHolderDomainService domainService,
+        ReferralService referralService) 
+        : base(context, httpContextAccessor, domainService, referralService)
     {
     }
 

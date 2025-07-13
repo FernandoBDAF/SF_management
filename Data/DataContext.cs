@@ -69,6 +69,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
     public DbSet<Address> Addresses { get; set; }
     public DbSet<InitialBalance> InitialBalances { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Referral> Referrals { get; set; }
     
     public DbSet<AssetPool> AssetPools { get; set; }
     public DbSet<WalletIdentifier> WalletIdentifiers { get; set; }
@@ -124,6 +125,53 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .WithMany(bah => bah.AssetPools)
             .HasForeignKey(aw => aw.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Referral relationships
+        modelBuilder.Entity<Referral>()
+            .HasOne(r => r.AssetHolder)
+            .WithMany(bah => bah.ReferralsMade)
+            .HasForeignKey(r => r.AssetHolderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Referral>()
+            .HasOne(r => r.WalletIdentifier)
+            .WithMany(wi => wi.Referrals)
+            .HasForeignKey(r => r.WalletIdentifierId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure BaseAssetHolder self-referencing relationship
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasOne(bah => bah.Referrer)
+            .WithMany() // No navigation property on the other side
+            .HasForeignKey(bah => bah.ReferrerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Referral indexes for performance
+        modelBuilder.Entity<Referral>()
+            .HasIndex(r => r.AssetHolderId)
+            .HasDatabaseName("IX_Referral_AssetHolderId");
+
+        modelBuilder.Entity<Referral>()
+            .HasIndex(r => r.WalletIdentifierId)
+            .HasDatabaseName("IX_Referral_WalletIdentifierId");
+
+        modelBuilder.Entity<Referral>()
+            .HasIndex(r => new { r.WalletIdentifierId, r.ActiveFrom, r.ActiveUntil })
+            .HasDatabaseName("IX_Referral_Wallet_ActivePeriod");
+
+        modelBuilder.Entity<Referral>()
+            .HasIndex(r => r.DeletedAt)
+            .HasDatabaseName("IX_Referral_DeletedAt");
+
+        // Ensure referral dates are logical (ActiveFrom <= ActiveUntil when both are set)
+        modelBuilder.Entity<Referral>()
+            .HasCheckConstraint("CK_Referral_ActiveDates_Logical", 
+                "[ActiveFrom] IS NULL OR [ActiveUntil] IS NULL OR [ActiveFrom] <= [ActiveUntil]");
+
+        // Ensure commission percentage is valid
+        modelBuilder.Entity<Referral>()
+            .HasCheckConstraint("CK_Referral_ParentCommission_Range", 
+                "[ParentCommission] IS NULL OR ([ParentCommission] >= 0 AND [ParentCommission] <= 100)");
 
         // Configure FiatAssetTransaction sender/receiver relationships
         modelBuilder.Entity<FiatAssetTransaction>()
@@ -334,6 +382,11 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .IsUnique()
             .HasFilter("[Cnpj] IS NOT NULL")
             .HasDatabaseName("UQ_BaseAssetHolder_Cnpj");
+
+        // Index for referrer lookups
+        modelBuilder.Entity<BaseAssetHolder>()
+            .HasIndex(bah => bah.ReferrerId)
+            .HasDatabaseName("IX_BaseAssetHolder_ReferrerId");
 
         // Bank Code uniqueness constraint
         modelBuilder.Entity<Bank>()

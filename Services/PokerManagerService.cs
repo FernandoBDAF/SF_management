@@ -13,8 +13,9 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
     public PokerManagerService(
         DataContext context, 
         IHttpContextAccessor httpContextAccessor,
-        IAssetHolderDomainService domainService) 
-        : base(context, httpContextAccessor, domainService)
+        IAssetHolderDomainService domainService,
+        ReferralService referralService) 
+        : base(context, httpContextAccessor, domainService, referralService)
     {
     }
     
@@ -78,8 +79,7 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
             .Include(wi => wi.AssetPool)
             .ThenInclude(aw => aw.BaseAssetHolder)
             .ThenInclude(aw => aw.Client)
-            .Include(wi => wi.Referral)
-            .ThenInclude(r => r.AssetHolder)
+            .Include(wi => wi.Referrals)
             // .Include(wi => wi.SettlementTransactions.Where(st => !st.DeletedAt.HasValue))
             // .Where(wi => assetTypes.Contains(wi.AssetType) && 
             //             !wi.DeletedAt.HasValue &&

@@ -12,7 +12,12 @@ public class WalletIdentifier : BaseDomain
     public Guid AssetPoolId { get; set; }
     public virtual AssetPool AssetPool { get; set; }
     
-    public virtual Referral? Referral { get; set; }
+    /// <summary>
+    /// Referrals for this WalletIdentifier
+    /// Multiple referrals are allowed for the same wallet identifier because
+    /// different referrers can refer the same wallet with different commission rates and dates
+    /// </summary>
+    public virtual ICollection<Referral> Referrals { get; set; } = new HashSet<Referral>();
     
     public AccountClassification AccountClassification { get; set; }
 
