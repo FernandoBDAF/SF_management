@@ -126,6 +126,13 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .HasForeignKey(aw => aw.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Configure InitialBalance relationships
+        modelBuilder.Entity<InitialBalance>()
+            .HasOne(ib => ib.BaseAssetHolder)
+            .WithMany(bah => bah.InitialBalances)
+            .HasForeignKey(ib => ib.BaseAssetHolderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Configure Referral relationships
         modelBuilder.Entity<Referral>()
             .HasOne(r => r.AssetHolder)
@@ -172,6 +179,14 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         modelBuilder.Entity<Referral>()
             .HasCheckConstraint("CK_Referral_ParentCommission_Range", 
                 "[ParentCommission] IS NULL OR ([ParentCommission] >= 0 AND [ParentCommission] <= 100)");
+
+        // InitialBalance constraints
+        modelBuilder.Entity<InitialBalance>()
+            .HasCheckConstraint("CK_InitialBalance_Balance_NotNegative", "[Balance] >= 0");
+
+        modelBuilder.Entity<InitialBalance>()
+            .HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", 
+                "[ConversionRate] IS NULL OR [ConversionRate] > 0");
 
         // Configure FiatAssetTransaction sender/receiver relationships
         modelBuilder.Entity<FiatAssetTransaction>()
@@ -354,6 +369,19 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         modelBuilder.Entity<WalletIdentifier>()
             .HasIndex(wi => wi.DeletedAt)
             .HasDatabaseName("IX_WalletIdentifier_DeletedAt");
+
+        // InitialBalance indexes
+        modelBuilder.Entity<InitialBalance>()
+            .HasIndex(ib => ib.BaseAssetHolderId)
+            .HasDatabaseName("IX_InitialBalance_BaseAssetHolderId");
+
+        modelBuilder.Entity<InitialBalance>()
+            .HasIndex(ib => new { ib.BaseAssetHolderId, ib.BalanceUnit })
+            .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_BalanceUnit");
+
+        modelBuilder.Entity<InitialBalance>()
+            .HasIndex(ib => ib.DeletedAt)
+            .HasDatabaseName("IX_InitialBalance_DeletedAt");
 
         // ===== DATABASE CONSTRAINTS FOR DATA INTEGRITY =====
         
