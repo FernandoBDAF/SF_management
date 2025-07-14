@@ -53,7 +53,6 @@ public interface IAssetHolderDomainService
     /// </summary>
     Task<bool> IsCpfUnique(string cpf, Guid? excludeAssetHolderId = null);
     Task<bool> IsCnpjUnique(string cnpj, Guid? excludeAssetHolderId = null);
-    Task<bool> IsEmailUnique(string email, Guid? excludeAssetHolderId = null);
     
     /// <summary>
     /// Validates bank code uniqueness

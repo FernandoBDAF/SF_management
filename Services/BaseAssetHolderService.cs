@@ -88,7 +88,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         var baseAssetHolder = await context.BaseAssetHolders
             .Include(c => c.AssetPools)
                 .ThenInclude(aw => aw.WalletIdentifiers)
-            .Include(c => c.Address)
+            .Include(c => c.Addresses)
             .Include(c => c.ContactPhones)
             .Include(c => c.InitialBalances)
             .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
@@ -216,7 +216,6 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             if (baseAssetHolder != null)
             {
                 baseAssetHolder.Name = request.Name;
-                baseAssetHolder.Email = request.Email;
                 baseAssetHolder.Cpf = request.Cpf;
                 baseAssetHolder.Cnpj = request.Cnpj;
                 baseAssetHolder.UpdatedAt = DateTime.UtcNow;
@@ -643,7 +642,6 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         var baseAssetHolder = new BaseAssetHolder
         {
             Name = name,
-            Email = email,
             Cpf = cpf,
             Cnpj = cnpj,
             ReferrerId = referrerId

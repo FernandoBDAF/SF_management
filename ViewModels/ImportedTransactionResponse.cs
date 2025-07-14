@@ -21,6 +21,7 @@ public class ImportedTransactionResponse : BaseResponse
     public string? FileMetadata { get; set; }
     public ImportedTransactionStatus Status { get; set; }
     public string StatusName { get; set; } = string.Empty;
+    public ReconciledTransactionType? ReconciledTransactionType { get; set; }
     public Guid? ReconciledTransactionId { get; set; }
     public DateTime? ReconciledAt { get; set; }
     public string? ReconciliationNotes { get; set; }
@@ -95,7 +96,11 @@ public class PotentialMatchesResponse
 /// </summary>
 public class PotentialMatch
 {
-    public BaseTransactionSummary Transaction { get; set; } = new();
+    public ReconciledTransactionType TransactionType { get; set; }
+    public Guid TransactionId { get; set; }
+    public DateTime Date { get; set; }
+    public decimal Amount { get; set; }
+    public string? Description { get; set; }
     public double MatchScore { get; set; }
     public int DaysDifference { get; set; }
     public decimal AmountDifference { get; set; }

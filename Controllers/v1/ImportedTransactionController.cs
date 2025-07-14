@@ -183,6 +183,7 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
             var reconciledTransaction = await _importedTransactionService.ReconcileTransaction(
                 request.ImportedTransactionId,
                 request.BaseTransactionId,
+                request.TransactionType,
                 request.Notes);
 
             var response = new ReconciliationResponse
@@ -276,22 +277,16 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
                 request.DaysTolerance,
                 request.AmountTolerance);
 
-            var potentialMatches = matches.Select(bt => new PotentialMatch
+            var potentialMatches = matches.Select(match => new PotentialMatch
             {
-                Transaction = new BaseTransactionSummary
-                {
-                    Id = bt.Id,
-                    Date = bt.Date,
-                    AssetAmount = bt.AssetAmount,
-                    Description = bt.Description,
-                    TransactionType = bt.GetType().Name,
-                    SenderName = bt.SenderWalletIdentifier?.AssetPool?.BaseAssetHolder?.Name ?? "Unknown",
-                    ReceiverName = bt.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolder?.Name ?? "Unknown",
-                    AssetType = bt.SenderWalletIdentifier?.AssetType ?? AssetType.BrazilianReal
-                },
-                DaysDifference = Math.Abs((bt.Date - importedTransaction.Date).Days),
-                AmountDifference = Math.Abs(bt.AssetAmount - importedTransaction.Amount),
-                MatchReasons = GenerateMatchReasons(importedTransaction, bt)
+                TransactionType = match.Type,
+                TransactionId = match.Id,
+                Date = match.Date,
+                Amount = match.Amount,
+                Description = match.Description,
+                DaysDifference = Math.Abs((match.Date - importedTransaction.Date).Days),
+                AmountDifference = Math.Abs(match.Amount - importedTransaction.Amount),
+                MatchReasons = GenerateMatchReasons(importedTransaction, match.Date, match.Amount, match.Description)
             }).ToList();
 
             // Calculate match scores
@@ -374,24 +369,24 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
 
     #region Private Helper Methods
 
-    private static List<string> GenerateMatchReasons(ImportedTransaction imported, BaseTransaction baseTransaction)
+    private static List<string> GenerateMatchReasons(ImportedTransaction imported, DateTime transactionDate, decimal transactionAmount, string? transactionDescription)
     {
         var reasons = new List<string>();
 
-        if (imported.Date.Date == baseTransaction.Date.Date)
+        if (imported.Date.Date == transactionDate.Date)
             reasons.Add("Exact date match");
-        else if (Math.Abs((imported.Date - baseTransaction.Date).Days) <= 1)
+        else if (Math.Abs((imported.Date - transactionDate).Days) <= 1)
             reasons.Add("Date within 1 day");
 
-        if (imported.Amount == baseTransaction.AssetAmount)
+        if (imported.Amount == transactionAmount)
             reasons.Add("Exact amount match");
-        else if (Math.Abs(imported.Amount - baseTransaction.AssetAmount) <= 0.01m)
+        else if (Math.Abs(imported.Amount - transactionAmount) <= 0.01m)
             reasons.Add("Amount within tolerance");
 
-        if (!string.IsNullOrEmpty(imported.Description) && !string.IsNullOrEmpty(baseTransaction.Description))
+        if (!string.IsNullOrEmpty(imported.Description) && !string.IsNullOrEmpty(transactionDescription))
         {
-            if (imported.Description.Contains(baseTransaction.Description) || 
-                baseTransaction.Description.Contains(imported.Description))
+            if (imported.Description.Contains(transactionDescription) || 
+                transactionDescription.Contains(imported.Description))
                 reasons.Add("Description similarity");
         }
 

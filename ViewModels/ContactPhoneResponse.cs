@@ -2,19 +2,15 @@ namespace SFManagement.ViewModels;
 
 public class ContactPhoneResponse : BaseResponse
 {
+    public Guid BaseAssetHolderId { get; set; }
+    
     public int? CountryCode { get; set; }
     
-    public int? LocalCode { get; set; }
+    public int? AreaCode { get; set; }
     
-    public string? PhoneNumber { get; set; }
+    public int? PhoneNumber { get; set; }
+    
+    public string InputPhoneNumber { get; set; } = string.Empty;
     
     public string? SearchFor { get; set; }
-    
-    public Guid? ClientId { get; set; }
-    
-    public Guid? MemberId { get; set; }
-    
-    public Guid? BankId { get; set; }
-    
-    public Guid? PokerManagerId { get; set; }
 }

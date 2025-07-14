@@ -33,7 +33,7 @@ public class BaseService<TEntity> where TEntity : BaseDomain
             query = ((IQueryable<BaseAssetHolder>)query)
                 .Include(c => c.AssetPools)
                 .ThenInclude(c => c.WalletIdentifiers)
-                .Include(c => c.Address)
+                .Include(c => c.Addresses)
                 .Include(c => c.ContactPhones)
                 .Include(c => c.InitialBalances)
                 .Cast<TEntity>();

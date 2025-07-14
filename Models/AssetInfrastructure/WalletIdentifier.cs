@@ -149,9 +149,9 @@ public class WalletIdentifier : BaseDomain
         var requiredFields = new[]
         {
             BankWalletMetadata.PixKey,
-            BankWalletMetadata.AccountType,
-            BankWalletMetadata.AccountNumber,
-            BankWalletMetadata.RoutingNumber
+            // BankWalletMetadata.AccountType,
+            // BankWalletMetadata.AccountNumber,
+            // BankWalletMetadata.RoutingNumber
         };
         
         return requiredFields.All(field => 

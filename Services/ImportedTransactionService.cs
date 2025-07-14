@@ -181,27 +181,34 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
     public async Task<ImportedTransaction> ReconcileTransaction(
         Guid importedTransactionId, 
         Guid baseTransactionId, 
+        ReconciledTransactionType transactionType,
         string? notes = null)
     {
         var importedTransaction = await Get(importedTransactionId);
         if (importedTransaction == null)
             throw new EntityNotFoundException("ImportedTransaction", importedTransactionId);
 
-        // Validate the BaseTransaction exists
-        var baseTransaction = await context.FiatAssetTransactions
-            .Cast<BaseTransaction>()
-            .Union(context.DigitalAssetTransactions.Cast<BaseTransaction>())
-            .Union(context.SettlementTransactions.Cast<BaseTransaction>())
-            .FirstOrDefaultAsync(bt => bt.Id == baseTransactionId && !bt.DeletedAt.HasValue);
+        // Validate the BaseTransaction exists based on type
+        var baseTransactionExists = transactionType switch
+        {
+            ReconciledTransactionType.Fiat => await context.FiatAssetTransactions
+                .AnyAsync(ft => ft.Id == baseTransactionId && !ft.DeletedAt.HasValue),
+            ReconciledTransactionType.Digital => await context.DigitalAssetTransactions
+                .AnyAsync(dt => dt.Id == baseTransactionId && !dt.DeletedAt.HasValue),
+            ReconciledTransactionType.Settlement => await context.SettlementTransactions
+                .AnyAsync(st => st.Id == baseTransactionId && !st.DeletedAt.HasValue),
+            _ => throw new BusinessException($"Invalid transaction type: {transactionType}", "INVALID_TRANSACTION_TYPE")
+        };
         
-        if (baseTransaction == null)
-            throw new EntityNotFoundException("BaseTransaction", baseTransactionId);
+        if (!baseTransactionExists)
+            throw new EntityNotFoundException($"{transactionType}Transaction", baseTransactionId);
 
         // Check if already reconciled
         if (importedTransaction.IsReconciled)
             throw new BusinessException("ImportedTransaction is already reconciled", "ALREADY_RECONCILED");
 
         // Perform reconciliation
+        importedTransaction.ReconciledTransactionType = transactionType;
         importedTransaction.ReconciledTransactionId = baseTransactionId;
         importedTransaction.ReconciledAt = DateTime.UtcNow;
         importedTransaction.ReconciliationNotes = notes;
@@ -220,7 +227,6 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
     {
         return await context.ImportedTransactions
             .Include(it => it.BaseAssetHolder)
-            .Include(it => it.ReconciledTransaction)
             .Where(it => it.FileName == fileName && 
                         it.BaseAssetHolderId == baseAssetHolderId && 
                         !it.DeletedAt.HasValue)
@@ -247,7 +253,7 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
     /// <summary>
     /// Finds potential matches for reconciliation based on amount and date
     /// </summary>
-    public async Task<List<BaseTransaction>> FindPotentialMatches(
+    public async Task<List<(ReconciledTransactionType Type, Guid Id, DateTime Date, decimal Amount, string? Description)>> FindPotentialMatches(
         Guid importedTransactionId, 
         int daysTolerance = 3,
         decimal amountTolerance = 0.01m)
@@ -261,7 +267,9 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
         var minAmount = importedTransaction.Amount - amountTolerance;
         var maxAmount = importedTransaction.Amount + amountTolerance;
 
-        // Search across all transaction types
+        var results = new List<(ReconciledTransactionType Type, Guid Id, DateTime Date, decimal Amount, string? Description)>();
+
+        // Search Fiat transactions
         var fiatTransactions = await context.FiatAssetTransactions
             .Include(ft => ft.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
@@ -269,10 +277,15 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
                 .ThenInclude(wi => wi.AssetPool)
             .Where(ft => ft.Date >= startDate && ft.Date <= endDate &&
                         ft.AssetAmount >= minAmount && ft.AssetAmount <= maxAmount &&
-                        !ft.DeletedAt.HasValue)
-            .Cast<BaseTransaction>()
+                        !ft.DeletedAt.HasValue &&
+                        (ft.SenderWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
+                         ft.ReceiverWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
+            .Select(ft => new { ft.Id, ft.Date, ft.AssetAmount, ft.Description })
             .ToListAsync();
 
+        results.AddRange(fiatTransactions.Select(ft => (ReconciledTransactionType.Fiat, ft.Id, ft.Date, ft.AssetAmount, ft.Description)));
+
+        // Search Digital transactions
         var digitalTransactions = await context.DigitalAssetTransactions
             .Include(dt => dt.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
@@ -280,10 +293,15 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
                 .ThenInclude(wi => wi.AssetPool)
             .Where(dt => dt.Date >= startDate && dt.Date <= endDate &&
                         dt.AssetAmount >= minAmount && dt.AssetAmount <= maxAmount &&
-                        !dt.DeletedAt.HasValue)
-            .Cast<BaseTransaction>()
+                        !dt.DeletedAt.HasValue &&
+                        (dt.SenderWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
+                         dt.ReceiverWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
+            .Select(dt => new { dt.Id, dt.Date, dt.AssetAmount, dt.Description })
             .ToListAsync();
 
+        results.AddRange(digitalTransactions.Select(dt => (ReconciledTransactionType.Digital, dt.Id, dt.Date, dt.AssetAmount, dt.Description)));
+
+        // Search Settlement transactions
         var settlementTransactions = await context.SettlementTransactions
             .Include(st => st.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
@@ -291,20 +309,19 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
                 .ThenInclude(wi => wi.AssetPool)
             .Where(st => st.Date >= startDate && st.Date <= endDate &&
                         st.AssetAmount >= minAmount && st.AssetAmount <= maxAmount &&
-                        !st.DeletedAt.HasValue)
-            .Cast<BaseTransaction>()
+                        !st.DeletedAt.HasValue &&
+                        (st.SenderWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
+                         st.ReceiverWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
+            .Select(st => new { st.Id, st.Date, st.AssetAmount, st.Description })
             .ToListAsync();
 
-        var allTransactions = fiatTransactions
-            .Concat(digitalTransactions)
-            .Concat(settlementTransactions)
-            .Where(bt => (bt.SenderWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
-                         bt.ReceiverWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
-            .OrderBy(bt => Math.Abs((bt.Date - importedTransaction.Date).TotalDays))
-            .ThenBy(bt => Math.Abs(bt.AssetAmount - importedTransaction.Amount))
-            .ToList();
+        results.AddRange(settlementTransactions.Select(st => (ReconciledTransactionType.Settlement, st.Id, st.Date, st.AssetAmount, st.Description)));
 
-        return allTransactions;
+        // Sort by date and amount difference
+        return results
+            .OrderBy(r => Math.Abs((r.Date - importedTransaction.Date).TotalDays))
+            .ThenBy(r => Math.Abs(r.Amount - importedTransaction.Amount))
+            .ToList();
     }
 
     #region Private Helper Methods

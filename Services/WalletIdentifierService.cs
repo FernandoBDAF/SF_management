@@ -127,7 +127,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referrals)
-            .Where(wi => wi.AssetGroup == assetGroup && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool.AssetGroup == assetGroup && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
     
@@ -141,7 +141,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .ToListAsync();
     }
 
-    public async Task<List<WalletIdentifier>> GetByAssetHolderTypeFiltered(string? assetHolderType, AssetType? assetType, AssetGroup? walletType)
+    public async Task<List<WalletIdentifier>> GetByAssetHolderTypeFiltered(string? assetHolderType, AssetType? assetType, AssetGroup? assetGroup)
     {
         var query = context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
@@ -167,16 +167,16 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             query = query.Where(wi => wi.AssetType == assetType.Value);
         }
 
-        // Filter by wallet type (asset group)
-        if (walletType.HasValue)
+        // Filter by asset group (query on AssetPool's AssetGroup)
+        if (assetGroup.HasValue)
         {
-            query = query.Where(wi => wi.AssetGroup == walletType.Value);
+            query = query.Where(wi => wi.AssetPool.AssetGroup == assetGroup.Value);
         }
 
         return await query.Where(wi => !wi.DeletedAt.HasValue).ToListAsync();
     }
 
-    public async Task<List<WalletIdentifier>> GetByAssetHolderAndFilters(Guid assetHolderId, AssetType? assetType, AssetGroup? walletType)
+    public async Task<List<WalletIdentifier>> GetByAssetHolderAndFilters(Guid assetHolderId, AssetType? assetType, AssetGroup? assetGroup)
     {
         var query = context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
@@ -189,10 +189,10 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             query = query.Where(wi => wi.AssetType == assetType.Value);
         }
 
-        // Filter by wallet type (asset group)
-        if (walletType.HasValue)
+        // Filter by asset group (query on AssetPool's AssetGroup)
+        if (assetGroup.HasValue)
         {
-            query = query.Where(wi => wi.AssetGroup == walletType.Value);
+            query = query.Where(wi => wi.AssetPool.AssetGroup == assetGroup.Value);
         }
 
         return await query.Where(wi => !wi.DeletedAt.HasValue).ToListAsync();
@@ -243,7 +243,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referrals)
-            .Where(wi => wi.AssetGroup == AssetGroup.Internal && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool.AssetGroup == AssetGroup.Internal && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
 
@@ -265,7 +265,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
             .ThenInclude(ap => ap.BaseAssetHolder)
-            .Where(wi => wi.AssetGroup == AssetGroup.Internal &&
+            .Where(wi => wi.AssetPool.AssetGroup == AssetGroup.Internal &&
                         wi.AssetType == walletIdentifier.AssetType &&
                         !wi.DeletedAt.HasValue)
             .FirstOrDefaultAsync();
@@ -277,7 +277,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw.BaseAssetHolder)
             .Include(wi => wi.Referrals)
-            .Where(wi => wi.AssetGroup == AssetGroup.Internal && 
+            .Where(wi => wi.AssetPool.AssetGroup == AssetGroup.Internal && 
                         wi.MetadataJson.Contains($"\"{metadataKey}\":\"{metadataValue}\"") && 
                         !wi.DeletedAt.HasValue)
             .ToListAsync();

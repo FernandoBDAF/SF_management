@@ -6,9 +6,11 @@ public class ContactPhone : BaseDomain
 {
     public int? CountryCode { get; set; }
     
-    public int? LocalCode { get; set; }
+    public int? AreaCode { get; set; }
+
+    public int? PhoneNumber { get; set; }
     
-    [Required] [MaxLength(20)] public string PhoneNumber { get; set; } = string.Empty;
+    [Required] [MaxLength(20)] public string InputPhoneNumber { get; set; } = string.Empty;
     
     [MaxLength(30)] public string? SearchFor { get; set; }
     

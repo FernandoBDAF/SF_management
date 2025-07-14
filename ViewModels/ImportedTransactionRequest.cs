@@ -65,6 +65,12 @@ public class ReconcileTransactionRequest
     public Guid BaseTransactionId { get; set; }
     
     /// <summary>
+    /// Type of transaction (Fiat, Digital, Settlement)
+    /// </summary>
+    [Required]
+    public ReconciledTransactionType TransactionType { get; set; }
+    
+    /// <summary>
     /// Optional notes about the reconciliation
     /// </summary>
     [MaxLength(500)]

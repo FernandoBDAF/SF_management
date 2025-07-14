@@ -65,23 +65,6 @@ public class AssetHolderDomainService : IAssetHolderDomainService
             }
         }
         
-        // Validate email format and uniqueness
-        if (!string.IsNullOrWhiteSpace(request.Email))
-        {
-            if (!IsValidEmail(request.Email))
-            {
-                result.AddError("Email", "Invalid email format", "INVALID_FORMAT");
-            }
-            else
-            {
-                var isEmailUnique = await IsEmailUnique(request.Email, request.BaseAssetHolderId);
-                if (!isEmailUnique)
-                {
-                    result.AddError("Email", "Email address is already in use", "DUPLICATE_EMAIL");
-                }
-            }
-        }
-        
         // Validate CPF format and uniqueness
         if (!string.IsNullOrWhiteSpace(request.Cpf))
         {
@@ -341,19 +324,6 @@ public class AssetHolderDomainService : IAssetHolderDomainService
     {
         var query = _context.BaseAssetHolders
             .Where(bah => bah.Cnpj == cnpj && !bah.DeletedAt.HasValue);
-        
-        if (excludeAssetHolderId.HasValue)
-        {
-            query = query.Where(bah => bah.Id != excludeAssetHolderId.Value);
-        }
-        
-        return !await query.AnyAsync();
-    }
-
-    public async Task<bool> IsEmailUnique(string email, Guid? excludeAssetHolderId = null)
-    {
-        var query = _context.BaseAssetHolders
-            .Where(bah => bah.Email == email && !bah.DeletedAt.HasValue);
         
         if (excludeAssetHolderId.HasValue)
         {

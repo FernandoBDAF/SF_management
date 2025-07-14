@@ -184,6 +184,16 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", 
                 "[ConversionRate] IS NULL OR [ConversionRate] > 0");
 
+        // Ensure AssetType and AssetGroup are not both set
+        modelBuilder.Entity<InitialBalance>()
+            .HasCheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", 
+                "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)");
+
+        // Ensure either AssetType or AssetGroup is set
+        modelBuilder.Entity<InitialBalance>()
+            .HasCheckConstraint("CK_InitialBalance_AssetType_Or_AssetGroup_Required", 
+                "[AssetType] <> 0 OR [AssetGroup] <> 0");
+
         // Configure FiatAssetTransaction sender/receiver relationships
         modelBuilder.Entity<FiatAssetTransaction>()
             .HasOne(ft => ft.SenderWalletIdentifier)
@@ -226,15 +236,9 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         // Configure ImportedTransaction relationships
         modelBuilder.Entity<ImportedTransaction>()
             .HasOne(it => it.BaseAssetHolder)
-            .WithMany()
+            .WithMany(bah => bah.ImportedTransactions)
             .HasForeignKey(it => it.BaseAssetHolderId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ImportedTransaction>()
-            .HasOne(it => it.ReconciledTransaction)
-            .WithMany()
-            .HasForeignKey(it => it.ReconciledTransactionId)
-            .OnDelete(DeleteBehavior.SetNull);
 
 
         // Configure transaction indexes for performance on concrete tables
@@ -410,8 +414,12 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .HasDatabaseName("IX_InitialBalance_BaseAssetHolderId");
 
         modelBuilder.Entity<InitialBalance>()
-            .HasIndex(ib => new { ib.BaseAssetHolderId, ib.BalanceUnit })
-            .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_BalanceUnit");
+            .HasIndex(ib => new { ib.BaseAssetHolderId, ib.AssetType })
+            .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_AssetType");
+
+        modelBuilder.Entity<InitialBalance>()
+            .HasIndex(ib => new { ib.BaseAssetHolderId, ib.AssetGroup })
+            .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_AssetGroup");
 
         modelBuilder.Entity<InitialBalance>()
             .HasIndex(ib => ib.DeletedAt)
@@ -423,13 +431,6 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         modelBuilder.Entity<Member>()
             .Property(m => m.Share)
             .HasPrecision(5, 4); // Allows values like 0.9999 (99.99%)
-
-        // Email uniqueness constraint (when not null)
-        modelBuilder.Entity<BaseAssetHolder>()
-            .HasIndex(bah => bah.Email)
-            .IsUnique()
-            .HasFilter("[Email] IS NOT NULL")
-            .HasDatabaseName("UQ_BaseAssetHolder_Email");
 
         // CPF uniqueness constraint (when not null)
         modelBuilder.Entity<BaseAssetHolder>()
@@ -519,7 +520,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
 
         modelBuilder.Entity<ImportedTransaction>()
             .HasCheckConstraint("CK_ImportedTransaction_ReconciledAt_Logic", 
-                "([ReconciledTransactionId] IS NOT NULL AND [ReconciledAt] IS NOT NULL) OR ([ReconciledTransactionId] IS NULL AND [ReconciledAt] IS NULL)");
+                "([ReconciledTransactionId] IS NOT NULL AND [ReconciledAt] IS NOT NULL AND [ReconciledTransactionType] IS NOT NULL) OR ([ReconciledTransactionId] IS NULL AND [ReconciledAt] IS NULL AND [ReconciledTransactionType] IS NULL)");
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

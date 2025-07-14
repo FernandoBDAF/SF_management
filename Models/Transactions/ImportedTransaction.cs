@@ -84,8 +84,8 @@ public class ImportedTransaction : BaseDomain
     /// The BaseTransaction that this imported transaction has been reconciled with
     /// When set, this imported transaction is considered validated by external source
     /// </summary>
+    public ReconciledTransactionType? ReconciledTransactionType { get; set; }
     public Guid? ReconciledTransactionId { get; set; }
-    public virtual BaseTransaction? ReconciledTransaction { get; set; }
     
     /// <summary>
     /// Date when this transaction was reconciled with a BaseTransaction
@@ -112,7 +112,7 @@ public class ImportedTransaction : BaseDomain
     /// <summary>
     /// Checks if this transaction is reconciled with a BaseTransaction
     /// </summary>
-    public bool IsReconciled => ReconciledTransactionId.HasValue && ReconciledAt.HasValue;
+    public bool IsReconciled => ReconciledTransactionId.HasValue && ReconciledAt.HasValue && ReconciledTransactionType.HasValue;
     
     /// <summary>
     /// Checks if this transaction has been processed successfully

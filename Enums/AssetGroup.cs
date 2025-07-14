@@ -2,6 +2,9 @@ namespace SFManagement.Enums;
 
 public enum AssetGroup
 {
+    // None
+    None = 0,
+
     // Fiat Assets
     FiatAssets = 1,
     

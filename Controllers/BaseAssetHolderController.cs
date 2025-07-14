@@ -268,17 +268,17 @@ public class BaseAssetHolderController<TEntity, TRequest, TResponse> : BaseApiCo
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public virtual async Task<IActionResult> 
-    GetWalletIdentifiers([FromQuery] AssetGroup? walletType, [FromQuery] AssetType? assetType)
+    GetWalletIdentifiers([FromQuery] AssetGroup? assetGroup, [FromQuery] AssetType? assetType)
     {
         var requestId = HttpContext.TraceIdentifier;
         var entityType = typeof(TEntity).Name;
         
         _logger.LogInformation("Retrieving wallet identifiers for {EntityType} - AssetGroup: {AssetGroup}, AssetType: {AssetType} - RequestId: {RequestId}", 
-            entityType, walletType, assetType, requestId);
+            entityType, assetGroup, assetType, requestId);
         
         try
         {
-            var walletIdentifiers = await _walletIdentifierService.GetByAssetHolderTypeFiltered(typeof(TEntity).Name, assetType, walletType);
+            var walletIdentifiers = await _walletIdentifierService.GetByAssetHolderTypeFiltered(typeof(TEntity).Name, assetType, assetGroup);
 
             _logger.LogInformation("Successfully retrieved {Count} wallet identifiers for {EntityType} - RequestId: {RequestId}", 
                 walletIdentifiers.Count, entityType, requestId);
@@ -299,17 +299,17 @@ public class BaseAssetHolderController<TEntity, TRequest, TResponse> : BaseApiCo
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public virtual async Task<IActionResult> 
-    GetWalletIdentifiers(Guid id, [FromQuery] AssetGroup? walletType, [FromQuery] AssetType? assetType)
+    GetWalletIdentifiers(Guid id, [FromQuery] AssetGroup? assetGroup, [FromQuery] AssetType? assetType)
     {
         var requestId = HttpContext.TraceIdentifier;
         var entityType = typeof(TEntity).Name;
         
         _logger.LogInformation("Retrieving wallet identifiers for {EntityType} {EntityId} - AssetGroup: {AssetGroup}, AssetType: {AssetType} - RequestId: {RequestId}", 
-            entityType, id, walletType, assetType, requestId);
+            entityType, id, assetGroup, assetType, requestId);
         
         try
         {
-            var walletIdentifiers = await _walletIdentifierService.GetByAssetHolderAndFilters(id, assetType, walletType);
+            var walletIdentifiers = await _walletIdentifierService.GetByAssetHolderAndFilters(id, assetType, assetGroup);
 
             _logger.LogInformation("Successfully retrieved {Count} wallet identifiers for {EntityType} {EntityId} - RequestId: {RequestId}", 
                 walletIdentifiers.Count, entityType, id, requestId);

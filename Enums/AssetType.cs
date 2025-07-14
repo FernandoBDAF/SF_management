@@ -3,6 +3,7 @@ namespace SFManagement.Enums;
 public enum AssetType
 {
     // Miscellaneous
+    None = 0,
 
     // Fiat
     BrazilianReal = 21,

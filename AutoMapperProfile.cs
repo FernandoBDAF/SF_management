@@ -27,7 +27,13 @@ public class AutoMapperProfile : Profile
         CreateMap<ContactPhone, ContactPhoneResponse>();
         CreateMap<ContactPhoneRequest, ContactPhone>();
         
-        CreateMap<InitialBalance, InitialBalanceResponse>();
+        CreateMap<InitialBalance, InitialBalanceResponse>()
+            .ForMember(dest => dest.BaseAssetHolderName, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
+            .ForMember(dest => dest.AssetTypeName, opt => opt.MapFrom(src => src.AssetType.ToString()))
+            .ForMember(dest => dest.AssetGroupName, opt => opt.MapFrom(src => src.AssetGroup.ToString()))
+            .ForMember(dest => dest.BalanceAsName, opt => opt.MapFrom(src => src.BalanceAs.HasValue ? src.BalanceAs.Value.ToString() : null))
+            .ForMember(dest => dest.EffectiveBalance, opt => opt.MapFrom(src => src.EffectiveBalance))
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
         CreateMap<InitialBalanceRequest, InitialBalance>();
 
         CreateMap<AssetPool, AssetPoolResponse>()
@@ -285,10 +291,9 @@ public class AutoMapperProfile : Profile
         CreateMap<Bank, BankResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses))
             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code.ToString()));
             // Removed collection mappings - these properties no longer exist in response models
 
@@ -296,10 +301,9 @@ public class AutoMapperProfile : Profile
         CreateMap<Client, ClientResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses))
             .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday));
             // Removed collection mappings - these properties no longer exist in response models
             
@@ -307,10 +311,9 @@ public class AutoMapperProfile : Profile
         CreateMap<Member, MemberResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses))
             .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday))
             .ForMember(dest => dest.Share, opt => opt.MapFrom(src => src.Share));
             // Removed collection mappings - these properties no longer exist in response models
@@ -319,18 +322,16 @@ public class AutoMapperProfile : Profile
         CreateMap<PokerManager, PokerManagerResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.BaseAssetHolder.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Address));
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses));
         
         CreateMap<BaseAssetHolder, BaseAssetHolderResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.Cpf))
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.Cnpj))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Addresses));
             // Removed collection mappings - these properties no longer exist in response models
     }
     
@@ -355,7 +356,6 @@ public class AutoMapperProfile : Profile
                 Id = walletIdentifier.AssetPool.BaseAssetHolder.Id,
                 Name = walletIdentifier.AssetPool.BaseAssetHolder.Name,
                 AssetHolderType = walletIdentifier.AssetPool.BaseAssetHolder.AssetHolderType,
-                Email = walletIdentifier.AssetPool.BaseAssetHolder.Email
             };
         }
 

@@ -3,22 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 using SFManagement.Enums;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Models.Support;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.Entities;
 
 public class BaseAssetHolder : BaseDomain
 {
     [Required] [MaxLength(40)] public string Name { get; set; }
-
-    [MaxLength(40)] 
-    [EmailAddress]
-    public string? Email { get; set; }
     
     [MaxLength(20)] public string? Cpf { get; set; }
     
     [MaxLength(20)] public string? Cnpj { get; set; }
-    
-    public virtual Address? Address { get; set; }
     
     // Navigation properties to specific asset holder types (only one will have a value)
     public virtual Client? Client { get; set; }
@@ -63,8 +58,15 @@ public class BaseAssetHolder : BaseDomain
     public virtual ICollection<AssetPool> AssetPools { get; set; } = new HashSet<AssetPool>();
     
     public virtual ICollection<InitialBalance> InitialBalances { get; set; } = new HashSet<InitialBalance>();
+
+    public virtual ICollection<Address> Addresses { get; set; } = new HashSet<Address>();
     
     public virtual ICollection<ContactPhone> ContactPhones { get; set; } = new HashSet<ContactPhone>();
+
+    /// <summary>
+    /// Transactions imported from external files (OFX, Excel, etc.) for this asset holder
+    /// </summary>
+    public virtual ICollection<ImportedTransaction> ImportedTransactions { get; set; } = new HashSet<ImportedTransaction>();
 
     /// <summary>
     /// The BaseAssetHolder who referred this one (optional)
