@@ -178,9 +178,6 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
 
         // InitialBalance constraints
         modelBuilder.Entity<InitialBalance>()
-            .HasCheckConstraint("CK_InitialBalance_Balance_NotNegative", "[Balance] >= 0");
-
-        modelBuilder.Entity<InitialBalance>()
             .HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", 
                 "[ConversionRate] IS NULL OR [ConversionRate] > 0");
 

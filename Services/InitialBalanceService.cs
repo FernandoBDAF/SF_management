@@ -300,9 +300,8 @@ public class InitialBalanceService : BaseService<InitialBalance>
         if (!hasAssetType && !hasAssetGroup)
             errors.Add("Either AssetType or AssetGroup must be specified");
 
-        // Validate balance amount
-        if (balance < 0)
-            errors.Add("Balance cannot be negative");
+        // Balance amount can be negative (removed validation)
+        // Negative balances are allowed for initial balance adjustments
 
         // Validate conversion parameters (can be used for both AssetType and AssetGroup)
         if (balanceAs.HasValue && conversionRate.HasValue && conversionRate <= 0)

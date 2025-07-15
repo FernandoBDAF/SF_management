@@ -23,6 +23,7 @@ public class BaseTransaction : BaseDomain
     [Required] public Guid ReceiverWalletIdentifierId { get; set; }
     public virtual WalletIdentifier ReceiverWalletIdentifier { get; set; }
     
+    // only positive amounts are allowed
     [Required] [Precision(18, 2)] public decimal AssetAmount { get; set; }
     
     [MaxLength(255)] public string? Description { get; set; }
@@ -33,6 +34,16 @@ public class BaseTransaction : BaseDomain
     public bool IsReceiver(Guid walletIdentifierId) => ReceiverWalletIdentifierId == walletIdentifierId;
 
     public bool IsSender(Guid walletIdentifierId) => SenderWalletIdentifierId == walletIdentifierId;
+
+
+    /*
+    invoiceID?
+    transactionID?
+    */
+
+    /*
+    put transaction
+    */
 
     public WalletIdentifier GetCounterpartyForWalletIdentifier(Guid walletIdentifierId)
     {

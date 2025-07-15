@@ -13,6 +13,7 @@ public class InitialBalance : BaseDomain
 {
     /// <summary>
     /// The initial balance amount
+    /// Can be negative to represent initial debts or adjustments
     /// </summary>
     [Precision(18, 2)] 
     [Required] 

@@ -30,7 +30,6 @@ public class InitialBalanceRequest
     /// The initial balance amount (must be non-negative)
     /// </summary>
     [Required]
-    [Range(0, double.MaxValue, ErrorMessage = "Balance must be non-negative")]
     public decimal Balance { get; set; }
     
     /// <summary>

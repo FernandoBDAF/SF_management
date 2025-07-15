@@ -402,6 +402,19 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     {
         var balances = new Dictionary<AssetType, decimal>();
 
+        var assetHolder = await context.BaseAssetHolders
+        .Include(bah => bah.InitialBalances)
+        .FirstOrDefaultAsync(bah => bah.Id == baseAssetHolderId && !bah.DeletedAt.HasValue);
+
+        if (assetHolder != null)
+        {
+            foreach (var initialBalance in assetHolder.InitialBalances)
+            {
+                if (initialBalance.AssetType != AssetType.None && initialBalance.AssetGroup == AssetGroup.None)
+                balances[initialBalance.AssetType] = initialBalance.Balance;
+            }
+        }
+
         var walletIdentifiers = await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
             .Where(wi => wi.AssetPool.BaseAssetHolderId == baseAssetHolderId && !wi.DeletedAt.HasValue)
@@ -445,6 +458,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
+            // signal inversion for the liability wallet when the account classification is different
             var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
             if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
             {
@@ -466,17 +480,26 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
             var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
+            // signal inversion for the liability wallet when the account classification is different
             if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
             {
                 signedAmount = -signedAmount;
             }
             
+            if (tx.BalanceAs != null && tx.ConversionRate != null)
+            {
+                if (!balances.ContainsKey(tx.BalanceAs.Value)) balances[tx.BalanceAs.Value] = 0;
+                // signal invertion to the balanceAs asset type balance
+                balances[tx.BalanceAs.Value] -= signedAmount * tx.ConversionRate.Value;
+                    continue;
+                }
+                
             var assetType = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier.AssetType :
                 tx.SenderWalletIdentifier.AssetType;
-            
+
                     if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += signedAmount;
+            balances[assetType] += signedAmount * (100 - tx.Rate.Value) / 100;
         }
 
         // Process SettlementTransactions
