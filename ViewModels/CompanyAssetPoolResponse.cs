@@ -7,7 +7,7 @@ namespace SFManagement.ViewModels;
 /// </summary>
 public class CompanyAssetPoolResponse : BaseResponse
 {
-    public AssetType AssetType { get; set; }
+    public AssetGroup AssetGroup { get; set; }
     
     /// <summary>
     /// Always "Company" for company pools

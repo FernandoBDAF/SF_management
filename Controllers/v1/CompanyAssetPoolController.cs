@@ -93,33 +93,31 @@ public class CompanyAssetPoolController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific company asset pool by asset type
+    /// Gets a specific company asset pool by asset group
     /// </summary>
-    [HttpGet("{assetType}")]
+    [HttpGet("{assetGroup}")]
     [ProducesResponseType(typeof(CompanyAssetPoolResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetCompanyAssetPool(AssetType assetType)
+    public async Task<IActionResult> GetCompanyAssetPool(AssetGroup assetGroup)
     {
         var requestId = HttpContext.TraceIdentifier;
-        _logger.LogInformation("Retrieving company asset pool for {AssetType} - RequestId: {RequestId}", 
-            assetType, requestId);
+        _logger.LogInformation("Retrieving company asset pool for {AssetGroup} - RequestId: {RequestId}", 
+            assetGroup, requestId);
 
         try
         {
-            // Convert AssetType to AssetGroup
-            var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(assetType);
             var pool = await _assetPoolService.GetCompanyAssetPoolByType(assetGroup);
             
             if (pool == null)
             {
-                _logger.LogWarning("Company asset pool not found for {AssetType} - RequestId: {RequestId}", 
-                    assetType, requestId);
+                _logger.LogWarning("Company asset pool not found for {AssetGroup} - RequestId: {RequestId}", 
+                    assetGroup, requestId);
                 return NotFound(new ProblemDetails
                 {
                     Title = "Company Asset Pool Not Found",
-                    Detail = $"No company asset pool found for asset type {assetType}",
+                    Detail = $"No company asset pool found for asset group {assetGroup}",
                     Status = StatusCodes.Status404NotFound,
-                    Extensions = { ["requestId"] = requestId, ["assetType"] = assetType.ToString() }
+                    Extensions = { ["requestId"] = requestId, ["assetGroup"] = assetGroup.ToString() }
                 });
             }
 
@@ -130,22 +128,22 @@ public class CompanyAssetPoolController : ControllerBase
             response.TransactionCount = await GetTransactionCount(pool.Id);
             response.LastTransactionDate = await GetLastTransactionDate(pool.Id);
 
-            _logger.LogInformation("Successfully retrieved company asset pool for {AssetType} - RequestId: {RequestId}", 
-                assetType, requestId);
+            _logger.LogInformation("Successfully retrieved company asset pool for {AssetGroup} - RequestId: {RequestId}", 
+                assetGroup, requestId);
 
             return Ok(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving company asset pool for {AssetType} - RequestId: {RequestId}", 
-                assetType, requestId);
+            _logger.LogError(ex, "Error retrieving company asset pool for {AssetGroup} - RequestId: {RequestId}", 
+                assetGroup, requestId);
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new ProblemDetails
                 {
                     Title = "Internal Server Error",
-                    Detail = $"An error occurred while retrieving company asset pool for {assetType}",
+                    Detail = $"An error occurred while retrieving company asset pool for {assetGroup}",
                     Status = StatusCodes.Status500InternalServerError,
-                    Extensions = { ["requestId"] = requestId, ["assetType"] = assetType.ToString() }
+                    Extensions = { ["requestId"] = requestId, ["assetGroup"] = assetGroup.ToString() }
                 });
         }
     }
@@ -160,8 +158,8 @@ public class CompanyAssetPoolController : ControllerBase
     public async Task<IActionResult> CreateCompanyAssetPool([FromBody] CompanyAssetPoolRequest request)
     {
         var requestId = HttpContext.TraceIdentifier;
-        _logger.LogInformation("Creating company asset pool for {AssetType} - RequestId: {RequestId}", 
-            request.AssetType, requestId);
+        _logger.LogInformation("Creating company asset pool for {AssetGroup} - RequestId: {RequestId}", 
+            request.AssetGroup, requestId);
 
         try
         {
@@ -194,9 +192,8 @@ public class CompanyAssetPoolController : ControllerBase
             }
 
             // Create the pool
-            var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(request.AssetType);
             var createdPool = await _assetPoolService.CreateCompanyAssetPool(
-                assetGroup, 
+                request.AssetGroup, 
                 request.Description, 
                 request.BusinessJustification);
 
@@ -207,12 +204,12 @@ public class CompanyAssetPoolController : ControllerBase
             response.TransactionCount = 0;
             response.LastTransactionDate = null;
 
-            _logger.LogInformation("Successfully created company asset pool for {AssetType} with ID: {PoolId} - RequestId: {RequestId}", 
-                request.AssetType, createdPool.Id, requestId);
+            _logger.LogInformation("Successfully created company asset pool for {AssetGroup} with ID: {PoolId} - RequestId: {RequestId}", 
+                request.AssetGroup, createdPool.Id, requestId);
 
             return CreatedAtAction(
                 nameof(GetCompanyAssetPool), 
-                new { assetType = request.AssetType }, 
+                new { assetGroup = request.AssetGroup }, 
                 response);
         }
         catch (InvalidOperationException ex)
@@ -224,20 +221,20 @@ public class CompanyAssetPoolController : ControllerBase
                 Title = "Business Rule Violation",
                 Detail = ex.Message,
                 Status = StatusCodes.Status409Conflict,
-                Extensions = { ["requestId"] = requestId, ["assetType"] = request.AssetType.ToString() }
+                Extensions = { ["requestId"] = requestId, ["assetGroup"] = request.AssetGroup.ToString() }
             });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating company asset pool for {AssetType} - RequestId: {RequestId}", 
-                request.AssetType, requestId);
+            _logger.LogError(ex, "Error creating company asset pool for {AssetGroup} - RequestId: {RequestId}", 
+                request.AssetGroup, requestId);
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new ProblemDetails
                 {
                     Title = "Internal Server Error",
                     Detail = "An error occurred while creating the company asset pool",
                     Status = StatusCodes.Status500InternalServerError,
-                    Extensions = { ["requestId"] = requestId, ["assetType"] = request.AssetType.ToString() }
+                    Extensions = { ["requestId"] = requestId, ["assetGroup"] = request.AssetGroup.ToString() }
                 });
         }
     }
@@ -279,32 +276,30 @@ public class CompanyAssetPoolController : ControllerBase
     /// <summary>
     /// Deletes a company asset pool (with validation)
     /// </summary>
-    [HttpDelete("{assetType}")]
+    [HttpDelete("{assetGroup}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> DeleteCompanyAssetPool(AssetType assetType)
+    public async Task<IActionResult> DeleteCompanyAssetPool(AssetGroup assetGroup)
     {
         var requestId = HttpContext.TraceIdentifier;
-        _logger.LogInformation("Deleting company asset pool for {AssetType} - RequestId: {RequestId}", 
-            assetType, requestId);
+        _logger.LogInformation("Deleting company asset pool for {AssetGroup} - RequestId: {RequestId}", 
+            assetGroup, requestId);
 
         try
         {
-            // Convert AssetType to AssetGroup
-            var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(assetType);
             var pool = await _assetPoolService.GetCompanyAssetPoolByType(assetGroup);
             
             if (pool == null)
             {
-                _logger.LogWarning("Company asset pool not found for deletion - {AssetType} - RequestId: {RequestId}", 
-                    assetType, requestId);
+                _logger.LogWarning("Company asset pool not found for deletion - {AssetGroup} - RequestId: {RequestId}", 
+                    assetGroup, requestId);
                 return NotFound(new ProblemDetails
                 {
                     Title = "Company Asset Pool Not Found",
-                    Detail = $"No company asset pool found for asset type {assetType}",
+                    Detail = $"No company asset pool found for asset group {assetGroup}",
                     Status = StatusCodes.Status404NotFound,
-                    Extensions = { ["requestId"] = requestId, ["assetType"] = assetType.ToString() }
+                    Extensions = { ["requestId"] = requestId, ["assetGroup"] = assetGroup.ToString() }
                 });
             }
 
@@ -323,7 +318,7 @@ public class CompanyAssetPoolController : ControllerBase
                     Status = StatusCodes.Status409Conflict,
                     Extensions = { 
                         ["requestId"] = requestId, 
-                        ["assetType"] = assetType.ToString(),
+                        ["assetGroup"] = assetGroup.ToString(),
                         ["errorCode"] = firstError.Code
                     }
                 });
@@ -331,22 +326,22 @@ public class CompanyAssetPoolController : ControllerBase
 
             await _assetPoolService.Delete(pool.Id);
 
-            _logger.LogInformation("Successfully deleted company asset pool for {AssetType} - RequestId: {RequestId}", 
-                assetType, requestId);
+            _logger.LogInformation("Successfully deleted company asset pool for {AssetGroup} - RequestId: {RequestId}", 
+                assetGroup, requestId);
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting company asset pool for {AssetType} - RequestId: {RequestId}", 
-                assetType, requestId);
+            _logger.LogError(ex, "Error deleting company asset pool for {AssetGroup} - RequestId: {RequestId}", 
+                assetGroup, requestId);
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new ProblemDetails
                 {
                     Title = "Internal Server Error",
                     Detail = "An error occurred while deleting the company asset pool",
                     Status = StatusCodes.Status500InternalServerError,
-                    Extensions = { ["requestId"] = requestId, ["assetType"] = assetType.ToString() }
+                    Extensions = { ["requestId"] = requestId, ["assetGroup"] = assetGroup.ToString() }
                 });
         }
     }

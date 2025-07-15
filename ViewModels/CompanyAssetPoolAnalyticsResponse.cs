@@ -82,9 +82,9 @@ public class CompanyAnalyticsSummary
     public decimal LargestTransaction { get; set; }
     
     /// <summary>
-    /// Most active asset type by transaction count
+    /// Most active asset group by transaction count
     /// </summary>
-    public AssetType? MostActiveAssetType { get; set; }
+    public AssetGroup? MostActiveAssetGroup { get; set; }
 }
 
 /// <summary>
@@ -96,8 +96,8 @@ public class CompanyAssetPoolPeriodData
     /// Asset pool information
     /// </summary>
     public Guid AssetPoolId { get; set; }
-    public AssetType AssetType { get; set; }
-    public string AssetTypeName { get; set; } = string.Empty;
+    public AssetGroup AssetGroup { get; set; }
+    public string AssetGroupName { get; set; } = string.Empty;
     
     /// <summary>
     /// Balance information

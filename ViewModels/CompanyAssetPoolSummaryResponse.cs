@@ -18,9 +18,9 @@ public class CompanyAssetPoolSummaryResponse
     public decimal TotalBalance { get; set; }
     
     /// <summary>
-    /// Breakdown by asset type
+    /// Breakdown by asset group
     /// </summary>
-    public List<CompanyAssetTypeBalance> AssetTypeBalances { get; set; } = new();
+    public List<CompanyAssetGroupBalance> AssetGroupBalances { get; set; } = new();
     
     /// <summary>
     /// Recent activity summary
@@ -29,12 +29,12 @@ public class CompanyAssetPoolSummaryResponse
 }
 
 /// <summary>
-/// Balance information for a specific asset type
+/// Balance information for a specific asset group
 /// </summary>
-public class CompanyAssetTypeBalance
+public class CompanyAssetGroupBalance
 {
-    public AssetType AssetType { get; set; }
-    public string AssetTypeName { get; set; } = string.Empty;
+    public AssetGroup AssetGroup { get; set; }
+    public string AssetGroupName { get; set; } = string.Empty;
     public decimal Balance { get; set; }
     public int WalletIdentifierCount { get; set; }
     public int TransactionCount { get; set; }
@@ -57,9 +57,9 @@ public class CompanyPoolActivity
     public decimal BalanceChangeLast30Days { get; set; }
     
     /// <summary>
-    /// Most active asset type by transaction count
+    /// Most active asset group by transaction count
     /// </summary>
-    public AssetType? MostActiveAssetType { get; set; }
+    public AssetGroup? MostActiveAssetGroup { get; set; }
     
     /// <summary>
     /// Largest single transaction amount in the last 30 days

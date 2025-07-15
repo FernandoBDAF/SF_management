@@ -17,27 +17,31 @@ public class WalletIdentifierValidationService
                 $"Expected AssetGroup: '{GetExpectedAssetGroup(walletIdentifier.AssetType)}'");
         }
         
-        // Validate metadata based on asset group
-        if (!walletIdentifier.ValidateMetadata())
+        // Validate metadata based on the AssetPool's AssetGroup, not the wallet's computed AssetGroup
+        var assetPoolGroup = walletIdentifier.AssetPool?.AssetGroup;
+        if (assetPoolGroup.HasValue)
         {
-            result.AddError("Metadata", $"Invalid metadata for {walletIdentifier.AssetGroup}");
-        }
-        
-        // Additional validation based on asset group
-        switch (walletIdentifier.AssetGroup)
-        {
-            case AssetGroup.FiatAssets:
-                ValidateBankWalletSpecific(walletIdentifier, result);
-                break;
-            case AssetGroup.PokerAssets:
-                ValidatePokerWalletSpecific(walletIdentifier, result);
-                break;
-            case AssetGroup.CryptoAssets:
-                ValidateCryptoWalletSpecific(walletIdentifier, result);
-                break;
-            case AssetGroup.Internal:
-                ValidateInternalWalletSpecific(walletIdentifier, result);
-                break;
+            if (!ValidateMetadataForAssetGroup(walletIdentifier, assetPoolGroup.Value))
+            {
+                result.AddError("Metadata", $"Invalid metadata for {assetPoolGroup.Value}");
+            }
+            
+            // Additional validation based on AssetPool's asset group
+            switch (assetPoolGroup.Value)
+            {
+                case AssetGroup.FiatAssets:
+                    ValidateBankWalletSpecific(walletIdentifier, result);
+                    break;
+                case AssetGroup.PokerAssets:
+                    ValidatePokerWalletSpecific(walletIdentifier, result);
+                    break;
+                case AssetGroup.CryptoAssets:
+                    ValidateCryptoWalletSpecific(walletIdentifier, result);
+                    break;
+                case AssetGroup.Internal:
+                    ValidateInternalWalletSpecific(walletIdentifier, result);
+                    break;
+            }
         }
         
         return result;
@@ -50,6 +54,10 @@ public class WalletIdentifierValidationService
     {
         if (!assetGroup.HasValue)
             return false;
+            
+        // Internal AssetGroup can accept any AssetType since it represents company-owned wallets
+        if (assetGroup.Value == AssetGroup.Internal)
+            return true;
             
         var expectedAssetGroup = GetExpectedAssetGroup(assetType);
         return expectedAssetGroup == assetGroup.Value;
@@ -93,6 +101,14 @@ public class WalletIdentifierValidationService
     public static AssetGroup GetAssetGroupForAssetType(AssetType assetType)
     {
         return GetExpectedAssetGroup(assetType);
+    }
+    
+    /// <summary>
+    /// Validates metadata for a specific asset group
+    /// </summary>
+    private static bool ValidateMetadataForAssetGroup(WalletIdentifier walletIdentifier, AssetGroup assetGroup)
+    {
+        return walletIdentifier.ValidateMetadataForAssetGroup(assetGroup);
     }
     
     private void ValidateBankWalletSpecific(WalletIdentifier walletIdentifier, ValidationResult result)

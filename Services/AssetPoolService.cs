@@ -241,17 +241,17 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             TotalPools = companyPools.Count
         };
         
-        // Calculate balances and metrics for each asset type
+        // Calculate balances and metrics for each asset group
         foreach (var pool in companyPools)
         {
             var balance = await GetAssetPoolBalance(pool.Id);
             var transactionCount = await GetAssetPoolTransactionCount(pool.Id);
             var lastTransactionDate = await GetLastTransactionDate(pool.Id);
             
-            summary.AssetTypeBalances.Add(new CompanyAssetTypeBalance
+            summary.AssetGroupBalances.Add(new CompanyAssetGroupBalance
             {
-                AssetType = (AssetType)pool.AssetGroup,
-                AssetTypeName = pool.AssetGroup.ToString(),
+                AssetGroup = pool.AssetGroup,
+                AssetGroupName = pool.AssetGroup.ToString(),
                 Balance = balance,
                 WalletIdentifierCount = pool.WalletIdentifiers.Count,
                 TransactionCount = transactionCount,
@@ -304,15 +304,15 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
                 summary.LargestTransaction = poolData.LargestTransaction;
         }
 
-        // Calculate averages and most active asset type
+        // Calculate averages and most active asset group
         if (summary.TotalTransactionCount > 0)
         {
             summary.AverageTransactionAmount = summary.TotalTransactionVolume / summary.TotalTransactionCount;
         }
 
-        summary.MostActiveAssetType = assetPoolData
+        summary.MostActiveAssetGroup = assetPoolData
             .OrderByDescending(p => p.TransactionCount)
-            .FirstOrDefault()?.AssetType;
+            .FirstOrDefault()?.AssetGroup;
 
         response.Summary = summary;
         response.AssetPoolData = assetPoolData;
@@ -369,8 +369,8 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
         var poolData = new CompanyAssetPoolPeriodData
         {
             AssetPoolId = pool.Id,
-            AssetType = (AssetType)pool.AssetGroup,
-            AssetTypeName = pool.AssetGroup.ToString(),
+            AssetGroup = pool.AssetGroup,
+            AssetGroupName = pool.AssetGroup.ToString(),
             WalletIdentifierCount = walletIdentifierIds.Count
         };
 
@@ -789,7 +789,7 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             .OrderByDescending(x => x.Count)
             .FirstOrDefault();
 
-        activity.MostActiveAssetType = (AssetType?)assetGroupActivity?.AssetGroup;
+        activity.MostActiveAssetGroup = assetGroupActivity?.AssetGroup;
 
         return activity;
     }

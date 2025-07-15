@@ -18,5 +18,5 @@ public class AssetPoolRequest
     public Guid BaseAssetHolderId { get; set; }
     
     [Required]
-    public AssetType AssetType { get; set; }
+    public AssetGroup AssetGroup { get; set; }
 }

@@ -6,7 +6,7 @@ namespace SFManagement.ViewModels;
 
 public class AssetPoolResponse : BaseResponse
 {
-    public AssetType AssetType { get; set; }
+    public AssetGroup AssetGroup { get; set; }
     
     public decimal? DefaultAgreedCommission { get; set; }
     

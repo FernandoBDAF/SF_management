@@ -3,13 +3,13 @@ using System.Text.Json;
 using SFManagement.Models.Support;
 using SFManagement.Enums;
 using SFManagement.Enums.WalletsMetadata;
-
+using System.ComponentModel.DataAnnotations;
 
 namespace SFManagement.Models.AssetInfrastructure;
 
 public class WalletIdentifier : BaseDomain
 {
-    public Guid AssetPoolId { get; set; }
+    [Required] public Guid AssetPoolId { get; set; }
     public virtual AssetPool AssetPool { get; set; }
     
     /// <summary>
@@ -19,9 +19,9 @@ public class WalletIdentifier : BaseDomain
     /// </summary>
     public virtual ICollection<Referral> Referrals { get; set; } = new HashSet<Referral>();
     
-    public AccountClassification AccountClassification { get; set; }
+    [Required] public AccountClassification AccountClassification { get; set; }
 
-    public AssetType AssetType { get; set; }
+    [Required] public AssetType AssetType { get; set; }
     
     // Store metadata as JSON string in database
     [Column(TypeName = "nvarchar(2000)")]
@@ -135,6 +135,21 @@ public class WalletIdentifier : BaseDomain
     public bool ValidateMetadata()
     {
         return AssetGroup switch
+        {
+            AssetGroup.FiatAssets => ValidateBankWalletMetadata(),
+            AssetGroup.PokerAssets => ValidatePokerWalletMetadata(),
+            AssetGroup.CryptoAssets => ValidateCryptoWalletMetadata(),
+            AssetGroup.Internal => true, // Internal wallets require no metadata validation
+            _ => false
+        };
+    }
+    
+    /// <summary>
+    /// Validates metadata for a specific asset group (used by validation service)
+    /// </summary>
+    public bool ValidateMetadataForAssetGroup(AssetGroup assetGroup)
+    {
+        return assetGroup switch
         {
             AssetGroup.FiatAssets => ValidateBankWalletMetadata(),
             AssetGroup.PokerAssets => ValidatePokerWalletMetadata(),

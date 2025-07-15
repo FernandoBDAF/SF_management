@@ -1,5 +1,3 @@
-using SFManagement.Models;
-using SFManagement.Models.Entities;
 using SFManagement.Enums;
 
 namespace SFManagement.ViewModels;

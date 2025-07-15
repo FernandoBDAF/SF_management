@@ -9,7 +9,7 @@ namespace SFManagement.ViewModels;
 public class CompanyAssetPoolRequest
 {
     [Required]
-    public AssetType AssetType { get; set; }
+    public AssetGroup AssetGroup { get; set; }
     
     /// <summary>
     /// Optional description for the company pool purpose

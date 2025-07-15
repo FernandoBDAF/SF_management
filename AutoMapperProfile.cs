@@ -108,6 +108,12 @@ public class AutoMapperProfile : Profile
         CreateMap<WalletIdentifierRequest, WalletIdentifier>()
             .AfterMap((src, dest, context) =>
             {
+                // Always ensure MetadataJson is initialized
+                if (string.IsNullOrEmpty(dest.MetadataJson))
+                {
+                    dest.MetadataJson = "{}";
+                }
+                
                 // If individual metadata fields are provided, use them to construct the metadata
                 // This takes precedence over the raw MetadataJson
                 if (HasIndividualMetadataFields(src))
@@ -125,47 +131,62 @@ public class AutoMapperProfile : Profile
                         accountType: src.AccountType
                     );
                 }
+                else
+                {
+                    // Even if no individual fields are provided, call SetMetadataFromFields 
+                    // to ensure proper initialization based on AssetGroup
+                    dest.SetMetadataFromFields();
+                }
             });
 
         CreateMap<FiatAssetTransaction, FiatAssetTransactionResponse>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => "FiatAsset"))
-            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetType))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier != null ? src.SenderWalletIdentifier.AssetType : AssetType.None))
             .ForMember(dest => dest.IsInternalTransfer, opt => opt.MapFrom(src => src.IsInternalTransfer))
             .AfterMap((src, dest, context) =>
             {
-                // Map sender wallet summary
-                dest.SenderWallet = MapWalletIdentifierSummary(src.SenderWalletIdentifier);
-                
-                // Map receiver wallet summary
-                dest.ReceiverWallet = MapWalletIdentifierSummary(src.ReceiverWalletIdentifier);
-                
-                
-                // Map bank info from sender or receiver (prioritize sender)
-                var bankWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.FiatAssets 
-                    ? src.SenderWalletIdentifier 
-                    : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.FiatAssets 
-                        ? src.ReceiverWalletIdentifier 
-                        : null;
-                        
-                if (bankWallet != null)
+                // Add null checks for navigation properties
+                if (src.SenderWalletIdentifier != null && src.ReceiverWalletIdentifier != null)
                 {
-                    dest.BankInfo = new BankTransactionInfo
-                    {
-                        BankName = bankWallet.AssetPool?.BaseAssetHolder?.Name,
-                        AccountNumber = bankWallet.GetBankMetadata(BankWalletMetadata.AccountNumber),
-                        RoutingNumber = bankWallet.GetBankMetadata(BankWalletMetadata.RoutingNumber),
-                        AccountType = bankWallet.GetBankMetadata(BankWalletMetadata.AccountType)
-                    };
+                    // Map sender wallet summary
+                    dest.SenderWallet = MapWalletIdentifierSummary(src.SenderWalletIdentifier);
                     
-                    var pixKey = bankWallet.GetBankMetadata(BankWalletMetadata.PixKey);
-                    if (!string.IsNullOrEmpty(pixKey))
+                    // Map receiver wallet summary
+                    dest.ReceiverWallet = MapWalletIdentifierSummary(src.ReceiverWalletIdentifier);
+                    
+                    // Map bank info from sender or receiver (prioritize sender)
+                    var bankWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.FiatAssets 
+                        ? src.SenderWalletIdentifier 
+                        : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.FiatAssets 
+                            ? src.ReceiverWalletIdentifier 
+                            : null;
+                            
+                    if (bankWallet != null)
                     {
-                        dest.PixInfo = new PixTransactionInfo
+                        dest.BankInfo = new BankTransactionInfo
                         {
-                            PixKey = pixKey,
-                            PixKeyType = DeterminePixKeyType(pixKey)
+                            BankName = bankWallet.AssetPool?.BaseAssetHolder?.Name,
+                            AccountNumber = bankWallet.GetBankMetadata(BankWalletMetadata.AccountNumber),
+                            RoutingNumber = bankWallet.GetBankMetadata(BankWalletMetadata.RoutingNumber),
+                            AccountType = bankWallet.GetBankMetadata(BankWalletMetadata.AccountType)
                         };
+                        
+                        var pixKey = bankWallet.GetBankMetadata(BankWalletMetadata.PixKey);
+                        if (!string.IsNullOrEmpty(pixKey))
+                        {
+                            dest.PixInfo = new PixTransactionInfo
+                            {
+                                PixKey = pixKey,
+                                PixKeyType = DeterminePixKeyType(pixKey)
+                            };
+                        }
                     }
+                }
+                else
+                {
+                    // Set default values when navigation properties are not loaded
+                    dest.SenderWallet = new WalletIdentifierSummary();
+                    dest.ReceiverWallet = new WalletIdentifierSummary();
                 }
             });
             
@@ -173,62 +194,72 @@ public class AutoMapperProfile : Profile
 
         CreateMap<DigitalAssetTransaction, DigitalAssetTransactionResponse>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => "DigitalAsset"))
-            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetType))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier != null ? src.SenderWalletIdentifier.AssetType : AssetType.None))
             .ForMember(dest => dest.IsInternalTransfer, opt => opt.MapFrom(src => src.IsInternalTransfer))
             .AfterMap((src, dest, context) =>
             {
-                // Map sender wallet summary
-                dest.SenderWallet = MapWalletIdentifierSummary(src.SenderWalletIdentifier);
-                
-                // Map receiver wallet summary
-                dest.ReceiverWallet = MapWalletIdentifierSummary(src.ReceiverWalletIdentifier);
-                
-                // Map poker info from sender or receiver (prioritize sender)
-                var pokerWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.PokerAssets 
-                    ? src.SenderWalletIdentifier 
-                    : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.PokerAssets 
-                        ? src.ReceiverWalletIdentifier 
-                        : null;
-                        
-                if (pokerWallet != null)
+                // Add null checks for navigation properties
+                if (src.SenderWalletIdentifier != null && src.ReceiverWalletIdentifier != null)
                 {
-                    dest.PokerInfo = new PokerTransactionInfo
+                    // Map sender wallet summary
+                    dest.SenderWallet = MapWalletIdentifierSummary(src.SenderWalletIdentifier);
+                    
+                    // Map receiver wallet summary
+                    dest.ReceiverWallet = MapWalletIdentifierSummary(src.ReceiverWalletIdentifier);
+                    
+                    // Map poker info from sender or receiver (prioritize sender)
+                    var pokerWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.PokerAssets 
+                        ? src.SenderWalletIdentifier 
+                        : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.PokerAssets 
+                            ? src.ReceiverWalletIdentifier 
+                            : null;
+                            
+                    if (pokerWallet != null)
                     {
-                        PlayerNickname = pokerWallet.GetPokerMetadata(PokerWalletMetadata.PlayerNickname),
-                        PlayerEmail = pokerWallet.GetPokerMetadata(PokerWalletMetadata.PlayerEmail),
-                        AccountStatus = pokerWallet.GetPokerMetadata(PokerWalletMetadata.AccountStatus),
-                        PokerSite = GetPokerSiteFromAssetType(pokerWallet.AssetType)
-                    };
+                        dest.PokerInfo = new PokerTransactionInfo
+                        {
+                            PlayerNickname = pokerWallet.GetPokerMetadata(PokerWalletMetadata.PlayerNickname),
+                            PlayerEmail = pokerWallet.GetPokerMetadata(PokerWalletMetadata.PlayerEmail),
+                            AccountStatus = pokerWallet.GetPokerMetadata(PokerWalletMetadata.AccountStatus),
+                            PokerSite = GetPokerSiteFromAssetType(pokerWallet.AssetType)
+                        };
+                    }
+                    
+                    // Map crypto info from sender or receiver (prioritize sender)
+                    var cryptoWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.CryptoAssets 
+                        ? src.SenderWalletIdentifier 
+                        : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.CryptoAssets 
+                            ? src.ReceiverWalletIdentifier 
+                            : null;
+                            
+                    if (cryptoWallet != null)
+                    {
+                        dest.CryptoInfo = new CryptoTransactionInfo
+                        {
+                            WalletAddress = cryptoWallet.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress),
+                            WalletCategory = cryptoWallet.GetCryptoMetadata(CryptoWalletMetadata.WalletCategory),
+                            NetworkType = cryptoWallet.GetCryptoMetadata(CryptoWalletMetadata.NetworkType)
+                        };
+                    }
+                    
+                    // Map conversion details if this is a conversion transaction
+                    if (src.BalanceAs.HasValue && src.ConversionRate.HasValue)
+                    {
+                        dest.ConversionDetails = new ConversionDetails
+                        {
+                            FromAsset = src.SenderWalletIdentifier.AssetType,
+                            ToAsset = src.BalanceAs.Value,
+                            FromAmount = src.AssetAmount,
+                            ToAmount = src.AssetAmount * src.ConversionRate.Value,
+                            ExchangeRate = src.ConversionRate.Value
+                        };
+                    }
                 }
-                
-                // Map crypto info from sender or receiver (prioritize sender)
-                var cryptoWallet = src.SenderWalletIdentifier.AssetGroup == AssetGroup.CryptoAssets 
-                    ? src.SenderWalletIdentifier 
-                    : src.ReceiverWalletIdentifier.AssetGroup == AssetGroup.CryptoAssets 
-                        ? src.ReceiverWalletIdentifier 
-                        : null;
-                        
-                if (cryptoWallet != null)
+                else
                 {
-                    dest.CryptoInfo = new CryptoTransactionInfo
-                    {
-                        WalletAddress = cryptoWallet.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress),
-                        WalletCategory = cryptoWallet.GetCryptoMetadata(CryptoWalletMetadata.WalletCategory),
-                        NetworkType = cryptoWallet.GetCryptoMetadata(CryptoWalletMetadata.NetworkType)
-                    };
-                }
-                
-                // Map conversion details if this is a conversion transaction
-                if (src.BalanceAs.HasValue && src.ConversionRate.HasValue)
-                {
-                    dest.ConversionDetails = new ConversionDetails
-                    {
-                        FromAsset = src.SenderWalletIdentifier.AssetType,
-                        ToAsset = src.BalanceAs.Value,
-                        FromAmount = src.AssetAmount,
-                        ToAmount = src.AssetAmount * src.ConversionRate.Value,
-                        ExchangeRate = src.ConversionRate.Value
-                    };
+                    // Set default values when navigation properties are not loaded
+                    dest.SenderWallet = new WalletIdentifierSummary();
+                    dest.ReceiverWallet = new WalletIdentifierSummary();
                 }
             });
             
@@ -244,22 +275,32 @@ public class AutoMapperProfile : Profile
 
         CreateMap<SettlementTransaction, SettlementTransactionResponse>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => "Settlement"))
-            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier.AssetType))
+            .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.SenderWalletIdentifier != null ? src.SenderWalletIdentifier.AssetType : AssetType.None))
             .ForMember(dest => dest.IsInternalTransfer, opt => opt.MapFrom(src => src.IsInternalTransfer))
             .AfterMap((src, dest, context) =>
             {
-                // Map sender wallet summary
-                dest.SenderWallet = MapWalletIdentifierSummary(src.SenderWalletIdentifier);
-                
-                // Map receiver wallet summary
-                dest.ReceiverWallet = MapWalletIdentifierSummary(src.ReceiverWalletIdentifier);
-                
-                // Map settlement details
-                dest.SettlementInfo = new SettlementDetails
+                // Add null checks for navigation properties
+                if (src.SenderWalletIdentifier != null && src.ReceiverWalletIdentifier != null)
                 {
-                    SettlementType = "Poker Settlement",
-                    // Additional settlement details can be added here based on business requirements
-                };
+                    // Map sender wallet summary
+                    dest.SenderWallet = MapWalletIdentifierSummary(src.SenderWalletIdentifier);
+                    
+                    // Map receiver wallet summary
+                    dest.ReceiverWallet = MapWalletIdentifierSummary(src.ReceiverWalletIdentifier);
+                    
+                    // Map settlement details
+                    dest.SettlementInfo = new SettlementDetails
+                    {
+                        SettlementType = "Poker Settlement",
+                        // Additional settlement details can be added here based on business requirements
+                    };
+                }
+                else
+                {
+                    // Set default values when navigation properties are not loaded
+                    dest.SenderWallet = new WalletIdentifierSummary();
+                    dest.ReceiverWallet = new WalletIdentifierSummary();
+                }
             });
             
         CreateMap<SettlementTransactionRequest, SettlementTransaction>();
@@ -345,6 +386,12 @@ public class AutoMapperProfile : Profile
     /// </summary>
     private static WalletIdentifierSummary MapWalletIdentifierSummary(WalletIdentifier walletIdentifier)
     {
+        // Add null check for the walletIdentifier itself
+        if (walletIdentifier == null)
+        {
+            return new WalletIdentifierSummary();
+        }
+
         var summary = new WalletIdentifierSummary
         {
             Id = walletIdentifier.Id,
@@ -354,26 +401,35 @@ public class AutoMapperProfile : Profile
         };
 
         // Map asset holder information (null for company pools)
-        if (walletIdentifier.AssetPool.BaseAssetHolder != null)
+        if (walletIdentifier.AssetPool?.BaseAssetHolder != null)
         {
+            var baseAssetHolder = walletIdentifier.AssetPool.BaseAssetHolder;
             summary.AssetHolder = new AssetHolderSummary
             {
-                Id = walletIdentifier.AssetPool.BaseAssetHolder.Id,
-                Name = walletIdentifier.AssetPool.BaseAssetHolder.Name,
-                AssetHolderType = walletIdentifier.AssetPool.BaseAssetHolder.AssetHolderType,
+                Id = baseAssetHolder.Id,
+                Name = baseAssetHolder.Name,
+                AssetHolderType = baseAssetHolder.AssetHolderType,
                 Email = null
             };
         }
 
-        // Set display metadata based on wallet type
-        summary.DisplayMetadata = walletIdentifier.AssetGroup switch
+        // Set display metadata based on wallet type - add null checks for metadata methods
+        try
         {
-            AssetGroup.FiatAssets => walletIdentifier.GetBankMetadata(BankWalletMetadata.AccountNumber),
-            AssetGroup.PokerAssets => walletIdentifier.GetPokerMetadata(PokerWalletMetadata.PlayerNickname),
-            AssetGroup.CryptoAssets => walletIdentifier.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress),
-            AssetGroup.Internal => "Internal Wallet",
-            _ => null
-        };
+            summary.DisplayMetadata = walletIdentifier.AssetGroup switch
+            {
+                AssetGroup.FiatAssets => walletIdentifier.GetBankMetadata(BankWalletMetadata.PixKey),
+                AssetGroup.PokerAssets => walletIdentifier.GetPokerMetadata(PokerWalletMetadata.InputForTransactions),
+                AssetGroup.CryptoAssets => walletIdentifier.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress),
+                AssetGroup.Internal => "Internal Wallet",
+                _ => null
+            };
+        }
+        catch
+        {
+            // If metadata access fails, set to null
+            summary.DisplayMetadata = null;
+        }
 
         return summary;
     }
