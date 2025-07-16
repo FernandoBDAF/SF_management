@@ -71,7 +71,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Get wallet identifiers connected to other asset holders
     /// </summary>
     [HttpGet("{id}/wallet-identifiers-connected")]
-    [RequirePermission("read:wallet-identifiers")]
+    // [RequirePermission("read:wallet-identifiers")]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(WalletIdentifiersConnectedResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -155,6 +155,34 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
         }
     }
 
+
+    /// <summary>
+    /// Gets balance by asset group for the poker manager
+    /// </summary>
+    [HttpGet("{id}/balance")]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    [ProducesResponseType(typeof(Dictionary<string, decimal>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public override async Task<IActionResult> GetBalance(Guid id)
+    {
+        try
+        {
+            var balancesByAssetGroup = await _pokerManagerService.GetBalancesByAssetGroup(id);
+            
+            // Convert AssetGroup enum keys to strings for the response
+            var response = balancesByAssetGroup.ToDictionary(
+                kvp => kvp.Key.ToString(),
+                kvp => kvp.Value
+            );
+            
+            return Ok(response);
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("retrieving balance for");
+        }
+    }
+    
     // [HttpGet]
     // [Route("profit/{managerId}")]
     // public async Task<ProfitResponse> Profit(Guid managerId, DateTime? start, DateTime? end)

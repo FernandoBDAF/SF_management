@@ -499,7 +499,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.SenderWalletIdentifier.AssetType;
 
                     if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += signedAmount * (100 - tx.Rate.Value) / 100;
+            balances[assetType] += signedAmount * (100 - (tx.Rate ?? 0)) / 100;
         }
 
         // Process SettlementTransactions
@@ -520,6 +520,129 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             
                 if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
             balances[assetType] += signedAmount;
+        }
+
+        return balances;
+    }
+    
+    public async Task<Dictionary<AssetGroup, decimal>> GetBalancesByAssetGroup(Guid baseAssetHolderId)
+    {
+        var balances = new Dictionary<AssetGroup, decimal>();
+
+        var assetHolder = await context.BaseAssetHolders
+            .Include(bah => bah.InitialBalances)
+            .FirstOrDefaultAsync(bah => bah.Id == baseAssetHolderId && !bah.DeletedAt.HasValue);
+
+        if (assetHolder != null)
+        {
+            foreach (var initialBalance in assetHolder.InitialBalances)
+            {
+                if (initialBalance.AssetGroup != AssetGroup.None && initialBalance.AssetType == AssetType.None)
+                    balances[initialBalance.AssetGroup] = initialBalance.Balance;
+            }
+        }
+
+        var walletIdentifiers = await context.WalletIdentifiers
+            .Include(wi => wi.AssetPool)
+            .Where(wi => wi.AssetPool.BaseAssetHolderId == baseAssetHolderId && !wi.DeletedAt.HasValue)
+            .ToListAsync();
+
+        var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();
+        
+        if (!walletIdentifierIds.Any())
+            return balances;
+
+        // Get all transactions for these wallet identifiers
+        var fiatTransactions = await context.FiatAssetTransactions
+            .Where(ft => !ft.DeletedAt.HasValue && 
+                        (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) || 
+                         walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)))
+            .Include(ft => ft.SenderWalletIdentifier)
+            .Include(ft => ft.ReceiverWalletIdentifier)
+            .ToListAsync();
+
+        var digitalTransactions = await context.DigitalAssetTransactions
+            .Where(dt => !dt.DeletedAt.HasValue && 
+                        (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) || 
+                         walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)))
+            .Include(dt => dt.SenderWalletIdentifier)
+            .Include(dt => dt.ReceiverWalletIdentifier)
+            .ToListAsync();
+
+        var settlementTransactions = await context.SettlementTransactions
+            .Where(st => !st.DeletedAt.HasValue && 
+                        (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) || 
+                         walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))
+            .Include(st => st.SenderWalletIdentifier)
+            .Include(st => st.ReceiverWalletIdentifier)
+            .ToListAsync();
+
+        // Process FiatAssetTransactions
+        foreach (var tx in fiatTransactions)
+        {
+            var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
+                tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
+            
+            var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
+            if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
+            {
+                signedAmount = -signedAmount;
+            }
+            
+            var assetGroup = tx.IsReceiver(relevantWalletId) ?
+                tx.ReceiverWalletIdentifier.AssetGroup :
+                tx.SenderWalletIdentifier.AssetGroup;
+            
+            if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
+            balances[assetGroup] += signedAmount;
+        }
+
+        // Process DigitalAssetTransactions
+        foreach (var tx in digitalTransactions)
+        {
+            var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
+                tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
+            
+            var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
+            if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
+            {
+                signedAmount = -signedAmount;
+            }
+            
+            if (tx.BalanceAs != null && tx.ConversionRate != null)
+            {
+                var balanceAsGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(tx.BalanceAs.Value);
+                if (!balances.ContainsKey(balanceAsGroup)) balances[balanceAsGroup] = 0;
+                balances[balanceAsGroup] -= signedAmount * tx.ConversionRate.Value;
+                continue;
+            }
+                
+            var assetGroup = tx.IsReceiver(relevantWalletId) ?
+                tx.ReceiverWalletIdentifier.AssetGroup :
+                tx.SenderWalletIdentifier.AssetGroup;
+
+            if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
+            balances[assetGroup] += signedAmount * (100 - (tx.Rate ?? 0)) / 100;
+        }
+
+        // Process SettlementTransactions
+        foreach (var tx in settlementTransactions)
+        {
+            var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
+                tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
+            
+            var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
+            if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
+            {
+                signedAmount = -signedAmount;
+            }
+            
+            var assetGroup = tx.IsReceiver(relevantWalletId) ?
+                tx.ReceiverWalletIdentifier.AssetGroup :
+                tx.SenderWalletIdentifier.AssetGroup;
+            
+            if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
+            balances[assetGroup] += signedAmount;
         }
 
         return balances;

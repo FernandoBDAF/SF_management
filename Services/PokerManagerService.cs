@@ -98,6 +98,19 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
         return groupedWalletIdentifiers;
     }
 
+    // public new async Task<Dictionary<AssetGroup, decimal>> GetBalancesByAssetGroup(Guid pokerManagerId)
+    // {
+    //     // Get the poker manager to get the BaseAssetHolderId
+    //     var pokerManager = await context.PokerManagers
+    //         .FirstOrDefaultAsync(pm => pm.BaseAssetHolderId == pokerManagerId && !pm.DeletedAt.HasValue);
+        
+    //     if (pokerManager == null)
+    //         throw new ArgumentException($"PokerManager not found: {pokerManagerId}");
+        
+    //     // Call the base class method with the BaseAssetHolderId
+    //     return await base.GetBalancesByAssetGroup(pokerManager.BaseAssetHolderId);
+    // }
+
     // public async Task<BalanceResponse> GetBalance(Guid managerId, DateTime? date)
     // {
     //     // var now = DateTime.Now;
