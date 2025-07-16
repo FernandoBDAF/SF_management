@@ -1,53 +1,41 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SFManagement.Models;
+using SFManagement.Controllers;
+using SFManagement.Enums;
+using SFManagement.Models.Entities;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class BankController : BaseApiController<Bank, BankRequest, BankResponse>
+public class BankController : BaseAssetHolderController<Bank, BankRequest, BankResponse>
 {
     private readonly BankService _bankService;
-    private readonly TransactionService _transactionService;
+    private readonly WalletIdentifierService _walletIdentifierService;
 
-    public BankController(BaseService<Bank> service, IMapper mapper, BankService bankService,
-        TransactionService transactionService) : base(service, mapper)
+    public BankController(BankService service, IMapper mapper, ILogger<BaseAssetHolderController<Bank, BankRequest, BankResponse>> logger,
+        WalletIdentifierService walletIdentifierService) 
+        : base(service, walletIdentifierService, mapper, logger)
     {
-        _bankService = bankService;
-        _transactionService = transactionService;
+        _bankService = service;
     }
 
-    [HttpGet]
-    [Route("balance/{bankId}")]
-    // [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
-    public async Task<BalanceResponse> Balance(Guid bankId)
+    /// <summary>
+    /// Creates an entity from request - Bank-specific implementation
+    /// </summary>
+    protected override async Task<Bank> CreateEntityFromRequest(BankRequest request)
     {
-        return await _bankService.GetBalance(bankId, null);
+        return await _bankService.AddFromRequest(request);
     }
 
-    [HttpPost]
-    [Route("balance/{bankId}")]
-    public async Task<BalanceResponse> Balance(Guid bankId, BalanceRequest request)
+    /// <summary>
+    /// Updates an entity from request - Bank-specific implementation
+    /// </summary>
+    protected override async Task<Bank> UpdateEntityFromRequest(Guid id, BankRequest request)
     {
-        return await _bankService.GetBalance(bankId, request.Date);
-    }
-
-    [HttpGet]
-    [Route("transactions/{bankId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid bankId, DateTime? startDate = null,
-        DateTime? endDate = null, int? quantity = 100, int? page = 0)
-    {
-        return await _transactionService.GetBankTransactions(bankId, startDate, endDate, quantity.Value, page.Value);
-    }
-
-    [HttpGet]
-    [Route("transactions/{bankId}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid bankId, int? quantity = 100, int? page = 0)
-    {
-        return await _transactionService.GetBankTransactions(bankId, null, null, quantity.Value, page.Value);
+        return await _bankService.UpdateFromRequest(id, request);
     }
 }

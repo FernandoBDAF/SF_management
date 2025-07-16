@@ -1,32 +1,15 @@
-﻿namespace SFManagement.ViewModels;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class ClientRequest
+namespace SFManagement.ViewModels;
+
+public class ClientRequest : BaseAssetHolderRequest
 {
-    public string? Name { get; set; }
-
-    public string? Phone { get; set; }
-
-    public string? CPF { get; set; }
-
-    public string? Cep { get; set; }
-
-    public string? Address { get; set; }
-
-    public string? District { get; set; }
-
-    public string? City { get; set; }
-
-    public string? State { get; set; }
-
-    public string? Complement { get; set; }
-
-    public string? AddressNumber { get; set; }
-
-    public string? Email { get; set; }
-
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     public DateTime? Birthday { get; set; }
-
-    public decimal? InitialValue { get; set; }
-
-    public DateTime? Date { get; set; }
+    
+    /// <summary>
+    /// Validates that the birthday is not in the future
+    /// </summary>
+    public bool IsValidBirthday => !Birthday.HasValue || Birthday.Value <= DateTime.Now;
 }

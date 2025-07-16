@@ -12,10 +12,10 @@ public class WalletTransactionApproveRequestValidator : AbstractValidator<Wallet
 
         RuleFor(x => x.NicknameId).NotEmpty();
 
-        RuleFor(x => x).Custom((obj, context) =>
-        {
-            if (obj.TagId == null && obj.ClientId == null && obj.WalletId == null)
-                context.AddFailure("Need send TagId or ClientId or WalletId.");
-        });
+        // RuleFor(x => x).Custom((obj, context) =>
+        // {
+        //     if (obj.TagId == null && obj.ClientId == null && obj.WalletId == null)
+        //         context.AddFailure("Need send TagId or ClientId or WalletId.");
+        // });
     }
 }

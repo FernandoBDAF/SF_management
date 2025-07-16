@@ -22,296 +22,556 @@ namespace SFManagement.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("SFManagement.Models.ApplicationRole", b =>
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetPool", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("SFManagement.Models.ApplicationUser", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AccessFailedCount")
+                    b.Property<int>("AssetGroup")
                         .HasColumnType("int");
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RefreshTokenExpiryTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("SFManagement.Models.AvgRate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid?>("BaseAssetHolderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ManagerId")
+                    b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Value")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ManagerId");
+                    b.HasIndex("AssetGroup")
+                        .HasDatabaseName("IX_AssetPool_AssetGroup");
 
-                    b.ToTable("AvgRates");
+                    b.HasIndex("BaseAssetHolderId")
+                        .HasDatabaseName("IX_AssetPool_BaseAssetHolderId");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_AssetPool_DeletedAt");
+
+                    b.HasIndex("BaseAssetHolderId", "AssetGroup")
+                        .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetGroup");
+
+                    b.ToTable("AssetPools", (string)null);
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Bank", b =>
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.WalletIdentifier", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccountClassification")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("AssetPoolId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AssetType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MetadataJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetPoolId")
+                        .HasDatabaseName("IX_WalletIdentifier_AssetPoolId");
+
+                    b.HasIndex("AssetType")
+                        .HasDatabaseName("IX_WalletIdentifier_AssetType");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_WalletIdentifier_DeletedAt");
+
+                    b.ToTable("WalletIdentifiers", (string)null);
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.Bank", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseAssetHolderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("EditorId")
+                    b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("InitialValue")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Banks");
+                    b.HasIndex("BaseAssetHolderId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Bank_BaseAssetHolderId");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Bank_Code_Active")
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_Bank_DeletedAt");
+
+                    b.ToTable("Banks", (string)null);
                 });
 
-            modelBuilder.Entity("SFManagement.Models.BankTransaction", b =>
+            modelBuilder.Entity("SFManagement.Models.Entities.BaseAssetHolder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Cnpj")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Cpf")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<Guid?>("ReferrerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Cnpj")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_BaseAssetHolder_Cnpj")
+                        .HasFilter("[Cnpj] IS NOT NULL");
+
+                    b.HasIndex("Cpf")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_BaseAssetHolder_Cpf")
+                        .HasFilter("[Cpf] IS NOT NULL");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_BaseAssetHolder_DeletedAt");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_BaseAssetHolder_Name");
+
+                    b.HasIndex("ReferrerId")
+                        .HasDatabaseName("IX_BaseAssetHolder_ReferrerId");
+
+                    b.ToTable("BaseAssetHolders", (string)null);
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.Client", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseAssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("Birthday")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseAssetHolderId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Client_BaseAssetHolderId");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_Client_DeletedAt");
+
+                    b.ToTable("Clients", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Client_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
+                        });
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.Member", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseAssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("Birthday")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("Salary")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<double?>("Share")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("float(5)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseAssetHolderId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Member_BaseAssetHolderId");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_Member_DeletedAt");
+
+                    b.ToTable("Members", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Member_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
+
+                            t.HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 1");
+                        });
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.PokerManager", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseAssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("ManagerType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseAssetHolderId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PokerManager_BaseAssetHolderId");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_PokerManager_DeletedAt");
+
+                    b.ToTable("PokerManagers", (string)null);
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Support.Address", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseAssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Postcode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseAssetHolderId");
+
+                    b.ToTable("Addresses", (string)null);
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Support.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Categories", (string)null);
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Support.ContactPhone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("AreaCode")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("BaseAssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("CountryCode")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InputPhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("PhoneNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SearchFor")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseAssetHolderId");
+
+                    b.ToTable("ContactPhone", (string)null);
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Support.InitialBalance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AssetGroup")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssetType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("BalanceAs")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("BaseAssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("ConversionRate")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseAssetHolderId")
+                        .HasDatabaseName("IX_InitialBalance_BaseAssetHolderId");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_InitialBalance_DeletedAt");
+
+                    b.HasIndex("BaseAssetHolderId", "AssetGroup")
+                        .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_AssetGroup");
+
+                    b.HasIndex("BaseAssetHolderId", "AssetType")
+                        .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_AssetType");
+
+                    b.ToTable("InitialBalances", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)");
+
+                            t.HasCheckConstraint("CK_InitialBalance_AssetType_Or_AssetGroup_Required", "[AssetType] <> 0 OR [AssetGroup] <> 0");
+
+                            t.HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", "[ConversionRate] IS NULL OR [ConversionRate] > 0");
+                        });
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Support.Referral", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ActiveFrom")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ActiveUntil")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("AssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BaseAssetHolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("ParentCommission")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("WalletIdentifierId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetHolderId")
+                        .HasDatabaseName("IX_Referral_AssetHolderId");
+
+                    b.HasIndex("BaseAssetHolderId");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_Referral_DeletedAt");
+
+                    b.HasIndex("WalletIdentifierId")
+                        .HasDatabaseName("IX_Referral_WalletIdentifierId");
+
+                    b.HasIndex("WalletIdentifierId", "ActiveFrom", "ActiveUntil")
+                        .HasDatabaseName("IX_Referral_Wallet_ActivePeriod");
+
+                    b.ToTable("Referrals", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Referral_ActiveDates_Logical", "[ActiveFrom] IS NULL OR [ActiveUntil] IS NULL OR [ActiveFrom] <= [ActiveUntil]");
+
+                            t.HasCheckConstraint("CK_Referral_ParentCommission_Range", "[ParentCommission] IS NULL OR ([ParentCommission] >= 0 AND [ParentCommission] <= 100)");
+                        });
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Transactions.DigitalAssetTransaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -320,339 +580,310 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("ApprovedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<decimal>("AssetAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("BankId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("BankTransactionType")
+                    b.Property<int?>("BalanceAs")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("ClientId")
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("ConversionRate")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.Property<Guid?>("EditorId")
+                    b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("FitId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal?>("Rate")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
-                    b.Property<Guid?>("LinkedToId")
+                    b.Property<Guid>("ReceiverWalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ManagerId")
+                    b.Property<Guid>("SenderWalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("OfxId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TagDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Value")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankId");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("LinkedToId")
-                        .IsUnique()
-                        .HasFilter("[LinkedToId] IS NOT NULL");
-
-                    b.HasIndex("ManagerId");
-
-                    b.HasIndex("OfxId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("BankTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Client", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AddressNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Birthday")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CPF")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Cep")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Complement")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("District")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("InitialValue")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("State")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients");
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("Date")
+                        .HasDatabaseName("IX_DigitalAssetTransaction_Date");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_DigitalAssetTransaction_DeletedAt");
+
+                    b.HasIndex("ReceiverWalletIdentifierId", "Date")
+                        .HasDatabaseName("IX_DigitalAssetTransaction_Receiver_Date");
+
+                    b.HasIndex("SenderWalletIdentifierId", "Date")
+                        .HasDatabaseName("IX_DigitalAssetTransaction_Sender_Date");
+
+                    b.ToTable("DigitalAssetTransactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_DigitalAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+                            t.HasCheckConstraint("CK_DigitalAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+                            t.HasCheckConstraint("CK_DigitalAssetTransaction_Different_Sender_Receiver", "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+                        });
                 });
 
-            modelBuilder.Entity("SFManagement.Models.ClosingManager", b =>
+            modelBuilder.Entity("SFManagement.Models.Transactions.FiatAssetTransaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CalculatedAt")
+                    b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("AssetAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DoneAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.Property<Guid?>("EditorId")
+                    b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("End")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ManagerId")
+                    b.Property<Guid>("ReceiverWalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("RakeBruto")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("Start")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("TotalBalance")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalRakeDiscounts")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<Guid>("SenderWalletIdentifierId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ManagerId");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("ClosingManagers");
+                    b.HasIndex("Date")
+                        .HasDatabaseName("IX_FiatAssetTransaction_Date");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_FiatAssetTransaction_DeletedAt");
+
+                    b.HasIndex("ReceiverWalletIdentifierId", "Date")
+                        .HasDatabaseName("IX_FiatAssetTransaction_Receiver_Date");
+
+                    b.HasIndex("SenderWalletIdentifierId", "Date")
+                        .HasDatabaseName("IX_FiatAssetTransaction_Sender_Date");
+
+                    b.ToTable("FiatAssetTransactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_FiatAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+                            t.HasCheckConstraint("CK_FiatAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+                            t.HasCheckConstraint("CK_FiatAssetTransaction_Different_Sender_Receiver", "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+                        });
                 });
 
-            modelBuilder.Entity("SFManagement.Models.ClosingNickname", b =>
+            modelBuilder.Entity("SFManagement.Models.Transactions.ImportedTransaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("Balance")
+                    b.Property<decimal>("Amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("ClosingManagerId")
+                    b.Property<Guid>("BaseAssetHolderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("EditorId")
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ExternalReferenceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FileHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("FileMetadata")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<long?>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("FileType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("FatherNicknameId")
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProcessingError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("ReconciledAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ReconciledTransactionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("FatherPercentual")
+                    b.Property<int?>("ReconciledTransactionType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReconciliationNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseAssetHolderId")
+                        .HasDatabaseName("IX_ImportedTransaction_BaseAssetHolderId");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_ImportedTransaction_DeletedAt");
+
+                    b.HasIndex("ExternalReferenceId")
+                        .HasDatabaseName("IX_ImportedTransaction_ExternalReferenceId");
+
+                    b.HasIndex("FileName")
+                        .HasDatabaseName("IX_ImportedTransaction_FileName");
+
+                    b.HasIndex("FileType")
+                        .HasDatabaseName("IX_ImportedTransaction_FileType");
+
+                    b.HasIndex("ReconciledTransactionId")
+                        .HasDatabaseName("IX_ImportedTransaction_ReconciledTransactionId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_ImportedTransaction_Status");
+
+                    b.HasIndex("Date", "Amount")
+                        .HasDatabaseName("IX_ImportedTransaction_Date_Amount");
+
+                    b.HasIndex("BaseAssetHolderId", "FileType", "Status")
+                        .HasDatabaseName("IX_ImportedTransaction_BaseAssetHolder_FileType_Status");
+
+                    b.ToTable("ImportedTransactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ImportedTransaction_Amount_Positive", "[Amount] >= 0");
+
+                            t.HasCheckConstraint("CK_ImportedTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+                            t.HasCheckConstraint("CK_ImportedTransaction_FileSize_Positive", "[FileSizeBytes] IS NULL OR [FileSizeBytes] > 0");
+
+                            t.HasCheckConstraint("CK_ImportedTransaction_ProcessedAt_Logic", "([Status] = 3 AND [ProcessedAt] IS NOT NULL) OR ([Status] <> 3 AND [ProcessedAt] IS NULL) OR [Status] = 3");
+
+                            t.HasCheckConstraint("CK_ImportedTransaction_ReconciledAt_Logic", "([ReconciledTransactionId] IS NOT NULL AND [ReconciledAt] IS NOT NULL AND [ReconciledTransactionType] IS NOT NULL) OR ([ReconciledTransactionId] IS NULL AND [ReconciledAt] IS NULL AND [ReconciledTransactionType] IS NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Transactions.SettlementTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("AssetAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("NicknameId")
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Rake")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("Rakeback")
+                    b.Property<decimal?>("RakeBack")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClosingManagerId");
-
-                    b.HasIndex("NicknameId");
-
-                    b.ToTable("ClosingNicknames");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.ClosingWallet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ClosingManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("ReturnRake")
+                    b.Property<decimal>("RakeCommission")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("WalletId")
+                    b.Property<Guid>("ReceiverWalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClosingManagerId");
-
-                    b.HasIndex("WalletId");
-
-                    b.ToTable("ClosingWallets");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Excel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ManagerId")
+                    b.Property<Guid>("SenderWalletIdentifierId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -660,814 +891,290 @@ namespace SFManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ManagerId");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("Excels");
+                    b.HasIndex("Date")
+                        .HasDatabaseName("IX_SettlementTransaction_Date");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("IX_SettlementTransaction_DeletedAt");
+
+                    b.HasIndex("ReceiverWalletIdentifierId", "Date")
+                        .HasDatabaseName("IX_SettlementTransaction_Receiver_Date");
+
+                    b.HasIndex("SenderWalletIdentifierId", "Date")
+                        .HasDatabaseName("IX_SettlementTransaction_Sender_Date");
+
+                    b.ToTable("SettlementTransactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_SettlementTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+
+                            t.HasCheckConstraint("CK_SettlementTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+
+                            t.HasCheckConstraint("CK_SettlementTransaction_Different_Sender_Receiver", "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+                        });
                 });
 
-            modelBuilder.Entity("SFManagement.Models.InternalTransaction", b =>
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetPool", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
+                        .WithMany("AssetPools")
+                        .HasForeignKey("BaseAssetHolderId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ApprovedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("BankId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ClosingManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("Coins")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("ExchangeRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("InternalTransactionType")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsProfit")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("TransferId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Value")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankId");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("ClosingManagerId");
-
-                    b.HasIndex("ManagerId");
-
-                    b.HasIndex("TagId");
-
-                    b.HasIndex("WalletId");
-
-                    b.ToTable("InternalTransactions");
+                    b.Navigation("BaseAssetHolder");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Manager", b =>
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.WalletIdentifier", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.AssetPool", "AssetPool")
+                        .WithMany("WalletIdentifiers")
+                        .HasForeignKey("AssetPoolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("InitialCoins")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("InitialExchangeRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("InitialValue")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ManagerType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Managers");
+                    b.Navigation("AssetPool");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Nickname", b =>
+            modelBuilder.Entity("SFManagement.Models.Entities.Bank", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
+                        .WithOne("Bank")
+                        .HasForeignKey("SFManagement.Models.Entities.Bank", "BaseAssetHolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("WalletId");
-
-                    b.ToTable("Nicknames");
+                    b.Navigation("BaseAssetHolder");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Ofx", b =>
+            modelBuilder.Entity("SFManagement.Models.Entities.BaseAssetHolder", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BankId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte[]>("File")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankId");
-
-                    b.ToTable("Ofxs");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Tag", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("Tags");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Wallet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("InitialExchangeRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("InitialValue")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("IntialCoins")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("ManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ManagerId");
-
-                    b.ToTable("Wallets");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.WalletTransaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ApprovedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Coins")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeleteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("EditorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ExcelId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ExcelNickname")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("ExchangeRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool?>("IsCoinBalance")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("LinkedToId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ManagerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("NicknameId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Profit")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("Rate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Value")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("WalletTransactionType")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("ExcelId");
-
-                    b.HasIndex("LinkedToId")
-                        .IsUnique()
-                        .HasFilter("[LinkedToId] IS NOT NULL");
-
-                    b.HasIndex("ManagerId");
-
-                    b.HasIndex("NicknameId");
-
-                    b.HasIndex("TagId");
-
-                    b.HasIndex("WalletId");
-
-                    b.ToTable("WalletTransactions");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
-                {
-                    b.HasOne("SFManagement.Models.ApplicationRole", null)
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "Referrer")
                         .WithMany()
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("ReferrerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Referrer");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.Client", b =>
+                {
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
+                        .WithOne("Client")
+                        .HasForeignKey("SFManagement.Models.Entities.Client", "BaseAssetHolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BaseAssetHolder");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.Member", b =>
+                {
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
+                        .WithOne("Member")
+                        .HasForeignKey("SFManagement.Models.Entities.Member", "BaseAssetHolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BaseAssetHolder");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.PokerManager", b =>
+                {
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
+                        .WithOne("PokerManager")
+                        .HasForeignKey("SFManagement.Models.Entities.PokerManager", "BaseAssetHolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BaseAssetHolder");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Support.Address", b =>
+                {
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
+                        .WithMany("Addresses")
+                        .HasForeignKey("BaseAssetHolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("SFManagement.Models.Support.Category", b =>
                 {
-                    b.HasOne("SFManagement.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
-                {
-                    b.HasOne("SFManagement.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
-                {
-                    b.HasOne("SFManagement.Models.ApplicationRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SFManagement.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
-                {
-                    b.HasOne("SFManagement.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SFManagement.Models.AvgRate", b =>
-                {
-                    b.HasOne("SFManagement.Models.Manager", "Manager")
-                        .WithMany("AvgRates")
-                        .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Manager");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.BankTransaction", b =>
-                {
-                    b.HasOne("SFManagement.Models.Bank", "Bank")
-                        .WithMany("BankTransactions")
-                        .HasForeignKey("BankId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SFManagement.Models.Client", "Client")
-                        .WithMany("BankTransactions")
-                        .HasForeignKey("ClientId");
-
-                    b.HasOne("SFManagement.Models.BankTransaction", "LinkedTo")
-                        .WithOne("WasLinked")
-                        .HasForeignKey("SFManagement.Models.BankTransaction", "LinkedToId");
-
-                    b.HasOne("SFManagement.Models.Manager", "Manager")
-                        .WithMany("BankTransactions")
-                        .HasForeignKey("ManagerId");
-
-                    b.HasOne("SFManagement.Models.Ofx", "Ofx")
-                        .WithMany("BankTransactions")
-                        .HasForeignKey("OfxId");
-
-                    b.HasOne("SFManagement.Models.Tag", "Tag")
-                        .WithMany("BankTransactions")
-                        .HasForeignKey("TagId");
-
-                    b.Navigation("Bank");
-
-                    b.Navigation("Client");
-
-                    b.Navigation("LinkedTo");
-
-                    b.Navigation("Manager");
-
-                    b.Navigation("Ofx");
-
-                    b.Navigation("Tag");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.ClosingManager", b =>
-                {
-                    b.HasOne("SFManagement.Models.Manager", "Manager")
-                        .WithMany("ClosingManagers")
-                        .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Manager");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.ClosingNickname", b =>
-                {
-                    b.HasOne("SFManagement.Models.ClosingManager", "ClosingManager")
-                        .WithMany("ClosingNicknames")
-                        .HasForeignKey("ClosingManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SFManagement.Models.Nickname", "Nickname")
-                        .WithMany("ClosingNicknames")
-                        .HasForeignKey("NicknameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClosingManager");
-
-                    b.Navigation("Nickname");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.ClosingWallet", b =>
-                {
-                    b.HasOne("SFManagement.Models.ClosingManager", "ClosingManager")
-                        .WithMany("ClosingWallets")
-                        .HasForeignKey("ClosingManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SFManagement.Models.Wallet", "Wallet")
-                        .WithMany("ClosingWallets")
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClosingManager");
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Excel", b =>
-                {
-                    b.HasOne("SFManagement.Models.Manager", "Manager")
-                        .WithMany("Excels")
-                        .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Manager");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.InternalTransaction", b =>
-                {
-                    b.HasOne("SFManagement.Models.Bank", "Bank")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("BankId");
-
-                    b.HasOne("SFManagement.Models.Client", "Client")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("ClientId");
-
-                    b.HasOne("SFManagement.Models.ClosingManager", "ClosingManager")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("ClosingManagerId");
-
-                    b.HasOne("SFManagement.Models.Manager", "Manager")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("ManagerId");
-
-                    b.HasOne("SFManagement.Models.Tag", "Tag")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("TagId");
-
-                    b.HasOne("SFManagement.Models.Wallet", "Wallet")
-                        .WithMany("InternalTransactions")
-                        .HasForeignKey("WalletId");
-
-                    b.Navigation("Bank");
-
-                    b.Navigation("Client");
-
-                    b.Navigation("ClosingManager");
-
-                    b.Navigation("Manager");
-
-                    b.Navigation("Tag");
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Nickname", b =>
-                {
-                    b.HasOne("SFManagement.Models.Client", "Client")
-                        .WithMany("Nicknames")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SFManagement.Models.Wallet", "Wallet")
-                        .WithMany("Nicknames")
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Ofx", b =>
-                {
-                    b.HasOne("SFManagement.Models.Bank", "Bank")
-                        .WithMany()
-                        .HasForeignKey("BankId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bank");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Tag", b =>
-                {
-                    b.HasOne("SFManagement.Models.Tag", "Parent")
+                    b.HasOne("SFManagement.Models.Support.Category", "Parent")
                         .WithMany("Children")
-                        .HasForeignKey("ParentId");
+                        .HasForeignKey("CategoryId");
 
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Wallet", b =>
+            modelBuilder.Entity("SFManagement.Models.Support.ContactPhone", b =>
                 {
-                    b.HasOne("SFManagement.Models.Manager", "Manager")
-                        .WithMany("Wallets")
-                        .HasForeignKey("ManagerId")
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
+                        .WithMany("ContactPhones")
+                        .HasForeignKey("BaseAssetHolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Manager");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.WalletTransaction", b =>
+            modelBuilder.Entity("SFManagement.Models.Support.InitialBalance", b =>
                 {
-                    b.HasOne("SFManagement.Models.Client", "Client")
-                        .WithMany("WalletTransactions")
-                        .HasForeignKey("ClientId");
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
+                        .WithMany("InitialBalances")
+                        .HasForeignKey("BaseAssetHolderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("SFManagement.Models.Excel", "Excel")
-                        .WithMany("WalletTransactions")
-                        .HasForeignKey("ExcelId");
+                    b.Navigation("BaseAssetHolder");
+                });
 
-                    b.HasOne("SFManagement.Models.WalletTransaction", "LinkedTo")
-                        .WithOne("WasLinked")
-                        .HasForeignKey("SFManagement.Models.WalletTransaction", "LinkedToId");
+            modelBuilder.Entity("SFManagement.Models.Support.Referral", b =>
+                {
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "AssetHolder")
+                        .WithMany("ReferralsMade")
+                        .HasForeignKey("AssetHolderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("SFManagement.Models.Manager", "Manager")
-                        .WithMany("WalletTransactions")
-                        .HasForeignKey("ManagerId");
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
+                        .WithMany("ReferralsReceived")
+                        .HasForeignKey("BaseAssetHolderId");
 
-                    b.HasOne("SFManagement.Models.Nickname", "Nickname")
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.WalletIdentifier", "WalletIdentifier")
+                        .WithMany("Referrals")
+                        .HasForeignKey("WalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssetHolder");
+
+                    b.Navigation("WalletIdentifier");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Transactions.DigitalAssetTransaction", b =>
+                {
+                    b.HasOne("SFManagement.Models.Support.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("NicknameId");
+                        .HasForeignKey("CategoryId");
 
-                    b.HasOne("SFManagement.Models.Tag", "Tag")
-                        .WithMany("WalletTransactions")
-                        .HasForeignKey("TagId");
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.WalletIdentifier", "ReceiverWalletIdentifier")
+                        .WithMany()
+                        .HasForeignKey("ReceiverWalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("SFManagement.Models.Wallet", "Wallet")
-                        .WithMany("Transactions")
-                        .HasForeignKey("WalletId");
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.WalletIdentifier", "SenderWalletIdentifier")
+                        .WithMany()
+                        .HasForeignKey("SenderWalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("ReceiverWalletIdentifier");
+
+                    b.Navigation("SenderWalletIdentifier");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Transactions.FiatAssetTransaction", b =>
+                {
+                    b.HasOne("SFManagement.Models.Support.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.WalletIdentifier", "ReceiverWalletIdentifier")
+                        .WithMany()
+                        .HasForeignKey("ReceiverWalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.WalletIdentifier", "SenderWalletIdentifier")
+                        .WithMany()
+                        .HasForeignKey("SenderWalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("ReceiverWalletIdentifier");
+
+                    b.Navigation("SenderWalletIdentifier");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Transactions.ImportedTransaction", b =>
+                {
+                    b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", "BaseAssetHolder")
+                        .WithMany("ImportedTransactions")
+                        .HasForeignKey("BaseAssetHolderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BaseAssetHolder");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Transactions.SettlementTransaction", b =>
+                {
+                    b.HasOne("SFManagement.Models.Support.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.WalletIdentifier", "ReceiverWalletIdentifier")
+                        .WithMany()
+                        .HasForeignKey("ReceiverWalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SFManagement.Models.AssetInfrastructure.WalletIdentifier", "SenderWalletIdentifier")
+                        .WithMany()
+                        .HasForeignKey("SenderWalletIdentifierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("ReceiverWalletIdentifier");
+
+                    b.Navigation("SenderWalletIdentifier");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.AssetPool", b =>
+                {
+                    b.Navigation("WalletIdentifiers");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.WalletIdentifier", b =>
+                {
+                    b.Navigation("Referrals");
+                });
+
+            modelBuilder.Entity("SFManagement.Models.Entities.BaseAssetHolder", b =>
+                {
+                    b.Navigation("Addresses");
+
+                    b.Navigation("AssetPools");
+
+                    b.Navigation("Bank");
 
                     b.Navigation("Client");
 
-                    b.Navigation("Excel");
+                    b.Navigation("ContactPhones");
 
-                    b.Navigation("LinkedTo");
+                    b.Navigation("ImportedTransactions");
 
-                    b.Navigation("Manager");
+                    b.Navigation("InitialBalances");
 
-                    b.Navigation("Nickname");
+                    b.Navigation("Member");
 
-                    b.Navigation("Tag");
+                    b.Navigation("PokerManager");
 
-                    b.Navigation("Wallet");
+                    b.Navigation("ReferralsMade");
+
+                    b.Navigation("ReferralsReceived");
                 });
 
-            modelBuilder.Entity("SFManagement.Models.Bank", b =>
+            modelBuilder.Entity("SFManagement.Models.Support.Category", b =>
                 {
-                    b.Navigation("BankTransactions");
-
-                    b.Navigation("InternalTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.BankTransaction", b =>
-                {
-                    b.Navigation("WasLinked")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Client", b =>
-                {
-                    b.Navigation("BankTransactions");
-
-                    b.Navigation("InternalTransactions");
-
-                    b.Navigation("Nicknames");
-
-                    b.Navigation("WalletTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.ClosingManager", b =>
-                {
-                    b.Navigation("ClosingNicknames");
-
-                    b.Navigation("ClosingWallets");
-
-                    b.Navigation("InternalTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Excel", b =>
-                {
-                    b.Navigation("WalletTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Manager", b =>
-                {
-                    b.Navigation("AvgRates");
-
-                    b.Navigation("BankTransactions");
-
-                    b.Navigation("ClosingManagers");
-
-                    b.Navigation("Excels");
-
-                    b.Navigation("InternalTransactions");
-
-                    b.Navigation("WalletTransactions");
-
-                    b.Navigation("Wallets");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Nickname", b =>
-                {
-                    b.Navigation("ClosingNicknames");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Ofx", b =>
-                {
-                    b.Navigation("BankTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Tag", b =>
-                {
-                    b.Navigation("BankTransactions");
-
                     b.Navigation("Children");
-
-                    b.Navigation("InternalTransactions");
-
-                    b.Navigation("WalletTransactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.Wallet", b =>
-                {
-                    b.Navigation("ClosingWallets");
-
-                    b.Navigation("InternalTransactions");
-
-                    b.Navigation("Nicknames");
-
-                    b.Navigation("Transactions");
-                });
-
-            modelBuilder.Entity("SFManagement.Models.WalletTransaction", b =>
-                {
-                    b.Navigation("WasLinked")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

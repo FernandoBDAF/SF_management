@@ -18,38 +18,69 @@ public class BaseApiController<TEntity, TRequest, TResponse> : ControllerBase wh
         _service = service;
         _mapper = mapper;
     }
+    
+    // public BaseApiController(BaseService<TEntity> service, IMapper mapper, BaseService<AssetPool> AssetPoolService, 
+    // BaseService<WalletIdentifier> walletIdentifierService)
+    // {
+    //     _service = service;
+    //     _mapper = mapper;
+    // }
 
     [HttpGet]
-    public virtual async Task<List<TResponse>> Get()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public virtual async Task<IActionResult> Get()
     {
-        return _mapper.Map<List<TResponse>>(await _service.List());
+        var entities = await _service.List();
+        var response = _mapper.Map<List<TResponse>>(entities);
+        return Ok(response);
     }
 
     [HttpGet]
     [Route("{id}")]
-    public virtual async Task<TResponse?> Get(Guid id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public virtual async Task<IActionResult> Get(Guid id)
     {
-        return _mapper.Map<TResponse>(await _service.Get(id));
+        var entity = await _service.Get(id);
+        if (entity == null)
+            return NotFound();
+        
+        var response = _mapper.Map<TResponse>(entity);
+        return Ok(response);
     }
 
     [HttpDelete]
     [Route("{id}")]
-    public virtual async Task Delete(Guid id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public virtual async Task<IActionResult> Delete(Guid id)
     {
         await _service.Delete(id);
+        return NoContent();
     }
 
     [HttpPost]
     [Route("")]
-    public virtual async Task<TResponse> Post(TRequest model)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public virtual async Task<IActionResult> Post(TRequest model)
     {
-        return _mapper.Map<TResponse>(await _service.Add(_mapper.Map<TEntity>(model)));
+        var entity = _mapper.Map<TEntity>(model);
+        var result = await _service.Add(entity);
+        var response = _mapper.Map<TResponse>(result);
+        return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
     }
 
     [HttpPut]
     [Route("{id}")]
-    public virtual async Task<TResponse> Put(Guid id, TRequest model)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public virtual async Task<IActionResult> Put(Guid id, TRequest model)
     {
-        return _mapper.Map<TResponse>(await _service.Update(id, _mapper.Map<TEntity>(model)));
+        var entity = _mapper.Map<TEntity>(model);
+        var result = await _service.Update(id, entity);
+        var response = _mapper.Map<TResponse>(result);
+        return Ok(response);
     }
 }

@@ -2,12 +2,13 @@
 
 namespace SFManagement.ViewModels.Validators;
 
-public class BankTransactionRequestValidator : AbstractValidator<BankTransactionRequest>
+public class BankTransactionRequestValidator : AbstractValidator<FiatAssetTransactionRequest>
 {
     public BankTransactionRequestValidator()
     {
-        RuleFor(x => x.BankTransactionType).NotEmpty();
-        RuleFor(x => x.BankId).NotEmpty();
-        RuleFor(x => x.Value).NotEmpty();
+        RuleFor(x => x.SenderWalletIdentifierId).NotEmpty();
+        RuleFor(x => x.ReceiverWalletIdentifierId).NotEmpty();
+        // RuleFor(x => x.BankId).NotEmpty();
+        // RuleFor(x => x.Value).NotEmpty();
     }
 }

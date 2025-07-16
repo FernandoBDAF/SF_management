@@ -1,10 +1,10 @@
-﻿namespace SFManagement.ViewModels;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class BankRequest
+namespace SFManagement.ViewModels;
+
+public class BankRequest : BaseAssetHolderRequest
 {
-    public string? Code { get; set; }
-
-    public string? Name { get; set; }
-
-    public decimal InitialValue { get; set; }
+    [Required]
+    [StringLength(10, MinimumLength = 1)]
+    public string Code { get; set; }
 }

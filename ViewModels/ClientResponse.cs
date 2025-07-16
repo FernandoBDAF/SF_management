@@ -1,30 +1,19 @@
-﻿namespace SFManagement.ViewModels;
+﻿using SFManagement.Models.Entities;
 
-public class ClientResponse : BaseResponse
+namespace SFManagement.ViewModels;
+
+public class ClientResponse : BaseAssetHolderResponse
 {
-    public string? Name { get; set; }
-
-    public string? Phone { get; set; }
-
-    public string? CPF { get; set; }
-
-    public string? Cep { get; set; }
-
-    public string? Address { get; set; }
-
-    public string? District { get; set; }
-
-    public string? City { get; set; }
-
-    public string? State { get; set; }
-
-    public string? Complement { get; set; }
-
-    public string? AddressNumber { get; set; }
-
-    public string? Email { get; set; }
-
     public DateTime? Birthday { get; set; }
-
-    public decimal InitialValue { get; set; }
+    
+    /// <summary>
+    /// Calculated age based on birthday
+    /// </summary>
+    public int? Age => Birthday.HasValue ? 
+        DateTime.Now.Year - Birthday.Value.Year - 
+        (DateTime.Now.DayOfYear < Birthday.Value.DayOfYear ? 1 : 0) : null;
+    
+    // Remove redundant collections - these should be accessed through separate endpoints
+    // WalletIdentifiers, AssetPools, InitialBalances, ContactPhones create circular references
+    // and performance issues in responses. Use dedicated endpoints instead.
 }

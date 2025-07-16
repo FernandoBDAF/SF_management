@@ -2,6 +2,6 @@
 
 public enum ManagerType
 {
-    Default = 0,
-    Apps = 1
+    Spread = 0,
+    Commission = 1
 }

@@ -1,41 +1,96 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
-using SFManagement.Models;
+using SFManagement.Exceptions;
+using SFManagement.Interfaces;
+using SFManagement.Models.Entities;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Services;
 
-public class ClientService : BaseService<Client>
+public class ClientService : BaseAssetHolderService<Client>
 {
-    private readonly IMapper _mapper;
-
-    public ClientService(DataContext context, IHttpContextAccessor httpContextAccessor, IMapper mapper) : base(context,
-        httpContextAccessor)
+    public ClientService(
+        DataContext context, 
+        IHttpContextAccessor httpContextAccessor,
+        IAssetHolderDomainService domainService,
+        ReferralService referralService,
+        InitialBalanceService initialBalanceService) 
+        : base(context, httpContextAccessor, domainService, referralService, initialBalanceService)
     {
-        _mapper = mapper;
     }
 
-    public async Task<BalanceResponse> GetBalance(Guid clientId, DateTime? date)
+    /// <summary>
+    /// Creates a new client with comprehensive validation
+    /// </summary>
+    public async Task<Client> AddFromRequest(ClientRequest request)
     {
-        var now = DateTime.Now;
-        if (!date.HasValue || date.Value.Year == 1) date = now;
-        var client = await context.Clients.Include(x => x.BankTransactions)
-            .Include(x => x.WalletTransactions)
-            .Include(x => x.InternalTransactions)
-            .FirstOrDefaultAsync(x => x.Id == clientId);
-
-        return new BalanceResponse(client, date);
+        return await base.AddFromRequest(
+            request,
+            baseAssetHolder => new Client
+            {
+                BaseAssetHolderId = baseAssetHolder.Id,
+                Birthday = request.Birthday
+            },
+            _domainService.ValidateClientCreation
+        );
     }
 
-    public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
+    /// <summary>
+    /// Updates a client with validation
+    /// </summary>
+    public async Task<Client> UpdateFromRequest(Guid clientId, ClientRequest request)
     {
-        var client = await context.Clients.FindAsync(clientId);
+        return await base.UpdateFromRequest(
+            clientId,
+            request,
+            (client, req) => client.Birthday = req.Birthday,
+            _domainService.ValidateClientCreation
+        );
+    }
 
-        client.InitialValue = request.InitialValue ?? client.InitialValue;
-
-        await context.SaveChangesAsync();
-
-        return _mapper.Map<ClientResponse>(client);
+    /// <summary>
+    /// Gets client statistics with client-specific properties
+    /// </summary>
+    public async Task<ClientStatistics> GetClientStatistics(Guid clientId)
+    {
+        var baseStatistics = await GetAssetHolderStatistics(clientId);
+        var client = await Get(clientId);
+        
+        return new ClientStatistics
+        {
+            ClientId = baseStatistics.EntityId,
+            BaseAssetHolderId = baseStatistics.BaseAssetHolderId,
+            HasActiveTransactions = baseStatistics.HasActiveTransactions,
+            TotalBalance = baseStatistics.TotalBalance,
+            HasActiveAssetPools = baseStatistics.HasActiveAssetPools,
+            Age = client?.Age,
+            CanBeDeleted = baseStatistics.CanBeDeleted
+        };
     }
 }
+
+/// <summary>
+/// Client-specific statistics data transfer object
+/// </summary>
+public class ClientStatistics
+{
+    public Guid ClientId { get; set; }
+    public Guid BaseAssetHolderId { get; set; }
+    public bool HasActiveTransactions { get; set; }
+    public decimal TotalBalance { get; set; }
+    public bool HasActiveAssetPools { get; set; }
+    public int? Age { get; set; }
+    public bool CanBeDeleted { get; set; }
+}
+
+// public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
+    // {
+    //     var client = await context.Clients.FindAsync(clientId);
+
+    //     // client.InitialValue = request.InitialValue ?? client.InitialValue;
+
+    //     await context.SaveChangesAsync();
+
+    //     return _mapper.Map<ClientResponse>(client);
+    // }

@@ -1,61 +1,125 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SFManagement.Models;
+using SFManagement.Controllers;
+using SFManagement.Models.Entities;
+using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 
 namespace SFManagement.Controllers.v1;
 
 [ApiController]
-[Route("api/v{verion:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class ClientController : BaseApiController<Client, ClientRequest, ClientResponse>
+public class ClientController : BaseAssetHolderController<Client, ClientRequest, ClientResponse>
 {
     private readonly ClientService _clientService;
-    private readonly ILogger<ClientController> _logger;
-    private readonly TransactionService _transactionService;
+    private readonly FiatAssetTransactionService _fiatAssetTransactionService;
 
-    public ClientController(ClientService service, ILogger<ClientController> logger, IMapper mapper,
-        ClientService clientService, TransactionService transactionService) : base(service, mapper)
+    public ClientController(
+        ClientService service, 
+        FiatAssetTransactionService fiatAssetTransactionService,
+        IMapper mapper,
+        ILogger<BaseAssetHolderController<Client, ClientRequest, ClientResponse>> logger,
+        WalletIdentifierService walletIdentifierService) 
+        : base(service, walletIdentifierService, mapper, logger)
     {
-        _logger = logger;
-        _clientService = clientService;
-        _transactionService = transactionService;
+        _clientService = service;
+        _fiatAssetTransactionService = fiatAssetTransactionService;
     }
 
+    /// <summary>
+    /// Creates an entity from request - Client-specific implementation
+    /// </summary>
+    protected override async Task<Client> CreateEntityFromRequest(ClientRequest request)
+    {
+        return await _clientService.AddFromRequest(request);
+    }
+
+    /// <summary>
+    /// Updates an entity from request - Client-specific implementation
+    /// </summary>
+    protected override async Task<Client> UpdateEntityFromRequest(Guid id, ClientRequest request)
+    {
+        return await _clientService.UpdateFromRequest(id, request);
+    }
+
+    /// <summary>
+    /// Gets client-specific statistics including age information
+    /// </summary>
+    [HttpGet("{id}/client-statistics")]
+    [ProducesResponseType(typeof(ClientStatistics), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetClientStatistics(Guid id)
+    {
+        try
+        {
+            var statistics = await _clientService.GetClientStatistics(id);
+            return Ok(statistics);
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("retrieving client-specific statistics for");
+        }
+    }
+
+    /// <summary>
+    /// Send Brazilian Real transaction for client
+    /// </summary>
+    [HttpPost("{id}/send-brazilian-real")]
+    [ProducesResponseType(typeof(FiatAssetTransaction), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SendBrazilianReais(Guid id, [FromBody] FiatAssetTransactionRequest request)
+    {
+        try
+        {
+            var transaction = await _fiatAssetTransactionService.SendBrazilianReais(id, request);
+            return Ok(transaction);
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("processing Brazilian Real transaction for");
+        }
+    }
+
+    /// <summary>
+    /// Check if wallet identifier exists
+    /// </summary>
     [HttpGet]
-    [Route("balance/{clientId}")]
-    public async Task<BalanceResponse> Balance(Guid clientId)
+    [Route("wallet-identifier-has")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    public async Task<IActionResult> WalletIdentifierHas([FromQuery] string input)
     {
-        return await _clientService.GetBalance(clientId, null);
+        try
+        {
+            // This endpoint needs to be implemented based on your business logic
+            // For now, I'll add a placeholder that you can implement
+            throw new NotImplementedException("WalletIdentifierHas endpoint needs to be implemented");
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("checking wallet identifier for");
+        }
     }
 
-    [HttpPost]
-    [Route("balance/{clientId}")]
-    public async Task<BalanceResponse> Balance(Guid clientId, BalanceRequest request)
-    {
-        return await _clientService.GetBalance(clientId, request.Date);
-    }
-
+    /// <summary>
+    /// Get or manage initial balance for client
+    /// </summary>
     [HttpGet]
-    [Route("transactions/{clientId}/{startDate?}/{endDate?}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, DateTime? startDate = null,
-        DateTime? endDate = null, int quantity = 100, int page = 0)
-    {
-        return await _transactionService.GetTransactions(clientId, startDate, endDate, quantity, page);
-    }
-
-    [HttpGet]
-    [Route("transactions/{clientId}/{quantity?}/{page?}")]
-    public async Task<TableResponse<TransactionResponse>> Transactions(Guid clientId, int quantity = 100, int page = 0)
-    {
-        return await _transactionService.GetTransactions(clientId, null, null, quantity, page);
-    }
-
-    [HttpPut]
     [Route("initial-balance/{clientId}")]
-    public async Task<ClientResponse> UpdateInitialValue(Guid clientId, ClientRequest request)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetInitialBalance(Guid clientId)
     {
-        return await _clientService.UpdateInitialValue(clientId, request);
+        try
+        {
+            // This endpoint needs to be implemented based on your business logic
+            // For now, I'll add a placeholder that you can implement
+            throw new NotImplementedException("GetInitialBalance endpoint needs to be implemented");
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("retrieving initial balance for");
+        }
     }
 }
