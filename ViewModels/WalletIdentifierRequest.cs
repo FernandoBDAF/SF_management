@@ -26,6 +26,7 @@ public class WalletIdentifierRequest
     // Metadata fields - these will be used to construct MetadataJson if provided
     public string? InputForTransactions { get; set; }
     public string? PlayerNickname { get; set; }
+    public string? PlayerPhone { get; set; }
     public string? PlayerEmail { get; set; }
     public string? AccountStatus { get; set; }
     

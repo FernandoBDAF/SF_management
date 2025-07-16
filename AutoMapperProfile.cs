@@ -85,10 +85,12 @@ public class AutoMapperProfile : Profile
                         dest.InputForTransactions = src.GetPokerMetadata(PokerWalletMetadata.InputForTransactions);
                         dest.PlayerNickname = src.GetPokerMetadata(PokerWalletMetadata.PlayerNickname);
                         dest.PlayerEmail = src.GetPokerMetadata(PokerWalletMetadata.PlayerEmail);
+                        dest.PlayerPhone = src.GetPokerMetadata(PokerWalletMetadata.PlayerPhone);
                         dest.AccountStatus = src.GetPokerMetadata(PokerWalletMetadata.AccountStatus);
                         break;
                         
                     case AssetGroup.FiatAssets:
+                        dest.BankName = src.GetBankMetadata(BankWalletMetadata.BankName);
                         dest.PixKey = src.GetBankMetadata(BankWalletMetadata.PixKey);
                         dest.AccountType = src.GetBankMetadata(BankWalletMetadata.AccountType);
                         dest.RoutingNumber = src.GetBankMetadata(BankWalletMetadata.RoutingNumber);
@@ -121,6 +123,7 @@ public class AutoMapperProfile : Profile
                     dest.SetMetadataFromFields(
                         inputForTransactions: src.InputForTransactions,
                         playerNickname: src.PlayerNickname,
+                        playerPhone: src.PlayerPhone,
                         playerEmail: src.PlayerEmail,
                         accountStatus: src.AccountStatus,
                         accountNumber: src.AccountNumber,
@@ -128,6 +131,7 @@ public class AutoMapperProfile : Profile
                         walletAddress: src.WalletAddress,
                         walletCategory: src.WalletCategory,
                         pixKey: src.PixKey,
+                        bankName: src.BankName,
                         accountType: src.AccountType
                     );
                 }

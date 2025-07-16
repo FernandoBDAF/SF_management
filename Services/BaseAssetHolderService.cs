@@ -398,6 +398,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         throw new InvalidOperationException($"Unknown entity type: {typeof(TEntity).Name}");
     }
 
+    // add variable BaseAssetWalletType so the balance could have different behavior
     public async Task<Dictionary<AssetType, decimal>> GetBalancesByAssetType(Guid baseAssetHolderId)
     {
         var balances = new Dictionary<AssetType, decimal>();
@@ -459,6 +460,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
             // signal inversion for the liability wallet when the account classification is different
+            // asset accounts are aligned with the transaction signal while liability accounts have the opposite signal
             var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
             if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
             {
@@ -480,7 +482,8 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
             var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
-            // signal inversion for the liability wallet when the account classification is different
+            // signal inversion when the wallets have  different account classification
+            // asset accounts are aligned with the transaction signal while liability accounts have the opposite signal
             if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
             {
                 signedAmount = -signedAmount;
@@ -489,10 +492,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             if (tx.BalanceAs != null && tx.ConversionRate != null)
             {
                 if (!balances.ContainsKey(tx.BalanceAs.Value)) balances[tx.BalanceAs.Value] = 0;
-                // signal invertion to the balanceAs asset type balance
-                balances[tx.BalanceAs.Value] -= signedAmount * tx.ConversionRate.Value;
+                balances[tx.BalanceAs.Value] += signedAmount * tx.ConversionRate.Value;
                     continue;
-                }
+            }
                 
             var assetType = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier.AssetType :
@@ -525,6 +527,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         return balances;
     }
     
+    // add variable BaseAssetWalletType so the balance could have different behavior
     public async Task<Dictionary<AssetGroup, decimal>> GetBalancesByAssetGroup(Guid baseAssetHolderId)
     {
         var balances = new Dictionary<AssetGroup, decimal>();
@@ -604,18 +607,20 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
             var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
+            // signal inversion for the liability wallet when the account classification is different
+            // asset accounts are aligned with the transaction signal while liability accounts have the opposite signal
             if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
             {
                 signedAmount = -signedAmount;
             }
             
-            if (tx.BalanceAs != null && tx.ConversionRate != null)
-            {
-                var balanceAsGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(tx.BalanceAs.Value);
-                if (!balances.ContainsKey(balanceAsGroup)) balances[balanceAsGroup] = 0;
-                balances[balanceAsGroup] -= signedAmount * tx.ConversionRate.Value;
-                continue;
-            }
+            // if (tx.BalanceAs != null && tx.ConversionRate != null)
+            // {
+            //     var balanceAsGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(tx.BalanceAs.Value);
+            //     if (!balances.ContainsKey(balanceAsGroup)) balances[balanceAsGroup] = 0;
+            //     balances[balanceAsGroup] += signedAmount * tx.ConversionRate.Value;
+            //     continue;
+            // }
                 
             var assetGroup = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier.AssetGroup :

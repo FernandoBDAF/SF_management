@@ -60,8 +60,10 @@ public class WalletIdentifier : BaseDomain
     {
         get
         {
-            // Use the validation service method for consistency
-            return Services.WalletIdentifierValidationService.GetAssetGroupForAssetType(AssetType);
+            if (AssetPool != null)
+                return AssetPool.AssetGroup;
+            else
+                return Services.WalletIdentifierValidationService.GetAssetGroupForAssetType(AssetType);
         }
     }
     
@@ -87,8 +89,10 @@ public class WalletIdentifier : BaseDomain
                                     string? routingNumber = null,
                                     string? walletAddress = null,
                                     string? walletCategory = null,
+                                    string? bankName = null,
                                     string? pixKey = null,
-                                    string? accountType = null)
+                                    string? accountType = null,
+                                    string? playerPhone = null)
     {
         var metadata = new Dictionary<string, string>();
         
@@ -103,9 +107,13 @@ public class WalletIdentifier : BaseDomain
                 metadata[PokerWalletMetadata.PlayerEmail.ToString()] = playerEmail;
             if (!string.IsNullOrEmpty(accountStatus))
                 metadata[PokerWalletMetadata.AccountStatus.ToString()] = accountStatus;
+            if (!string.IsNullOrEmpty(playerPhone))
+                metadata[PokerWalletMetadata.PlayerPhone.ToString()] = playerPhone;
         }
         else if (AssetGroup == AssetGroup.FiatAssets)
         {
+            if (!string.IsNullOrEmpty(bankName))
+                metadata[BankWalletMetadata.BankName.ToString()] = bankName;
             if (!string.IsNullOrEmpty(pixKey))
                 metadata[BankWalletMetadata.PixKey.ToString()] = pixKey;
             if (!string.IsNullOrEmpty(accountType))
@@ -163,6 +171,7 @@ public class WalletIdentifier : BaseDomain
     {
         var requiredFields = new[]
         {
+            BankWalletMetadata.BankName,
             BankWalletMetadata.PixKey,
             // BankWalletMetadata.AccountType,
             // BankWalletMetadata.AccountNumber,
