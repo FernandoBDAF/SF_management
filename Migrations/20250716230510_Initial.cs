@@ -17,7 +17,6 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     Cpf = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Cnpj = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ReferrerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -64,12 +63,7 @@ namespace SFManagement.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StreetAddress = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    City = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    State = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Postcode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Complement = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -163,8 +157,9 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CountryCode = table.Column<int>(type: "int", nullable: true),
-                    LocalCode = table.Column<int>(type: "int", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    AreaCode = table.Column<int>(type: "int", nullable: true),
+                    PhoneNumber = table.Column<int>(type: "int", nullable: true),
+                    InputPhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     SearchFor = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -232,9 +227,10 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    BalanceUnit = table.Column<int>(type: "int", nullable: false),
+                    AssetType = table.Column<int>(type: "int", nullable: false),
                     ConversionRate = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: true),
                     BalanceAs = table.Column<int>(type: "int", nullable: true),
+                    AssetGroup = table.Column<int>(type: "int", nullable: false),
                     BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -245,7 +241,8 @@ namespace SFManagement.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_InitialBalances", x => x.Id);
-                    table.CheckConstraint("CK_InitialBalance_Balance_NotNegative", "[Balance] >= 0");
+                    table.CheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)");
+                    table.CheckConstraint("CK_InitialBalance_AssetType_Or_AssetGroup_Required", "[AssetType] <> 0 OR [AssetGroup] <> 0");
                     table.CheckConstraint("CK_InitialBalance_ConversionRate_Positive", "[ConversionRate] IS NULL OR [ConversionRate] > 0");
                     table.ForeignKey(
                         name: "FK_InitialBalances_BaseAssetHolders_BaseAssetHolderId",
@@ -261,7 +258,8 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Share = table.Column<double>(type: "float(5)", precision: 5, scale: 4, nullable: false),
+                    Share = table.Column<double>(type: "float(5)", precision: 5, scale: 4, nullable: true),
+                    Salary = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     Birthday = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -504,8 +502,7 @@ namespace SFManagement.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_BaseAssetHolderId",
                 table: "Addresses",
-                column: "BaseAssetHolderId",
-                unique: true);
+                column: "BaseAssetHolderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AssetPool_AssetGroup",
@@ -573,13 +570,6 @@ namespace SFManagement.Migrations
                 column: "Cpf",
                 unique: true,
                 filter: "[Cpf] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "UQ_BaseAssetHolder_Email",
-                table: "BaseAssetHolders",
-                column: "Email",
-                unique: true,
-                filter: "[Email] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_CategoryId",
@@ -698,9 +688,14 @@ namespace SFManagement.Migrations
                 column: "Status");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InitialBalance_BaseAssetHolder_BalanceUnit",
+                name: "IX_InitialBalance_BaseAssetHolder_AssetGroup",
                 table: "InitialBalances",
-                columns: new[] { "BaseAssetHolderId", "BalanceUnit" });
+                columns: new[] { "BaseAssetHolderId", "AssetGroup" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InitialBalance_BaseAssetHolder_AssetType",
+                table: "InitialBalances",
+                columns: new[] { "BaseAssetHolderId", "AssetType" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_InitialBalance_BaseAssetHolderId",

@@ -12,8 +12,8 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250714180636_adjust email, address and phone")]
-    partial class adjustemailaddressandphone
+    [Migration("20250716230510_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -272,7 +272,11 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("Share")
+                    b.Property<decimal?>("Salary")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<double?>("Share")
                         .HasPrecision(5, 4)
                         .HasColumnType("float(5)");
 
@@ -504,8 +508,6 @@ namespace SFManagement.Migrations
                             t.HasCheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)");
 
                             t.HasCheckConstraint("CK_InitialBalance_AssetType_Or_AssetGroup_Required", "[AssetType] <> 0 OR [AssetGroup] <> 0");
-
-                            t.HasCheckConstraint("CK_InitialBalance_Balance_NotNegative", "[Balance] >= 0");
 
                             t.HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", "[ConversionRate] IS NULL OR [ConversionRate] > 0");
                         });
