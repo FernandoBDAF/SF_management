@@ -270,7 +270,7 @@ namespace SFManagement.Migrations
                 {
                     table.PrimaryKey("PK_Members", x => x.Id);
                     table.CheckConstraint("CK_Member_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
-                    table.CheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 1");
+                    table.CheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 100");
                     table.ForeignKey(
                         name: "FK_Members_BaseAssetHolders_BaseAssetHolderId",
                         column: x => x.BaseAssetHolderId,

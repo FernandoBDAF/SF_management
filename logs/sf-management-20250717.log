@@ -1,0 +1,22 @@
+2025-07-17 08:21:13.482 -07:00 [INF] Starting SF Management API {"Application":"SF Management API","Environment":"Development"}
+2025-07-17 08:21:13.541 -07:00 [FTL] SF Management API failed to start {"Application":"SF Management API","Environment":"Development"}
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in /Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Program.cs:line 68
+2025-07-17 08:21:28.862 -07:00 [INF] Starting SF Management API {"Application":"SF Management API","Environment":"Development"}
+2025-07-17 08:21:28.926 -07:00 [FTL] SF Management API failed to start {"Application":"SF Management API","Environment":"Development"}
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in /Users/fernandobarroso/Local Repo/Sempre Fichas/SF_management/Program.cs:line 68
+2025-07-17 08:37:41.177 -07:00 [INF] Starting SF Management API {"Application":"SF Management API","Environment":"Development"}
+2025-07-17 08:37:44.168 -07:00 [INF] SF Management API started successfully {"Application":"SF Management API","Environment":"Development"}
