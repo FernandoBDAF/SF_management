@@ -427,7 +427,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
         // Member Share precision and range constraint
         modelBuilder.Entity<Member>()
             .Property(m => m.Share)
-            .HasPrecision(5, 4); // Allows values like 0.9999 (99.99%)
+            .HasPrecision(7, 4); // Allows values like 100.0000
 
         // Index for referrer lookups
         modelBuilder.Entity<BaseAssetHolder>()

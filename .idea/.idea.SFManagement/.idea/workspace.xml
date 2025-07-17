@@ -11,19 +11,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoMapperProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data/DataContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Data/DataContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BaseAssetHolderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/BaseTransactionResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/DigitalAssetTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/DigitalAssetTransactionResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/FiatAssetTransactionResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/OfxResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/OfxResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/OfxTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/OfxTransactionResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementClosingsResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementClosingsResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModels/SettlementTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModels/SettlementTransactionResponse.cs" afterDir="false" />
-    </list>
+    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -64,21 +52,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.SFManagement: http.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "XThreadsFramesViewSplitterKey": "0.33114755",
-    "git-widget-placeholder": "hmg",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Color Scheme Font",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.SFManagement: http.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.33114755&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;hmg&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Color Scheme Font&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="SFManagement: http" type="LaunchSettings" factoryName=".NET Launch Settings Profile" temporary="true">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/SFManagement.csproj" />
