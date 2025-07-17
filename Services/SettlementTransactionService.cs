@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SFManagement.Data;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Services;
 

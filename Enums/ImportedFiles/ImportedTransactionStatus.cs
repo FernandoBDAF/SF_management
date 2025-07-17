@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SFManagement.Enums;
+namespace SFManagement.Enums.ImportedFiles;
 
 /// <summary>
 /// Status of an imported transaction throughout its lifecycle

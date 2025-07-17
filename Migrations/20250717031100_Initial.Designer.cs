@@ -12,7 +12,7 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250713231251_Initial")]
+    [Migration("20250717031100_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -160,23 +160,16 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Cnpj")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Cpf")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                    b.Property<string>("GovernmentNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
@@ -189,28 +182,16 @@ namespace SFManagement.Migrations
                     b.Property<Guid?>("ReferrerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("TaxEntityType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Cnpj")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_BaseAssetHolder_Cnpj")
-                        .HasFilter("[Cnpj] IS NOT NULL");
-
-                    b.HasIndex("Cpf")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_BaseAssetHolder_Cpf")
-                        .HasFilter("[Cpf] IS NOT NULL");
-
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_BaseAssetHolder_DeletedAt");
-
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_BaseAssetHolder_Email")
-                        .HasFilter("[Email] IS NOT NULL");
 
                     b.HasIndex("Name")
                         .HasDatabaseName("IX_BaseAssetHolder_Name");
@@ -281,9 +262,13 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("Share")
+                    b.Property<decimal?>("Salary")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Share")
                         .HasPrecision(5, 4)
-                        .HasColumnType("float(5)");
+                        .HasColumnType("decimal(5,4)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -323,7 +308,7 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("ManagerType")
+                    b.Property<int?>("ManagerProfitType")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -350,18 +335,6 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("BaseAssetHolderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("City")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Complement")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Country")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -376,21 +349,12 @@ namespace SFManagement.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<string>("State")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("StreetAddress")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BaseAssetHolderId")
-                        .IsUnique();
+                    b.HasIndex("BaseAssetHolderId");
 
                     b.ToTable("Addresses");
                 });
@@ -433,6 +397,9 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("AreaCode")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("BaseAssetHolderId")
                         .HasColumnType("uniqueidentifier");
 
@@ -445,16 +412,16 @@ namespace SFManagement.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("LocalCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PhoneNumber")
+                    b.Property<string>("InputPhoneNumber")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("PhoneNumber")
+                        .HasColumnType("int");
 
                     b.Property<string>("SearchFor")
                         .HasMaxLength(30)
@@ -476,14 +443,17 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AssetGroup")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssetType")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Balance")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("BalanceAs")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BalanceUnit")
                         .HasColumnType("int");
 
                     b.Property<Guid>("BaseAssetHolderId")
@@ -517,12 +487,17 @@ namespace SFManagement.Migrations
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_InitialBalance_DeletedAt");
 
-                    b.HasIndex("BaseAssetHolderId", "BalanceUnit")
-                        .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_BalanceUnit");
+                    b.HasIndex("BaseAssetHolderId", "AssetGroup")
+                        .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_AssetGroup");
+
+                    b.HasIndex("BaseAssetHolderId", "AssetType")
+                        .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_AssetType");
 
                     b.ToTable("InitialBalances", t =>
                         {
-                            t.HasCheckConstraint("CK_InitialBalance_Balance_NotNegative", "[Balance] >= 0");
+                            t.HasCheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)");
+
+                            t.HasCheckConstraint("CK_InitialBalance_AssetType_Or_AssetGroup_Required", "[AssetType] <> 0 OR [AssetGroup] <> 0");
 
                             t.HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", "[ConversionRate] IS NULL OR [ConversionRate] > 0");
                         });
@@ -1011,8 +986,8 @@ namespace SFManagement.Migrations
             modelBuilder.Entity("SFManagement.Models.Support.Address", b =>
                 {
                     b.HasOne("SFManagement.Models.Entities.BaseAssetHolder", null)
-                        .WithOne("Address")
-                        .HasForeignKey("SFManagement.Models.Support.Address", "BaseAssetHolderId")
+                        .WithMany("Addresses")
+                        .HasForeignKey("BaseAssetHolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1167,7 +1142,7 @@ namespace SFManagement.Migrations
 
             modelBuilder.Entity("SFManagement.Models.Entities.BaseAssetHolder", b =>
                 {
-                    b.Navigation("Address");
+                    b.Navigation("Addresses");
 
                     b.Navigation("AssetPools");
 

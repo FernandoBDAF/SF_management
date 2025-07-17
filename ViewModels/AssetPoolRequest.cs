@@ -1,5 +1,6 @@
 ﻿using SFManagement.Enums;
 using System.ComponentModel.DataAnnotations;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.ViewModels;
 

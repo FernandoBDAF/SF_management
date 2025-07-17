@@ -47,13 +47,7 @@ public interface IAssetHolderDomainService
     /// Checks if an asset holder has any active asset wallets
     /// </summary>
     Task<bool> HasActiveAssetPools(Guid assetHolderId);
-    
-    /// <summary>
-    /// Validates that CPF/CNPJ are unique across the system
-    /// </summary>
-    Task<bool> IsCpfUnique(string cpf, Guid? excludeAssetHolderId = null);
-    Task<bool> IsCnpjUnique(string cnpj, Guid? excludeAssetHolderId = null);
-    
+        
     /// <summary>
     /// Validates bank code uniqueness
     /// </summary>

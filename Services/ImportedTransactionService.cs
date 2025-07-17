@@ -10,6 +10,7 @@ using SFManagement.Enums;
 using SFManagement.Exceptions;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
+using SFManagement.Enums.ImportedFiles;
 
 namespace SFManagement.Services;
 

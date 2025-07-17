@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Models.Transactions;
 

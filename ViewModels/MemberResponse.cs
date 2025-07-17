@@ -5,7 +5,9 @@ namespace SFManagement.ViewModels;
 public class MemberResponse : BaseAssetHolderResponse
 {
     public DateTime? Birthday { get; set; }
-    public double? Share { get; set; }
+    public decimal? Share { get; set; }
+
+    public decimal? Salary { get; set; }
     
     /// <summary>
     /// Calculated age based on birthday

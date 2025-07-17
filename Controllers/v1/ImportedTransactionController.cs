@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Enums;
+using SFManagement.Enums.ImportedFiles;
 using SFManagement.Models.Transactions;
 using SFManagement.Services;
 using SFManagement.ViewModels;

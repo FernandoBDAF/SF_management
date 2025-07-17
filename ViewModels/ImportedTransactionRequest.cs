@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using SFManagement.Enums;
+using SFManagement.Enums.ImportedFiles;
 
 namespace SFManagement.ViewModels;
 

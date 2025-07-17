@@ -3,6 +3,7 @@ using SFManagement.Data;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Enums;
 using SFManagement.Enums.WalletsMetadata;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Services;
 

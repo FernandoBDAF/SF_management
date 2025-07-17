@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SFManagement.Enums;
+namespace SFManagement.Enums.ImportedFiles;
 
 /// <summary>
 /// Types of Excel imports supported for poker transactions

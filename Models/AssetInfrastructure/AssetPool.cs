@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using SFManagement.Enums;
 using SFManagement.Models.Entities;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Models.AssetInfrastructure;
 

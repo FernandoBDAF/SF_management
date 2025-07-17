@@ -1,4 +1,4 @@
-namespace SFManagement.Enums;
+namespace SFManagement.Enums.AssetInfrastructure;
 
 public enum AccountClassification
 {

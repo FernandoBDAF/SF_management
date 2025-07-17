@@ -12,8 +12,8 @@ using SFManagement.Data;
 namespace SFManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250714180636_adjust email, address and phone")]
-    partial class adjustemailaddressandphone
+    [Migration("20250717033057_Share range")]
+    partial class Sharerange
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -160,19 +160,16 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Cnpj")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Cpf")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("GovernmentNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
@@ -185,20 +182,13 @@ namespace SFManagement.Migrations
                     b.Property<Guid?>("ReferrerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("TaxEntityType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Cnpj")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_BaseAssetHolder_Cnpj")
-                        .HasFilter("[Cnpj] IS NOT NULL");
-
-                    b.HasIndex("Cpf")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_BaseAssetHolder_Cpf")
-                        .HasFilter("[Cpf] IS NOT NULL");
 
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_BaseAssetHolder_DeletedAt");
@@ -272,9 +262,13 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("Share")
+                    b.Property<decimal?>("Salary")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Share")
                         .HasPrecision(5, 4)
-                        .HasColumnType("float(5)");
+                        .HasColumnType("decimal(5,4)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -292,7 +286,7 @@ namespace SFManagement.Migrations
                         {
                             t.HasCheckConstraint("CK_Member_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
 
-                            t.HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 1");
+                            t.HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 100");
                         });
                 });
 
@@ -314,7 +308,7 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("ManagerType")
+                    b.Property<int?>("ManagerProfitType")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -504,8 +498,6 @@ namespace SFManagement.Migrations
                             t.HasCheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)");
 
                             t.HasCheckConstraint("CK_InitialBalance_AssetType_Or_AssetGroup_Required", "[AssetType] <> 0 OR [AssetGroup] <> 0");
-
-                            t.HasCheckConstraint("CK_InitialBalance_Balance_NotNegative", "[Balance] >= 0");
 
                             t.HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", "[ConversionRate] IS NULL OR [ConversionRate] > 0");
                         });

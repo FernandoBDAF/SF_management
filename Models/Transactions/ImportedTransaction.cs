@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using SFManagement.Enums;
+using SFManagement.Enums.ImportedFiles;
 using SFManagement.Models.Entities;
 
 namespace SFManagement.Models.Transactions;

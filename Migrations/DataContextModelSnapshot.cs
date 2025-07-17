@@ -60,7 +60,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("BaseAssetHolderId", "AssetGroup")
                         .HasDatabaseName("IX_AssetPool_BaseAssetHolder_AssetGroup");
 
-                    b.ToTable("AssetPools", (string)null);
+                    b.ToTable("AssetPools");
                 });
 
             modelBuilder.Entity("SFManagement.Models.AssetInfrastructure.WalletIdentifier", b =>
@@ -105,7 +105,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_WalletIdentifier_DeletedAt");
 
-                    b.ToTable("WalletIdentifiers", (string)null);
+                    b.ToTable("WalletIdentifiers");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.Bank", b =>
@@ -148,7 +148,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_Bank_DeletedAt");
 
-                    b.ToTable("Banks", (string)null);
+                    b.ToTable("Banks");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.BaseAssetHolder", b =>
@@ -157,19 +157,16 @@ namespace SFManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Cnpj")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Cpf")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("GovernmentNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
@@ -182,20 +179,13 @@ namespace SFManagement.Migrations
                     b.Property<Guid?>("ReferrerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("TaxEntityType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Cnpj")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_BaseAssetHolder_Cnpj")
-                        .HasFilter("[Cnpj] IS NOT NULL");
-
-                    b.HasIndex("Cpf")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_BaseAssetHolder_Cpf")
-                        .HasFilter("[Cpf] IS NOT NULL");
 
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_BaseAssetHolder_DeletedAt");
@@ -206,7 +196,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("ReferrerId")
                         .HasDatabaseName("IX_BaseAssetHolder_ReferrerId");
 
-                    b.ToTable("BaseAssetHolders", (string)null);
+                    b.ToTable("BaseAssetHolders");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Entities.Client", b =>
@@ -242,7 +232,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_Client_DeletedAt");
 
-                    b.ToTable("Clients", null, t =>
+                    b.ToTable("Clients", t =>
                         {
                             t.HasCheckConstraint("CK_Client_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
                         });
@@ -273,9 +263,9 @@ namespace SFManagement.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<double?>("Share")
+                    b.Property<decimal?>("Share")
                         .HasPrecision(5, 4)
-                        .HasColumnType("float(5)");
+                        .HasColumnType("decimal(5,4)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -289,11 +279,11 @@ namespace SFManagement.Migrations
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_Member_DeletedAt");
 
-                    b.ToTable("Members", null, t =>
+                    b.ToTable("Members", t =>
                         {
                             t.HasCheckConstraint("CK_Member_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
 
-                            t.HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 1");
+                            t.HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 100");
                         });
                 });
 
@@ -315,7 +305,7 @@ namespace SFManagement.Migrations
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("ManagerType")
+                    b.Property<int?>("ManagerProfitType")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -330,7 +320,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("DeletedAt")
                         .HasDatabaseName("IX_PokerManager_DeletedAt");
 
-                    b.ToTable("PokerManagers", (string)null);
+                    b.ToTable("PokerManagers");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Support.Address", b =>
@@ -363,7 +353,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("BaseAssetHolderId");
 
-                    b.ToTable("Addresses", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Support.Category", b =>
@@ -395,7 +385,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Support.ContactPhone", b =>
@@ -441,7 +431,7 @@ namespace SFManagement.Migrations
 
                     b.HasIndex("BaseAssetHolderId");
 
-                    b.ToTable("ContactPhone", (string)null);
+                    b.ToTable("ContactPhone");
                 });
 
             modelBuilder.Entity("SFManagement.Models.Support.InitialBalance", b =>
@@ -500,7 +490,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("BaseAssetHolderId", "AssetType")
                         .HasDatabaseName("IX_InitialBalance_BaseAssetHolder_AssetType");
 
-                    b.ToTable("InitialBalances", null, t =>
+                    b.ToTable("InitialBalances", t =>
                         {
                             t.HasCheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)");
 
@@ -563,7 +553,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("WalletIdentifierId", "ActiveFrom", "ActiveUntil")
                         .HasDatabaseName("IX_Referral_Wallet_ActivePeriod");
 
-                    b.ToTable("Referrals", null, t =>
+                    b.ToTable("Referrals", t =>
                         {
                             t.HasCheckConstraint("CK_Referral_ActiveDates_Logical", "[ActiveFrom] IS NULL OR [ActiveUntil] IS NULL OR [ActiveFrom] <= [ActiveUntil]");
 
@@ -639,7 +629,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("SenderWalletIdentifierId", "Date")
                         .HasDatabaseName("IX_DigitalAssetTransaction_Sender_Date");
 
-                    b.ToTable("DigitalAssetTransactions", null, t =>
+                    b.ToTable("DigitalAssetTransactions", t =>
                         {
                             t.HasCheckConstraint("CK_DigitalAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
 
@@ -706,7 +696,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("SenderWalletIdentifierId", "Date")
                         .HasDatabaseName("IX_FiatAssetTransaction_Sender_Date");
 
-                    b.ToTable("FiatAssetTransactions", null, t =>
+                    b.ToTable("FiatAssetTransactions", t =>
                         {
                             t.HasCheckConstraint("CK_FiatAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
 
@@ -822,7 +812,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("BaseAssetHolderId", "FileType", "Status")
                         .HasDatabaseName("IX_ImportedTransaction_BaseAssetHolder_FileType_Status");
 
-                    b.ToTable("ImportedTransactions", null, t =>
+                    b.ToTable("ImportedTransactions", t =>
                         {
                             t.HasCheckConstraint("CK_ImportedTransaction_Amount_Positive", "[Amount] >= 0");
 
@@ -905,7 +895,7 @@ namespace SFManagement.Migrations
                     b.HasIndex("SenderWalletIdentifierId", "Date")
                         .HasDatabaseName("IX_SettlementTransaction_Sender_Date");
 
-                    b.ToTable("SettlementTransactions", null, t =>
+                    b.ToTable("SettlementTransactions", t =>
                         {
                             t.HasCheckConstraint("CK_SettlementTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
 

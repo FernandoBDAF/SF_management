@@ -12,9 +12,9 @@ public class ProfitResponse
 
     public ProfitResponse(PokerManager manager)
     {
-        // switch (manager.ManagerType)
+        // switch (manager.ManagerProfitType)
         // {
-        //     case ManagerType.Default:
+        //     case ManagerProfitType.Default:
         //         Value = manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue &&
         //                                                       ((!x.ApprovedAt.HasValue && !x.ExcelId.HasValue) ||
         //                                                        (x.ApprovedAt.HasValue &&
@@ -23,7 +23,7 @@ public class ProfitResponse
         //                                                          (x.ManagerId.HasValue && x.WalletId.HasValue)))))
         //             .Sum(x => x.Profit);
         //         break;
-        //     case ManagerType.Apps:
+        //     case ManagerProfitType.Apps:
         //         manager.ClosingManagers.Where(x => !x.DeletedAt.HasValue).Sum(x =>
         //             x.InternalTransactions.Where(i => !i.DeletedAt.HasValue && i.IsProfit).Sum(i =>
         //                 i.InternalTransactionType == InternalTransactionType.Income
@@ -38,13 +38,13 @@ public class ProfitResponse
         // start = start.Date;
         // end = end.Date;
         //
-        // switch (manager.ManagerType)
+        // switch (manager.ManagerProfitType)
         // {
-        //     case ManagerType.Default:
+        //     case ManagerProfitType.Default:
         //         Value = manager.WalletTransactions.Where(x => !x.DeletedAt.HasValue && x.Date >= start && x.Date <= end)
         //             .Sum(x => x.Profit);
         //         break;
-        //     case ManagerType.Apps:
+        //     case ManagerProfitType.Apps:
         //         manager.ClosingManagers.Where(x => !x.DeletedAt.HasValue).Sum(x =>
         //             x.InternalTransactions
         //                 .Where(i => !i.DeletedAt.HasValue && i.IsProfit && i.Date >= start && i.Date <= end).Sum(i =>

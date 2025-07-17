@@ -8,6 +8,7 @@ using SFManagement.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Models;
 using SFManagement.Models.AssetInfrastructure;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Services;
 
@@ -144,10 +145,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
         {
             // Create BaseAssetHolder using helper method
             var baseAssetHolder = await CreateBaseAssetHolder(
-                request.Name, 
-                request.Email, 
-                request.Cpf, 
-                request.Cnpj,
+                request.Name,
+                request.GovernmentNumber,
+                request.TaxEntityType,
                 request.ReferrerId
             );
 
@@ -216,8 +216,8 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             if (baseAssetHolder != null)
             {
                 baseAssetHolder.Name = request.Name;
-                baseAssetHolder.Cpf = request.Cpf;
-                baseAssetHolder.Cnpj = request.Cnpj;
+                baseAssetHolder.GovernmentNumber = request.GovernmentNumber;
+                baseAssetHolder.TaxEntityType = request.TaxEntityType;
                 baseAssetHolder.UpdatedAt = DateTime.UtcNow;
             }
 
@@ -788,13 +788,14 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     }
 
     // Helper method to create BaseAssetHolder using base service pattern
-    protected async Task<BaseAssetHolder> CreateBaseAssetHolder(string name, string? email = null, string? cpf = null, string? cnpj = null, Guid? referrerId = null)
+    protected async Task<BaseAssetHolder> CreateBaseAssetHolder(string name, string? governmentNumber = "", 
+    TaxEntityType taxEntityType = TaxEntityType.CNPJ_Not_Taxable, Guid? referrerId = null)
     {
         var baseAssetHolder = new BaseAssetHolder
         {
             Name = name,
-            Cpf = cpf,
-            Cnpj = cnpj,
+            GovernmentNumber = governmentNumber,
+            TaxEntityType = taxEntityType,
             ReferrerId = referrerId
         };
 

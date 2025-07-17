@@ -1,3 +1,4 @@
+using SFManagement.Enums;
 using SFManagement.Models.Support;
 
 namespace SFManagement.ViewModels;
@@ -6,9 +7,10 @@ public class BaseAssetHolderResponse : BaseResponse
 {
     public Guid? BaseAssetHolderId { get; set; }
     public string? Name { get; set; }
-    public string? Email { get; set; }
-    public string? Cpf { get; set; }
-    public string? Cnpj { get; set; }
+    
+    public TaxEntityType TaxEntityType { get; set; }
+
+    public string GovernmentNumber { get; set; }
     
     public AddressResponse? Address { get; set; }
 

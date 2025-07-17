@@ -5,6 +5,7 @@ using SFManagement.Models.Entities;
 using SFManagement.ViewModels;
 using SFManagement.Enums;
 using SFManagement.Models.AssetInfrastructure;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Services;
 
