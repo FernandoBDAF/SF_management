@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SFManagement.Enums;
+namespace SFManagement.Enums.ImportedFiles;
 
 /// <summary>
 /// Types of transactions that can be reconciled with ImportedTransactions

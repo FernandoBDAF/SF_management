@@ -6,6 +6,7 @@ using SFManagement.Models;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Services;
 

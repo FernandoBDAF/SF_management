@@ -17,8 +17,8 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    Cpf = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Cnpj = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    TaxEntityType = table.Column<int>(type: "int", nullable: false),
+                    GovernmentNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ReferrerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -258,7 +258,7 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Share = table.Column<double>(type: "float(5)", precision: 5, scale: 4, nullable: true),
+                    Share = table.Column<decimal>(type: "decimal(5,4)", precision: 5, scale: 4, nullable: true),
                     Salary = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     Birthday = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -285,7 +285,7 @@ namespace SFManagement.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BaseAssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ManagerType = table.Column<int>(type: "int", nullable: true),
+                    ManagerProfitType = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -556,20 +556,6 @@ namespace SFManagement.Migrations
                 name: "IX_BaseAssetHolder_ReferrerId",
                 table: "BaseAssetHolders",
                 column: "ReferrerId");
-
-            migrationBuilder.CreateIndex(
-                name: "UQ_BaseAssetHolder_Cnpj",
-                table: "BaseAssetHolders",
-                column: "Cnpj",
-                unique: true,
-                filter: "[Cnpj] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "UQ_BaseAssetHolder_Cpf",
-                table: "BaseAssetHolders",
-                column: "Cpf",
-                unique: true,
-                filter: "[Cpf] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_CategoryId",

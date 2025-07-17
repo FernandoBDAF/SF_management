@@ -5,6 +5,7 @@ using SFManagement.Models.Support;
 using SFManagement.Models.Transactions;
 using SFManagement.ViewModels;
 using SFManagement.Enums;
+using SFManagement.Enums.AssetInfrastructure;
 using SFManagement.Enums.WalletsMetadata;
 
 namespace SFManagement;
@@ -336,9 +337,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Bank, BankResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => (string?)null))
-            .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
-            .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
+            .ForMember(dest => dest.GovernmentNumber, opt => opt.MapFrom(src => src.BaseAssetHolder.GovernmentNumber))
+            .ForMember(dest => dest.TaxEntityType, opt => opt.MapFrom(src => src.BaseAssetHolder.TaxEntityType))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses.FirstOrDefault()))
             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code.ToString()));
             // Removed collection mappings - these properties no longer exist in response models
@@ -347,9 +347,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Client, ClientResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => (string?)null))
-            .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
-            .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
+            .ForMember(dest => dest.GovernmentNumber, opt => opt.MapFrom(src => src.BaseAssetHolder.GovernmentNumber))
+            .ForMember(dest => dest.TaxEntityType, opt => opt.MapFrom(src => src.BaseAssetHolder.TaxEntityType))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses.FirstOrDefault()))
             .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday));
             // Removed collection mappings - these properties no longer exist in response models
@@ -358,29 +357,27 @@ public class AutoMapperProfile : Profile
         CreateMap<Member, MemberResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => (string?)null))
-            .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
-            .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
+            .ForMember(dest => dest.GovernmentNumber, opt => opt.MapFrom(src => src.BaseAssetHolder.GovernmentNumber))
+            .ForMember(dest => dest.TaxEntityType, opt => opt.MapFrom(src => src.BaseAssetHolder.TaxEntityType))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses.FirstOrDefault()))
             .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday))
-            .ForMember(dest => dest.Share, opt => opt.MapFrom(src => src.Share));
+            .ForMember(dest => dest.Share, opt => opt.MapFrom(src => src.Share))
+            .ForMember(dest => dest.Salary, opt => opt.MapFrom(src => src.Salary));
             // Removed collection mappings - these properties no longer exist in response models
             
         // PokerManager mappings
         CreateMap<PokerManager, PokerManagerResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.BaseAssetHolder.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => (string?)null))
-            .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.BaseAssetHolder.Cpf))
-            .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.BaseAssetHolder.Cnpj))
+            .ForMember(dest => dest.GovernmentNumber, opt => opt.MapFrom(src => src.BaseAssetHolder.GovernmentNumber))
+            .ForMember(dest => dest.TaxEntityType, opt => opt.MapFrom(src => src.BaseAssetHolder.TaxEntityType))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses.FirstOrDefault()));
         
         CreateMap<BaseAssetHolder, BaseAssetHolderResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => (string?)null))
-            .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.Cpf))
-            .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.Cnpj))
+            .ForMember(dest => dest.GovernmentNumber, opt => opt.MapFrom(src => src.GovernmentNumber))
+            .ForMember(dest => dest.TaxEntityType, opt => opt.MapFrom(src => src.TaxEntityType))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Addresses.FirstOrDefault()));
             // Removed collection mappings - these properties no longer exist in response models
     }

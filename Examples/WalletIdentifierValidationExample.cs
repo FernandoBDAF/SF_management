@@ -1,7 +1,7 @@
 using SFManagement.Enums;
 using SFManagement.Models.AssetInfrastructure;
 using SFManagement.Services;
-
+using SFManagement.Enums.AssetInfrastructure;
 namespace SFManagement.Examples;
 
 /// <summary>

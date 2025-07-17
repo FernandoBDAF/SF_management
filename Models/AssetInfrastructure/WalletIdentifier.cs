@@ -4,6 +4,7 @@ using SFManagement.Models.Support;
 using SFManagement.Enums;
 using SFManagement.Enums.WalletsMetadata;
 using System.ComponentModel.DataAnnotations;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Models.AssetInfrastructure;
 

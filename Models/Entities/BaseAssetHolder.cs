@@ -10,10 +10,10 @@ namespace SFManagement.Models.Entities;
 public class BaseAssetHolder : BaseDomain
 {
     [Required] [MaxLength(40)] public string Name { get; set; }
+
+    [Required] public TaxEntityType TaxEntityType { get; set; }
     
-    [MaxLength(20)] public string? Cpf { get; set; }
-    
-    [MaxLength(20)] public string? Cnpj { get; set; }
+    [Required] [MaxLength(20)] public string GovernmentNumber { get; set; }
     
     // Navigation properties to specific asset holder types (only one will have a value)
     public virtual Client? Client { get; set; }

@@ -429,20 +429,6 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .Property(m => m.Share)
             .HasPrecision(5, 4); // Allows values like 0.9999 (99.99%)
 
-        // CPF uniqueness constraint (when not null)
-        modelBuilder.Entity<BaseAssetHolder>()
-            .HasIndex(bah => bah.Cpf)
-            .IsUnique()
-            .HasFilter("[Cpf] IS NOT NULL")
-            .HasDatabaseName("UQ_BaseAssetHolder_Cpf");
-
-        // CNPJ uniqueness constraint (when not null)
-        modelBuilder.Entity<BaseAssetHolder>()
-            .HasIndex(bah => bah.Cnpj)
-            .IsUnique()
-            .HasFilter("[Cnpj] IS NOT NULL")
-            .HasDatabaseName("UQ_BaseAssetHolder_Cnpj");
-
         // Index for referrer lookups
         modelBuilder.Entity<BaseAssetHolder>()
             .HasIndex(bah => bah.ReferrerId)
@@ -467,7 +453,7 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
 
         // Member Share range constraint
         modelBuilder.Entity<Member>()
-            .HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 1");
+            .HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 100");
 
         // Ensure transaction dates are not in the future
         modelBuilder.Entity<FiatAssetTransaction>()

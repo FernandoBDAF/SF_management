@@ -9,6 +9,7 @@ using SFManagement.Models.Entities;
 using SFManagement.Services;
 using SFManagement.ViewModels;
 using System.Text.Json;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Controllers;
 

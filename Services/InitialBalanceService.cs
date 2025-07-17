@@ -3,6 +3,7 @@ using SFManagement.Data;
 using SFManagement.Enums;
 using SFManagement.Models.Support;
 using SFManagement.Models.Entities;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Services;
 

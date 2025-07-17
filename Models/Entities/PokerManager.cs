@@ -7,10 +7,10 @@ namespace SFManagement.Models.Entities;
 
 public class PokerManager : BaseDomain, IAssetHolder
 {
-    // public ManagerType ManagerType { get; set; }
+    // public ManagerProfitType ManagerProfitType { get; set; }
     
     [Required] public Guid BaseAssetHolderId { get; set; }
     public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
-    public ManagerType? ManagerType { get; set; }
+    public ManagerProfitType? ManagerProfitType { get; set; }
 }

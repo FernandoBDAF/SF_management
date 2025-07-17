@@ -1,5 +1,6 @@
 using SFManagement.Enums;
 using SFManagement.Models.Transactions;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.ViewModels;
 

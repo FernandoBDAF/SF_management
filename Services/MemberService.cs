@@ -29,7 +29,7 @@ public class MemberService : BaseAssetHolderService<Member>
             baseAssetHolder => new Member
             {
                 BaseAssetHolderId = baseAssetHolder.Id,
-                Share = request.Share ?? 0.0,
+                Share = request.Share ?? 0,
                 Birthday = request.Birthday
             },
             _domainService.ValidateMemberCreation
@@ -46,7 +46,7 @@ public class MemberService : BaseAssetHolderService<Member>
             request,
             (member, req) => 
             {
-                member.Share = req.Share ?? 0.0;
+                member.Share = req.Share ?? 0;
                 member.Birthday = req.Birthday;
             },
             _domainService.ValidateMemberCreation
@@ -68,7 +68,7 @@ public class MemberService : BaseAssetHolderService<Member>
             HasActiveTransactions = baseStatistics.HasActiveTransactions,
             TotalBalance = baseStatistics.TotalBalance,
             HasActiveAssetPools = baseStatistics.HasActiveAssetPools,
-            Share = member?.Share ?? 0.0,
+            Share = member?.Share ?? 0,
             IsActiveShare = member?.IsActiveShare ?? false,
             CanBeDeleted = baseStatistics.CanBeDeleted
         };
@@ -85,7 +85,7 @@ public class MemberStatistics
     public bool HasActiveTransactions { get; set; }
     public decimal TotalBalance { get; set; }
     public bool HasActiveAssetPools { get; set; }
-    public double Share { get; set; }
+    public decimal Share { get; set; }
     public bool IsActiveShare { get; set; }
     public bool CanBeDeleted { get; set; }
 }

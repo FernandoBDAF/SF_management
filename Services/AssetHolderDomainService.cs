@@ -65,54 +65,6 @@ public class AssetHolderDomainService : IAssetHolderDomainService
             }
         }
         
-        // Validate CPF format and uniqueness
-        if (!string.IsNullOrWhiteSpace(request.Cpf))
-        {
-            if (!IsValidCpf(request.Cpf))
-            {
-                result.AddError("Cpf", "Invalid CPF format", "INVALID_CPF");
-            }
-            else
-            {
-                var isCpfUnique = await IsCpfUnique(request.Cpf, request.BaseAssetHolderId);
-                if (!isCpfUnique)
-                {
-                    result.AddError("Cpf", "CPF is already in use", "DUPLICATE_CPF");
-                }
-            }
-        }
-        
-        // Validate CNPJ format and uniqueness
-        if (!string.IsNullOrWhiteSpace(request.Cnpj))
-        {
-            if (!IsValidCnpj(request.Cnpj))
-            {
-                result.AddError("Cnpj", "Invalid CNPJ format", "INVALID_CNPJ");
-            }
-            else
-            {
-                var isCnpjUnique = await IsCnpjUnique(request.Cnpj, request.BaseAssetHolderId);
-                if (!isCnpjUnique)
-                {
-                    result.AddError("Cnpj", "CNPJ is already in use", "DUPLICATE_CNPJ");
-                }
-            }
-        }
-        
-        // Validate that either CPF or CNPJ is provided for Brazilian entities
-        // if (string.IsNullOrWhiteSpace(request.Cpf) && string.IsNullOrWhiteSpace(request.Cnpj))
-        // {
-        //     result.AddError("Cpf", "Either CPF or CNPJ must be provided", "MISSING_IDENTIFICATION");
-        //     result.AddError("Cnpj", "Either CPF or CNPJ must be provided", "MISSING_IDENTIFICATION");
-        // }
-        
-        // Validate that both CPF and CNPJ are not provided simultaneously
-        if (!string.IsNullOrWhiteSpace(request.Cpf) && !string.IsNullOrWhiteSpace(request.Cnpj))
-        {
-            result.AddError("Cpf", "Cannot provide both CPF and CNPJ", "CONFLICTING_IDENTIFICATION");
-            result.AddError("Cnpj", "Cannot provide both CPF and CNPJ", "CONFLICTING_IDENTIFICATION");
-        }
-        
         return result;
     }
 
@@ -274,9 +226,9 @@ public class AssetHolderDomainService : IAssetHolderDomainService
         // Member-specific validations
         if (request.Share.HasValue)
         {
-            if (request.Share.Value < 0 || request.Share.Value > 1)
+            if (request.Share.Value < 0 || request.Share.Value > 100)
             {
-                result.AddError("Share", "Share must be between 0 and 1", "INVALID_RANGE");
+                result.AddError("Share", "Share must be between 0 and 100", "INVALID_RANGE");
             }
         }
         
@@ -307,32 +259,6 @@ public class AssetHolderDomainService : IAssetHolderDomainService
             .AnyAsync(aw => aw.BaseAssetHolderId == assetHolderId && !aw.DeletedAt.HasValue);
     }
 
-    public async Task<bool> IsCpfUnique(string cpf, Guid? excludeAssetHolderId = null)
-    {
-        var query = _context.BaseAssetHolders
-            .Where(bah => bah.Cpf == cpf && !bah.DeletedAt.HasValue);
-        
-        if (excludeAssetHolderId.HasValue)
-        {
-            query = query.Where(bah => bah.Id != excludeAssetHolderId.Value);
-        }
-        
-        return !await query.AnyAsync();
-    }
-
-    public async Task<bool> IsCnpjUnique(string cnpj, Guid? excludeAssetHolderId = null)
-    {
-        var query = _context.BaseAssetHolders
-            .Where(bah => bah.Cnpj == cnpj && !bah.DeletedAt.HasValue);
-        
-        if (excludeAssetHolderId.HasValue)
-        {
-            query = query.Where(bah => bah.Id != excludeAssetHolderId.Value);
-        }
-        
-        return !await query.AnyAsync();
-    }
-
     public async Task<bool> IsBankCodeUnique(string code, Guid? excludeBankId = null)
     {
         var query = _context.Banks
@@ -359,100 +285,6 @@ public class AssetHolderDomainService : IAssetHolderDomainService
         {
             return false;
         }
-    }
-
-    private static bool IsValidCpf(string cpf)
-    {
-        if (string.IsNullOrWhiteSpace(cpf)) return false;
-        
-        // Remove non-numeric characters
-        cpf = Regex.Replace(cpf, @"[^\d]", "");
-        
-        // CPF must have 11 digits
-        if (cpf.Length != 11) return false;
-        
-        // Check for known invalid CPFs (all same digits)
-        if (cpf.All(c => c == cpf[0])) return false;
-        
-        // Validate CPF algorithm
-        return ValidateCpfAlgorithm(cpf);
-    }
-
-    private static bool IsValidCnpj(string cnpj)
-    {
-        if (string.IsNullOrWhiteSpace(cnpj)) return false;
-        
-        // Remove non-numeric characters
-        cnpj = Regex.Replace(cnpj, @"[^\d]", "");
-        
-        // CNPJ must have 14 digits
-        if (cnpj.Length != 14) return false;
-        
-        // Check for known invalid CNPJs (all same digits)
-        if (cnpj.All(c => c == cnpj[0])) return false;
-        
-        // Validate CNPJ algorithm
-        return ValidateCnpjAlgorithm(cnpj);
-    }
-
-    private static bool ValidateCpfAlgorithm(string cpf)
-    {
-        // CPF validation algorithm
-        int[] multiplier1 = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-        int[] multiplier2 = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-        
-        string tempCpf = cpf.Substring(0, 9);
-        int sum = 0;
-        
-        for (int i = 0; i < 9; i++)
-            sum += int.Parse(tempCpf[i].ToString()) * multiplier1[i];
-        
-        int remainder = sum % 11;
-        remainder = remainder < 2 ? 0 : 11 - remainder;
-        
-        string digit = remainder.ToString();
-        tempCpf = tempCpf + digit;
-        sum = 0;
-        
-        for (int i = 0; i < 10; i++)
-            sum += int.Parse(tempCpf[i].ToString()) * multiplier2[i];
-        
-        remainder = sum % 11;
-        remainder = remainder < 2 ? 0 : 11 - remainder;
-        
-        digit = digit + remainder.ToString();
-        
-        return cpf.EndsWith(digit);
-    }
-
-    private static bool ValidateCnpjAlgorithm(string cnpj)
-    {
-        // CNPJ validation algorithm
-        int[] multiplier1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-        int[] multiplier2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-        
-        string tempCnpj = cnpj.Substring(0, 12);
-        int sum = 0;
-        
-        for (int i = 0; i < 12; i++)
-            sum += int.Parse(tempCnpj[i].ToString()) * multiplier1[i];
-        
-        int remainder = sum % 11;
-        remainder = remainder < 2 ? 0 : 11 - remainder;
-        
-        string digit = remainder.ToString();
-        tempCnpj = tempCnpj + digit;
-        sum = 0;
-        
-        for (int i = 0; i < 13; i++)
-            sum += int.Parse(tempCnpj[i].ToString()) * multiplier2[i];
-        
-        remainder = sum % 11;
-        remainder = remainder < 2 ? 0 : 11 - remainder;
-        
-        digit = digit + remainder.ToString();
-        
-        return cnpj.EndsWith(digit);
     }
 
     #endregion

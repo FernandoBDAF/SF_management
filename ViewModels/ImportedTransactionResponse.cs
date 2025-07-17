@@ -1,4 +1,6 @@
 using SFManagement.Enums;
+using SFManagement.Enums.ImportedFiles;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.ViewModels;
 

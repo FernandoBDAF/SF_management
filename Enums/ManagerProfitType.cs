@@ -1,6 +1,6 @@
 ﻿namespace SFManagement.Enums;
 
-public enum ManagerType
+public enum ManagerProfitType
 {
     Spread = 0,
     Commission = 1
