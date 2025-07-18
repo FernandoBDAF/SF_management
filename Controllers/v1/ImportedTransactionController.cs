@@ -158,7 +158,6 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
                 FailedTransactions = transactions.Count(t => t.Status == ImportedTransactionStatus.Failed),
                 DuplicateTransactions = 0, // Duplicates are filtered out during import
                 ReconciledTransactions = 0, // None are reconciled immediately
-                Errors = transactions.Where(t => t.HasErrors).Select(t => t.ProcessingError ?? "Unknown error").ToList(),
                 ImportedAt = DateTime.UtcNow
             };
 
@@ -229,7 +228,7 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
                 TotalTransactions = transactions.Count,
                 ReconciledTransactions = transactions.Count(t => t.IsReconciled),
                 PendingTransactions = transactions.Count(t => t.Status == ImportedTransactionStatus.Pending),
-                FailedTransactions = transactions.Count(t => t.HasErrors),
+                FailedTransactions = transactions.Count(t => t.Status == ImportedTransactionStatus.Failed),
                 FirstTransactionDate = transactions.Min(t => t.Date),
                 LastTransactionDate = transactions.Max(t => t.Date),
                 TotalAmount = transactions.Sum(t => t.Amount)
@@ -284,10 +283,9 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
                 TransactionId = match.Id,
                 Date = match.Date,
                 Amount = match.Amount,
-                Description = match.Description,
                 DaysDifference = Math.Abs((match.Date - importedTransaction.Date).Days),
                 AmountDifference = Math.Abs(match.Amount - importedTransaction.Amount),
-                MatchReasons = GenerateMatchReasons(importedTransaction, match.Date, match.Amount, match.Description)
+                MatchReasons = GenerateMatchReasons(importedTransaction, match.Date, match.Amount)
             }).ToList();
 
             // Calculate match scores
@@ -329,7 +327,7 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
                 TotalImportedTransactions = allTransactions.Count,
                 PendingReconciliation = allTransactions.Count(t => !t.IsReconciled && t.Status == ImportedTransactionStatus.Processed),
                 ReconciledTransactions = allTransactions.Count(t => t.IsReconciled),
-                FailedTransactions = allTransactions.Count(t => t.HasErrors),
+                FailedTransactions = allTransactions.Count(t => t.Status == ImportedTransactionStatus.Failed),
                 FilesImported = allTransactions.Select(t => t.FileName).Distinct().Count(),
                 LastImportDate = allTransactions.Any() ? allTransactions.Max(t => t.CreatedAt) : null,
                 FileTypeSummaries = allTransactions
@@ -351,7 +349,7 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
                         FileType = g.Key.FileType,
                         TransactionCount = g.Count(),
                         ImportedAt = g.Max(t => t.CreatedAt ?? DateTime.MinValue),
-                        Status = g.Any(t => t.HasErrors) ? ImportedTransactionStatus.Failed : 
+                        Status = g.Any(t => t.Status == ImportedTransactionStatus.Failed) ? ImportedTransactionStatus.Failed : 
                                 g.All(t => t.IsReconciled) ? ImportedTransactionStatus.Reconciled : 
                                 ImportedTransactionStatus.Processed
                     })
@@ -370,7 +368,7 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
 
     #region Private Helper Methods
 
-    private static List<string> GenerateMatchReasons(ImportedTransaction imported, DateTime transactionDate, decimal transactionAmount, string? transactionDescription)
+    private static List<string> GenerateMatchReasons(ImportedTransaction imported, DateTime transactionDate, decimal transactionAmount)
     {
         var reasons = new List<string>();
 
@@ -383,13 +381,6 @@ public class ImportedTransactionController : BaseApiController<ImportedTransacti
             reasons.Add("Exact amount match");
         else if (Math.Abs(imported.Amount - transactionAmount) <= 0.01m)
             reasons.Add("Amount within tolerance");
-
-        if (!string.IsNullOrEmpty(imported.Description) && !string.IsNullOrEmpty(transactionDescription))
-        {
-            if (imported.Description.Contains(transactionDescription) || 
-                transactionDescription.Contains(imported.Description))
-                reasons.Add("Description similarity");
-        }
 
         return reasons;
     }

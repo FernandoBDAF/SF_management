@@ -55,7 +55,8 @@ public class HttpContextAccessor : IHttpContextAccessor
     public HttpContext? HttpContext { get; set; }
 }
 
-public class DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor, ILoggingService loggingService) : DbContext(options)
+public class DataContext(DbContextOptions<DataContext> options, IHttpContextAccessor httpContextAccessor, 
+    ILoggingService loggingService) : DbContext(options)
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly ILoggingService _loggingService = loggingService;
@@ -197,6 +198,25 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
             .WithMany()
             .HasForeignKey(ft => ft.SenderWalletIdentifierId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // what if...
+
+        // modelBuilder.Entity<WalletIdentifier>()
+        //     .HasMany(wi => wi.FiatAssetTransactions)
+        //     .WithOne(ft => ft.SenderWalletIdentifier)
+        //     .HasForeignKey(ft => ft.SenderWalletIdentifierId)
+        //     .OnDelete(DeleteBehavior.Restrict);
+
+        // modelBuilder.Entity<WalletIdentifier>()
+        //     .HasMany(wi => wi.FiatAssetTransactions)
+        //     .WithOne(ft => ft.ReceiverWalletIdentifier)
+        //     .HasForeignKey(ft => ft.ReceiverWalletIdentifierId)
+        //     .OnDelete(DeleteBehavior.Restrict);
+
+        // at walletidentifier, we have 2 lists for FiatAssetTransactions:
+        // public virtual ICollection<FiatAssetTransaction> SenderFiatAssetTransactions { get; set; } = new HashSet<FiatAssetTransaction>();
+        // public virtual ICollection<FiatAssetTransaction> ReceiverFiatAssetTransactions { get; set; } = new HashSet<FiatAssetTransaction>();
+
 
         modelBuilder.Entity<FiatAssetTransaction>()
             .HasOne(ft => ft.ReceiverWalletIdentifier)

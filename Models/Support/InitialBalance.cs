@@ -52,12 +52,6 @@ public class InitialBalance : BaseDomain
     public virtual BaseAssetHolder BaseAssetHolder { get; set; } = null!;
     
     /// <summary>
-    /// Optional description or reason for this initial balance
-    /// </summary>
-    [MaxLength(500)]
-    public string? Description { get; set; }
-    
-    /// <summary>
     /// Gets the effective balance in the target asset type or asset group
     /// If AssetGroup is set, the balance is the sum of the balances of all AssetTypes in the group
     /// If AssetType is set, the balance is the balance of the asset type

@@ -12,6 +12,9 @@ using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Services;
 
+// implement .AsNoTracking() to make the query faster
+// context.Banks.AsNoTracking().FirstOrDefaultAsync(x => x.BaseAssetHolderId == id && !x.DeletedAt.HasValue);
+
 public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAccessor httpContextAccessor, IAssetHolderDomainService domainService, ReferralService referralService, InitialBalanceService initialBalanceService) 
     : BaseService<TEntity>(context, httpContextAccessor) where TEntity : BaseDomain, IAssetHolder
 {
@@ -78,7 +81,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             query = includeStrategy(query);
         }
         
-        return await query.Where(x => !x.BaseAssetHolder.DeletedAt.HasValue)
+        return await query.AsNoTracking().Where(x => !x.BaseAssetHolder.DeletedAt.HasValue)
         .OrderByDescending(x => x.BaseAssetHolder.CreatedAt)
         .ToListAsync();
     }
@@ -92,6 +95,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .Include(c => c.Addresses)
             .Include(c => c.ContactPhones)
             .Include(c => c.InitialBalances)
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
         
         if (baseAssetHolder == null)
@@ -717,7 +721,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                     {
                         Id = dat.Id,
                         Date = dat.Date,
-                        Description = dat.Description,
+                        Description = dat.Category?.Description,
                 AssetAmount = signedAmount,
                         BalanceAs = dat.BalanceAs,
                         ConversionRate = dat.ConversionRate,
@@ -745,7 +749,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                     {
                         Id = fat.Id,
                         Date = fat.Date,
-                        Description = fat.Description,
+                        Description = fat.Category?.Description,
                 AssetAmount = signedAmount,
                         BalanceAs = null, // Fiat transactions don't have BalanceAs
                         ConversionRate = null, // Fiat transactions don't have ConversionRate
@@ -767,7 +771,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             {
                 Id = st.Id,
                 Date = st.Date,
-                Description = st.Description,
+                Description = st.Category?.Description,
                 AssetAmount = st.GetSignedAmountForWalletIdentifier(relevantWalletId),
                 BalanceAs = null, // Settlement transactions don't have BalanceAs
                 ConversionRate = null, // Settlement transactions don't have ConversionRate

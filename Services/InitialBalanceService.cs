@@ -37,8 +37,7 @@ public class InitialBalanceService : BaseService<InitialBalance>
         AssetType assetType, 
         decimal balance,
         AssetType? balanceAs = null,
-        decimal? conversionRate = null,
-        string? description = null)
+        decimal? conversionRate = null)
     {
         // Validate BaseAssetHolder exists
         var baseAssetHolder = await context.BaseAssetHolders
@@ -76,7 +75,6 @@ public class InitialBalanceService : BaseService<InitialBalance>
             Balance = balance,
             BalanceAs = balanceAs,
             ConversionRate = conversionRate,
-            Description = description
         };
 
         return await Add(initialBalance);
@@ -130,7 +128,6 @@ public class InitialBalanceService : BaseService<InitialBalance>
             Balance = balance,
             BalanceAs = balanceAs,
             ConversionRate = conversionRate,
-            Description = description
         };
 
         return await Add(initialBalance);
@@ -374,7 +371,6 @@ public class InitialBalanceService : BaseService<InitialBalance>
             Balance = balance,
             BalanceAs = balanceAs,
             ConversionRate = conversionRate,
-            Description = description
         };
 
         return await Add(initialBalance);

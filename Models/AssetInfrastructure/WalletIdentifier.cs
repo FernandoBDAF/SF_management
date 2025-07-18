@@ -5,6 +5,7 @@ using SFManagement.Enums;
 using SFManagement.Enums.WalletsMetadata;
 using System.ComponentModel.DataAnnotations;
 using SFManagement.Enums.AssetInfrastructure;
+using SFManagement.Models.Transactions;
 
 namespace SFManagement.Models.AssetInfrastructure;
 
@@ -27,6 +28,9 @@ public class WalletIdentifier : BaseDomain
     // Store metadata as JSON string in database
     [Column(TypeName = "nvarchar(2000)")]
     public string MetadataJson { get; set; } = "{}";
+
+    // public virtual ICollection<FiatAssetTransaction> SenderFiatAssetTransactions { get; set; } = new HashSet<FiatAssetTransaction>();
+    // public virtual ICollection<FiatAssetTransaction> ReceiverFiatAssetTransactions { get; set; } = new HashSet<FiatAssetTransaction>();
     
     // this is not mapped to the database, but is used to validate the request
     [NotMapped]

@@ -9,7 +9,6 @@ public class Client : BaseDomain, IAssetHolder
     
     public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
-    [DataType(DataType.Date)]
     public DateTime? Birthday { get; set; }
     
     /// <summary>

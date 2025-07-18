@@ -9,7 +9,7 @@ using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.Models.Transactions;
 
-public class BaseTransaction : BaseDomain
+public abstract class BaseTransaction : BaseDomain
 {
     [Required] public DateTime Date { get; set; }
     
@@ -26,8 +26,6 @@ public class BaseTransaction : BaseDomain
     
     // only positive amounts are allowed
     [Required] [Precision(18, 2)] public decimal AssetAmount { get; set; }
-    
-    [MaxLength(255)] public string? Description { get; set; }
     
     public DateTime? ApprovedAt { get; set; }
 

@@ -60,7 +60,7 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
             SenderWalletIdentifierId = senderIdentifier.Id,
             ReceiverWalletIdentifierId = receiverIdentifier.Id,
             Date = transaction.Date,
-            Description = transaction.Description,
+            CategoryId = transaction.CategoryId,
             AssetAmount = transaction.AssetAmount
         };
 
