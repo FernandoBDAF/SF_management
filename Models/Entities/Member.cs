@@ -9,8 +9,8 @@ public class Member : BaseDomain, IAssetHolder
     [Required] public Guid BaseAssetHolderId { get; set; }
     public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
-    [Precision(18, 4)]
-    [Range(0.0, 100.00, ErrorMessage = "Share must be between 0 and 100")]
+    [Precision(7, 4)]
+    [Range(0.0000, 100.0000, ErrorMessage = "Share must be between 0 and 100")]
     public decimal? Share { get; set; }
 
     [Precision(18, 2)]

@@ -27,14 +27,14 @@ public class ImportedTransaction : BaseDomain
     /// <summary>
     /// Description/memo of the transaction from the imported file
     /// </summary>
-    [MaxLength(500)] 
+    [MaxLength(100)] 
     public string? Description { get; set; }
     
     /// <summary>
     /// External reference ID from the source file (e.g., FitId for OFX, row identifier for Excel)
     /// Used for duplicate detection and reconciliation
     /// </summary>
-    [MaxLength(100)] 
+    [MaxLength(64)] 
     public string? ExternalReferenceId { get; set; }
     
     /// <summary>
@@ -54,7 +54,7 @@ public class ImportedTransaction : BaseDomain
     /// Name of the imported file
     /// </summary>
     [Required] 
-    [MaxLength(255)] 
+    [MaxLength(32)]
     public string FileName { get; set; }
     
     /// <summary>
@@ -93,21 +93,9 @@ public class ImportedTransaction : BaseDomain
     public DateTime? ReconciledAt { get; set; }
     
     /// <summary>
-    /// Notes about the reconciliation process
-    /// </summary>
-    [MaxLength(500)] 
-    public string? ReconciliationNotes { get; set; }
-    
-    /// <summary>
     /// Date when this transaction was processed/approved
     /// </summary>
     public DateTime? ProcessedAt { get; set; }
-    
-    /// <summary>
-    /// Error message if processing failed
-    /// </summary>
-    [MaxLength(1000)] 
-    public string? ProcessingError { get; set; }
     
     /// <summary>
     /// Checks if this transaction is reconciled with a BaseTransaction
@@ -118,9 +106,4 @@ public class ImportedTransaction : BaseDomain
     /// Checks if this transaction has been processed successfully
     /// </summary>
     public bool IsProcessed => Status == ImportedTransactionStatus.Processed && ProcessedAt.HasValue;
-    
-    /// <summary>
-    /// Checks if this transaction has processing errors
-    /// </summary>
-    public bool HasErrors => Status == ImportedTransactionStatus.Failed && !string.IsNullOrEmpty(ProcessingError);
 } 

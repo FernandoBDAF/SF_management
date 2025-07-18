@@ -31,7 +31,7 @@ public class Referral : BaseDomain
     /// Commission percentage that the referrer receives (0-100)
     /// Maps to ParentCommission in database
     /// </summary>
-    [Precision(18, 2)] [Range(0, 100)] public decimal? ParentCommission { get; set; }
+    [Precision(18, 4)] [Range(0, 100)] public decimal? ParentCommission { get; set; }
     
     /// <summary>
     /// Date when the referral starts being active

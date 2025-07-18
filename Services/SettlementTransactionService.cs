@@ -222,7 +222,6 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
                     SenderWalletIdentifierId = defaultSenderIdentifier.Id,
                     ReceiverWalletIdentifierId = transactionRequest.ReceiverWalletIdentifierId.Value,
                     AssetAmount = transactionRequest.AssetAmount,
-                    Description = null, // Not provided in reduced request
                     CategoryId = null, // Not provided in reduced request
                     Rake = transactionRequest.Rake,
                     RakeCommission = transactionRequest.RakeCommission,
@@ -242,7 +241,6 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
                 Id = ct.Id,
                 Date = ct.Date,
                 AssetAmount = ct.AssetAmount,
-                Description = ct.Description,
                 ApprovedAt = ct.ApprovedAt,
                 Rake = ct.Rake,
                 RakeCommission = ct.RakeCommission,

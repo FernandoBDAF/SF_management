@@ -458,7 +458,6 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
                 ft.Date, 
                 ft.SenderWalletIdentifierId, 
                 ft.ReceiverWalletIdentifierId,
-                ft.Description,
                 Category = ft.Category != null ? ft.Category.Description : null
             })
             .ToListAsync();
@@ -475,7 +474,6 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
                 dt.Date, 
                 dt.SenderWalletIdentifierId, 
                 dt.ReceiverWalletIdentifierId,
-                dt.Description,
                 Category = dt.Category != null ? dt.Category.Description : null
             })
             .ToListAsync();
@@ -492,7 +490,6 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
                 st.Date, 
                 st.SenderWalletIdentifierId, 
                 st.ReceiverWalletIdentifierId,
-                st.Description,
                 Category = st.Category != null ? st.Category.Description : null
             })
             .ToListAsync();

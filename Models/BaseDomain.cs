@@ -1,6 +1,6 @@
 ﻿namespace SFManagement.Models;
 
-public class BaseDomain
+public abstract class BaseDomain
 {
     public Guid Id { get; set; }
     

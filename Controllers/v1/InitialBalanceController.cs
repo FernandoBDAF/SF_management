@@ -36,8 +36,7 @@ public class InitialBalanceController(InitialBalanceService service, IMapper map
                 request.AssetType,
                 request.Balance,
                 request.BalanceAs,
-                request.ConversionRate,
-                request.Description);
+                request.ConversionRate);
 
             var response = mapper.Map<InitialBalanceResponse>(initialBalance);
             return Ok(response);

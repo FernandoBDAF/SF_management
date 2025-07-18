@@ -34,8 +34,14 @@ try
     builder.AddRateLimitServices();
 
     builder.Services.AddDbContext<DataContext>(p =>
-        p.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-            o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+        p.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            o => o
+                .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                .EnableRetryOnFailure(6, TimeSpan.FromSeconds(15), null)
+            )
+            .LogTo(Console.WriteLine, [DbLoggerCategory.Database.Command.Name], LogLevel.Information)
+            .EnableSensitiveDataLogging());
 
     // Remove Identity configuration - Auth0 handles authentication
     builder.Services.AddHttpContextAccessor();
