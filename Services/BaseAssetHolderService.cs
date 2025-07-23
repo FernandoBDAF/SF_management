@@ -600,6 +600,11 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.ReceiverWalletIdentifier.AssetGroup :
                 tx.SenderWalletIdentifier.AssetGroup;
             
+            if (assetGroup == AssetGroup.Internal)
+            {
+                assetGroup = tx.ReceiverWalletIdentifier.AssetType == AssetType.BrazilianReal ? AssetGroup.FiatAssets : AssetGroup.PokerAssets;
+            }
+            
             if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
             balances[assetGroup] += signedAmount;
         }
