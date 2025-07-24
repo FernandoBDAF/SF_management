@@ -60,20 +60,20 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
         var pokerManager = await context.PokerManagers
             .Include(pm => pm.BaseAssetHolder)
             .ThenInclude(bah => bah.AssetPools)
+            .ThenInclude(aw => aw.WalletIdentifiers)
             .FirstOrDefaultAsync(pm => pm.BaseAssetHolderId == pokerManagerId);
 
         if (pokerManager == null)
             throw new Exception("PokerManager not found");
 
         // Get all asset types that this poker manager has
-        var assetTypes = pokerManager.BaseAssetHolder.AssetPools
-            .Where(aw => !aw.DeletedAt.HasValue)
-            .SelectMany(aw => aw.WalletIdentifiers.Where(wi => !wi.DeletedAt.HasValue).Select(wi => wi.AssetType))
+        var assetTypes = pokerManager.BaseAssetHolder?.AssetPools
+            .SelectMany(ap => ap.WalletIdentifiers.Select(wi => wi.AssetType))
             .Distinct()
             .ToList();
 
-        if (!assetTypes.Any())
-            return new Dictionary<AssetType, List<WalletIdentifier>>();
+        if (assetTypes == null || assetTypes.Count == 0)
+            return [];
 
         // Get all wallet identifiers from other asset holders (excluding this poker manager)
         // that match the asset types this poker manager has
@@ -83,9 +83,10 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
             .ThenInclude(aw => aw.Client)
             .Include(wi => wi.Referrals)
             // .Include(wi => wi.SettlementTransactions.Where(st => !st.DeletedAt.HasValue))
-            // .Where(wi => assetTypes.Contains(wi.AssetType) && 
-            //             !wi.DeletedAt.HasValue &&
-            //             wi.BaseAssetHolderId != pokerManager.BaseAssetHolderId)
+            .Where(wi => assetTypes.Contains(wi.AssetType) && 
+                        !wi.DeletedAt.HasValue &&
+                        wi.AssetPool.AssetGroup == AssetGroup.PokerAssets &&
+                        wi.AssetPool.BaseAssetHolderId != pokerManager.BaseAssetHolderId)
             .ToListAsync();
 
         // Group by asset type

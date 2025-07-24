@@ -168,6 +168,7 @@ public class WalletIdentifier : BaseDomain
             AssetGroup.PokerAssets => ValidatePokerWalletMetadata(),
             AssetGroup.CryptoAssets => ValidateCryptoWalletMetadata(),
             AssetGroup.Internal => true, // Internal wallets require no metadata validation
+            AssetGroup.Settlements => true, // Settlements require no metadata validation
             _ => false
         };
     }

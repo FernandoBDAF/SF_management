@@ -16,4 +16,7 @@ public enum AssetGroup
     
     // Internal Transactions (generic)
     Internal = 4,
+
+    // Settlements
+    Settlements = 5,
 }

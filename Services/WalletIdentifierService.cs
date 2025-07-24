@@ -29,7 +29,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         // Scenario 1: AssetPoolId is provided - use existing AssetPool
         if (walletIdentifier.AssetPoolId != Guid.Empty)
         {
-            assetPool = await _AssetPoolService.Get(walletIdentifier.AssetPoolId);
+            assetPool = await _AssetPoolService.Get(walletIdentifier.AssetPoolId) ?? walletIdentifier.AssetPool;
             if (assetPool == null)
             {
                 throw new ArgumentException($"AssetPool with ID {walletIdentifier.AssetPoolId} not found");
@@ -90,6 +90,35 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return result;
     }
     
+
+    public async Task<WalletIdentifier> AddWithAssetGroup(WalletIdentifier walletIdentifier, AssetGroup assetGroup)
+    {
+        if (walletIdentifier.BaseAssetHolderId == null || walletIdentifier.BaseAssetHolderId == Guid.Empty)
+        {
+            throw new ArgumentException("BaseAssetHolderId is required");
+        }
+
+        // get the asset pool by base asset holder and asset group
+        var assetPool = await _AssetPoolService.GetByBaseAssetHolderAndType(
+                walletIdentifier.BaseAssetHolderId.Value, assetGroup);
+
+        if (assetPool == null)
+        {
+            // create the asset pool
+            assetPool = new AssetPool
+            {
+                BaseAssetHolderId = walletIdentifier.BaseAssetHolderId,
+                AssetGroup = assetGroup,
+            };
+            assetPool = await _AssetPoolService.Add(assetPool);
+        }
+
+        walletIdentifier.AssetPoolId = assetPool.Id;
+        walletIdentifier.AssetPool = assetPool;
+
+        return await Add(walletIdentifier);
+    }
+
     public override async Task<WalletIdentifier> Update(Guid id, WalletIdentifier walletIdentifier)
     {
         // Validate before updating

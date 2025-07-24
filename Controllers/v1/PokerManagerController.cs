@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Authorization;
+using SFManagement.Enums;
 using SFManagement.Enums.WalletsMetadata;
 using SFManagement.Models.Entities;
 using SFManagement.Models.Transactions;
@@ -89,13 +90,13 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
             {
                 var walletIdentifierResponses = new List<WalletIdentifierWithAssetHolderResponse>();
                 
-                foreach (var walletIdentifier in group.Value)
+                foreach (var walletIdentifier in group.Value.ToList())
                 {
-                    var assetHolderType = walletIdentifier.AssetPool.BaseAssetHolder.AssetHolderType;
+                    var assetHolderType = walletIdentifier.AssetPool?.BaseAssetHolder?.AssetHolderType;
                     
                     // Get the most recent settlement transaction
-                    var lastSettlementTransaction = lastSettlementTransactions
-                    .Where(st => st.SenderWalletIdentifierId == walletIdentifier.Id || st.ReceiverWalletIdentifierId == walletIdentifier.Id);
+                    var lastSettlementTransaction = lastSettlementTransactions?.Where(st => st.SenderWalletIdentifierId == walletIdentifier.Id || st.ReceiverWalletIdentifierId == walletIdentifier.Id)
+                    .FirstOrDefault();
                     
                     walletIdentifierResponses.Add(new WalletIdentifierWithAssetHolderResponse
                     {
@@ -112,9 +113,9 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
                             ParentCommission = walletIdentifier.Referrals.First().ParentCommission
                         } : null,
                         LastSettlementTransaction = lastSettlementTransaction != null ? _mapper.Map<SettlementTransactionSimplifiedResponse>(lastSettlementTransaction) : null,
-                        BaseAssetHolderId = walletIdentifier.AssetPool.BaseAssetHolder.Id,
-                        BaseAssetHolderName = walletIdentifier.AssetPool.BaseAssetHolder.Name,
-                        AssetHolderType = assetHolderType
+                        BaseAssetHolderId = walletIdentifier.AssetPool?.BaseAssetHolder?.Id ?? Guid.Empty,
+                        BaseAssetHolderName = walletIdentifier.AssetPool?.BaseAssetHolder?.Name ?? string.Empty,
+                        AssetHolderType = assetHolderType ?? AssetHolderType.PokerManager
                     });
                 }
                 
@@ -137,7 +138,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Create settlement transactions by date
     /// </summary>
     [HttpPost("{assetHolderId}/settlement-by-date")]
-    [RequireRole("admin")]
+    // [RequireRole("admin")]
     [ProducesResponseType(typeof(SettlementTransactionByDateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateSettlementTransactionsByDate(

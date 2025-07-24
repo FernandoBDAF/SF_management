@@ -498,7 +498,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 if (!balances.ContainsKey(tx.BalanceAs.Value)) balances[tx.BalanceAs.Value] = 0;
                 balances[tx.BalanceAs.Value] += signedAmount * tx.ConversionRate.Value;
                     continue;
-            }
+                }
                 
             var assetType = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier.AssetType :
