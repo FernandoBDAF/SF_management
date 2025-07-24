@@ -505,7 +505,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.SenderWalletIdentifier.AssetType;
 
                     if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += signedAmount * (100 - (tx.Rate ?? 0)) / 100;
+            balances[assetType] += signedAmount / ((100 + (tx.Rate ?? 0)) / 100);
         }
 
         // Process SettlementTransactions
