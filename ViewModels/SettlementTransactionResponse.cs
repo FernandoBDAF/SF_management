@@ -8,7 +8,7 @@ public class SettlementTransactionResponse : BaseTransactionResponse
     /// <summary>
     /// Rake amount for the settlement
     /// </summary>
-    public decimal Rake { get; set; }
+    public decimal RakeAmount { get; set; }
     
     /// <summary>
     /// Commission on the rake
@@ -23,7 +23,7 @@ public class SettlementTransactionResponse : BaseTransactionResponse
     /// <summary>
     /// Net settlement amount after rake and commissions
     /// </summary>
-    public decimal NetSettlementAmount => AssetAmount - Rake - RakeCommission + (RakeBack ?? 0);
+    public decimal NetSettlementAmount => AssetAmount - RakeAmount - RakeCommission + (RakeBack ?? 0);
     
     /// <summary>
     /// Effective commission rate

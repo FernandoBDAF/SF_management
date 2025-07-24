@@ -3,5 +3,5 @@
 public enum ManagerProfitType
 {
     Spread = 0,
-    Commission = 1
+    RakeOverrideCommission = 1
 }

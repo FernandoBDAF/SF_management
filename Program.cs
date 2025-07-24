@@ -74,12 +74,7 @@ try
     var app = builder.Build();
 
     app.UseCors(x => x
-        .WithOrigins(
-            "http://localhost:3000",
-            "https://localhost:3000",
-            "https://sfmanagement-web-stag.azurewebsites.net",
-            "https://sfmanagement-web.azurewebsites.net"
-        )
+        .WithOrigins()
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());

@@ -57,7 +57,7 @@ public class WalletIdentifierValidationService
             return false;
             
         // Internal AssetGroup can accept any AssetType since it represents company-owned wallets
-        if (assetGroup.Value == AssetGroup.Internal)
+        if (assetGroup.Value == AssetGroup.Internal || assetGroup.Value == AssetGroup.Settlements)
             return true;
             
         var expectedAssetGroup = GetExpectedAssetGroup(assetType);
@@ -82,9 +82,6 @@ public class WalletIdentifierValidationService
             // Crypto Assets
             AssetType.Bitcoin or AssetType.Ethereum or AssetType.Litecoin or 
             AssetType.Ripple or AssetType.BitcoinCash or AssetType.Stellar => AssetGroup.CryptoAssets,
-            
-            // Default to Internal for unknown types
-            _ => AssetGroup.Internal
         };
     }
     

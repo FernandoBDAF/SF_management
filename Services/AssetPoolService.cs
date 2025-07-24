@@ -26,9 +26,9 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             
             // Check if BaseAssetHolder already has an AssetPool for this AssetType
             var existingAssetHolderPool = await context.AssetPools
-                .FirstOrDefaultAsync(aw => aw.BaseAssetHolderId == obj.BaseAssetHolderId && 
-                                         aw.AssetGroup == obj.AssetGroup && 
-                                         !aw.DeletedAt.HasValue);
+                .FirstOrDefaultAsync(ap => ap.BaseAssetHolderId == obj.BaseAssetHolderId && 
+                                         ap.AssetGroup == obj.AssetGroup && 
+                                         !ap.DeletedAt.HasValue);
             
             if (existingAssetHolderPool != null)
             {

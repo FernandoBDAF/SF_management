@@ -1,10 +1,11 @@
 using SFManagement.Enums;
+using SFManagement.Enums.AssetInfrastructure;
 
 namespace SFManagement.ViewModels;
 
 public class SettlementTransactionRequest : BaseTransactionRequest
 {
-    public decimal Rake { get; set; }
+    public decimal RakeAmount { get; set; }
     
     public decimal RakeCommission { get; set; }
     
@@ -15,21 +16,21 @@ public class ReducedSettlementTransactionRequest
 {
     public decimal AssetAmount { get; set; }
 
-    public decimal Rake { get; set; }
+    public decimal RakeAmount { get; set; }
     
     public decimal RakeCommission { get; set; }
     
     public decimal? RakeBack { get; set; }
 
-    // Using new transaction model - receiver wallet identifier (client/player)
-    public Guid? ReceiverWalletIdentifierId { get; set; }
+    public Guid SenderWalletIdentifierId { get; set; }
+    public Guid ReceiverWalletIdentifierId { get; set; }
 }
 
 public class SettlementTransactionByDateRequest
 {
     public DateTime Date { get; set; }
 
-    public Guid? AssetPoolId { get; set; }
+    public AssetType AssetType { get; set; }
 
     public List<ReducedSettlementTransactionRequest> Transactions { get; set; } = [];
 }

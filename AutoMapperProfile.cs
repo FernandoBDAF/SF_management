@@ -371,7 +371,8 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BaseAssetHolder.Name))
             .ForMember(dest => dest.GovernmentNumber, opt => opt.MapFrom(src => src.BaseAssetHolder.GovernmentNumber))
             .ForMember(dest => dest.TaxEntityType, opt => opt.MapFrom(src => src.BaseAssetHolder.TaxEntityType))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses.FirstOrDefault()));
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.BaseAssetHolder.Addresses.FirstOrDefault()))
+            .ForMember(dest => dest.AssetPools, opt => opt.MapFrom(src => src.BaseAssetHolder.AssetPools));
         
         CreateMap<BaseAssetHolder, BaseAssetHolderResponse>()
             .ForMember(dest => dest.BaseAssetHolderId, opt => opt.MapFrom(src => src.Id))

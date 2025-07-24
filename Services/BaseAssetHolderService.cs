@@ -498,14 +498,14 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 if (!balances.ContainsKey(tx.BalanceAs.Value)) balances[tx.BalanceAs.Value] = 0;
                 balances[tx.BalanceAs.Value] += signedAmount * tx.ConversionRate.Value;
                     continue;
-            }
+                }
                 
             var assetType = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier.AssetType :
                 tx.SenderWalletIdentifier.AssetType;
 
                     if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += signedAmount * (100 - (tx.Rate ?? 0)) / 100;
+            balances[assetType] += signedAmount / ((100 + (tx.Rate ?? 0)) / 100);
         }
 
         // Process SettlementTransactions
@@ -599,6 +599,11 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             var assetGroup = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier.AssetGroup :
                 tx.SenderWalletIdentifier.AssetGroup;
+            
+            if (assetGroup == AssetGroup.Internal)
+            {
+                assetGroup = tx.ReceiverWalletIdentifier.AssetType == AssetType.BrazilianReal ? AssetGroup.FiatAssets : AssetGroup.PokerAssets;
+            }
             
             if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
             balances[assetGroup] += signedAmount;
