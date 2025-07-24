@@ -2,6 +2,7 @@ using System.Text;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -99,7 +100,17 @@ public static class DependencyInjectionExtensions
         builder.Services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                .RequireAuthenticatedUser()
+                .RequireAssertion(context =>
+                {
+                    // Allow OPTIONS requests (CORS preflight) without authentication
+                    if (context.Resource is HttpContext httpContext && 
+                        httpContext.Request.Method == "OPTIONS")
+                    {
+                        return true;
+                    }
+                    // Require authentication for all other requests
+                    return context.User.Identity?.IsAuthenticated == true;
+                })
                 .Build())
             .AddPolicy("Role:admin", policy => policy.Requirements.Add(new RoleRequirement(Auth0Roles.Admin)))
             .AddPolicy("Role:manager", policy => policy.Requirements.Add(new RoleRequirement(Auth0Roles.Manager)))
