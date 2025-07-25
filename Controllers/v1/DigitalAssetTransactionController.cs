@@ -44,7 +44,7 @@ public class
         }
         
         var transactions = await _digitalAssetTransactionService
-            .GetAssetHolderTransactions(pokerManagerAssetPoolIds, null, null, quantity ?? 100, page ?? 0);
+            .GetAssetHolderTransactions(pokerManagerAssetPoolIds, null, null, quantity ?? 1000, page ?? 0);
         
         response.Total = transactions.Total;
         

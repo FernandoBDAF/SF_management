@@ -42,7 +42,7 @@ public class
         }
         
         var transactions = await _fiatAssetTransactionService
-            .GetAssetHolderTransactions(bankAssetPoolIds, null, null, quantity ?? 100, page ?? 0);
+            .GetAssetHolderTransactions(bankAssetPoolIds, null, null, quantity ?? 1000, page ?? 0);
         
         response.Total = transactions.Total;
         
@@ -64,7 +64,7 @@ public class
         };
 
         var transactions = await _fiatAssetTransactionService
-            .GetNonAssetHolderTransactions(bankAssetPoolIds, null, null, quantity ?? 100, page ?? 0);
+            .GetNonAssetHolderTransactions(bankAssetPoolIds, null, null, quantity ?? 1000, page ?? 0);
         
         response.Total = transactions.Total;
         
