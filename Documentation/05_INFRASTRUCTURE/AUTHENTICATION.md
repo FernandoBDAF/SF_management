@@ -1,0 +1,609 @@
+# Authentication & Authorization
+
+This document describes the authentication and authorization system for the SF Management API. The system uses **Auth0** as the identity provider for secure, standards-based authentication.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Configuration](#configuration)
+- [Core Components](#core-components)
+- [Authorization System](#authorization-system)
+- [Using Authentication in Code](#using-authentication-in-code)
+- [Database Integration](#database-integration)
+- [Frontend Integration](#frontend-integration)
+- [Security Best Practices](#security-best-practices)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+
+---
+
+## Overview
+
+The SF Management API uses **Auth0** as an external identity provider to handle user authentication. This approach provides:
+
+- **Enterprise-grade security** - Auth0 handles password storage, MFA, and security best practices
+- **Scalability** - Authentication scales independently from the application
+- **Compliance** - Built-in support for security standards and certifications
+- **Flexibility** - Easy integration with social logins, SSO, and enterprise identity providers
+
+## Architecture
+
+### Authentication Flow
+
+```
+┌──────────────┐     ┌─────────────┐     ┌──────────────────┐
+│   Frontend   │────▶│   Auth0     │────▶│  SF Management   │
+│   Client     │◀────│   Login     │◀────│      API         │
+└──────────────┘     └─────────────┘     └──────────────────┘
+       │                    │                     │
+       │  1. Login Request  │                     │
+       │───────────────────▶│                     │
+       │                    │                     │
+       │  2. JWT Token      │                     │
+       │◀───────────────────│                     │
+       │                    │                     │
+       │         3. API Request with Bearer Token │
+       │─────────────────────────────────────────▶│
+       │                    │                     │
+       │                    │  4. Validate JWT    │
+       │                    │◀────────────────────│
+       │                    │                     │
+       │         5. API Response                  │
+       │◀─────────────────────────────────────────│
+```
+
+**Step-by-step:**
+
+1. The frontend client initiates login through Auth0
+2. Auth0 authenticates the user and returns a JWT token
+3. The client includes the JWT in the `Authorization` header for API requests
+4. The API validates the JWT against Auth0's public keys
+5. If valid, the API processes the request and returns a response
+
+### Project Structure
+
+```
+SF_management/
+├── Authorization/
+│   ├── Auth0AuthorizationAttributes.cs  # Custom attributes and constants
+│   ├── Auth0AuthorizationHandlers.cs    # Policy handlers
+│   └── Auth0UserService.cs              # User context service
+├── Middleware/
+│   └── AuthenticationLoggingMiddleware.cs
+├── Settings/
+│   └── Auth0Settings.cs                 # Configuration class
+├── StartupConfig/
+│   └── DependencyInjectionExtensions.cs # Service registration
+└── Data/
+    └── DataContext.cs                   # Database integration
+```
+
+---
+
+## Configuration
+
+Auth0 settings are configured in `appsettings.json`:
+
+```json
+{
+  "Auth0": {
+    "Domain": "your-tenant.auth0.com",
+    "Audience": "https://your-api-identifier",
+    "ClientId": "your-client-id",
+    "ClientSecret": "your-client-secret"
+  }
+}
+```
+
+| Setting | Description |
+|---------|-------------|
+| `Domain` | Your Auth0 tenant domain |
+| `Audience` | The API identifier registered in Auth0 |
+| `ClientId` | Application client ID |
+| `ClientSecret` | Application client secret (keep secure) |
+
+> **Security Note:** Never commit secrets to version control. Use environment variables or a secrets manager for production deployments.
+>
+> **Note:** For complete configuration details including environment variables and User Secrets, see [CONFIGURATION_MANAGEMENT.md](CONFIGURATION_MANAGEMENT.md#auth0-settings).
+
+---
+
+## Core Components
+
+### JWT Bearer Authentication
+
+JWT Bearer authentication is configured in `DependencyInjectionExtensions.cs`:
+
+```csharp
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+    o.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
+    o.Audience = builder.Configuration["Auth0:Audience"];
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = true;
+});
+```
+
+### User Context Service
+
+The `Auth0UserService` extracts user information from JWT claims and makes it available throughout the application:
+
+```csharp
+public interface IAuth0UserService
+{
+    string? GetUserId();
+    string? GetUserEmail();
+    string? GetUserName();
+    List<string> GetUserRoles();
+    List<string> GetUserPermissions();
+    bool IsAuthenticated();
+}
+```
+
+**Implementation details:**
+
+| Method | Claim Source |
+|--------|--------------|
+| `GetUserId()` | `ClaimTypes.NameIdentifier` (Auth0 `sub` claim) |
+| `GetUserEmail()` | `ClaimTypes.Email` or custom claim `https://www.semprefichas.com.br/email` |
+| `GetUserName()` | `ClaimTypes.Name` |
+| `GetUserRoles()` | `ClaimTypes.Role` |
+| `GetUserPermissions()` | `permissions` claim |
+
+**Usage in a controller:**
+
+```csharp
+[ApiController]
+[Route("api/v1/[controller]")]
+public class ExampleController : ControllerBase
+{
+    private readonly IAuth0UserService _auth0UserService;
+
+    public ExampleController(IAuth0UserService auth0UserService)
+    {
+        _auth0UserService = auth0UserService;
+    }
+
+    [HttpGet("me")]
+    public IActionResult GetCurrentUser()
+    {
+        if (!_auth0UserService.IsAuthenticated())
+            return Unauthorized();
+
+        return Ok(new
+        {
+            UserId = _auth0UserService.GetUserId(),
+            Email = _auth0UserService.GetUserEmail(),
+            Name = _auth0UserService.GetUserName(),
+            Roles = _auth0UserService.GetUserRoles(),
+            Permissions = _auth0UserService.GetUserPermissions()
+        });
+    }
+}
+```
+
+---
+
+## Authorization System
+
+### Default Security Policy
+
+By default, **all endpoints require authentication**. This is enforced through a fallback policy:
+
+```csharp
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAssertion(context =>
+        {
+            // Allow OPTIONS requests (CORS preflight) without authentication
+            if (context.Resource is HttpContext httpContext && 
+                httpContext.Request.Method == "OPTIONS")
+            {
+                return true;
+            }
+            // Require authentication for all other requests
+            return context.User.Identity?.IsAuthenticated == true;
+        })
+        .Build());
+```
+
+**Exceptions:**
+- `OPTIONS` requests (CORS preflight) are allowed without authentication
+- The `/health` endpoint is marked with `AllowAnonymous`
+
+### Roles
+
+The system defines four roles:
+
+| Role | Constant | Description |
+|------|----------|-------------|
+| `admin` | `Auth0Roles.Admin` | Full administrative access |
+| `manager` | `Auth0Roles.Manager` | Management-level access |
+| `user` | `Auth0Roles.User` | Standard user access |
+| `viewer` | `Auth0Roles.Viewer` | Read-only access |
+
+### Permissions
+
+Permissions follow a `action:resource` pattern:
+
+| Resource | Permissions |
+|----------|-------------|
+| Users | `read:users`, `create:users`, `update:users`, `delete:users` |
+| Clients | `read:clients`, `create:clients`, `update:clients`, `delete:clients` |
+| Transactions | `read:transactions`, `create:transactions`, `update:transactions`, `delete:transactions` |
+| Financial Data | `read:financial_data`, `create:financial_data`, `update:financial_data`, `delete:financial_data` |
+
+**Permission constants are available in `Auth0Permissions`:**
+
+```csharp
+public static class Auth0Permissions
+{
+    // User management
+    public const string ReadUsers = "read:users";
+    public const string CreateUsers = "create:users";
+    public const string UpdateUsers = "update:users";
+    public const string DeleteUsers = "delete:users";
+    
+    // Client management
+    public const string ReadClients = "read:clients";
+    public const string CreateClients = "create:clients";
+    public const string UpdateClients = "update:clients";
+    public const string DeleteClients = "delete:clients";
+    
+    // Transaction management
+    public const string ReadTransactions = "read:transactions";
+    public const string CreateTransactions = "create:transactions";
+    public const string UpdateTransactions = "update:transactions";
+    public const string DeleteTransactions = "delete:transactions";
+    
+    // Financial data
+    public const string ReadFinancialData = "read:financial_data";
+    public const string CreateFinancialData = "create:financial_data";
+    public const string UpdateFinancialData = "update:financial_data";
+    public const string DeleteFinancialData = "delete:financial_data";
+}
+```
+
+### Authorization Handlers
+
+Two custom authorization handlers validate roles and permissions from JWT claims:
+
+**RoleAuthorizationHandler:**
+
+```csharp
+public class RoleAuthorizationHandler : AuthorizationHandler<RoleRequirement>
+{
+    protected override Task HandleRequirementAsync(
+        AuthorizationHandlerContext context, 
+        RoleRequirement requirement)
+    {
+        var roles = context.User.FindAll(ClaimTypes.Role)
+            .Select(c => c.Value).ToList();
+        
+        if (roles.Contains(requirement.Role))
+        {
+            context.Succeed(requirement);
+        }
+        
+        return Task.CompletedTask;
+    }
+}
+```
+
+**PermissionAuthorizationHandler:**
+
+```csharp
+public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+{
+    protected override Task HandleRequirementAsync(
+        AuthorizationHandlerContext context, 
+        PermissionRequirement requirement)
+    {
+        var permissions = context.User.FindAll("permissions")
+            .Select(c => c.Value).ToList();
+        
+        if (permissions.Contains(requirement.Permission))
+        {
+            context.Succeed(requirement);
+        }
+        
+        return Task.CompletedTask;
+    }
+}
+```
+
+Both handlers include comprehensive logging for security auditing.
+
+> **Note:** For details on authorization logging, see [LOGGING.md](LOGGING.md#authorization-event-logging).
+
+---
+
+## Using Authentication in Code
+
+### Authorization Attributes
+
+Apply authorization requirements using custom attributes:
+
+**Require a specific role:**
+
+```csharp
+[RequireRole(Auth0Roles.Admin)]
+[HttpDelete("{id}")]
+public async Task<IActionResult> DeleteResource(Guid id)
+{
+    // Only admins can access this endpoint
+    return Ok(await _service.DeleteAsync(id));
+}
+```
+
+**Require a specific permission:**
+
+```csharp
+[RequirePermission(Auth0Permissions.ReadClients)]
+[HttpGet]
+public async Task<IActionResult> GetClients()
+{
+    // Only users with read:clients permission can access
+    return Ok(await _clientService.GetAllAsync());
+}
+```
+
+**Combine role and permission requirements:**
+
+```csharp
+[RequireRole(Auth0Roles.Manager)]
+[RequirePermission(Auth0Permissions.DeleteTransactions)]
+[HttpDelete("transactions/{id}")]
+public async Task<IActionResult> DeleteTransaction(Guid id)
+{
+    // Requires BOTH manager role AND delete:transactions permission
+    return Ok(await _transactionService.DeleteAsync(id));
+}
+```
+
+### Public Endpoints
+
+To create a public endpoint, use the `[AllowAnonymous]` attribute:
+
+```csharp
+[AllowAnonymous]
+[HttpGet("health")]
+public IActionResult HealthCheck()
+{
+    return Ok(new { status = "healthy" });
+}
+```
+
+### Programmatic Authorization Checks
+
+Check authorization in code using `IAuth0UserService`:
+
+```csharp
+public async Task<IActionResult> ConditionalAction()
+{
+    var permissions = _auth0UserService.GetUserPermissions();
+    
+    if (permissions.Contains(Auth0Permissions.UpdateFinancialData))
+    {
+        // Perform sensitive operation
+        return Ok(await PerformSensitiveUpdate());
+    }
+    
+    return Forbid("Insufficient permissions for this operation");
+}
+```
+
+---
+
+## Database Integration
+
+### Audit Trail
+
+The `DataContext` automatically tracks who creates or modifies records using the `LastModifiedBy` property on `BaseDomain`.
+
+### User ID Conversion
+
+Auth0 user IDs (e.g., `auth0|123456789`) are converted to GUIDs for database storage using a consistent SHA256 hash:
+
+```csharp
+private Guid GetCurrentUserId()
+{
+    var user = _httpContextAccessor.HttpContext?.User;
+    
+    if (user != null && user.Identity?.IsAuthenticated == true)
+    {
+        var subClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(subClaim))
+        {
+            // Generate consistent Guid from Auth0 sub claim
+            var hash = SHA256.Create();
+            var hashBytes = hash.ComputeHash(Encoding.UTF8.GetBytes(subClaim));
+            return new Guid(hashBytes.Take(16).ToArray());
+        }
+    }
+    
+    // Return default system user ID if no authenticated user
+    return Guid.Empty;
+}
+```
+
+This ensures:
+- The same Auth0 user always maps to the same GUID
+- Audit trails can track changes back to specific users
+- The conversion is deterministic and reversible for debugging
+
+> **Note:** For complete details on audit tracking, see [AUDIT_SYSTEM.md](AUDIT_SYSTEM.md).
+
+---
+
+## Frontend Integration
+
+### Obtaining a JWT Token
+
+Use the Auth0 SDK to authenticate users:
+
+```javascript
+import { Auth0Client } from '@auth0/auth0-spa-js';
+
+const auth0 = new Auth0Client({
+    domain: 'your-tenant.auth0.com',
+    clientId: 'your-client-id',
+    authorizationParams: {
+        audience: 'https://your-api-identifier'
+    }
+});
+
+// Redirect to Auth0 login
+await auth0.loginWithRedirect();
+
+// After login, get the access token
+const token = await auth0.getAccessTokenSilently();
+```
+
+### Making Authenticated API Calls
+
+Include the JWT in the `Authorization` header:
+
+```javascript
+const token = await auth0.getAccessTokenSilently();
+
+const response = await fetch('/api/v1/clients', {
+    headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    }
+});
+
+const data = await response.json();
+```
+
+### Handling Token Expiration
+
+Implement token refresh logic:
+
+```javascript
+async function apiRequest(url, options = {}) {
+    try {
+        const token = await auth0.getAccessTokenSilently();
+        
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.status === 401) {
+            // Token expired or invalid, re-authenticate
+            await auth0.loginWithRedirect();
+        }
+        
+        return response;
+    } catch (error) {
+        if (error.error === 'login_required') {
+            await auth0.loginWithRedirect();
+        }
+        throw error;
+    }
+}
+```
+
+---
+
+## Security Best Practices
+
+### Token Security
+
+- **Store tokens securely** - Use `httpOnly` cookies or secure storage, never `localStorage` in production
+- **Validate tokens server-side** - Never trust client-side token validation alone
+- **Use HTTPS** - Always use HTTPS in production to protect tokens in transit
+- **Handle expiration gracefully** - Implement silent refresh or prompt users to re-authenticate
+
+### Authorization Best Practices
+
+- **Principle of least privilege** - Grant minimum required permissions
+- **Use specific permissions** - Prefer `read:clients` over broad `admin` role when possible
+- **Audit authorization decisions** - Log both grants and denials for security analysis
+- **Review permissions regularly** - Periodically audit user roles and permissions in Auth0
+
+### Error Handling
+
+Return appropriate HTTP status codes without leaking sensitive information:
+
+```csharp
+// Authentication failed (no valid token)
+return Unauthorized();
+
+// Authorization failed (valid token, insufficient permissions)
+return Forbid();
+
+// Don't expose internal details
+// Bad: return Unauthorized("User auth0|123 not found in database");
+// Good: return Unauthorized();
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+**401 Unauthorized on all requests:**
+- Verify Auth0 `Domain` and `Audience` in configuration
+- Check that the token hasn't expired
+- Ensure the token is being sent in the `Authorization: Bearer {token}` header
+
+**403 Forbidden after successful authentication:**
+- User is authenticated but lacks required role/permission
+- Check the JWT claims to verify roles and permissions are present
+- Ensure roles/permissions are configured correctly in Auth0
+
+**User email is null:**
+- The email claim may be under a custom namespace
+- Check for `https://www.semprefichas.com.br/email` custom claim
+- Verify Auth0 rules/actions are adding the email to the token
+
+**Inconsistent user IDs in audit trail:**
+- The same Auth0 user should always generate the same GUID
+- If GUIDs differ, check if the `sub` claim format changed
+
+### Debugging JWT Tokens
+
+Decode and inspect JWT tokens at [jwt.io](https://jwt.io) to verify:
+
+1. **Header** - Algorithm and token type
+2. **Payload** - Contains claims including:
+   - `sub` - User identifier
+   - `email` - User email
+   - `roles` - User roles array
+   - `permissions` - User permissions array
+   - `exp` - Expiration timestamp
+   - `aud` - Audience (should match your API identifier)
+   - `iss` - Issuer (should match your Auth0 domain)
+3. **Signature** - Validates token integrity
+
+---
+
+## Related Documentation
+
+| Topic | Document |
+|-------|----------|
+| Configuration Details | [CONFIGURATION_MANAGEMENT.md](CONFIGURATION_MANAGEMENT.md) |
+| Audit System | [AUDIT_SYSTEM.md](AUDIT_SYSTEM.md) |
+| Logging | [LOGGING.md](LOGGING.md) |
+| Error Handling | [ERROR_HANDLING.md](ERROR_HANDLING.md) |
+
+### External References
+
+- [Auth0 Documentation](https://auth0.com/docs)
+- [ASP.NET Core Authentication](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/)
+- [JWT Bearer Authentication](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/jwt-authn)
+- [Custom Authorization Handlers](https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies)
