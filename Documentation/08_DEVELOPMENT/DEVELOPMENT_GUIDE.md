@@ -10,7 +10,7 @@ This guide provides essential information for developers working on the SF Manag
 
 ### Prerequisites
 
-- .NET 8.0 SDK
+- .NET 9.0 SDK
 - SQL Server (local or remote)
 - Visual Studio 2022 / VS Code / Rider
 - Auth0 account (for authentication)
@@ -52,28 +52,52 @@ Copy `appsettings.Development.json.example` to `appsettings.Development.json` an
 
 ## Project Structure
 
+The project follows a Clean Architecture folder structure:
+
 ```
 SF_management/
-├── Controllers/
-│   ├── BaseApiController.cs
-│   ├── BaseAssetHolderController.cs
-│   └── v1/                          # Versioned controllers
-├── Services/
-│   ├── BaseService.cs
-│   ├── BaseAssetHolderService.cs
-│   └── BaseTransactionService.cs
-├── Models/
-│   ├── BaseDomain.cs
-│   ├── Entities/                    # Asset holders
-│   ├── Transactions/                # Transaction types
-│   └── AssetInfrastructure/         # Asset models
-├── ViewModels/                      # Request/Response models
-├── Enums/                           # Enumerations
-├── Data/
-│   └── DataContext.cs               # EF Core context
-├── Exceptions/                      # Custom exceptions
-├── Middleware/                      # Custom middleware
-├── Authorization/                   # Auth policies
+├── Domain/                          # Core business logic (no external dependencies)
+│   ├── Common/
+│   │   └── BaseDomain.cs            # Base entity class
+│   ├── Entities/
+│   │   ├── AssetHolders/            # Bank, Client, Member, PokerManager
+│   │   ├── Assets/                  # AssetPool, WalletIdentifier
+│   │   ├── Transactions/            # Transaction types
+│   │   └── Support/                 # Address, Category, etc.
+│   ├── Enums/                       # All enumerations
+│   ├── Exceptions/                  # Business exceptions
+│   └── Interfaces/                  # Domain service interfaces
+│
+├── Application/                     # Application logic
+│   ├── DTOs/                        # Data Transfer Objects (Request/Response)
+│   │   ├── AssetHolders/
+│   │   ├── Assets/
+│   │   ├── Transactions/
+│   │   └── ...
+│   ├── Mappings/
+│   │   └── AutoMapperProfile.cs
+│   ├── Services/
+│   │   ├── Base/                    # BaseService, BaseAssetHolderService
+│   │   ├── AssetHolders/            # Entity-specific services
+│   │   ├── Transactions/            # Transaction services
+│   │   └── Validation/              # Validation services
+│   └── Validators/                  # FluentValidation validators
+│
+├── Infrastructure/                  # External concerns
+│   ├── Authorization/               # Auth0 handlers
+│   ├── Data/
+│   │   └── DataContext.cs           # EF Core context
+│   ├── Logging/                     # Logging service
+│   └── Settings/                    # Configuration classes
+│
+├── Api/                             # Presentation layer
+│   ├── Configuration/               # DI extensions
+│   ├── Controllers/
+│   │   ├── Base/                    # Base controllers
+│   │   └── v1/                      # Versioned controllers
+│   └── Middleware/                  # Custom middleware
+│
+├── Program.cs                       # Application entry point
 └── Documentation/                   # This documentation
 ```
 
@@ -83,13 +107,13 @@ SF_management/
 
 ### Adding a New Entity
 
-1. **Create the model** in `Models/`
-2. **Add DbSet** to `DataContext.cs`
-3. **Create service** extending `BaseService<T>`
-4. **Create controller** extending `BaseApiController<T,Req,Res>`
-5. **Add ViewModels** for request/response
-6. **Register service** in `DependencyInjectionExtensions.cs`
-7. **Add AutoMapper mappings** in `AutoMapperProfile.cs`
+1. **Create the entity model** in `Domain/Entities/`
+2. **Add DbSet** to `Infrastructure/Data/DataContext.cs`
+3. **Create service** extending `BaseService<T>` in `Application/Services/`
+4. **Create controller** extending `BaseApiController<T,Req,Res>` in `Api/Controllers/v1/`
+5. **Add DTOs** for request/response in `Application/DTOs/`
+6. **Register service** in `Api/Configuration/DependencyInjectionExtensions.cs`
+7. **Add AutoMapper mappings** in `Application/Mappings/AutoMapperProfile.cs`
 
 ### Adding a New Endpoint
 

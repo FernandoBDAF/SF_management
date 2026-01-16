@@ -1,3 +1,8 @@
+using SFManagement.Infrastructure.Data;
+using SFManagement.Api.Configuration;
+using SFManagement.Application.Validators.Transactions;
+using SFManagement.Api.Middleware;
+using SFManagement.Application.Mappings;
 using System.Globalization;
 using AspNetCoreRateLimit;
 using FluentValidation.AspNetCore;
@@ -5,10 +10,10 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using SFManagement;
-using SFManagement.Data;
-using SFManagement.StartupConfig;
-using SFManagement.ViewModels.Validators;
-using SFManagement.Middleware;
+using SFManagement.Infrastructure.Data;
+using SFManagement.Api.Configuration;
+using SFManagement.Application.Validators;
+using SFManagement.Api.Middleware;
 using System.Text.Json.Serialization;
 using Serilog;
 

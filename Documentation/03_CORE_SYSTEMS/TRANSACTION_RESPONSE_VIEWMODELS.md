@@ -1,4 +1,4 @@
-# Transaction Response ViewModels
+# Transaction Response DTOs
 
 ## Table of Contents
 
@@ -21,7 +21,9 @@
 
 ## Overview
 
-This document describes the transaction response ViewModels used in the SF Management API. These models provide rich, structured information about transactions for API consumers, including wallet details, asset holder information, and context-specific metadata.
+This document describes the transaction response DTOs (Data Transfer Objects) used in the SF Management API. These models provide rich, structured information about transactions for API consumers, including wallet details, asset holder information, and context-specific metadata.
+
+**File Location:** `Application/DTOs/Transactions/`
 
 The API uses a hierarchy of response models that extend a common base, with each transaction type adding specialized information relevant to its domain (fiat banking, digital assets, or settlements).
 
@@ -365,7 +367,7 @@ public class SettlementTransactionSimplifiedResponse : BaseResponse
 
 ## AutoMapper Overview
 
-The ViewModels are populated using AutoMapper with intelligent metadata extraction. Key mapping features include:
+The DTOs are populated using AutoMapper with intelligent metadata extraction. Key mapping features include:
 
 - **Transaction Type Identification**: Each transaction type sets its `TransactionType` string
 - **Asset Type Detection**: Extracts from sender wallet's `AssetType`

@@ -32,7 +32,7 @@ Exception
 
 Base class for all business logic errors.
 
-**File**: `Exceptions/BusinessException.cs`
+**File**: `Domain/Exceptions/BusinessException.cs`
 
 ```csharp
 public class BusinessException : Exception
@@ -149,7 +149,7 @@ throw new BusinessRuleException(
 
 The `ErrorHandlerMiddleware` intercepts all unhandled exceptions and converts them to consistent API responses.
 
-**File**: `ErrorHandlerMiddleware.cs`
+**File**: `Api/Middleware/ErrorHandlerMiddleware.cs`
 
 ### Registration
 

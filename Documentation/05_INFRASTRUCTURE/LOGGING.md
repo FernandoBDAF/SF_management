@@ -58,14 +58,16 @@ The logging system is built on **Serilog** and provides:
 
 ```
 SF_management/
-├── Services/
-│   └── LoggingService.cs          # Core logging service
-├── Middleware/
-│   ├── AuthenticationLoggingMiddleware.cs
-│   └── RequestResponseLoggingMiddleware.cs
-├── ErrorHandlerMiddleware.cs      # Global error handling
-├── appsettings.json               # Serilog configuration
-└── logs/                          # Daily log files
+├── Infrastructure/
+│   └── Logging/
+│       └── LoggingService.cs          # Core logging service
+├── Api/
+│   └── Middleware/
+│       ├── AuthenticationLoggingMiddleware.cs
+│       ├── ErrorHandlerMiddleware.cs      # Global error handling
+│       └── RequestResponseLoggingMiddleware.cs
+├── appsettings.json                   # Serilog configuration
+└── logs/                              # Daily log files
     └── sf-management-{date}.log
 ```
 
@@ -456,8 +458,8 @@ For detailed authentication/authorization debugging:
   "Logging": {
     "LogLevel": {
       "Microsoft.AspNetCore.Authentication": "Debug",
-      "SFManagement.Authorization": "Debug",
-      "SFManagement.Middleware": "Debug"
+      "SFManagement.Infrastructure.Authorization": "Debug",
+      "SFManagement.Api.Middleware": "Debug"
     }
   }
 }

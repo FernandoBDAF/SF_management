@@ -82,7 +82,7 @@ BaseService<TEntity>
 
 The foundation of all services in the system. Provides standard CRUD operations with soft delete support.
 
-**File**: `Services/BaseService.cs`
+**File**: `Application/Services/Base/BaseService.cs`
 
 ### Definition
 
@@ -154,7 +154,7 @@ foreach (var property in typeof(TEntity).GetProperties())
 
 Extends `BaseService` with specialized functionality for asset holder entities (Client, Bank, Member, PokerManager).
 
-**File**: `Services/BaseAssetHolderService.cs`
+**File**: `Application/Services/Base/BaseAssetHolderService.cs`
 
 ### Definition
 
@@ -277,7 +277,7 @@ public async Task<StatementAssetHolderWithTransactions> GetTransactionsStatement
 
 Extends `BaseService` with specialized functionality for transaction entities.
 
-**File**: `Services/BaseTransactionService.cs`
+**File**: `Application/Services/Base/BaseTransactionService.cs`
 
 ### Definition
 
@@ -431,7 +431,7 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
 
 ## Dependency Injection
 
-All services are registered with scoped lifetime in `DependencyInjectionExtensions.cs`:
+All services are registered with scoped lifetime in `Api/Configuration/DependencyInjectionExtensions.cs`:
 
 ```csharp
 public static void AddScopedServices(this WebApplicationBuilder builder)

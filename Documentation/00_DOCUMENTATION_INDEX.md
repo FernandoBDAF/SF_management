@@ -17,6 +17,7 @@ Welcome to the SF Management documentation. This index provides a comprehensive 
 | [Reference](#07_reference) | Technical reference | Enums, Type System |
 | [Development](#08_development) | Developer resources | Development Guide |
 | [Deployment](#09_deployment) | CI/CD and cloud infrastructure | CI/CD Pipeline, Azure Infrastructure |
+| [Refactoring](#10_refactoring) | Code improvement plans | Folder Restructure Plan |
 
 ---
 
@@ -54,7 +55,7 @@ Documentation for the primary systems that power the application.
 | [ENTITY_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md) | BaseAssetHolder hierarchy, entity relationships, and asset holder management |
 | [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md) | Asset pools, wallet identifiers, metadata system, and asset management |
 | [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) | Transaction models, services, and handling across asset types |
-| [TRANSACTION_RESPONSE_VIEWMODELS.md](03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md) | Transaction response ViewModels and API response structure |
+| [TRANSACTION_RESPONSE_VIEWMODELS.md](03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md) | Transaction response DTOs and API response structure |
 | [REFERRAL_SYSTEM.md](03_CORE_SYSTEMS/REFERRAL_SYSTEM.md) | Commission tracking system, referral management, and business rules |
 | [SETTLEMENT_WORKFLOW.md](03_CORE_SYSTEMS/SETTLEMENT_WORKFLOW.md) | Poker settlement process, rake calculations, and batch settlements |
 | [IMPORTED_TRANSACTIONS.md](03_CORE_SYSTEMS/IMPORTED_TRANSACTIONS.md) | File import system for OFX and Excel, reconciliation workflow |
@@ -134,6 +135,16 @@ Deployment and cloud infrastructure documentation.
 
 ---
 
+### 10_REFACTORING
+
+Refactoring plans and implementation guides for code improvements.
+
+| Document | Description |
+|----------|-------------|
+| [FOLDER_RESTRUCTURE_PLAN.md](10_REFACTORING/FOLDER_RESTRUCTURE_PLAN.md) | Comprehensive plan for reorganizing codebase into Clean Architecture folder structure |
+
+---
+
 ## Getting Started
 
 ### For New Developers
@@ -158,6 +169,7 @@ Deployment and cloud infrastructure documentation.
 | Import external data | [IMPORTED_TRANSACTIONS.md](03_CORE_SYSTEMS/IMPORTED_TRANSACTIONS.md) |
 | Configure the application | [CONFIGURATION_MANAGEMENT.md](05_INFRASTRUCTURE/CONFIGURATION_MANAGEMENT.md) |
 | Deploy to Azure | [CI_CD_PIPELINE.md](09_DEPLOYMENT/CI_CD_PIPELINE.md), [AZURE_INFRASTRUCTURE.md](09_DEPLOYMENT/AZURE_INFRASTRUCTURE.md) |
+| Refactor folder structure | [FOLDER_RESTRUCTURE_PLAN.md](10_REFACTORING/FOLDER_RESTRUCTURE_PLAN.md) |
 
 ---
 
@@ -174,7 +186,8 @@ Deployment and cloud infrastructure documentation.
 | Reference | 2 |
 | Development | 1 |
 | Deployment | 2 |
-| **Total** | **31** |
+| Refactoring | 1 |
+| **Total** | **32** |
 
 ---
 

@@ -47,7 +47,7 @@ ControllerBase (ASP.NET Core)
 
 Provides standard CRUD operations for all entities.
 
-**File**: `Controllers/BaseApiController.cs`
+**File**: `Api/Controllers/Base/BaseApiController.cs`
 
 ### Definition
 
@@ -132,7 +132,7 @@ public virtual async Task<IActionResult> Delete(Guid id)
 
 Extends BaseApiController with asset holder-specific functionality.
 
-**File**: `Controllers/BaseAssetHolderController.cs`
+**File**: `Api/Controllers/Base/BaseAssetHolderController.cs`
 
 ### Definition
 

@@ -69,10 +69,9 @@ Configuration sources are loaded in order, with later sources overriding earlier
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning",
       "Microsoft.AspNetCore.Authentication": "Debug",
-      "SFManagement.Authorization": "Debug",
-      "SFManagement.Services": "Information",
-      "SFManagement.Middleware.RequestResponseLoggingMiddleware": "Information",
-      "SFManagement.ErrorHandlerMiddleware": "Information"
+      "SFManagement.Infrastructure.Authorization": "Debug",
+      "SFManagement.Application.Services": "Information",
+      "SFManagement.Api.Middleware": "Information"
     }
   },
   "AllowedHosts": "*",
@@ -96,8 +95,7 @@ Configuration sources are loaded in order, with later sources overriding earlier
         "Microsoft.AspNetCore": "Warning",
         "Microsoft.EntityFrameworkCore": "Warning",
         "System": "Warning",
-        "SFManagement.Middleware.RequestResponseLoggingMiddleware": "Information",
-        "SFManagement.ErrorHandlerMiddleware": "Information"
+        "SFManagement.Api.Middleware": "Information"
       }
     },
     "WriteTo": [
@@ -280,8 +278,8 @@ Built-in .NET logging configuration.
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning",
       "Microsoft.AspNetCore.Authentication": "Debug",
-      "SFManagement.Authorization": "Debug",
-      "SFManagement.Services": "Information"
+      "SFManagement.Infrastructure.Authorization": "Debug",
+      "SFManagement.Application.Services": "Information"
     }
   }
 }
