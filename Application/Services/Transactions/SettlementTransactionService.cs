@@ -1,12 +1,10 @@
-using SFManagement.Application.DTOs.Transactions;
-using SFManagement.Application.DTOs.ImportedTransactions;
-using SFManagement.Application.Services.Base;
-using SFManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
+using SFManagement.Application.DTOs.ImportedTransactions;
+using SFManagement.Application.DTOs.Transactions;
+using SFManagement.Application.Services.Base;
 using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Application.DTOs;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Transactions;
 

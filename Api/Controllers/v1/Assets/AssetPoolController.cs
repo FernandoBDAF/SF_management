@@ -1,13 +1,11 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SFManagement.Api.Controllers.Base;
 using SFManagement.Application.DTOs.Assets;
 using SFManagement.Application.DTOs.CompanyAssets;
 using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Base;
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using SFManagement.Domain.Entities.Assets;
-using SFManagement.Application.Services;
-using SFManagement.Application.DTOs;
 
 namespace SFManagement.Api.Controllers.v1.Assets;
 

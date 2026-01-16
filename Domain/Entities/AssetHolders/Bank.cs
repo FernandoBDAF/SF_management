@@ -12,5 +12,5 @@ public class Bank : BaseDomain, IAssetHolder
     
     public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
-    [Required] [MaxLength(10)] [Column(TypeName = "varchar(10)")] public string Code { get; set; }
+    [Required] [MaxLength(10)] [Column(TypeName = "varchar(10)")] public string Code { get; set; } = string.Empty;
 }

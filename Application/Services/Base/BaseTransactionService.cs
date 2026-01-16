@@ -1,10 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.Common;
+using SFManagement.Domain.Entities.Transactions;
 using SFManagement.Infrastructure.Data;
 using SFManagement.Infrastructure.Logging;
-using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Application.DTOs;
-using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Base;
 

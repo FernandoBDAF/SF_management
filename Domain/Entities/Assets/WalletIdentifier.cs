@@ -14,7 +14,7 @@ namespace SFManagement.Domain.Entities.Assets;
 public class WalletIdentifier : BaseDomain
 {
     [Required] public Guid AssetPoolId { get; set; }
-    public virtual AssetPool AssetPool { get; set; }
+    public virtual AssetPool? AssetPool { get; set; }
     
     /// <summary>
     /// Referrals for this WalletIdentifier

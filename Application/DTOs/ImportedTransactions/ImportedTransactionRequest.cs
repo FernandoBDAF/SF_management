@@ -20,7 +20,7 @@ public class ImportTransactionRequest
     /// The file to import
     /// </summary>
     [Required]
-    public IFormFile File { get; set; }
+    public required IFormFile File { get; set; }
 }
 
 /// <summary>

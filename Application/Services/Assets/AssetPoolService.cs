@@ -1,14 +1,12 @@
-using SFManagement.Application.DTOs.CompanyAssets;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.Assets;
+using SFManagement.Application.DTOs.CompanyAssets;
 using SFManagement.Application.Services.Base;
 using SFManagement.Application.Services.Validation;
-using SFManagement.Infrastructure.Data;
-﻿using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
 using SFManagement.Domain.Entities.Assets;
 using SFManagement.Domain.Enums;
-using SFManagement.Application.DTOs;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Assets;
 
@@ -171,8 +169,8 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             .Include(ft => ft.ReceiverWalletIdentifier)
             .Include(ft => ft.SenderWalletIdentifier)
             .SumAsync(ft => walletIdentifiers.Contains(ft.ReceiverWalletIdentifierId) ? 
-            ft.AssetAmount * (ft.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
-            -ft.AssetAmount * (ft.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
+            ft.AssetAmount * (ft.ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
+            -ft.AssetAmount * (ft.ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
             );
 
         var digitalBalance = await context.DigitalAssetTransactions
@@ -182,8 +180,8 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             .Include(dt => dt.ReceiverWalletIdentifier)
             .Include(dt => dt.SenderWalletIdentifier)
             .SumAsync(dt => walletIdentifiers.Contains(dt.ReceiverWalletIdentifierId) ? 
-            dt.AssetAmount * (dt.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
-            -dt.AssetAmount * (dt.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
+            dt.AssetAmount * (dt.ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
+            -dt.AssetAmount * (dt.ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
             );
 
         var settlementBalance = await context.SettlementTransactions
@@ -193,8 +191,8 @@ public class AssetPoolService(DataContext context, IHttpContextAccessor httpCont
             .Include(st => st.ReceiverWalletIdentifier)
             .Include(st => st.SenderWalletIdentifier)
             .SumAsync(st => walletIdentifiers.Contains(st.ReceiverWalletIdentifierId) ? 
-            st.AssetAmount * (st.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
-            -st.AssetAmount * (st.ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
+            st.AssetAmount * (st.ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY ? -1 : 1) : 
+            -st.AssetAmount * (st.ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY ? -1 : 1)
             );
 
         return fiatBalance + digitalBalance + settlementBalance;

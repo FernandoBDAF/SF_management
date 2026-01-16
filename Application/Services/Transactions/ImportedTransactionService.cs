@@ -1,7 +1,3 @@
-using SFManagement.Application.DTOs.Transactions;
-using SFManagement.Application.DTOs.ImportedTransactions;
-using SFManagement.Application.Services.Base;
-using SFManagement.Infrastructure.Data;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,12 +5,15 @@ using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using SFManagement.Infrastructure.Data;
-using SFManagement.Domain.Enums;
-using SFManagement.Domain.Exceptions;
+using SFManagement.Application.DTOs.ImportedTransactions;
+using SFManagement.Application.DTOs.Transactions;
+using SFManagement.Application.Services.Base;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
+using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.ImportedFiles;
+using SFManagement.Domain.Exceptions;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Transactions;
 
@@ -144,7 +143,7 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
                     transactions.Add(importedTransaction);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Create a failed transaction record for tracking
                 var failedTransaction = new ImportedTransaction
@@ -275,14 +274,14 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
         // Search Fiat transactions
         var fiatTransactions = await context.FiatAssetTransactions
             .Include(ft => ft.SenderWalletIdentifier)
-                .ThenInclude(wi => wi.AssetPool)
+                .ThenInclude(wi => wi!.AssetPool)
             .Include(ft => ft.ReceiverWalletIdentifier)
-                .ThenInclude(wi => wi.AssetPool)
+                .ThenInclude(wi => wi!.AssetPool)
             .Where(ft => ft.Date >= startDate && ft.Date <= endDate &&
                         ft.AssetAmount >= minAmount && ft.AssetAmount <= maxAmount &&
                         !ft.DeletedAt.HasValue &&
-                        (ft.SenderWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
-                         ft.ReceiverWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
+                        (ft.SenderWalletIdentifier!.AssetPool!.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
+                         ft.ReceiverWalletIdentifier!.AssetPool!.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
             .Select(ft => new { ft.Id, ft.Date, ft.AssetAmount})
             .ToListAsync();
 
@@ -291,14 +290,14 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
         // Search Digital transactions
         var digitalTransactions = await context.DigitalAssetTransactions
             .Include(dt => dt.SenderWalletIdentifier)
-                .ThenInclude(wi => wi.AssetPool)
+                .ThenInclude(wi => wi!.AssetPool)
             .Include(dt => dt.ReceiverWalletIdentifier)
-                .ThenInclude(wi => wi.AssetPool)
+                .ThenInclude(wi => wi!.AssetPool)
             .Where(dt => dt.Date >= startDate && dt.Date <= endDate &&
                         dt.AssetAmount >= minAmount && dt.AssetAmount <= maxAmount &&
                         !dt.DeletedAt.HasValue &&
-                        (dt.SenderWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
-                         dt.ReceiverWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
+                        (dt.SenderWalletIdentifier!.AssetPool!.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
+                         dt.ReceiverWalletIdentifier!.AssetPool!.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
             .Select(dt => new { dt.Id, dt.Date, dt.AssetAmount})
             .ToListAsync();
 
@@ -307,14 +306,14 @@ public class ImportedTransactionService : BaseService<ImportedTransaction>
         // Search Settlement transactions
         var settlementTransactions = await context.SettlementTransactions
             .Include(st => st.SenderWalletIdentifier)
-                .ThenInclude(wi => wi.AssetPool)
+                .ThenInclude(wi => wi!.AssetPool)
             .Include(st => st.ReceiverWalletIdentifier)
-                .ThenInclude(wi => wi.AssetPool)
+                .ThenInclude(wi => wi!.AssetPool)
             .Where(st => st.Date >= startDate && st.Date <= endDate &&
                         st.AssetAmount >= minAmount && st.AssetAmount <= maxAmount &&
                         !st.DeletedAt.HasValue &&
-                        (st.SenderWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
-                         st.ReceiverWalletIdentifier.AssetPool.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
+                        (st.SenderWalletIdentifier!.AssetPool!.BaseAssetHolderId == importedTransaction.BaseAssetHolderId ||
+                         st.ReceiverWalletIdentifier!.AssetPool!.BaseAssetHolderId == importedTransaction.BaseAssetHolderId))
             .Select(st => new { st.Id, st.Date, st.AssetAmount})
             .ToListAsync();
 

@@ -241,7 +241,7 @@ public class RequestResponseLoggingMiddleware
                 return element.EnumerateArray().Select(SanitizeJsonElement).ToArray();
             
             case JsonValueKind.String:
-                return element.GetString();
+                return element.GetString() ?? string.Empty;
             
             case JsonValueKind.Number:
                 return element.GetDecimal();
@@ -276,20 +276,20 @@ public class RequestResponseLoggingMiddleware
             {
                 foreach (var error in errorsElement.EnumerateObject())
                 {
-                    errors[error.Name] = error.Value.EnumerateArray().Select(e => e.GetString()).ToArray();
+                    errors[error.Name] = error.Value.EnumerateArray().Select(e => e.GetString() ?? string.Empty).ToArray();
                 }
             }
             
             // Check for custom error format
             if (jsonDoc.RootElement.TryGetProperty("error", out var errorElement))
             {
-                errors["error"] = errorElement.GetString();
+                errors["error"] = errorElement.GetString() ?? string.Empty;
             }
 
             // Check for detail property
             if (jsonDoc.RootElement.TryGetProperty("detail", out var detailElement))
             {
-                errors["detail"] = detailElement.GetString();
+                errors["detail"] = detailElement.GetString() ?? string.Empty;
             }
 
             return errors;

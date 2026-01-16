@@ -1,16 +1,13 @@
-using SFManagement.Application.Services.Transactions;
-using SFManagement.Application.DTOs.Transactions;
-using SFManagement.Api.Controllers.Base;
-using SFManagement.Application.DTOs.AssetHolders;
-using SFManagement.Application.Services.AssetHolders;
-using SFManagement.Application.Services.Assets;
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Api.Controllers.Base;
-using SFManagement.Domain.Enums;
+using SFManagement.Application.DTOs.AssetHolders;
+using SFManagement.Application.DTOs.Transactions;
+using SFManagement.Application.Services.AssetHolders;
+using SFManagement.Application.Services.Assets;
+using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Entities.AssetHolders;
-using SFManagement.Application.Services;
-using SFManagement.Application.DTOs;
+using SFManagement.Domain.Enums;
 
 namespace SFManagement.Api.Controllers.v1.AssetHolders;
 
@@ -20,7 +17,6 @@ namespace SFManagement.Api.Controllers.v1.AssetHolders;
 public class BankController : BaseAssetHolderController<Bank, BankRequest, BankResponse>
 {
     private readonly BankService _bankService;
-    private readonly WalletIdentifierService _walletIdentifierService;
 
     public BankController(BankService service, IMapper mapper, ILogger<BaseAssetHolderController<Bank, BankRequest, BankResponse>> logger,
         WalletIdentifierService walletIdentifierService) 

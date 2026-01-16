@@ -43,7 +43,7 @@ public class ImportedTransaction : BaseDomain
     /// </summary>
     [Required] 
     public Guid BaseAssetHolderId { get; set; }
-    public virtual BaseAssetHolder BaseAssetHolder { get; set; }
+    public virtual BaseAssetHolder? BaseAssetHolder { get; set; }
     
     /// <summary>
     /// Type of file this transaction was imported from
@@ -56,7 +56,7 @@ public class ImportedTransaction : BaseDomain
     /// </summary>
     [Required] 
     [MaxLength(32)]
-    public string FileName { get; set; }
+    public string FileName { get; set; } = string.Empty;
     
     /// <summary>
     /// Hash of the file content for integrity verification

@@ -9,5 +9,5 @@ public class BankRequest : BaseAssetHolderRequest
 {
     [Required]
     [StringLength(10, MinimumLength = 1)]
-    public string Code { get; set; }
+    public string Code { get; set; } = string.Empty;
 }

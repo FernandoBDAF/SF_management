@@ -1,9 +1,8 @@
-using SFManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
-using SFManagement.Domain.Enums;
 using SFManagement.Domain.Entities.Assets;
+using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Validation;
 

@@ -1,8 +1,7 @@
 using SFManagement.Application.DTOs.Support;
 using SFManagement.Application.Services.Base;
-using SFManagement.Infrastructure.Data;
-using SFManagement.Infrastructure.Data;
 using SFManagement.Domain.Entities.Support;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Support;
 

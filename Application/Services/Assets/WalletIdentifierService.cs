@@ -1,14 +1,13 @@
-using SFManagement.Application.Services.Support;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.Assets;
 using SFManagement.Application.Services.Base;
+using SFManagement.Application.Services.Support;
 using SFManagement.Application.Services.Validation;
-using SFManagement.Infrastructure.Data;
-﻿using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
 using SFManagement.Domain.Entities.Assets;
 using SFManagement.Domain.Enums;
-using SFManagement.Domain.Enums.Metadata;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Domain.Enums.Metadata;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Assets;
 
@@ -276,9 +275,9 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     {
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
-                .ThenInclude(aw => aw.BaseAssetHolder)
+                .ThenInclude(aw => aw!.BaseAssetHolder)
             .Include(wi => wi.Referrals)
-            .Where(wi => wi.AssetPool.AssetGroup == AssetGroup.Internal && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
 
@@ -299,8 +298,8 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         // For non-internal wallets, find an internal wallet of the same asset type
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
-            .ThenInclude(ap => ap.BaseAssetHolder)
-            .Where(wi => wi.AssetPool.AssetGroup == AssetGroup.Internal &&
+            .ThenInclude(ap => ap!.BaseAssetHolder)
+            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal &&
                         wi.AssetType == walletIdentifier.AssetType &&
                         !wi.DeletedAt.HasValue)
             .FirstOrDefaultAsync();
@@ -310,9 +309,9 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     {
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
-                .ThenInclude(aw => aw.BaseAssetHolder)
+                .ThenInclude(aw => aw!.BaseAssetHolder)
             .Include(wi => wi.Referrals)
-            .Where(wi => wi.AssetPool.AssetGroup == AssetGroup.Internal && 
+            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal && 
                         wi.MetadataJson.Contains($"\"{metadataKey}\":\"{metadataValue}\"") && 
                         !wi.DeletedAt.HasValue)
             .ToListAsync();

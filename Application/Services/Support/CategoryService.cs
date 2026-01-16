@@ -1,10 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.Support;
 using SFManagement.Application.Services.Base;
-using SFManagement.Infrastructure.Data;
-﻿using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
 using SFManagement.Domain.Entities.Support;
-using SFManagement.Application.DTOs;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Support;
 
@@ -43,6 +41,6 @@ public class CategoryService : BaseService<Category>
 
         // financialBehavior.Children.AddRange(chds);
 
-        return null;
+        return null!;
     }
 }

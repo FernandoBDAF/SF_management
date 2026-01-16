@@ -10,11 +10,11 @@ namespace SFManagement.Domain.Entities.AssetHolders;
 
 public class BaseAssetHolder : BaseDomain
 {
-    [Required] [MaxLength(32)] public string Name { get; set; }
+    [Required] [MaxLength(32)] public string Name { get; set; } = string.Empty;
 
     [Required] public TaxEntityType TaxEntityType { get; set; }
     
-    [Required] [MaxLength(20)] [Column(TypeName = "varchar(20)")] public string GovernmentNumber { get; set; }
+    [Required] [MaxLength(20)] [Column(TypeName = "varchar(20)")] public string GovernmentNumber { get; set; } = string.Empty;
     
     // Navigation properties to specific asset holder types (only one will have a value)
     public virtual Client? Client { get; set; }

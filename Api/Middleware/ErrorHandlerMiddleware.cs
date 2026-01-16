@@ -1,9 +1,8 @@
-using SFManagement.Infrastructure.Logging;
-using SFManagement.Domain.Exceptions;
-using System.Net;
-using System.Text.Json;
+﻿using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
 using SFManagement.Domain.Exceptions;
+using SFManagement.Infrastructure.Logging;
 
 namespace SFManagement.Api.Middleware;
 

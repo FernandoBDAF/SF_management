@@ -422,31 +422,31 @@ public class CompanyAssetPoolController : ControllerBase
 
     #region Private Helper Methods
 
-    private async Task<int> GetTransactionCount(Guid assetPoolId)
+    private Task<int> GetTransactionCount(Guid assetPoolId)
     {
         // This would be better as a method in AssetPoolService, but for now we'll use a simple approach
         try
         {
             // For now, return 0 - this should be implemented properly in AssetPoolService
-            return 0;
+            return Task.FromResult(0);
         }
         catch
         {
-            return 0;
+            return Task.FromResult(0);
         }
     }
 
-    private async Task<DateTime?> GetLastTransactionDate(Guid assetPoolId)
+    private Task<DateTime?> GetLastTransactionDate(Guid assetPoolId)
     {
         // This would be better as a method in AssetPoolService, but for now we'll use a simple approach
         try
         {
             // For now, return null - this should be implemented properly in AssetPoolService
-            return null;
+            return Task.FromResult<DateTime?>(null);
         }
         catch
         {
-            return null;
+            return Task.FromResult<DateTime?>(null);
         }
     }
 

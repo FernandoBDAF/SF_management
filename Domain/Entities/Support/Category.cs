@@ -8,7 +8,7 @@ namespace SFManagement.Domain.Entities.Support;
 public class Category : BaseDomain
 {
     [MaxLength(64)]
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     public Guid? CategoryId { get; set; }
     public virtual Category? Parent { get; set; }

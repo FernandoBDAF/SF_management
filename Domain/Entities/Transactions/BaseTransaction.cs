@@ -19,11 +19,11 @@ public abstract class BaseTransaction : BaseDomain
 
     // Sender
     [Required] public Guid SenderWalletIdentifierId { get; set; }
-    public virtual WalletIdentifier SenderWalletIdentifier { get; set; }
+    public virtual WalletIdentifier? SenderWalletIdentifier { get; set; }
     
     // Receiver
     [Required] public Guid ReceiverWalletIdentifierId { get; set; }
-    public virtual WalletIdentifier ReceiverWalletIdentifier { get; set; }
+    public virtual WalletIdentifier? ReceiverWalletIdentifier { get; set; }
     
     // only positive amounts are allowed
     [Required] [Precision(18, 2)] public decimal AssetAmount { get; set; }
@@ -48,10 +48,10 @@ public abstract class BaseTransaction : BaseDomain
     public WalletIdentifier GetCounterpartyForWalletIdentifier(Guid walletIdentifierId)
     {
         if (SenderWalletIdentifierId == walletIdentifierId)
-            return ReceiverWalletIdentifier;
+            return ReceiverWalletIdentifier!;
         
         if (ReceiverWalletIdentifierId == walletIdentifierId)
-            return SenderWalletIdentifier;
+            return SenderWalletIdentifier!;
             
         throw new ArgumentException("Wallet identifier is not involved in this transaction");
     }
@@ -70,15 +70,15 @@ public abstract class BaseTransaction : BaseDomain
 
     public bool HaveBothWalletsSameAccountClassification()
     {
-        return SenderWalletIdentifier.AccountClassification == ReceiverWalletIdentifier.AccountClassification;
+        return SenderWalletIdentifier!.AccountClassification == ReceiverWalletIdentifier!.AccountClassification;
     }
 
     public bool IsWalletIdentifierLiability(Guid walletIdentifierId)
     {
         if (SenderWalletIdentifierId == walletIdentifierId)
-            return SenderWalletIdentifier.AccountClassification == AccountClassification.LIABILITY;
+            return SenderWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY;
         
-        return ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY;
+        return ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY;
     }
 
     [NotMapped]

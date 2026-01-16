@@ -1,5 +1,18 @@
 using System.Runtime.Serialization;
 
+// SYSLIB0051 Suppression Explanation:
+// In .NET 5+, the BinaryFormatter and related serialization APIs (SerializationInfo, StreamingContext)
+// were marked obsolete due to security vulnerabilities. However, custom exceptions that inherit from
+// System.Exception traditionally implement serialization constructors and GetObjectData() overrides
+// to support scenarios like cross-process/app-domain exception propagation.
+// 
+// We suppress this warning because:
+// 1. The serialization pattern is still valid and widely used for exception classes
+// 2. We're not using BinaryFormatter directly (which is the actual security risk)
+// 3. Removing serialization support could break scenarios where exceptions need to be serialized
+// 4. This is a standard approach used across many .NET libraries maintaining backward compatibility
+#pragma warning disable SYSLIB0051 // Type or member is obsolete (serialization constructors)
+
 namespace SFManagement.Domain.Exceptions;
 
 /// <summary>

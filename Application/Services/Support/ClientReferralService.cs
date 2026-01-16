@@ -1,11 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.Support;
 using SFManagement.Application.Services.Base;
-using SFManagement.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
 using SFManagement.Domain.Entities.AssetHolders;
-using SFManagement.Domain.Entities.Support;
 using SFManagement.Domain.Entities.Assets;
+using SFManagement.Domain.Entities.Support;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Support;
 
@@ -48,7 +47,7 @@ public class ClientReferralService
         if (walletIdentifier == null)
             throw new ArgumentException($"WalletIdentifier not found: {walletIdentifierId}");
         
-        if (walletIdentifier.AssetPool.BaseAssetHolder.Client == null)
+        if (walletIdentifier.AssetPool?.BaseAssetHolder?.Client == null)
             throw new ArgumentException("WalletIdentifier does not belong to a Client");
         
         // Use the base ReferralService to create the referral
@@ -97,7 +96,7 @@ public class ClientReferralService
                 .ThenInclude(bah => bah.Client)
             .FirstOrDefaultAsync(wi => wi.Id == walletIdentifierId && !wi.DeletedAt.HasValue);
         
-        if (walletIdentifier?.AssetPool.BaseAssetHolder.Client == null)
+        if (walletIdentifier?.AssetPool?.BaseAssetHolder?.Client == null)
             throw new ArgumentException("WalletIdentifier does not belong to a Client");
         
         return await _referralService.GetActiveReferralForWallet(walletIdentifierId, atDate);
@@ -115,7 +114,7 @@ public class ClientReferralService
                 .ThenInclude(bah => bah.Client)
             .FirstOrDefaultAsync(wi => wi.Id == walletIdentifierId && !wi.DeletedAt.HasValue);
         
-        if (walletIdentifier?.AssetPool.BaseAssetHolder.Client == null)
+        if (walletIdentifier?.AssetPool?.BaseAssetHolder?.Client == null)
             throw new ArgumentException("WalletIdentifier does not belong to a Client");
         
         return await _referralService.DeactivateActiveReferral(walletIdentifierId, deactivationDate);
@@ -160,7 +159,8 @@ public class ClientReferralService
             ActiveReferralsReceived = activeReferralsReceived.Count,
             TotalCommissionEarned = activeReferralsMade.Sum(r => r.ParentCommission ?? 0),
             UniqueClientsReferred = referralsMade
-                .Select(r => r.WalletIdentifier.AssetPool.BaseAssetHolderId)
+                .Where(r => r.WalletIdentifier?.AssetPool?.BaseAssetHolderId != null)
+                .Select(r => r.WalletIdentifier!.AssetPool!.BaseAssetHolderId)
                 .Distinct()
                 .Count()
         };

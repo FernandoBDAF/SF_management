@@ -83,6 +83,9 @@ public class WalletIdentifierValidationService
             // Crypto Assets
             AssetType.Bitcoin or AssetType.Ethereum or AssetType.Litecoin or 
             AssetType.Ripple or AssetType.BitcoinCash or AssetType.Stellar => AssetGroup.CryptoAssets,
+            
+            // Default/None - map to Internal as a fallback
+            AssetType.None or _ => AssetGroup.Internal,
         };
     }
     

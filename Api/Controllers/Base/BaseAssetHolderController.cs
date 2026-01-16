@@ -517,7 +517,7 @@ public class BaseAssetHolderController<TEntity, TRequest, TResponse> : BaseApiCo
     /// <summary>
     /// Creates an entity from request - override in derived controllers for entity-specific logic
     /// </summary>
-    protected virtual async Task<TEntity> CreateEntityFromRequest(TRequest request)
+    protected virtual Task<TEntity> CreateEntityFromRequest(TRequest request)
     {
         throw new NotImplementedException($"CreateEntityFromRequest must be implemented in {GetType().Name}");
     }
@@ -525,7 +525,7 @@ public class BaseAssetHolderController<TEntity, TRequest, TResponse> : BaseApiCo
     /// <summary>
     /// Updates an entity from request - override in derived controllers for entity-specific logic
     /// </summary>
-    protected virtual async Task<TEntity> UpdateEntityFromRequest(Guid id, TRequest request)
+    protected virtual Task<TEntity> UpdateEntityFromRequest(Guid id, TRequest request)
     {
         throw new NotImplementedException($"UpdateEntityFromRequest must be implemented in {GetType().Name}");
     }

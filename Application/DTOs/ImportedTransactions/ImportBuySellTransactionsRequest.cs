@@ -3,7 +3,7 @@ using SFManagement.Application.DTOs.Common;
 
 public class ImportBuySellTransactionsRequest
 {
-    public IFormFile File { get; set; }
+    public required IFormFile File { get; set; }
 
     public Guid WalletId { get; set; }
 }

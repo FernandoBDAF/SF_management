@@ -12,13 +12,13 @@ public class BaseAssetHolderRequest
     
     [Required]
     [StringLength(40, MinimumLength = 1)]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     
     [Required]
     public TaxEntityType TaxEntityType { get; set; }
 
     [Required]
-    [MaxLength(20)] public string GovernmentNumber { get; set; }
+    [MaxLength(20)] public string GovernmentNumber { get; set; } = string.Empty;
 
     /// <summary>
     /// Optional referrer ID to establish referral relationship during creation

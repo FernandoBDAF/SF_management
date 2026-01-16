@@ -1,12 +1,10 @@
-using SFManagement.Api.Controllers.Base;
-using SFManagement.Application.DTOs.Support;
-using SFManagement.Application.Services.Support;
-using SFManagement.Application.Services.Base;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SFManagement.Api.Controllers.Base;
+using SFManagement.Application.DTOs.Support;
+using SFManagement.Application.Services.Base;
+using SFManagement.Application.Services.Support;
 using SFManagement.Domain.Entities.Support;
-using SFManagement.Application.Services;
-using SFManagement.Application.DTOs;
 
 namespace SFManagement.Api.Controllers.v1.Support;
 

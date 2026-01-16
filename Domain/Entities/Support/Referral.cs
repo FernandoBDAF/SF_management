@@ -18,7 +18,7 @@ public class Referral : BaseDomain
     /// </summary>
     [Required] 
     public Guid AssetHolderId { get; set; }
-    public virtual BaseAssetHolder AssetHolder { get; set; }
+    public virtual BaseAssetHolder? AssetHolder { get; set; }
 
     /// <summary>
     /// The WalletIdentifier being referred (owned by the referred BaseAssetHolder)
@@ -26,7 +26,7 @@ public class Referral : BaseDomain
     /// </summary>
     [Required] 
     public Guid WalletIdentifierId { get; set; }
-    public virtual WalletIdentifier WalletIdentifier { get; set; }
+    public virtual WalletIdentifier? WalletIdentifier { get; set; }
     
     /// <summary>
     /// Commission percentage that the referrer receives (0-100)

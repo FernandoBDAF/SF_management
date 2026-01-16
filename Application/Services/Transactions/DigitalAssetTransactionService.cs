@@ -1,9 +1,8 @@
-using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.DTOs.ImportedTransactions;
+using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.Services.Base;
-using SFManagement.Infrastructure.Data;
-﻿using SFManagement.Infrastructure.Data;
 using SFManagement.Domain.Entities.Transactions;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Transactions;
 

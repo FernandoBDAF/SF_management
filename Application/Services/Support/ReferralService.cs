@@ -1,11 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.Support;
 using SFManagement.Application.Services.Base;
-using SFManagement.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
 using SFManagement.Domain.Entities.AssetHolders;
-using SFManagement.Domain.Entities.Support;
 using SFManagement.Domain.Entities.Assets;
+using SFManagement.Domain.Entities.Support;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Support;
 
@@ -38,7 +37,7 @@ public class ReferralService : BaseService<Referral>
             throw new ArgumentException($"WalletIdentifier not found: {walletIdentifierId}");
         
         // Prevent self-referral
-        if (walletIdentifier.AssetPool.BaseAssetHolderId == referrerAssetHolderId)
+        if (walletIdentifier.AssetPool!.BaseAssetHolderId == referrerAssetHolderId)
             throw new ArgumentException("Cannot create self-referral");
         
         // Set default activeFrom to now if not provided
@@ -92,9 +91,9 @@ public class ReferralService : BaseService<Referral>
         return await context.Referrals
             .Include(r => r.AssetHolder)
             .Include(r => r.WalletIdentifier)
-                .ThenInclude(wi => wi.AssetPool)
-                .ThenInclude(ap => ap.BaseAssetHolder)
-            .Where(r => r.WalletIdentifier.AssetPool.BaseAssetHolderId == assetHolderId && !r.DeletedAt.HasValue)
+                .ThenInclude(wi => wi!.AssetPool)
+                .ThenInclude(ap => ap!.BaseAssetHolder)
+            .Where(r => r.WalletIdentifier!.AssetPool!.BaseAssetHolderId == assetHolderId && !r.DeletedAt.HasValue)
             .ToListAsync();
     }
     

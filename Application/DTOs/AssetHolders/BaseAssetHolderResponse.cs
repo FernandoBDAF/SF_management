@@ -13,7 +13,7 @@ public class BaseAssetHolderResponse : BaseResponse
     
     public TaxEntityType TaxEntityType { get; set; }
 
-    public string GovernmentNumber { get; set; }
+    public string GovernmentNumber { get; set; } = string.Empty;
     
     public AddressResponse? Address { get; set; }
 

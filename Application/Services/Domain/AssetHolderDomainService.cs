@@ -1,13 +1,11 @@
-using SFManagement.Application.DTOs.AssetHolders;
-using SFManagement.Infrastructure.Data;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
+using SFManagement.Application.DTOs.AssetHolders;
+using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Enums;
 using SFManagement.Domain.Exceptions;
 using SFManagement.Domain.Interfaces;
-using SFManagement.Domain.Entities.AssetHolders;
-using SFManagement.Application.DTOs;
-using System.Text.RegularExpressions;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Domain;
 
@@ -43,7 +41,12 @@ public class AssetHolderDomainService : IAssetHolderDomainService
         return true;
     }
 
-    public async Task<DomainValidationResult> ValidateAssetHolderCreation(BaseAssetHolderRequest request)
+    public Task<DomainValidationResult> ValidateAssetHolderCreation(BaseAssetHolderRequest request)
+    {
+        return Task.FromResult(ValidateAssetHolderCreationSync(request));
+    }
+
+    private static DomainValidationResult ValidateAssetHolderCreationSync(BaseAssetHolderRequest request)
     {
         var result = new DomainValidationResult();
         
@@ -85,7 +88,7 @@ public class AssetHolderDomainService : IAssetHolderDomainService
     public async Task<bool> HasActiveTransactions(Guid assetHolderId)
     {
         var walletIdentifierIds = await _context.WalletIdentifiers
-            .Where(wi => wi.AssetPool.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool!.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
             .Select(wi => wi.Id)
             .ToListAsync();
         
@@ -120,7 +123,7 @@ public class AssetHolderDomainService : IAssetHolderDomainService
     {
         var walletIdentifiers = await _context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
-            .Where(wi => wi.AssetPool.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool!.BaseAssetHolderId == assetHolderId && !wi.DeletedAt.HasValue)
             .ToListAsync();
         
         var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();

@@ -1,16 +1,13 @@
-using SFManagement.Application.Services.Transactions;
-using SFManagement.Application.DTOs.Transactions;
-using SFManagement.Api.Controllers.Base;
-using SFManagement.Application.DTOs.AssetHolders;
-using SFManagement.Application.Services.AssetHolders;
-using SFManagement.Application.Services.Assets;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Api.Controllers.Base;
+using SFManagement.Application.DTOs.AssetHolders;
+using SFManagement.Application.DTOs.Transactions;
+using SFManagement.Application.Services.AssetHolders;
+using SFManagement.Application.Services.Assets;
+using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Application.Services;
-using SFManagement.Application.DTOs;
 
 namespace SFManagement.Api.Controllers.v1.AssetHolders;
 
@@ -21,8 +18,6 @@ public class MemberController : BaseAssetHolderController<Member, MemberRequest,
 {
     private readonly MemberService _memberService;
     private readonly FiatAssetTransactionService _fiatAssetTransactionService;
-    private readonly WalletIdentifierService _walletIdentifierService;
-
 
     public MemberController(
         MemberService service, 

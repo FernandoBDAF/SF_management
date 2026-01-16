@@ -1,14 +1,12 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SFManagement.Api.Controllers.Base;
 using SFManagement.Application.DTOs.Assets;
 using SFManagement.Application.DTOs.CompanyAssets;
 using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Base;
-using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using SFManagement.Domain.Enums;
 using SFManagement.Domain.Entities.Support;
-using SFManagement.Application.Services;
-using SFManagement.Application.DTOs;
+using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Assets;
 
 namespace SFManagement.Api.Controllers.v1.Assets;
@@ -16,10 +14,17 @@ namespace SFManagement.Api.Controllers.v1.Assets;
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class InitialBalanceController(InitialBalanceService service, IMapper mapper)
-    : BaseApiController<InitialBalance, InitialBalanceRequest, InitialBalanceResponse>(service, mapper)
+public class InitialBalanceController : BaseApiController<InitialBalance, InitialBalanceRequest, InitialBalanceResponse>
 {
-    private readonly InitialBalanceService _initialBalanceService = service;
+    private readonly InitialBalanceService _initialBalanceService;
+    private readonly IMapper _mapper;
+
+    public InitialBalanceController(InitialBalanceService service, IMapper mapper)
+        : base(service, mapper)
+    {
+        _initialBalanceService = service;
+        _mapper = mapper;
+    }
 
     /// <summary>
     /// Sets an initial balance for a specific AssetType
@@ -43,7 +48,7 @@ public class InitialBalanceController(InitialBalanceService service, IMapper map
                 request.BalanceAs,
                 request.ConversionRate);
 
-            var response = mapper.Map<InitialBalanceResponse>(initialBalance);
+            var response = _mapper.Map<InitialBalanceResponse>(initialBalance);
             return Ok(response);
         }
         catch (Exception ex)
@@ -75,7 +80,7 @@ public class InitialBalanceController(InitialBalanceService service, IMapper map
                 request.ConversionRate,
                 request.Description);
 
-            var response = mapper.Map<InitialBalanceResponse>(initialBalance);
+            var response = _mapper.Map<InitialBalanceResponse>(initialBalance);
             return Ok(response);
         }
         catch (Exception ex)
@@ -102,7 +107,7 @@ public class InitialBalanceController(InitialBalanceService service, IMapper map
                 request.ConversionRate,
                 request.Description);
 
-            var response = mapper.Map<InitialBalanceResponse>(initialBalance);
+            var response = _mapper.Map<InitialBalanceResponse>(initialBalance);
             return Ok(response);
         }
         catch (Exception ex)
@@ -120,7 +125,7 @@ public class InitialBalanceController(InitialBalanceService service, IMapper map
         try
         {
             var initialBalances = await _initialBalanceService.GetInitialBalancesForAssetHolder(baseAssetHolderId);
-            var response = mapper.Map<List<InitialBalanceResponse>>(initialBalances);
+            var response = _mapper.Map<List<InitialBalanceResponse>>(initialBalances);
             return Ok(response);
         }
         catch (Exception ex)
@@ -140,7 +145,7 @@ public class InitialBalanceController(InitialBalanceService service, IMapper map
             var initialBalances = await _initialBalanceService.GetInitialBalancesByAssetType(baseAssetHolderId);
             var response = initialBalances.ToDictionary(
                 kvp => kvp.Key,
-                kvp => mapper.Map<InitialBalanceResponse>(kvp.Value));
+                kvp => _mapper.Map<InitialBalanceResponse>(kvp.Value));
             return Ok(response);
         }
         catch (Exception ex)
@@ -160,7 +165,7 @@ public class InitialBalanceController(InitialBalanceService service, IMapper map
             var initialBalances = await _initialBalanceService.GetInitialBalancesByAssetGroup(baseAssetHolderId);
             var response = initialBalances.ToDictionary(
                 kvp => kvp.Key,
-                kvp => mapper.Map<InitialBalanceResponse>(kvp.Value));
+                kvp => _mapper.Map<InitialBalanceResponse>(kvp.Value));
             return Ok(response);
         }
         catch (Exception ex)

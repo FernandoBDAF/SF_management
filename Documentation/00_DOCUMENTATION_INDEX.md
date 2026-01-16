@@ -141,7 +141,8 @@ Refactoring plans and implementation guides for code improvements.
 
 | Document | Description |
 |----------|-------------|
-| [FOLDER_RESTRUCTURE_PLAN.md](10_REFACTORING/FOLDER_RESTRUCTURE_PLAN.md) | Comprehensive plan for reorganizing codebase into Clean Architecture folder structure |
+| [FOLDER_RESTRUCTURE_PLAN.md](10_REFACTORING/FOLDER_RESTRUCTURE_PLAN.md) | Comprehensive plan for reorganizing codebase into Clean Architecture folder structure (✅ Completed) |
+| [BUILD_WARNINGS_CLEANUP_PLAN.md](10_REFACTORING/BUILD_WARNINGS_CLEANUP_PLAN.md) | Detailed plan to resolve all 170 build warnings including NuGet vulnerabilities, null references, and deprecated APIs |
 
 ---
 

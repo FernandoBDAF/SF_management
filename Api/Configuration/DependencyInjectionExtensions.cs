@@ -1,20 +1,3 @@
-using SFManagement.Domain.Interfaces;
-using SFManagement.Domain.Entities.Assets;
-using SFManagement.Domain.Entities.AssetHolders;
-using SFManagement.Domain.Entities.Support;
-using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Domain.Common;
-using SFManagement.Application.Services.Base;
-using SFManagement.Application.Services.AssetHolders;
-using SFManagement.Application.Services.Assets;
-using SFManagement.Application.Services.Transactions;
-using SFManagement.Application.Services.Support;
-using SFManagement.Application.Services.Domain;
-using SFManagement.Application.Services.Validation;
-using SFManagement.Infrastructure.Settings;
-using SFManagement.Infrastructure.Authorization;
-using SFManagement.Infrastructure.Logging;
-using SFManagement.Infrastructure.Data;
 using System.Text;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,14 +6,23 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SFManagement.Domain.Interfaces;
+using SFManagement.Application.Services.Base;
+using SFManagement.Application.Services.AssetHolders;
+using SFManagement.Application.Services.Assets;
+using SFManagement.Application.Services.Domain;
+using SFManagement.Application.Services.Support;
+using SFManagement.Application.Services.Transactions;
+using SFManagement.Application.Services.Validation;
+using SFManagement.Domain.Common;
 using SFManagement.Domain.Entities.Assets;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Support;
 using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Application.Services;
-using SFManagement.Infrastructure.Settings;
+using SFManagement.Domain.Interfaces;
 using SFManagement.Infrastructure.Authorization;
+using SFManagement.Infrastructure.Data;
+using SFManagement.Infrastructure.Logging;
+using SFManagement.Infrastructure.Settings;
 
 namespace SFManagement.Api.Configuration;
 
@@ -226,7 +218,7 @@ public static class DependencyInjectionExtensions
     {
         // https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
         builder.Services.AddHealthChecks()
-            .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection connection string is not configured"));
     }
 
     public static void AddRateLimitServices(this WebApplicationBuilder builder)

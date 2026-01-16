@@ -1,16 +1,13 @@
-using SFManagement.Application.Services.Transactions;
-using SFManagement.Application.DTOs.Transactions;
-using SFManagement.Api.Controllers.Base;
-using SFManagement.Application.DTOs.AssetHolders;
-using SFManagement.Application.Services.AssetHolders;
-using SFManagement.Application.Services.Assets;
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Api.Controllers.Base;
+using SFManagement.Application.DTOs.AssetHolders;
+using SFManagement.Application.DTOs.Transactions;
+using SFManagement.Application.Services.AssetHolders;
+using SFManagement.Application.Services.Assets;
+using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Application.Services;
-using SFManagement.Application.DTOs;
 
 namespace SFManagement.Api.Controllers.v1.AssetHolders;
 
@@ -94,7 +91,7 @@ public class ClientController : BaseAssetHolderController<Client, ClientRequest,
     [HttpGet]
     [Route("wallet-identifier-has")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    public async Task<IActionResult> WalletIdentifierHas([FromQuery] string input)
+    public IActionResult WalletIdentifierHas([FromQuery] string input)
     {
         try
         {
@@ -115,7 +112,7 @@ public class ClientController : BaseAssetHolderController<Client, ClientRequest,
     [Route("initial-balance/{clientId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetInitialBalance(Guid clientId)
+    public IActionResult GetInitialBalance(Guid clientId)
     {
         try
         {

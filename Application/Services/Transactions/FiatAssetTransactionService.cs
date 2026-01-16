@@ -1,16 +1,14 @@
-using SFManagement.Application.DTOs.Transactions;
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.ImportedTransactions;
+using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.Services.Base;
-using SFManagement.Infrastructure.Data;
-﻿using Microsoft.EntityFrameworkCore;
-using SFManagement.Infrastructure.Data;
-using SFManagement.Domain.Enums;
-using SFManagement.Domain.Interfaces;
 using SFManagement.Domain.Common;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Application.DTOs;
+using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Domain.Interfaces;
+using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Transactions;
 
@@ -56,7 +54,7 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
             .Include(wi => wi.AssetPool)
             .FirstOrDefaultAsync(x => 
                 x.AssetType == AssetType.BrazilianReal && 
-                x.AssetPool.BaseAssetHolderId == transaction.BaseAssetHolderId) 
+                x.AssetPool!.BaseAssetHolderId == transaction.BaseAssetHolderId) 
             ?? throw new Exception($"Receiver Wallet Identifier for Brazilian Real does not exist");
 
         var fiatTransaction = new FiatAssetTransaction

@@ -1,9 +1,3 @@
-using SFManagement.Domain.Common;
-using SFManagement.Domain.Entities.Assets;
-using SFManagement.Domain.Entities.AssetHolders;
-using SFManagement.Domain.Entities.Support;
-using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Infrastructure.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +6,7 @@ using SFManagement.Domain.Entities.Assets;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Support;
 using SFManagement.Domain.Entities.Transactions;
-using SFManagement.Application.Services;
+using SFManagement.Infrastructure.Logging;
 
 namespace SFManagement.Infrastructure.Data;
 
@@ -175,28 +169,28 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
 
         // Ensure referral dates are logical (ActiveFrom <= ActiveUntil when both are set)
         modelBuilder.Entity<Referral>()
-            .HasCheckConstraint("CK_Referral_ActiveDates_Logical", 
-                "[ActiveFrom] IS NULL OR [ActiveUntil] IS NULL OR [ActiveFrom] <= [ActiveUntil]");
+            .ToTable(t => t.HasCheckConstraint("CK_Referral_ActiveDates_Logical", 
+                "[ActiveFrom] IS NULL OR [ActiveUntil] IS NULL OR [ActiveFrom] <= [ActiveUntil]"));
 
         // Ensure commission percentage is valid
         modelBuilder.Entity<Referral>()
-            .HasCheckConstraint("CK_Referral_ParentCommission_Range", 
-                "[ParentCommission] IS NULL OR ([ParentCommission] >= 0 AND [ParentCommission] <= 100)");
+            .ToTable(t => t.HasCheckConstraint("CK_Referral_ParentCommission_Range", 
+                "[ParentCommission] IS NULL OR ([ParentCommission] >= 0 AND [ParentCommission] <= 100)"));
 
         // InitialBalance constraints
         modelBuilder.Entity<InitialBalance>()
-            .HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", 
-                "[ConversionRate] IS NULL OR [ConversionRate] > 0");
+            .ToTable(t => t.HasCheckConstraint("CK_InitialBalance_ConversionRate_Positive", 
+                "[ConversionRate] IS NULL OR [ConversionRate] > 0"));
 
         // Ensure AssetType and AssetGroup are not both set
         modelBuilder.Entity<InitialBalance>()
-            .HasCheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", 
-                "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)");
+            .ToTable(t => t.HasCheckConstraint("CK_InitialBalance_AssetType_AssetGroup_Exclusive", 
+                "([AssetType] = 0 AND [AssetGroup] <> 0) OR ([AssetType] <> 0 AND [AssetGroup] = 0)"));
 
         // Ensure either AssetType or AssetGroup is set
         modelBuilder.Entity<InitialBalance>()
-            .HasCheckConstraint("CK_InitialBalance_AssetType_Or_AssetGroup_Required", 
-                "[AssetType] <> 0 OR [AssetGroup] <> 0");
+            .ToTable(t => t.HasCheckConstraint("CK_InitialBalance_AssetType_Or_AssetGroup_Required", 
+                "[AssetType] <> 0 OR [AssetGroup] <> 0"));
 
         // Configure FiatAssetTransaction sender/receiver relationships
         modelBuilder.Entity<FiatAssetTransaction>()
@@ -469,67 +463,67 @@ public class DataContext(DbContextOptions<DataContext> options, IHttpContextAcce
 
         // Asset amount constraints (must be positive for most transactions)
         modelBuilder.Entity<FiatAssetTransaction>()
-            .HasCheckConstraint("CK_FiatAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+            .ToTable(t => t.HasCheckConstraint("CK_FiatAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0"));
 
         modelBuilder.Entity<DigitalAssetTransaction>()
-            .HasCheckConstraint("CK_DigitalAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+            .ToTable(t => t.HasCheckConstraint("CK_DigitalAssetTransaction_AssetAmount_Positive", "[AssetAmount] > 0"));
 
         modelBuilder.Entity<SettlementTransaction>()
-            .HasCheckConstraint("CK_SettlementTransaction_AssetAmount_Positive", "[AssetAmount] > 0");
+            .ToTable(t => t.HasCheckConstraint("CK_SettlementTransaction_AssetAmount_Positive", "[AssetAmount] > 0"));
 
         // Member Share range constraint
         modelBuilder.Entity<Member>()
-            .HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 100");
+            .ToTable(t => t.HasCheckConstraint("CK_Member_Share_Range", "[Share] >= 0 AND [Share] <= 100"));
 
         // Ensure transaction dates are not in the future
         modelBuilder.Entity<FiatAssetTransaction>()
-            .HasCheckConstraint("CK_FiatAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+            .ToTable(t => t.HasCheckConstraint("CK_FiatAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()"));
 
         modelBuilder.Entity<DigitalAssetTransaction>()
-            .HasCheckConstraint("CK_DigitalAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+            .ToTable(t => t.HasCheckConstraint("CK_DigitalAssetTransaction_Date_NotFuture", "[Date] <= GETDATE()"));
 
         modelBuilder.Entity<SettlementTransaction>()
-            .HasCheckConstraint("CK_SettlementTransaction_Date_NotFuture", "[Date] <= GETDATE()");
+            .ToTable(t => t.HasCheckConstraint("CK_SettlementTransaction_Date_NotFuture", "[Date] <= GETDATE()"));
 
         // Ensure Client and Member birthdays are not in the future
         modelBuilder.Entity<Client>()
-            .HasCheckConstraint("CK_Client_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
+            .ToTable(t => t.HasCheckConstraint("CK_Client_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()"));
 
         modelBuilder.Entity<Member>()
-            .HasCheckConstraint("CK_Member_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()");
+            .ToTable(t => t.HasCheckConstraint("CK_Member_Birthday_NotFuture", "[Birthday] IS NULL OR [Birthday] <= GETDATE()"));
 
         // Ensure transaction sender and receiver are different
         modelBuilder.Entity<FiatAssetTransaction>()
-            .HasCheckConstraint("CK_FiatAssetTransaction_Different_Sender_Receiver", 
-                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+            .ToTable(t => t.HasCheckConstraint("CK_FiatAssetTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]"));
 
         modelBuilder.Entity<DigitalAssetTransaction>()
-            .HasCheckConstraint("CK_DigitalAssetTransaction_Different_Sender_Receiver", 
-                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+            .ToTable(t => t.HasCheckConstraint("CK_DigitalAssetTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]"));
 
         modelBuilder.Entity<SettlementTransaction>()
-            .HasCheckConstraint("CK_SettlementTransaction_Different_Sender_Receiver", 
-                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]");
+            .ToTable(t => t.HasCheckConstraint("CK_SettlementTransaction_Different_Sender_Receiver", 
+                "[SenderWalletIdentifierId] <> [ReceiverWalletIdentifierId]"));
 
         // ImportedTransaction constraints
         modelBuilder.Entity<ImportedTransaction>()
-            .HasCheckConstraint("CK_ImportedTransaction_Amount_Positive", "[Amount] >= 0");
+            .ToTable(t => t.HasCheckConstraint("CK_ImportedTransaction_Amount_Positive", "[Amount] >= 0"));
 
         modelBuilder.Entity<ImportedTransaction>()
-            .HasCheckConstraint("CK_ImportedTransaction_FileSize_Positive", 
-                "[FileSizeBytes] IS NULL OR [FileSizeBytes] > 0");
+            .ToTable(t => t.HasCheckConstraint("CK_ImportedTransaction_FileSize_Positive", 
+                "[FileSizeBytes] IS NULL OR [FileSizeBytes] > 0"));
 
         modelBuilder.Entity<ImportedTransaction>()
-            .HasCheckConstraint("CK_ImportedTransaction_Date_NotFuture", 
-                "[Date] <= GETDATE()");
+            .ToTable(t => t.HasCheckConstraint("CK_ImportedTransaction_Date_NotFuture", 
+                "[Date] <= GETDATE()"));
 
         modelBuilder.Entity<ImportedTransaction>()
-            .HasCheckConstraint("CK_ImportedTransaction_ProcessedAt_Logic", 
-                "([Status] = 3 AND [ProcessedAt] IS NOT NULL) OR ([Status] <> 3 AND [ProcessedAt] IS NULL) OR [Status] = 3");
+            .ToTable(t => t.HasCheckConstraint("CK_ImportedTransaction_ProcessedAt_Logic", 
+                "([Status] = 3 AND [ProcessedAt] IS NOT NULL) OR ([Status] <> 3 AND [ProcessedAt] IS NULL) OR [Status] = 3"));
 
         modelBuilder.Entity<ImportedTransaction>()
-            .HasCheckConstraint("CK_ImportedTransaction_ReconciledAt_Logic", 
-                "([ReconciledTransactionId] IS NOT NULL AND [ReconciledAt] IS NOT NULL AND [ReconciledTransactionType] IS NOT NULL) OR ([ReconciledTransactionId] IS NULL AND [ReconciledAt] IS NULL AND [ReconciledTransactionType] IS NULL)");
+            .ToTable(t => t.HasCheckConstraint("CK_ImportedTransaction_ReconciledAt_Logic", 
+                "([ReconciledTransactionId] IS NOT NULL AND [ReconciledAt] IS NOT NULL AND [ReconciledTransactionType] IS NOT NULL) OR ([ReconciledTransactionId] IS NULL AND [ReconciledAt] IS NULL AND [ReconciledTransactionType] IS NULL)"));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
