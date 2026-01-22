@@ -202,6 +202,7 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<SettlementTransactionService>();
         builder.Services.AddScoped<BaseService<ImportedTransaction>, ImportedTransactionService>();
         builder.Services.AddScoped<ImportedTransactionService>();
+        builder.Services.AddScoped<TransferService>();
         
         // Other services
         builder.Services.AddScoped<BaseService<Category>, CategoryService>();

@@ -12,67 +12,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Api/Configuration/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Configuration/DependencyInjectionExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/Base/BaseAssetHolderController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/Base/BaseAssetHolderController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/AssetHolders/BankController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/AssetHolders/BankController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/AssetHolders/ClientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/AssetHolders/ClientController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/AssetHolders/MemberController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/AssetHolders/MemberController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/AssetHolders/PokerManagerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/AssetHolders/PokerManagerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Assets/AssetPoolController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Assets/AssetPoolController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Assets/CompanyAssetPoolController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Assets/CompanyAssetPoolController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Assets/InitialBalanceController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Assets/InitialBalanceController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Assets/WalletIdentifierController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Assets/WalletIdentifierController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Support/AddressController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Support/AddressController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Support/CategoryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Support/CategoryController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Support/ContactPhoneController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Support/ContactPhoneController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/DigitalAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/DigitalAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/FiatAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/FiatAssetTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/SettlementTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/SettlementTransactionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Middleware/ErrorHandlerMiddleware.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Middleware/ErrorHandlerMiddleware.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Middleware/RequestResponseLoggingMiddleware.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Middleware/RequestResponseLoggingMiddleware.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Common/Extensions/EnumExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Common/Extensions/EnumExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/AssetHolders/BankRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/AssetHolders/BankRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/AssetHolders/BaseAssetHolderRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/AssetHolders/BaseAssetHolderRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/AssetHolders/BaseAssetHolderResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/AssetHolders/BaseAssetHolderResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/ImportedTransactions/ImportBuySellTransactionsRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/ImportedTransactions/ImportBuySellTransactionsRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/ImportedTransactions/ImportTransferTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/ImportedTransactions/ImportTransferTransactionRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/ImportedTransactions/ImportedTransactionRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/ImportedTransactions/ImportedTransactionRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/Statements/StatementAssetHolderWithTransactions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/Statements/StatementAssetHolderWithTransactions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Mappings/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Mappings/AutoMapperProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/AssetHolders/BankService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/AssetHolders/BankService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/AssetHolders/ClientService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/AssetHolders/ClientService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/AssetHolders/MemberService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/AssetHolders/MemberService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/AssetHolders/PokerManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/AssetHolders/PokerManagerService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Assets/AssetPoolService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Assets/AssetPoolService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Assets/InitialBalanceService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Assets/InitialBalanceService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Assets/WalletIdentifierService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Assets/WalletIdentifierService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Base/BaseService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Base/BaseService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Base/BaseTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Base/BaseTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Domain/AssetHolderDomainService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Domain/AssetHolderDomainService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Support/AddressService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Support/AddressService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Support/CategoryService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Support/CategoryService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Support/ClientReferralService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Support/ClientReferralService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Support/ContactPhoneService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Support/ContactPhoneService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Support/ReferralService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Support/ReferralService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/DigitalAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/DigitalAssetTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/FiatAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/FiatAssetTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/ImportedTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/ImportedTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/SettlementTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/SettlementTransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Validation/AssetPoolValidationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Validation/AssetPoolValidationService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Validation/WalletIdentifierValidationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Validation/WalletIdentifierValidationService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Entities/AssetHolders/Bank.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/AssetHolders/Bank.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Entities/AssetHolders/BaseAssetHolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/AssetHolders/BaseAssetHolder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Entities/Assets/WalletIdentifier.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/Assets/WalletIdentifier.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Entities/Support/Category.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/Support/Category.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Entities/Support/Referral.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/Support/Referral.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Entities/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/Transactions/BaseTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Entities/Transactions/ImportedTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/Transactions/ImportedTransaction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Domain/Exceptions/BusinessException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Exceptions/BusinessException.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Infrastructure/Data/DataContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Data/DataContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SFManagement.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SFManagement.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/sf-management-20260116.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/sf-management-20260116.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,21 +60,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.SFManagement: http.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "XThreadsFramesViewSplitterKey": "0.33114755",
-    "git-widget-placeholder": "warnings__cleanup",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Color Scheme Font",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.SFManagement: http.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.33114755&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;hmg&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Color Scheme Font&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="SFManagement: http" type="LaunchSettings" factoryName=".NET Launch Settings Profile" temporary="true">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/SFManagement.csproj" />
@@ -164,6 +110,7 @@
       <workItem from="1750205338184" duration="4921000" />
       <workItem from="1751053067825" duration="713000" />
       <workItem from="1768587153210" duration="365000" />
+      <workItem from="1769029479284" duration="2829000" />
     </task>
     <servers />
   </component>
@@ -178,27 +125,13 @@
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Services/FiatAssetTransactionService.cs</url>
           <line>73</line>
-          <properties documentPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" containingFunctionPresentation="Method 'SendBrazilianReais'">
-            <startOffsets>
-              <option value="3255" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3278" />
-            </endOffsets>
-          </properties>
+          <properties documentPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" containingFunctionPresentation="Method 'SendBrazilianReais'" />
           <option name="timeStamp" value="45" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Services/SettlementTransactionService.cs</url>
           <line>40</line>
-          <properties documentPath="$PROJECT_DIR$/Services/SettlementTransactionService.cs" containingFunctionPresentation="Method 'CreateSettlementTransactionsByDate'">
-            <startOffsets>
-              <option value="1429" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1486" />
-            </endOffsets>
-          </properties>
+          <properties documentPath="$PROJECT_DIR$/Services/SettlementTransactionService.cs" containingFunctionPresentation="Method 'CreateSettlementTransactionsByDate'" />
           <option name="timeStamp" value="49" />
         </line-breakpoint>
       </breakpoints>

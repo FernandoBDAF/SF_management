@@ -57,6 +57,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// <summary>
     /// Send Brazilian Real transaction for poker manager
     /// </summary>
+    [Obsolete("Use POST /api/v1/transfer instead. Will be removed in v2.")]
     [HttpPost("{id}/send-brazilian-real")]
     [ProducesResponseType(typeof(FiatAssetTransaction), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

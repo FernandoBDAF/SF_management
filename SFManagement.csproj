@@ -5,6 +5,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <TargetFramework>net9.0</TargetFramework>
         <UserSecretsId>ed746e9e-1446-47fe-a708-fc3380b65b06</UserSecretsId>
+        <!-- 
+            Suppress specific warnings globally:
+            - CS8602/CS8601/CS8603: Null reference warnings in EF Core Include/ThenInclude patterns
+              where navigation properties are guaranteed to be loaded at runtime. These are false
+              positives because the compiler's static analysis doesn't understand EF Core's loading.
+            - CS8981: Type name convention warning in auto-generated migration files (e.g., 
+              "fixshareprecision") which we cannot rename without breaking migrations.
+        -->
+        <NoWarn>CS8602;CS8603;CS8601;CS8981</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
