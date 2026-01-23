@@ -416,6 +416,9 @@ Standard CRUD endpoints for digital asset transactions.
 
 Endpoints for poker settlement transactions.
 
+> **Deprecation Note:** `POST /api/v1/settlementtransaction` is disabled. Use  
+> `POST /api/v1/pokermanager/{id}/settlement-by-date` to create settlement transactions.
+
 | Method | Route | Description | Response |
 |--------|-------|-------------|----------|
 | GET | `/` | List all settlements | `List<SettlementTransactionResponse>` |

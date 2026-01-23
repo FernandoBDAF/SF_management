@@ -26,6 +26,19 @@ public class
         _mapper = mapper;
         _service = service;
     }
+
+    [HttpPost]
+    [Route("")]
+    [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
+    public override Task<IActionResult> Post(SettlementTransactionRequest model)
+    {
+        return Task.FromResult<IActionResult>(
+            StatusCode(
+                StatusCodes.Status405MethodNotAllowed,
+                "Settlement transactions must be created via /api/v1/pokermanager/{id}/settlement-by-date."
+            )
+        );
+    }
     
     [HttpGet]
     [Route("closings/{pokerManagerId}")]
@@ -71,31 +84,4 @@ public class
 
         return transaction.AssetAmount;
     }
-
-    // [HttpGet]
-    // [Route("settlement-transactions")]
-    // public async Task<TableResponse<FiatAssetTransactionResponse>> BankTransactions([FromQuery] int? quantity, [FromQuery] int? page)
-    // {
-    //     var bankAssetPoolIds = await _bankService.GetAssetHolderAssetPoolIds();
-    //     
-    //     var response = new TableResponse<FiatAssetTransactionResponse>
-    //     {
-    //         Data = [],
-    //         Total = 0
-    //     };
-    //
-    //     if (bankAssetPoolIds.Length == 0)
-    //     {
-    //         return response;
-    //     }
-    //     
-    //     var transactions = await _fiatAssetTransactionService
-    //         .GetAssetHolderTransactions(bankAssetPoolIds, null, null, quantity ?? 100, page ?? 0);
-    //     
-    //     response.Total = transactions.Length;
-    //     
-    //     response.Data = _mapper.Map<List<FiatAssetTransactionResponse>>(transactions);
-    //     
-    //     return response;
-    // }
 }
