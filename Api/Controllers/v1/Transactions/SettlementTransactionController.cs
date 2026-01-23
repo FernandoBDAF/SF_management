@@ -38,6 +38,11 @@ public class
         foreach (var closing in closings.OrderByDescending(c => c.Key))
         {
             var transactions = _mapper.Map<List<SettlementTransactionResponse>>(closing.Value);
+
+            foreach (var transaction in transactions)
+            {
+                transaction.SignedAssetAmount = GetSignedAssetAmount(transaction, pokerManagerId);
+            }
             
             response.ClosingGroups.Add(new SettlementClosingGroup
             {
@@ -47,6 +52,24 @@ public class
         }
         
         return response;
+    }
+
+    private static decimal GetSignedAssetAmount(SettlementTransactionResponse transaction, Guid pokerManagerId)
+    {
+        var senderId = transaction.SenderWallet?.AssetHolder?.BaseAssetHolderId;
+        var receiverId = transaction.ReceiverWallet?.AssetHolder?.BaseAssetHolderId;
+
+        if (senderId == pokerManagerId)
+        {
+            return transaction.AssetAmount;
+        }
+
+        if (receiverId == pokerManagerId)
+        {
+            return -transaction.AssetAmount;
+        }
+
+        return transaction.AssetAmount;
     }
 
     // [HttpGet]

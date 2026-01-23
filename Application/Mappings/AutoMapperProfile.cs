@@ -415,6 +415,7 @@ public class AutoMapperProfile : Profile
             summary.AssetHolder = new AssetHolderSummary
             {
                 Id = baseAssetHolder.Id,
+                BaseAssetHolderId = baseAssetHolder.Id,
                 Name = baseAssetHolder.Name,
                 AssetHolderType = baseAssetHolder.AssetHolderType,
                 Email = null

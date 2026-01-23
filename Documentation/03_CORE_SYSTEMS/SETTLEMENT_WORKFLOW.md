@@ -122,8 +122,160 @@ if (activeReferral?.ParentCommission != null)
 
 ---
 
+## Closings (Fechamentos)
+
+### What is a Closing?
+
+A **Closing** (Portuguese: **Fechamento**) represents a **daily batch of settlement transactions** for a poker manager. Rather than viewing settlements individually, closings aggregate all settlements that occurred on a specific date, providing a consolidated view for daily reconciliation.
+
+### Business Purpose
+
+Closings exist to support the poker management workflow:
+
+1. **Daily Reconciliation**: Poker managers settle with players at regular intervals (typically daily or weekly). A closing captures all settlements from a given settlement date.
+
+2. **Grouped Reporting**: Instead of reviewing hundreds of individual settlement transactions, managers can view aggregated totals per day.
+
+3. **Last Settlement Tracking**: The frontend uses closings to show the most recent settlement for each connected wallet, helping managers identify which players need attention.
+
+### How Closings Work
+
+The `GetClosings` method in `SettlementTransactionService`:
+
+1. **Finds wallet identifiers** belonging to the poker manager's asset pools
+2. **Queries all settlement transactions** where the poker manager is sender or receiver
+3. **Groups by date** (date only, without time component)
+4. **Returns ordered dictionary** with most recent dates first
+
+```csharp
+public async Task<Dictionary<DateTime, List<SettlementTransaction>>> GetClosings(Guid pokerManagerId)
+{
+    // Get all wallet identifiers for the poker manager's asset pools
+    var walletIdentifierIds = await context.WalletIdentifiers
+        .Where(wi => wi.AssetPool.BaseAssetHolderId == pokerManagerId)
+        .Select(wi => wi.Id)
+        .ToListAsync();
+
+    var transactions = await context.SettlementTransactions
+        .Where(st => st.DeletedAt == null && 
+                    (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) ||
+                     walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))
+        .ToListAsync();
+
+    return transactions
+        .GroupBy(st => st.Date.Date)
+        .ToDictionary(
+            group => group.Key,
+            group => group.ToList()
+        );
+}
+```
+
+### API Endpoint
+
+```http
+GET /api/v1/settlementtransaction/closings/{pokerManagerId}
+```
+
+Returns settlements grouped by date in descending order (most recent first).
+
+#### Response: `SettlementClosingsGroupedResponse`
+
+```json
+{
+  "closingGroups": [
+    {
+      "date": "2026-01-22T00:00:00Z",
+      "transactions": [
+        {
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "assetAmount": 1500.00,
+          "rakeAmount": 75.00,
+          "rakeCommission": 15.00,
+          "rakeBack": 10.00,
+          "netSettlementAmount": 1420.00
+        }
+      ],
+      "transactionCount": 15,
+      "totalAssetAmount": 25000.00,
+      "totalRake": 1250.00,
+      "totalRakeCommission": 375.00,
+      "totalRakeBack": 125.00,
+      "totalNetSettlement": 23500.00
+    },
+    {
+      "date": "2026-01-21T00:00:00Z",
+      "transactions": [...],
+      "transactionCount": 12,
+      "totalAssetAmount": 18000.00
+    }
+  ]
+}
+```
+
+### Aggregated Metrics
+
+Each `SettlementClosingGroup` provides computed totals:
+
+| Metric | Description |
+|--------|-------------|
+| `TransactionCount` | Number of settlements on this date |
+| `TotalAssetAmount` | Sum of all settlement amounts |
+| `TotalRake` | Total rake collected |
+| `TotalRakeCommission` | Total commission earned |
+| `TotalRakeBack` | Total rakeback paid to players |
+| `TotalNetSettlement` | Net amount after all calculations |
+
+### Integration with Wallet Identifiers Connected
+
+The `GET /api/v1/pokermanager/{id}/wallet-identifiers-connected` endpoint uses closings internally to show the **last settlement** for each connected wallet:
+
+```csharp
+// PokerManagerController.GetWalletIdentifiersFromOthers
+var settlementTransactions = await _settlementTransactionService.GetClosings(id);
+var lastSettlementTransactions = settlementTransactions
+    .OrderByDescending(st => st.Key)
+    .FirstOrDefault().Value;
+
+// For each wallet, find their most recent settlement
+var lastSettlementTransaction = lastSettlementTransactions?
+    .Where(st => st.SenderWalletIdentifierId == walletIdentifier.Id || 
+                 st.ReceiverWalletIdentifierId == walletIdentifier.Id)
+    .FirstOrDefault();
+```
+
+This allows the frontend to display when each player was last settled.
+
+### Data Flow
+
+```
+┌─────────────┐     ┌─────────────────────────────────┐     ┌──────────────┐
+│   Frontend  │────▶│ GET /closings/{pokerManagerId}  │────▶│  Controller  │
+└─────────────┘     └─────────────────────────────────┘     └──────┬───────┘
+                                                                   │
+                                                                   ▼
+      ┌────────────────────────────────────────────────────────────────┐
+      │                 SettlementTransactionService                   │
+      │  1. Find poker manager's wallet identifiers                    │
+      │  2. Query settlement transactions where manager is party       │
+      │  3. Group by Date (day only)                                  │
+      │  4. Return Dictionary<DateTime, List<SettlementTransaction>>   │
+      └────────────────────────────────────────────────────────────────┘
+                                                                   │
+                                                                   ▼
+      ┌────────────────────────────────────────────────────────────────┐
+      │                        Controller                              │
+      │  1. Order by date descending (most recent first)              │
+      │  2. Map to SettlementClosingsGroupedResponse                   │
+      │  3. Each group computes aggregated metrics                     │
+      └────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Related Documentation
 
 - [TRANSACTION_INFRASTRUCTURE.md](TRANSACTION_INFRASTRUCTURE.md) - Transaction base
+- [TRANSACTION_RESPONSE_VIEWMODELS.md](TRANSACTION_RESPONSE_VIEWMODELS.md) - Response DTOs including Closing types
 - [REFERRAL_SYSTEM.md](REFERRAL_SYSTEM.md) - Commission tracking
 

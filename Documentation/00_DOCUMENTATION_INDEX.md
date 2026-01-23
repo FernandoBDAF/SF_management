@@ -54,8 +54,8 @@ Documentation for the primary systems that power the application.
 |----------|-------------|
 | [ENTITY_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md) | BaseAssetHolder hierarchy, entity relationships, and asset holder management |
 | [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md) | Asset pools, wallet identifiers, metadata system, and asset management |
-| [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) | Transaction models, services, and handling across asset types |
-| [TRANSACTION_RESPONSE_VIEWMODELS.md](03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md) | Transaction response DTOs and API response structure |
+| [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) | Transaction models, **transaction modes**, **TransferService**, **guardrails**, and handling across asset types |
+| [TRANSACTION_RESPONSE_VIEWMODELS.md](03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md) | Transaction response DTOs including **TransferResponse**, **WalletMissingError**, and API response structure |
 | [REFERRAL_SYSTEM.md](03_CORE_SYSTEMS/REFERRAL_SYSTEM.md) | Commission tracking system, referral management, and business rules |
 | [SETTLEMENT_WORKFLOW.md](03_CORE_SYSTEMS/SETTLEMENT_WORKFLOW.md) | Poker settlement process, rake calculations, and batch settlements |
 | [IMPORTED_TRANSACTIONS.md](03_CORE_SYSTEMS/IMPORTED_TRANSACTIONS.md) | File import system for OFX and Excel, reconciliation workflow |
@@ -98,6 +98,7 @@ API documentation and endpoint references.
 | Document | Description |
 |----------|-------------|
 | [API_REFERENCE.md](06_API/API_REFERENCE.md) | Complete endpoint reference for all controllers |
+| [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) | **Comprehensive transaction API reference** with detailed examples, error codes, and use cases |
 | [COMPANY_ASSET_POOL_ENDPOINTS.md](06_API/COMPANY_ASSET_POOL_ENDPOINTS.md) | Specialized endpoints for company-owned asset pools |
 | [INTERNAL_WALLET_TYPE_IMPLEMENTATION.md](06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md) | Internal and Settlement wallet group implementation |
 
@@ -143,6 +144,8 @@ Refactoring plans and implementation guides for code improvements.
 |----------|-------------|
 | [FOLDER_RESTRUCTURE_PLAN.md](10_REFACTORING/FOLDER_RESTRUCTURE_PLAN.md) | Comprehensive plan for reorganizing codebase into Clean Architecture folder structure (✅ Completed) |
 | [BUILD_WARNINGS_CLEANUP_PLAN.md](10_REFACTORING/BUILD_WARNINGS_CLEANUP_PLAN.md) | Detailed plan to resolve all 170 build warnings including NuGet vulnerabilities, null references, and deprecated APIs |
+| [TRANSFER_ENDPOINT_IMPLEMENTATION_PLAN.md](10_REFACTORING/TRANSFER_ENDPOINT_IMPLEMENTATION_PLAN.md) | Implementation plan for unified `/transfer` endpoint (✅ Completed) |
+| [TRANSACTION_DOCUMENTATION_IMPROVEMENT_PLAN.md](10_REFACTORING/TRANSACTION_DOCUMENTATION_IMPROVEMENT_PLAN.md) | Plan for enriching backend transaction documentation (✅ Completed) |
 
 ---
 
@@ -163,7 +166,8 @@ Refactoring plans and implementation guides for code improvements.
 | Add a new entity type | [ENTITY_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md) |
 | Create new endpoints | [CONTROLLER_LAYER_ARCHITECTURE.md](02_ARCHITECTURE/CONTROLLER_LAYER_ARCHITECTURE.md), [API_REFERENCE.md](06_API/API_REFERENCE.md) |
 | Add new asset types | [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md), [ENUMS_AND_TYPE_SYSTEM.md](07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) |
-| Handle transactions | [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) |
+| Handle transactions | [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md), [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) |
+| **Create transfers (P2P)** | [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) - **Use `/api/v1/transfer`** |
 | Configure authentication | [AUTHENTICATION.md](05_INFRASTRUCTURE/AUTHENTICATION.md) |
 | Add validation | [VALIDATION_SYSTEM.md](05_INFRASTRUCTURE/VALIDATION_SYSTEM.md) |
 | Handle errors | [ERROR_HANDLING.md](05_INFRASTRUCTURE/ERROR_HANDLING.md) |
@@ -183,12 +187,12 @@ Refactoring plans and implementation guides for code improvements.
 | Core Systems | 7 |
 | Supporting Systems | 3 |
 | Infrastructure | 8 |
-| API | 3 |
+| API | 4 |
 | Reference | 2 |
 | Development | 1 |
 | Deployment | 2 |
-| Refactoring | 1 |
-| **Total** | **32** |
+| Refactoring | 4 |
+| **Total** | **36** |
 
 ---
 

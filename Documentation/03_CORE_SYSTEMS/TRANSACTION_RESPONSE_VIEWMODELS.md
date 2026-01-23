@@ -123,6 +123,7 @@ Simplified information about the wallet owner.
 public class AssetHolderSummary
 {
     public Guid Id { get; set; }
+    public Guid BaseAssetHolderId { get; set; }
     public string Name { get; set; } = string.Empty;
     public AssetHolderType AssetHolderType { get; set; }
     public string? Email { get; set; }
@@ -132,6 +133,7 @@ public class AssetHolderSummary
 | Property | Type | Description |
 |----------|------|-------------|
 | `Id` | Guid | Asset holder's unique identifier |
+| `BaseAssetHolderId` | Guid | Base asset holder ID (used for cross-entity comparisons) |
 | `Name` | string | Display name of the asset holder |
 | `AssetHolderType` | AssetHolderType | Type: Client, Bank, Member, or PokerManager |
 | `Email` | string? | Contact email if available |
@@ -306,13 +308,14 @@ public class SettlementTransactionResponse : BaseTransactionResponse
     public decimal RakeAmount { get; set; }
     public decimal RakeCommission { get; set; }
     public decimal? RakeBack { get; set; }
+    public decimal SignedAssetAmount { get; set; }
     
     // Calculated properties
     public decimal NetSettlementAmount => 
-        AssetAmount - RakeAmount - RakeCommission + (RakeBack ?? 0);
+        SignedAssetAmount + RakeAmount * (RakeCommission / 100);
     
     public decimal? EffectiveCommissionRate => 
-        AssetAmount > 0 ? (RakeCommission / AssetAmount) * 100 : null;
+        RakeAmount > 0 ? RakeAmount * ((RakeCommission - RakeBack) / 100) : 0;
     
     public SettlementDetails? SettlementInfo { get; set; }
 }
@@ -325,9 +328,14 @@ public class SettlementTransactionResponse : BaseTransactionResponse
 | `RakeAmount` | decimal | Total rake collected from poker play |
 | `RakeCommission` | decimal | Commission applied to the rake |
 | `RakeBack` | decimal? | Rakeback returned to the player |
-| `NetSettlementAmount` | decimal | **Calculated**: Amount after all deductions |
-| `EffectiveCommissionRate` | decimal? | **Calculated**: Commission as percentage |
+| `SignedAssetAmount` | decimal | Asset amount signed by poker manager position |
+| `NetSettlementAmount` | decimal | **Calculated**: Signed amount + rake commission |
+| `EffectiveCommissionRate` | decimal? | **Calculated**: Effective commission value (not percentage) |
 | `SettlementInfo` | SettlementDetails? | Additional settlement context |
+
+**SignedAssetAmount rule:**
+- Negative when the poker manager is the **receiver**
+- Positive when the poker manager is the **sender**
 
 #### SettlementDetails
 
@@ -362,6 +370,109 @@ public class SettlementTransactionSimplifiedResponse : BaseResponse
     public decimal? RakeBack { get; set; }
 }
 ```
+
+---
+
+## Settlement Closings Response DTOs
+
+These DTOs are used by the `/api/v1/settlementtransaction/closings/{pokerManagerId}` endpoint to return settlement transactions grouped by date for daily reconciliation.
+
+**Location:** `Application/DTOs/Transactions/SettlementClosingsResponse.cs`
+
+### SettlementClosingsGroupedResponse
+
+Top-level response containing a list of closing groups (one per settlement date).
+
+```csharp
+public class SettlementClosingsGroupedResponse
+{
+    public List<SettlementClosingGroup> ClosingGroups { get; set; } = new();
+}
+```
+
+### SettlementClosingGroup
+
+Represents a single day's settlements with computed aggregate metrics.
+
+```csharp
+public class SettlementClosingGroup
+{
+    public DateTime Date { get; set; }
+    public List<SettlementTransactionResponse> Transactions { get; set; } = new();
+    
+    // Computed properties
+    public int TransactionCount => Transactions.Count;
+    public decimal TotalAssetAmount => Transactions.Sum(t => t.SignedAssetAmount);
+    public decimal TotalRake => Transactions.Sum(t => t.RakeAmount);
+    public decimal TotalRakeCommission => Transactions.Sum(t => t.RakeCommission);
+    public decimal? TotalRakeBack => Transactions.Sum(t => t.RakeBack ?? 0);
+    public decimal TotalNetSettlement => Transactions.Sum(t => t.NetSettlementAmount);
+}
+```
+
+### Computed Aggregates
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `TransactionCount` | int | Number of settlements on this date |
+| `TotalAssetAmount` | decimal | Sum of all `SignedAssetAmount` values |
+| `TotalRake` | decimal | Sum of all `RakeAmount` values |
+| `TotalRakeCommission` | decimal | Sum of all `EffectiveCommissionRate` values |
+| `TotalRakeBack` | decimal? | Sum of all `RakeBack` values (null coalesced to 0) |
+| `TotalNetSettlement` | decimal | Sum of all `NetSettlementAmount` values |
+
+### API Response Example
+
+```json
+{
+  "closingGroups": [
+    {
+      "date": "2026-01-22T00:00:00Z",
+      "transactions": [
+        {
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "date": "2026-01-22T00:00:00Z",
+          "assetAmount": 10000.00,
+          "rakeAmount": 500.00,
+          "rakeCommission": 150.00,
+          "rakeBack": 50.00,
+          "netSettlementAmount": 9400.00,
+          "effectiveCommissionRate": 1.5,
+          "transactionType": "Settlement",
+          "senderWallet": { ... },
+          "receiverWallet": { ... }
+        }
+      ],
+      "transactionCount": 15,
+      "totalAssetAmount": 250000.00,
+      "totalRake": 12500.00,
+      "totalRakeCommission": 3750.00,
+      "totalRakeBack": 1250.00,
+      "totalNetSettlement": 235000.00
+    },
+    {
+      "date": "2026-01-21T00:00:00Z",
+      "transactions": [...],
+      "transactionCount": 12,
+      "totalAssetAmount": 180000.00,
+      "totalRake": 9000.00,
+      "totalRakeCommission": 2700.00,
+      "totalRakeBack": 900.00,
+      "totalNetSettlement": 168300.00
+    }
+  ]
+}
+```
+
+### Business Context
+
+A "Closing" (Portuguese: **Fechamento**) represents a daily batch of settlement transactions. Key uses:
+
+1. **Daily Reconciliation**: View all settlements from a specific date as a group
+2. **Aggregate Reporting**: See totals for amount, rake, commissions without manual calculation
+3. **Last Settlement Tracking**: Used by `wallet-identifiers-connected` to show each wallet's most recent settlement
+
+For detailed information about the Closing concept and business workflow, see [SETTLEMENT_WORKFLOW.md](./SETTLEMENT_WORKFLOW.md#closings-fechamentos).
 
 ---
 
@@ -477,14 +588,15 @@ The DTOs are populated using AutoMapper with intelligent metadata extraction. Ke
   "id": "5fa85f64-5717-4562-b3fc-2c963f66afa6",
   "date": "2024-01-20T00:00:00Z",
   "assetAmount": 10000.00,
+  "signedAssetAmount": -10000.00,
   "transactionType": "Settlement",
   "assetType": "PokerStars",
   "isInternalTransfer": false,
   "rakeAmount": 500.00,
   "rakeCommission": 150.00,
   "rakeBack": 50.00,
-  "netSettlementAmount": 9400.00,
-  "effectiveCommissionRate": 1.5,
+  "netSettlementAmount": -9250.00,
+  "effectiveCommissionRate": 500.0,
   "settlementInfo": {
     "settlementType": "Poker Settlement",
     "settlementPeriod": "Weekly",
@@ -592,6 +704,163 @@ var settlementSummary = settlementTransactions
 
 ---
 
+## Transfer Response DTOs
+
+These DTOs are used by the unified `/api/v1/transfer` endpoint.
+
+### TransferResponse
+
+Response DTO for a completed transfer transaction.
+
+**Location:** `Application/DTOs/Transactions/TransferResponse.cs`
+
+```csharp
+public class TransferResponse
+{
+    // Transaction identification
+    public Guid TransactionId { get; set; }
+    public string EntityType { get; set; } = string.Empty; // "fiat" or "digital"
+    public AssetType AssetType { get; set; }
+    
+    // Sender details
+    public Guid SenderWalletIdentifierId { get; set; }
+    public Guid SenderAssetHolderId { get; set; }
+    public string SenderName { get; set; } = string.Empty;
+    
+    // Receiver details
+    public Guid ReceiverWalletIdentifierId { get; set; }
+    public Guid ReceiverAssetHolderId { get; set; }
+    public string ReceiverName { get; set; } = string.Empty;
+    
+    // Transaction details
+    public decimal Amount { get; set; }
+    public DateTime Date { get; set; }
+    public bool IsInternalTransfer { get; set; }
+    public bool IsApproved { get; set; }
+    public DateTime CreatedAt { get; set; }
+    
+    // Wallet creation indicators
+    public bool SenderWalletCreated { get; set; }
+    public bool ReceiverWalletCreated { get; set; }
+    public bool WalletsCreated => SenderWalletCreated || ReceiverWalletCreated;
+}
+```
+
+**Key Features:**
+
+| Property | Description |
+|----------|-------------|
+| `EntityType` | Indicates whether `FiatAssetTransaction` or `DigitalAssetTransaction` was created |
+| `IsInternalTransfer` | Computed from sender/receiver asset holder comparison |
+| `SenderWalletCreated` | True if sender wallet was auto-created (only on POST) |
+| `ReceiverWalletCreated` | True if receiver wallet was auto-created (only on POST) |
+| `WalletsCreated` | Computed: true if either wallet was created |
+
+> **Note:** Wallet creation flags are only populated on POST requests. On GET, they are always `false` as creation state is not stored.
+
+### WalletMissingError
+
+Provides detailed information when wallet creation is required.
+
+**Location:** `Application/DTOs/Transactions/WalletMissingError.cs`
+
+```csharp
+public class WalletMissingError
+{
+    public string Code { get; set; } = "WALLETS_REQUIRED";
+    public string Message { get; set; } = 
+        "One or more wallets need to be created to complete this transfer.";
+    
+    // Sender details
+    public bool SenderWalletMissing { get; set; }
+    public Guid? SenderAssetHolderId { get; set; }
+    public string? SenderAssetHolderName { get; set; }
+    public string? SenderAssetHolderType { get; set; }
+    public string? SenderAssetTypeName { get; set; }
+    
+    // Receiver details
+    public bool ReceiverWalletMissing { get; set; }
+    public Guid? ReceiverAssetHolderId { get; set; }
+    public string? ReceiverAssetHolderName { get; set; }
+    public string? ReceiverAssetHolderType { get; set; }
+    public string? ReceiverAssetTypeName { get; set; }
+}
+```
+
+**Properties:**
+
+| Property | Description |
+|----------|-------------|
+| `Code` | Error code, always `"WALLETS_REQUIRED"` |
+| `SenderWalletMissing` | True if sender wallet needs to be created |
+| `SenderAssetHolderName` | Display name of the sender (e.g., "Client João Silva") |
+| `SenderAssetHolderType` | Type: Client, Member, Bank, or PokerManager |
+| `SenderAssetTypeName` | Asset type name (e.g., "BrazilianReal", "PokerStars") |
+| `ReceiverWalletMissing` | True if receiver wallet needs to be created |
+| (Similar fields for receiver) | |
+
+**Usage:**
+
+This DTO is thrown as part of `WalletMissingException` and serialized in `ProblemDetails.Extensions["walletDetails"]`:
+
+```json
+{
+  "title": "Wallet Creation Required",
+  "status": 400,
+  "extensions": {
+    "errorCode": "WALLETS_REQUIRED",
+    "walletDetails": {
+      "code": "WALLETS_REQUIRED",
+      "message": "One or more wallets need to be created...",
+      "senderWalletMissing": true,
+      "senderAssetHolderName": "Client João Silva",
+      "senderAssetHolderType": "Client",
+      "senderAssetTypeName": "BrazilianReal",
+      "receiverWalletMissing": false
+    }
+  }
+}
+```
+
+### TransferError and Error Codes
+
+**Location:** `Application/DTOs/Transactions/TransferError.cs`
+
+General error details for transfer operations:
+
+```csharp
+public class TransferError
+{
+    public string Code { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
+    public string? Field { get; set; }
+    public Dictionary<string, object>? Details { get; set; }
+}
+```
+
+Static error codes:
+
+```csharp
+public static class TransferErrorCodes
+{
+    public const string SenderNotFound = "SENDER_NOT_FOUND";
+    public const string ReceiverNotFound = "RECEIVER_NOT_FOUND";
+    public const string SenderWalletNotFound = "SENDER_WALLET_NOT_FOUND";
+    public const string ReceiverWalletNotFound = "RECEIVER_WALLET_NOT_FOUND";
+    public const string WalletCreationFailed = "WALLET_CREATION_FAILED";
+    public const string InsufficientBalance = "INSUFFICIENT_BALANCE";
+    public const string InvalidAssetType = "INVALID_ASSET_TYPE";
+    public const string AssetTypeMismatch = "ASSET_TYPE_MISMATCH";
+    public const string WalletOwnershipMismatch = "WALLET_OWNERSHIP_MISMATCH";
+    public const string InvalidAmount = "INVALID_AMOUNT";
+    public const string CategoryNotFound = "CATEGORY_NOT_FOUND";
+    public const string TransactionFailed = "TRANSACTION_FAILED";
+    public const string SameSenderReceiverWallet = "SAME_SENDER_RECEIVER_WALLET";
+}
+```
+
+---
+
 ## Related Documentation
 
 For detailed information on related topics, refer to:
@@ -599,6 +868,7 @@ For detailed information on related topics, refer to:
 | Topic | Document |
 |-------|----------|
 | Transaction Infrastructure | [TRANSACTION_INFRASTRUCTURE.md](./TRANSACTION_INFRASTRUCTURE.md) |
+| **Transaction API Endpoints** | [TRANSACTION_API_ENDPOINTS.md](../06_API/TRANSACTION_API_ENDPOINTS.md) |
 | AutoMapper Configuration | [AUTOMAPPER_CONFIGURATION.md](../02_ARCHITECTURE/AUTOMAPPER_CONFIGURATION.md) |
 | Asset Infrastructure | [ASSET_INFRASTRUCTURE.md](./ASSET_INFRASTRUCTURE.md) |
 | Settlement Workflow | [SETTLEMENT_WORKFLOW.md](./SETTLEMENT_WORKFLOW.md) |

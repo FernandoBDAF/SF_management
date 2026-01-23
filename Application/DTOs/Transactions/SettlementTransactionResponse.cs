@@ -26,12 +26,17 @@ public class SettlementTransactionResponse : BaseTransactionResponse
     /// <summary>
     /// Net settlement amount after rake and commissions
     /// </summary>
-    public decimal NetSettlementAmount => AssetAmount - RakeAmount - RakeCommission + (RakeBack ?? 0);
+    public decimal NetSettlementAmount => SignedAssetAmount + RakeAmount * (RakeCommission / 100);
+
+    /// <summary>
+    /// Settlement amount with sign based on poker manager position
+    /// </summary>
+    public decimal SignedAssetAmount { get; set; }
     
     /// <summary>
     /// Effective commission rate
     /// </summary>
-    public decimal? EffectiveCommissionRate => AssetAmount > 0 ? (RakeCommission / AssetAmount) * 100 : null;
+    public decimal? EffectiveCommissionRate => RakeAmount > 0 ? RakeAmount * ((RakeCommission - RakeBack) / 100) : 0;
     
     /// <summary>
     /// Settlement details

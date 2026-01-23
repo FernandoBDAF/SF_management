@@ -27,8 +27,10 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
         var transactions = await context.SettlementTransactions
             .Include(st => st.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
+                    .ThenInclude(ap => ap.BaseAssetHolder)
             .Include(st => st.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
+                    .ThenInclude(ap => ap.BaseAssetHolder)
             .Where(st => st.DeletedAt == null && 
                         (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) ||
                          walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))

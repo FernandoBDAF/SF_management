@@ -87,6 +87,7 @@ public class WalletIdentifierSummary
 public class AssetHolderSummary
 {
     public Guid Id { get; set; }
+    public Guid BaseAssetHolderId { get; set; }
     public string Name { get; set; } = string.Empty;
     public AssetHolderType AssetHolderType { get; set; }
     public string? Email { get; set; }

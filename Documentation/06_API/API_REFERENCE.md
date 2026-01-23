@@ -121,7 +121,9 @@ Manages client entities (poker players/customers).
 | Method | Route | Description | Request | Response |
 |--------|-------|-------------|---------|----------|
 | GET | `/{id}/client-statistics` | Get client-specific stats | - | `ClientStatistics` |
-| POST | `/{id}/send-brazilian-real` | Send BRL transaction | `FiatAssetTransactionRequest` | `FiatAssetTransaction` |
+| POST | `/{id}/send-brazilian-real` | ⚠️ **DEPRECATED** - Send BRL transaction | `FiatAssetTransactionRequest` | `FiatAssetTransaction` |
+
+> ⚠️ **Deprecation Notice:** `POST /{id}/send-brazilian-real` is deprecated. Use `POST /api/v1/transfer` instead. See [Migration Guide](#deprecated-endpoints-migration).
 
 ---
 
@@ -174,7 +176,9 @@ Manages member entities (business partners/stakeholders).
 | Method | Route | Description | Request | Response |
 |--------|-------|-------------|---------|----------|
 | GET | `/{id}/member-statistics` | Get member-specific stats | - | `MemberStatistics` |
-| POST | `/{id}/send-brazilian-real` | Send BRL transaction | `FiatAssetTransactionRequest` | `FiatAssetTransaction` |
+| POST | `/{id}/send-brazilian-real` | ⚠️ **DEPRECATED** - Send BRL transaction | `FiatAssetTransactionRequest` | `FiatAssetTransaction` |
+
+> ⚠️ **Deprecation Notice:** `POST /{id}/send-brazilian-real` is deprecated. Use `POST /api/v1/transfer` instead. See [Migration Guide](#deprecated-endpoints-migration).
 
 ---
 
@@ -202,10 +206,12 @@ Manages poker manager entities who oversee poker operations and settlements.
 
 | Method | Route | Description | Request | Response |
 |--------|-------|-------------|---------|----------|
-| POST | `/{id}/send-brazilian-real` | Send BRL transaction | `FiatAssetTransactionRequest` | `FiatAssetTransaction` |
+| POST | `/{id}/send-brazilian-real` | ⚠️ **DEPRECATED** - Send BRL transaction | `FiatAssetTransactionRequest` | `FiatAssetTransaction` |
 | GET | `/{id}/wallet-identifiers-connected` | Get connected wallets from other holders | - | `WalletIdentifiersConnectedResponse` |
 | POST | `/{assetHolderId}/settlement-by-date` | Create settlement by date | `SettlementTransactionByDateRequest` | `SettlementTransactionByDateResponse` |
 | GET | `/{id}/balance` | Get balance by **AssetGroup** (overridden) | - | `Dictionary<string, decimal>` |
+
+> ⚠️ **Deprecation Notice:** `POST /{id}/send-brazilian-real` is deprecated. Use `POST /api/v1/transfer` instead. See [Migration Guide](#deprecated-endpoints-migration).
 
 **Note**: PokerManager overrides the balance endpoint to return balances grouped by `AssetGroup` instead of `AssetType`.
 
@@ -282,6 +288,46 @@ Manages company-owned asset pools (pools without a BaseAssetHolder).
 ---
 
 ## Transaction Controllers
+
+### Transfer (Unified Transfer Endpoint) ⭐ Recommended
+
+**Base Route**: `/api/v1/transfer`
+
+**Purpose**: Unified endpoint for all P2P transfers between asset holders, supporting both Fiat and Digital assets. This is the **recommended endpoint** for new implementations.
+
+**Controller**: `TransferController`
+
+#### Endpoints
+
+| Method | Route | Description | Request | Response |
+|--------|-------|-------------|---------|----------|
+| POST | `/` | Create transfer | `TransferRequest` | `TransferResponse` |
+| GET | `/{id}` | Get transfer by ID | Query: `entityType` | `TransferResponse` |
+
+#### Key Features
+
+- **Unified**: Works with both Fiat and Digital assets
+- **Mode Inference**: Automatically detects TRANSFER vs INTERNAL mode
+- **Bank Restrictions**: Enforces business rule blocking banks from TRANSFER mode
+- **Wallet Auto-Creation**: Optional with confirmation (default: requires confirmation)
+- **Balance Validation**: Optional balance checking
+
+#### Request Body (POST)
+
+```json
+{
+  "senderAssetHolderId": "guid",
+  "receiverAssetHolderId": "guid",
+  "assetType": 21,
+  "amount": 1000.00,
+  "date": "2026-01-22T10:00:00Z",
+  "createWalletsIfMissing": false
+}
+```
+
+> **Note:** For detailed documentation including all parameters, error codes, and examples, see [TRANSACTION_API_ENDPOINTS.md](./TRANSACTION_API_ENDPOINTS.md).
+
+---
 
 ### FiatAssetTransaction
 
@@ -529,8 +575,63 @@ See individual endpoint documentation for specific request model properties.
 
 ---
 
+## Deprecated Endpoints Migration
+
+The following endpoints are marked `[Obsolete]` and will be removed in API v2. Use the unified `/api/v1/transfer` endpoint instead.
+
+### Migration Table
+
+| Controller | Old Endpoint | New Endpoint |
+|------------|-------------|--------------|
+| ClientController | `POST /{id}/send-brazilian-real` | `POST /api/v1/transfer` |
+| MemberController | `POST /{id}/send-brazilian-real` | `POST /api/v1/transfer` |
+| PokerManagerController | `POST /{id}/send-brazilian-real` | `POST /api/v1/transfer` |
+
+### Migration Example
+
+**Old:**
+```http
+POST /api/v1/client/{clientId}/send-brazilian-real
+Content-Type: application/json
+Authorization: Bearer {token}
+
+{
+  "receiverId": "member-guid",
+  "amount": 1000.00,
+  "date": "2026-01-22"
+}
+```
+
+**New:**
+```http
+POST /api/v1/transfer
+Content-Type: application/json
+Authorization: Bearer {token}
+
+{
+  "senderAssetHolderId": "client-guid",
+  "receiverAssetHolderId": "member-guid",
+  "assetType": 21,
+  "amount": 1000.00,
+  "date": "2026-01-22T00:00:00Z"
+}
+```
+
+### Benefits of Migration
+
+1. **Unified API**: Single endpoint for all transfer types
+2. **Bank Restrictions**: Automatic enforcement of bank restrictions in TRANSFER mode
+3. **Wallet Creation**: Optional auto-creation with confirmation flow
+4. **Better Error Handling**: Detailed error responses with wallet creation information
+5. **Future-Proof**: New features will be added to `/transfer` only
+
+For detailed documentation, see [TRANSACTION_API_ENDPOINTS.md](./TRANSACTION_API_ENDPOINTS.md).
+
+---
+
 ## Related Documentation
 
+- [TRANSACTION_API_ENDPOINTS.md](./TRANSACTION_API_ENDPOINTS.md) - **Detailed transaction API reference**
 - [AUTHENTICATION.md](../05_INFRASTRUCTURE/AUTHENTICATION.md) - Authentication details
 - [ENUMS_AND_TYPE_SYSTEM.md](../07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) - Enum definitions
 - [ERROR_HANDLING.md](../05_INFRASTRUCTURE/ERROR_HANDLING.md) - Exception handling details
