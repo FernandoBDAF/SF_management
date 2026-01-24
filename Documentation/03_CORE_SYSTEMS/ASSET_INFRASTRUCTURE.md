@@ -6,6 +6,7 @@
 - [Core Domain Models](#core-domain-models)
   - [AssetPool](#assetpool)
   - [WalletIdentifier](#walletidentifier)
+- [Internal Wallets (Creation vs Participation)](#internal-wallets-creation-vs-participation)
 - [Metadata System](#metadata-system)
   - [Bank Wallet Metadata](#bank-wallet-metadata-fiat-assets)
   - [Poker Wallet Metadata](#poker-wallet-metadata)
@@ -93,6 +94,36 @@ public class WalletIdentifier : BaseDomain
 - Type-safe metadata accessors for each wallet type
 
 > **Note:** For enum definitions (`AssetGroup`, `AssetType`, `AccountClassification`), see [ENUMS_AND_TYPE_SYSTEM.md](../07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md).
+
+---
+
+## Internal Wallets (Creation vs Participation)
+
+`AssetGroup.Internal` wallets are flexible wallets that bypass metadata validation. They are created explicitly and **participate** in transactions, but transaction modes never create them automatically.
+
+### Creation Use Cases
+
+| Use Case | Owner | Purpose | Creation Path |
+|----------|-------|---------|---------------|
+| **System Wallets** | Company (`BaseAssetHolderId = null`) | Financial operations and categorization | `POST /api/v1/WalletIdentifier/internal-wallet` |
+| **Conversion Wallets** | PokerManager | Self-conversion trigger (dual-balance impact) | `POST /api/v1/WalletIdentifier/internal-wallet` |
+
+### Participation vs Creation
+
+Transaction modes can **use** Internal wallets but do **not** create them:
+
+- TRANSFER and INTERNAL modes may select existing Internal wallets
+- Auto-created wallets use the **natural** `AssetGroup` based on `AssetType` mapping
+
+### System Wallet Pairing
+
+System operations resolve the company-owned Internal wallet using:
+
+```
+GET /api/v1/company/asset-pools/system-wallet-to-pair-with/{walletIdentifierId}
+```
+
+This endpoint only returns **company-owned** Internal wallets (`BaseAssetHolderId = null`).
 
 ---
 

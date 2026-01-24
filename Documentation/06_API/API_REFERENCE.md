@@ -208,6 +208,7 @@ Manages poker manager entities who oversee poker operations and settlements.
 |--------|-------|-------------|---------|----------|
 | POST | `/{id}/send-brazilian-real` | ⚠️ **DEPRECATED** - Send BRL transaction | `FiatAssetTransactionRequest` | `FiatAssetTransaction` |
 | GET | `/{id}/wallet-identifiers-connected` | Get connected wallets from other holders | - | `WalletIdentifiersConnectedResponse` |
+| GET | `/{id}/conversion-wallets` | Get Internal wallets for self-conversion | - | `List<WalletIdentifierResponse>` |
 | POST | `/{assetHolderId}/settlement-by-date` | Create settlement by date | `SettlementTransactionByDateRequest` | `SettlementTransactionByDateResponse` |
 | GET | `/{id}/balance` | Get balance by **AssetGroup** (overridden) | - | `Dictionary<string, decimal>` |
 
@@ -274,7 +275,7 @@ Manages company-owned asset pools (pools without a BaseAssetHolder).
 | DELETE | `/{assetGroup}` | Delete company asset pool | - | `204 No Content` |
 | GET | `/summary` | Get summary with metrics | - | `CompanyAssetPoolSummaryResponse` |
 | GET | `/analytics` | Get analytics by period | Query params | `CompanyAssetPoolAnalyticsResponse` |
-| GET | `/internal-wallet-to-pair-with/{walletIdentifierId}` | Get matching internal wallet | - | `WalletIdentifierResponse` |
+| GET | `/system-wallet-to-pair-with/{walletIdentifierId}` | Get matching company-owned system wallet | - | `WalletIdentifierResponse` |
 
 #### Analytics Query Parameters
 

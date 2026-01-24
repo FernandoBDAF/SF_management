@@ -258,19 +258,23 @@ GET /api/v1/company/asset-pools/analytics?year=2025&month=1&includeTransactions=
 
 ---
 
-### 7. Get Internal Wallet to Pair With
+### 7. Get System Wallet to Pair With
 
-Finds an internal (company) wallet that can be paired with an external wallet for transactions.
+Finds a **company-owned** system wallet that can be paired with an external wallet for transactions.
 
 ```http
-GET /api/v1/company/asset-pools/internal-wallet-to-pair-with/{walletIdentifierId}
+GET /api/v1/company/asset-pools/system-wallet-to-pair-with/{walletIdentifierId}
 ```
 
 | Parameter | Type | Location | Description |
 |-----------|------|----------|-------------|
 | `walletIdentifierId` | `Guid` | Path | The external wallet identifier to find a pair for |
 
-**Response: `200 OK`** - Returns a `WalletIdentifierResponse` for the matching internal wallet
+**Response: `200 OK`** - Returns a `WalletIdentifierResponse` for the matching system wallet
+
+**Rules:**
+- Only Internal wallets with `BaseAssetHolderId = null` are eligible (company-owned)
+- Result is deterministic (ordered by creation date)
 
 **Use Case:** When creating transactions, this endpoint helps find the appropriate company wallet to use as the counterparty based on matching `AssetType`.
 
@@ -396,10 +400,10 @@ curl -X GET "/api/v1/company/asset-pools/analytics?year=2025&month=1&includeTran
   -H "Authorization: Bearer {token}"
 ```
 
-### Find Internal Wallet for Transaction Pairing
+### Find System Wallet for Transaction Pairing
 
 ```bash
-curl -X GET /api/v1/company/asset-pools/internal-wallet-to-pair-with/{walletId} \
+curl -X GET /api/v1/company/asset-pools/system-wallet-to-pair-with/{walletId} \
   -H "Authorization: Bearer {token}"
 ```
 

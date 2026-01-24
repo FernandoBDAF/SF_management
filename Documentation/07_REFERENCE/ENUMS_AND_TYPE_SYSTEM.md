@@ -130,6 +130,13 @@ AssetGroup is used in:
 
 **Settlements (`AssetGroup.Settlements`)**: Specifically for settlement transaction tracking. Like Internal, these skip metadata validation requirements.
 
+**Naming Clarification:**
+- `AssetGroup.Internal` (enum) is a wallet category
+- `INTERNAL` (transaction mode) is a same-holder transfer mode
+- `IsInternalTransfer` (transaction property) checks if both wallets share the same owner
+
+These are distinct concepts that happen to share similar naming.
+
 ---
 
 ### AccountClassification

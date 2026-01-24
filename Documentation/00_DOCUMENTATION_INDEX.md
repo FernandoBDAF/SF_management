@@ -54,7 +54,7 @@ Documentation for the primary systems that power the application.
 |----------|-------------|
 | [ENTITY_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md) | BaseAssetHolder hierarchy, entity relationships, and asset holder management |
 | [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md) | Asset pools, wallet identifiers, metadata system, and asset management |
-| [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) | Transaction models, **transaction modes**, **TransferService**, **guardrails**, and handling across asset types |
+| [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) | Transaction models, **transaction modes**, **self-conversion**, **TransferService**, **guardrails**, and handling across asset types |
 | [TRANSACTION_RESPONSE_VIEWMODELS.md](03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md) | Transaction response DTOs including **TransferResponse**, **WalletMissingError**, and API response structure |
 | [REFERRAL_SYSTEM.md](03_CORE_SYSTEMS/REFERRAL_SYSTEM.md) | Commission tracking system, referral management, and business rules |
 | [SETTLEMENT_WORKFLOW.md](03_CORE_SYSTEMS/SETTLEMENT_WORKFLOW.md) | Poker settlement process, rake calculations, and batch settlements |
@@ -99,8 +99,9 @@ API documentation and endpoint references.
 |----------|-------------|
 | [API_REFERENCE.md](06_API/API_REFERENCE.md) | Complete endpoint reference for all controllers |
 | [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) | **Comprehensive transaction API reference** with detailed examples, error codes, and use cases |
-| [COMPANY_ASSET_POOL_ENDPOINTS.md](06_API/COMPANY_ASSET_POOL_ENDPOINTS.md) | Specialized endpoints for company-owned asset pools |
+| [COMPANY_ASSET_POOL_ENDPOINTS.md](06_API/COMPANY_ASSET_POOL_ENDPOINTS.md) | Specialized endpoints for company-owned asset pools and system wallet pairing |
 | [INTERNAL_WALLET_TYPE_IMPLEMENTATION.md](06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md) | Internal and Settlement wallet group implementation |
+| [BALANCE_ENDPOINTS.md](06_API/BALANCE_ENDPOINTS.md) | Balance endpoint patterns and frontend alignment notes |
 
 ---
 
@@ -146,6 +147,7 @@ Refactoring plans and implementation guides for code improvements.
 | [BUILD_WARNINGS_CLEANUP_PLAN.md](10_REFACTORING/BUILD_WARNINGS_CLEANUP_PLAN.md) | Detailed plan to resolve all 170 build warnings including NuGet vulnerabilities, null references, and deprecated APIs |
 | [TRANSFER_ENDPOINT_IMPLEMENTATION_PLAN.md](10_REFACTORING/TRANSFER_ENDPOINT_IMPLEMENTATION_PLAN.md) | Implementation plan for unified `/transfer` endpoint (✅ Completed) |
 | [TRANSACTION_DOCUMENTATION_IMPROVEMENT_PLAN.md](10_REFACTORING/TRANSACTION_DOCUMENTATION_IMPROVEMENT_PLAN.md) | Plan for enriching backend transaction documentation (✅ Completed) |
+| [ASSETGROUP_FLEXIBLE_RENAME_PLAN.md](10_REFACTORING/ASSETGROUP_FLEXIBLE_RENAME_PLAN.md) | Future plan to rename `AssetGroup.Internal` → `Flexible` and add behavior layer (Deferred) |
 
 ---
 
@@ -187,12 +189,12 @@ Refactoring plans and implementation guides for code improvements.
 | Core Systems | 7 |
 | Supporting Systems | 3 |
 | Infrastructure | 8 |
-| API | 4 |
+| API | 5 |
 | Reference | 2 |
 | Development | 1 |
 | Deployment | 2 |
-| Refactoring | 4 |
-| **Total** | **36** |
+| Refactoring | 5 |
+| **Total** | **37** |
 
 ---
 
@@ -216,4 +218,4 @@ Refactoring plans and implementation guides for code improvements.
 
 ---
 
-*Last updated: January 2026*
+*Last updated: January 24, 2026*

@@ -11,6 +11,7 @@
   - [SettlementTransaction](#settlementtransaction)
   - [ImportedTransaction](#importedtransaction)
 - [Integration with Asset Infrastructure](#integration-with-asset-infrastructure)
+- [PokerManager Self-Conversion](#pokermanager-self-conversion)
 - [Best Practices](#best-practices)
 - [Entity Summary](#entity-summary)
 - [Related Documentation](#related-documentation)
@@ -579,6 +580,62 @@ WalletIdentifier ◄────────────────────
    - Sender: Client's PokerStars WalletIdentifier (PokerAssets)
    - Receiver: Client's Bank WalletIdentifier (FiatAssets)
    - Transaction Type: FiatAssetTransaction
+
+---
+
+## PokerManager Self-Conversion
+
+PokerManager self-conversion transactions allow a PokerManager to move chips from a personal/external position into the managed system (or out of it) while impacting **both** PokerAssets and FiatAssets balances.
+
+### Business Context
+
+The PokerManager acts as an **intermediary/bank** in the poker management business:
+- They hold poker chips **on behalf of the company**
+- They facilitate conversions between chips and fiat currency
+- When a **client** sends chips, the company owes the **client** money
+- When the **manager themselves** sends chips (from their own holdings), the company owes the **manager** money
+
+**Normal Client Transaction:**
+```
+Client sells 1000 chips to PokerManager:
+- Client PokerAssets: -1000 (sent chips)
+- Client FiatAssets: +5000 (owed by company)
+- PokerManager PokerAssets: +1000 (holding for company)
+```
+
+**Manager Self-Conversion:**
+```
+PokerManager deposits own 1000 chips:
+- PokerManager PokerAssets: +1000 (holding for company)
+- PokerManager FiatAssets: +5000 (owed by company)
+```
+
+The **Internal wallet** represents the manager's "external" or "personal" position that exists outside the managed system. When chips flow from Internal to PokerAssets, they are entering the managed system.
+
+### Trigger Conditions
+
+A `DigitalAssetTransaction` is treated as self-conversion when **all** conditions are met:
+
+1. Both sender and receiver wallets belong to the same PokerManager
+2. One wallet is `AssetGroup.Internal` and the other is `AssetGroup.PokerAssets`
+3. `BalanceAs` is set
+4. `ConversionRate` is set
+
+### Balance Impact
+
+| Direction | PokerAssets | FiatAssets | Meaning |
+|----------|-------------|-----------|---------|
+| Internal → PokerAssets | +AssetAmount | +AssetAmount × ConversionRate | Chips entering the system |
+| PokerAssets → Internal | -AssetAmount | -AssetAmount × ConversionRate | Chips leaving the system |
+
+### Settlement
+
+The FiatAssets balance created by self-conversion is settled through normal `FiatAssetTransaction` flows, just like client balances. For example, if the manager deposited 1000 chips at 5.0 conversion rate:
+- FiatAssets balance: +5000 BRL
+- Later: Company pays manager via `FiatAssetTransaction`
+- FiatAssets balance: 0 BRL (settled)
+
+> **Note:** The self-conversion logic is implemented in `BaseAssetHolderService.GetBalancesByAssetGroup` and is tied to the Internal wallet trigger.
 
 ---
 

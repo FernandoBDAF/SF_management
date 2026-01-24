@@ -120,20 +120,20 @@ var internalWallets = await context.WalletIdentifiers
     .ToListAsync();
 ```
 
-### Find Internal Wallet to Pair With
+### Find System Wallet to Pair With
 
-When creating transactions, use this endpoint to find an internal (company) wallet as counterparty:
+When creating transactions, use this endpoint to find a company-owned system wallet as counterparty:
 
 ```http
-GET /api/v1/company/asset-pools/internal-wallet-to-pair-with/{walletIdentifierId}
+GET /api/v1/company/asset-pools/system-wallet-to-pair-with/{walletIdentifierId}
 ```
 
 This method:
 - Takes an external wallet identifier ID
-- Returns an internal wallet with matching `AssetType`
+- Returns a company-owned internal wallet with matching `AssetType`
 - Throws an error if the input wallet is already internal
 
-**Use case:** When recording a client deposit, find the company's internal wallet to use as the sender.
+**Use case:** When recording a client deposit, find the company's system wallet to use as the sender.
 
 ---
 
@@ -173,7 +173,7 @@ This helps with audit trails, filtering, and understanding wallet purpose.
 
 ## Use Cases
 
-### 1. Company Treasury Operations
+### 1. System Wallets (Company-Owned)
 
 ```csharp
 var treasuryWallet = new WalletIdentifier
@@ -192,7 +192,7 @@ var result = await walletIdentifierService.AddWithAssetGroup(
 ```csharp
 // Find internal wallet to use for client deposit
 var internalWallet = await walletIdentifierService
-    .GetInternalWalletToPairWith(clientWalletId);
+    .GetSystemWalletToPairWith(clientWalletId);
 
 // Create deposit transaction
 var deposit = new DigitalAssetTransaction
@@ -203,7 +203,26 @@ var deposit = new DigitalAssetTransaction
 };
 ```
 
-### 3. Inter-Department Transfers
+### 3. Conversion Wallets (PokerManager-Owned)
+
+Internal wallets can also be created for PokerManagers to support self-conversion flows:
+
+```csharp
+var conversionWallet = new WalletIdentifier
+{
+    BaseAssetHolderId = pokerManagerId,
+    AssetType = AssetType.PokerStars,
+    AccountClassification = AccountClassification.ASSET
+};
+var result = await walletIdentifierService.AddWithAssetGroup(
+    conversionWallet,
+    AssetGroup.Internal);
+```
+
+These wallets are used to trigger dual-balance impact (PokerAssets + FiatAssets) when
+`BalanceAs` and `ConversionRate` are set on a DigitalAssetTransaction.
+
+### 4. Inter-Department Transfers
 
 ```csharp
 var transaction = new FiatAssetTransaction
@@ -256,6 +275,8 @@ Internal wallets work seamlessly with all transaction types:
 - **SettlementTransaction** - Poker settlements
 
 Balance calculations handle internal wallets by mapping them to the appropriate asset group based on `AssetType`.
+
+> **Note:** TRANSFER and INTERNAL transaction modes may use existing Internal wallets, but these modes do not create Internal wallets.
 
 ---
 

@@ -619,6 +619,40 @@ POST /api/v1/transfer
 }
 ```
 
+### System Operation (System Wallet Pairing)
+
+When a transaction uses a company system wallet as counterparty, the system wallet should be resolved by asset type:
+
+```http
+GET /api/v1/company/asset-pools/system-wallet-to-pair-with/{walletIdentifierId}
+```
+
+Then submit the transfer with the resolved system wallet as sender or receiver.
+
+### PokerManager Self-Conversion (Internal Trigger)
+
+Self-conversion is a DigitalAssetTransaction where a PokerManager uses their **Internal** wallet as the counterparty to their own PokerAssets wallet. Both `balanceAs` and `conversionRate` must be set.
+
+```json
+{
+  "senderAssetHolderId": "pokermanager-guid",
+  "receiverAssetHolderId": "pokermanager-guid",
+  "senderWalletIdentifierId": "internal-wallet-guid",
+  "receiverWalletIdentifierId": "poker-wallet-guid",
+  "assetType": 101,
+  "amount": 1000.00,
+  "date": "2026-01-22T10:00:00Z",
+  "balanceAs": 21,
+  "conversionRate": 5.0
+}
+```
+
+To list available internal conversion wallets for a PokerManager:
+
+```http
+GET /api/v1/pokermanager/{id}/conversion-wallets
+```
+
 ### Force Balance Validation
 
 ```json
