@@ -42,12 +42,12 @@ public class CompanyAssetPoolController : ControllerBase
         _walletIdentifierService = walletIdentifierService;
     }
 
-    [HttpGet("internal-wallet-to-pair-with/{walletIdentifierId}")]
+    [HttpGet("system-wallet-to-pair-with/{walletIdentifierId}")]
     [ProducesResponseType(typeof(WalletIdentifierResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetInternalWalletToPairWith(Guid walletIdentifierId)
+    public async Task<IActionResult> GetSystemWalletToPairWith(Guid walletIdentifierId)
     {
-        var walletIdentifiers = await _walletIdentifierService.GetInternalWalletToPairWith(walletIdentifierId);
-        _logger.LogInformation("Internal wallet to pair with {WalletIdentifierId} - RequestId: {RequestId}", 
+        var walletIdentifiers = await _walletIdentifierService.GetSystemWalletToPairWith(walletIdentifierId);
+        _logger.LogInformation("System wallet to pair with {WalletIdentifierId} - RequestId: {RequestId}", 
             walletIdentifierId, HttpContext.TraceIdentifier);
         var response = _mapper.Map<WalletIdentifierResponse>(walletIdentifiers);
         return Ok(response);

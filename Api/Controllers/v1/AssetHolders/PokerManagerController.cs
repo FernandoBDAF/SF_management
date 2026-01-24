@@ -139,6 +139,26 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
             return HandleGenericException("retrieving wallet identifiers for");
         }
     }
+
+    /// <summary>
+    /// Get conversion wallets for poker manager (Internal wallets owned by this manager)
+    /// </summary>
+    [HttpGet("{id}/conversion-wallets")]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+    [ProducesResponseType(typeof(List<WalletIdentifierResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetConversionWallets(Guid id)
+    {
+        try
+        {
+            var wallets = await _walletIdentifierService.GetConversionWalletsForManager(id);
+            var response = _mapper.Map<List<WalletIdentifierResponse>>(wallets);
+            return Ok(response);
+        }
+        catch (Exception)
+        {
+            return HandleGenericException("retrieving conversion wallets for");
+        }
+    }
     
     /// <summary>
     /// Create settlement transactions by date

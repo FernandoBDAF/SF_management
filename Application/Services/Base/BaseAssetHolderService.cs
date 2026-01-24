@@ -539,6 +539,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     }
     
     // add variable BaseAssetWalletType so the balance could have different behavior
+    // calculates balance for PokerManager
     public async Task<Dictionary<AssetGroup, decimal>> GetBalancesByAssetGroup(Guid baseAssetHolderId)
     {
         var balances = new Dictionary<AssetGroup, decimal>();
@@ -572,7 +573,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) || 
                          walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)))
             .Include(ft => ft.SenderWalletIdentifier)
+                .ThenInclude(wi => wi!.AssetPool)
             .Include(ft => ft.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi!.AssetPool)
             .ToListAsync();
 
         var digitalTransactions = await context.DigitalAssetTransactions
@@ -580,7 +583,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) || 
                          walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)))
             .Include(dt => dt.SenderWalletIdentifier)
+                .ThenInclude(wi => wi!.AssetPool)
             .Include(dt => dt.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi!.AssetPool)
             .ToListAsync();
 
         var settlementTransactions = await context.SettlementTransactions
@@ -588,7 +593,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) || 
                          walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))
             .Include(st => st.SenderWalletIdentifier)
+                .ThenInclude(wi => wi!.AssetPool)
             .Include(st => st.ReceiverWalletIdentifier)
+                .ThenInclude(wi => wi!.AssetPool)
             .ToListAsync();
 
         // Process FiatAssetTransactions
@@ -630,13 +637,36 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 signedAmount = -signedAmount;
             }
             
-            // if (tx.BalanceAs != null && tx.ConversionRate != null)
-            // {
-            //     var balanceAsGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(tx.BalanceAs.Value);
-            //     if (!balances.ContainsKey(balanceAsGroup)) balances[balanceAsGroup] = 0;
-            //     balances[balanceAsGroup] += signedAmount * tx.ConversionRate.Value;
-            //     continue;
-            // }
+            var senderAssetGroup = tx.SenderWalletIdentifier?.AssetPool?.AssetGroup ?? AssetGroup.None;
+            var receiverAssetGroup = tx.ReceiverWalletIdentifier?.AssetPool?.AssetGroup ?? AssetGroup.None;
+
+            var isSelfConversion =
+                walletIdentifierIds.Contains(tx.SenderWalletIdentifierId) &&
+                walletIdentifierIds.Contains(tx.ReceiverWalletIdentifierId) &&
+                ((senderAssetGroup == AssetGroup.Internal && receiverAssetGroup == AssetGroup.PokerAssets) ||
+                 (senderAssetGroup == AssetGroup.PokerAssets && receiverAssetGroup == AssetGroup.Internal)) &&
+                tx.BalanceAs != null &&
+                tx.ConversionRate != null;
+
+            if (isSelfConversion)
+            {
+                var isEntering = senderAssetGroup == AssetGroup.Internal;
+
+                var pokerAssetsImpact = isEntering ? tx.AssetAmount : -tx.AssetAmount;
+                pokerAssetsImpact = pokerAssetsImpact * (100 - (tx.Rate ?? 0)) / 100;
+
+                var fiatAssetsImpact = isEntering
+                    ? tx.AssetAmount * tx.ConversionRate.Value
+                    : -tx.AssetAmount * tx.ConversionRate.Value;
+
+                if (!balances.ContainsKey(AssetGroup.PokerAssets)) balances[AssetGroup.PokerAssets] = 0;
+                balances[AssetGroup.PokerAssets] += pokerAssetsImpact;
+
+                if (!balances.ContainsKey(AssetGroup.FiatAssets)) balances[AssetGroup.FiatAssets] = 0;
+                balances[AssetGroup.FiatAssets] += fiatAssetsImpact;
+
+                continue;
+            }
                 
             var assetGroup = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier!.AssetGroup :

@@ -281,7 +281,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .ToListAsync();
     }
 
-    public async Task<WalletIdentifier?> GetInternalWalletToPairWith(Guid walletIdentifierId)
+    public async Task<WalletIdentifier?> GetSystemWalletToPairWith(Guid walletIdentifierId)
     {
         var walletIdentifier = await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
@@ -300,9 +300,35 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .Include(wi => wi.AssetPool)
             .ThenInclude(ap => ap!.BaseAssetHolder)
             .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal &&
+                        wi.AssetPool!.BaseAssetHolderId == null &&
                         wi.AssetType == walletIdentifier.AssetType &&
                         !wi.DeletedAt.HasValue)
+            .OrderBy(wi => wi.CreatedAt)
             .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Gets conversion wallets for a PokerManager (used in self-conversion transactions)
+    /// </summary>
+    public async Task<List<WalletIdentifier>> GetConversionWalletsForManager(Guid managerId)
+    {
+        var isPokerManager = await context.PokerManagers
+            .AnyAsync(pm => pm.BaseAssetHolderId == managerId && !pm.DeletedAt.HasValue);
+
+        if (!isPokerManager)
+        {
+            throw new ArgumentException("Asset holder is not a PokerManager");
+        }
+
+        return await context.WalletIdentifiers
+            .Include(wi => wi.AssetPool)
+                .ThenInclude(ap => ap!.BaseAssetHolder)
+            .Include(wi => wi.Referrals)
+            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal &&
+                        wi.AssetPool!.BaseAssetHolderId == managerId &&
+                        !wi.DeletedAt.HasValue)
+            .OrderBy(wi => wi.CreatedAt)
+            .ToListAsync();
     }
     
     public async Task<List<WalletIdentifier>> GetInternalWalletsByMetadata(string metadataKey, string metadataValue)
