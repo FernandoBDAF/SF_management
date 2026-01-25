@@ -53,8 +53,10 @@ Documentation for the primary systems that power the application.
 | Document | Description |
 |----------|-------------|
 | [ENTITY_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md) | BaseAssetHolder hierarchy, entity relationships, and asset holder management |
+| [ENTITY_BUSINESS_BEHAVIOR.md](03_CORE_SYSTEMS/ENTITY_BUSINESS_BEHAVIOR.md) | **NEW:** Business behavior, balance meanings, and transaction rules per entity type |
 | [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md) | Asset pools, wallet identifiers, metadata system, and asset management |
 | [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) | Transaction models, **transaction modes**, **self-conversion**, **TransferService**, **guardrails**, and handling across asset types |
+| [TRANSACTION_BALANCE_IMPACT.md](03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md) | **NEW:** Single source of truth for how transactions impact balances |
 | [TRANSACTION_RESPONSE_VIEWMODELS.md](03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md) | Transaction response DTOs including **TransferResponse**, **WalletMissingError**, and API response structure |
 | [REFERRAL_SYSTEM.md](03_CORE_SYSTEMS/REFERRAL_SYSTEM.md) | Commission tracking system, referral management, and business rules |
 | [SETTLEMENT_WORKFLOW.md](03_CORE_SYSTEMS/SETTLEMENT_WORKFLOW.md) | Poker settlement process, rake calculations, and batch settlements |
@@ -148,6 +150,10 @@ Refactoring plans and implementation guides for code improvements.
 | [TRANSFER_ENDPOINT_IMPLEMENTATION_PLAN.md](10_REFACTORING/TRANSFER_ENDPOINT_IMPLEMENTATION_PLAN.md) | Implementation plan for unified `/transfer` endpoint (✅ Completed) |
 | [TRANSACTION_DOCUMENTATION_IMPROVEMENT_PLAN.md](10_REFACTORING/TRANSACTION_DOCUMENTATION_IMPROVEMENT_PLAN.md) | Plan for enriching backend transaction documentation (✅ Completed) |
 | [ASSETGROUP_FLEXIBLE_RENAME_PLAN.md](10_REFACTORING/ASSETGROUP_FLEXIBLE_RENAME_PLAN.md) | Future plan to rename `AssetGroup.Internal` → `Flexible` and add behavior layer (Deferred) |
+| [BALANCE_SYSTEM_ANALYSIS.md](10_REFACTORING/BALANCE_SYSTEM_ANALYSIS.md) | **Validated** analysis of balance system with entity behaviors, transaction impacts, and bug fixes |
+| [DOCUMENTATION_REVIEW_JANUARY_2026.md](10_REFACTORING/DOCUMENTATION_REVIEW_JANUARY_2026.md) | Documentation review with corrections, gaps, and action plan |
+| [FINANCE_MODULE_PLANNING.md](10_REFACTORING/FINANCE_MODULE_PLANNING.md) | **NEW:** Deferred financial features (profit tracking, member share, credit limits) |
+| [ACCOUNTCLASSIFICATION_BUG_FIX_PLAN.md](10_REFACTORING/ACCOUNTCLASSIFICATION_BUG_FIX_PLAN.md) | **NEW:** Fix plan for PM FiatAssets wallet classification bug |
 
 ---
 
@@ -186,15 +192,15 @@ Refactoring plans and implementation guides for code improvements.
 |----------|-------|
 | Business | 1 |
 | Architecture | 4 |
-| Core Systems | 7 |
+| Core Systems | 9 |
 | Supporting Systems | 3 |
 | Infrastructure | 8 |
 | API | 5 |
 | Reference | 2 |
 | Development | 1 |
 | Deployment | 2 |
-| Refactoring | 5 |
-| **Total** | **37** |
+| Refactoring | 9 |
+| **Total** | **43** |
 
 ---
 

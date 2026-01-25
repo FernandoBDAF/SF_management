@@ -83,7 +83,7 @@ Creates a transfer between any two asset holders.
 | `receiverWalletIdentifierId` | Guid? | ❌ No | null | Specific receiver wallet (auto-finds if not provided) |
 | `categoryId` | Guid? | ❌ No | null | Transaction category for classification |
 | `description` | string? | ❌ No | null | Transaction description |
-| `createWalletsIfMissing` | bool | ❌ No | false | Create wallets if they don't exist |
+| `createWalletsIfMissing` | bool | ❌ No | false | Deprecated. If true, API returns `WALLETS_CREATION_DEPRECATED` |
 | `autoApprove` | bool | ❌ No | false | Auto-approve the transaction |
 | `validateBalance` | bool | ❌ No | false | Validate sender has sufficient balance |
 | `balanceAs` | int? | ❌ No | null | Record balance as different asset (digital only) |
@@ -125,9 +125,9 @@ Creates a transfer between any two asset holders.
    - INTERNAL mode: Banks allowed (for internal movements)
 
 3. **Wallet Creation:**
-   - Default `CreateWalletsIfMissing = false` (requires confirmation)
-   - If wallets missing and flag is false → Returns 400 with `WALLETS_REQUIRED`
-   - If wallets missing and flag is true → Creates wallets and proceeds
+   - Wallets must exist before transfer
+   - If wallets missing → Returns 400 with `WALLETS_REQUIRED`
+   - `CreateWalletsIfMissing` is deprecated; if true → Returns 400 with `WALLETS_CREATION_DEPRECATED`
 
 4. **Asset Type Determination:**
    - Fiat assets (21-22) → Creates `FiatAssetTransaction`
@@ -167,6 +167,21 @@ Returned when wallets don't exist and `CreateWalletsIfMissing = false`:
       "receiverAssetHolderType": null,
       "receiverAssetTypeName": null
     }
+  }
+}
+```
+
+##### Wallet Creation Deprecated (400)
+
+Returned when `CreateWalletsIfMissing = true`:
+
+```json
+{
+  "title": "Transfer Failed",
+  "status": 400,
+  "detail": "Automatic wallet creation is no longer supported. Create wallets explicitly before initiating transfer.",
+  "extensions": {
+    "errorCode": "WALLETS_CREATION_DEPRECATED"
   }
 }
 ```

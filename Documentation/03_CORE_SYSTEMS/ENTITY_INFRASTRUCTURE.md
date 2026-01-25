@@ -102,7 +102,7 @@ public class BaseAssetHolder : BaseDomain
 
 ### Client
 
-Represents external customers who use the platform's services:
+Represents external customers who buy/sell poker chips via PokerManagers.
 
 ```csharp
 public class Client : BaseDomain, IAssetHolder
@@ -117,9 +117,17 @@ public class Client : BaseDomain, IAssetHolder
 }
 ```
 
+**Business Behavior:**
+- Buys/sells chips **via PokerManager** (not directly)
+- Balance is `AccountClassification.LIABILITY` (positive = company OWES client)
+- Can have negative balance (credit line - owes company)
+- Pays debts via FiatTransactions to Bank (RECEIPT mode)
+
+> **Future:** Credit limit management per client (TBD)
+
 ### Bank
 
-Represents banking institutions:
+Represents the **company's own bank accounts** (not external banks).
 
 ```csharp
 public class Bank : BaseDomain, IAssetHolder
@@ -131,9 +139,16 @@ public class Bank : BaseDomain, IAssetHolder
 }
 ```
 
+**Business Behavior:**
+- Holds **company's** fiat currency (BRL, USD)
+- Balance is `AccountClassification.ASSET` (positive = company HAS money)
+- Only participates in FiatTransactions (RECEIPT/PAYMENT modes)
+- **Cannot** participate in TRANSFER mode (enforced by TransferService)
+- Can only hold FiatAssets (no poker/crypto)
+
 ### Member
 
-Represents internal team members with profit-sharing arrangements:
+Represents internal team members with profit-sharing arrangements.
 
 ```csharp
 public class Member : BaseDomain, IAssetHolder
@@ -155,9 +170,19 @@ public class Member : BaseDomain, IAssetHolder
 }
 ```
 
+**Business Behavior:**
+- Transacts **exactly like a Client** (buy/sell chips, pay/receive fiat)
+- Balance is `AccountClassification.LIABILITY` (positive = company OWES member)
+- Additionally has `Share` and `Salary` fields for financial module
+
+**Future Implementation (Finance Module):**
+- `Share`: Percentage of company profits the member receives
+- `Salary`: Fixed periodic payment to member
+- These fields exist but implementation is TBD
+
 ### PokerManager
 
-Represents poker site managers/agents:
+Holds poker assets **on behalf of the company** (like a bank holds money for the company).
 
 ```csharp
 public class PokerManager : BaseDomain, IAssetHolder
@@ -168,6 +193,24 @@ public class PokerManager : BaseDomain, IAssetHolder
     public ManagerProfitType? ManagerProfitType { get; set; }  // Spread or RakeOverrideCommission
 }
 ```
+
+**Business Behavior:**
+- Holds poker chips **FOR the company** (company's inventory)
+- PokerAssets balance is `AccountClassification.ASSET` (positive = company HAS chips)
+- Facilitates SALE/PURCHASE transactions with Clients/Members
+- The **company** earns revenue through spread or rake commission
+
+**Special Cases:**
+- **In FiatTransactions:** Acts like a Client (balance = what company owes PM)
+- **With Conversion Wallet:** Self-conversion triggers dual-balance impact (see TRANSACTION_INFRASTRUCTURE.md)
+
+**ManagerProfitType:**
+| Type | Description | How Company Earns |
+|------|-------------|-------------------|
+| `Spread` | Price spread | Different buy/sell ConversionRate |
+| `RakeOverrideCommission` | Commission from poker site | RakeCommission % in SettlementTransaction |
+
+> **Note:** The company earns these profits, using the PokerManager as the asset holder.
 
 ### IAssetHolder Interface
 

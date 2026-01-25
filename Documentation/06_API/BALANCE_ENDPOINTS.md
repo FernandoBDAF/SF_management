@@ -160,7 +160,26 @@ Both methods (`GetBalancesByAssetType` and `GetBalancesByAssetGroup`) aggregate 
 1. **Initial Balances** - Pre-configured starting balances for the asset holder
 2. **Fiat Transactions** - `FiatAssetTransaction` records
 3. **Digital Transactions** - `DigitalAssetTransaction` records
-4. **Settlement Transactions** - `SettlementTransaction` records
+4. **Settlement Transactions** - `SettlementTransaction` records (see special rules below)
+
+### ⚠️ Settlement Transaction Balance Logic
+
+> **CRITICAL BUG (Known Issue):** Current implementation incorrectly uses `AssetAmount` for settlement balance calculation. This causes double-counting because the actual chip movements already flow via `DigitalAssetTransactions`. See [BALANCE_SYSTEM_ANALYSIS.md](../10_REFACTORING/BALANCE_SYSTEM_ANALYSIS.md) for fix plan.
+
+**Correct Balance Calculation:**
+
+| Method | Entity Type | Formula |
+|--------|-------------|---------|
+| `GetBalancesByAssetType` | Client/Member | `+RakeAmount × (RakeBack / 100)` |
+| `GetBalancesByAssetGroup` | PokerManager | `-RakeAmount × (RakeCommission / 100)` |
+
+**Field Meanings:**
+- `RakeAmount`: Total rake client paid to poker site (chips)
+- `RakeCommission`: % of rake poker site pays company
+- `RakeBack`: % of rake company returns to client
+
+**Why `AssetAmount` Should NOT Be Used:**
+The `AssetAmount` represents chip flow that is already recorded in `DigitalAssetTransactions`. Using it again in settlement balance calculation results in double-counting.
 
 ### Sign Convention (Core Logic)
 

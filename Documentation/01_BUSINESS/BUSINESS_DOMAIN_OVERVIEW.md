@@ -10,11 +10,18 @@ SF Management is a financial management system designed for the poker industry, 
 
 ### The Poker Management Business
 
-Poker managers operate as intermediaries between poker platforms and players. They:
-1. **Provide liquidity** - Buying and selling poker chips for players
-2. **Manage settlements** - Reconciling player positions periodically
-3. **Track commissions** - Earning rake and referral commissions
-4. **Handle banking** - Moving money between banks and players
+The company operates a poker management business where:
+- **PokerManagers** hold poker chips **on behalf of the company** (like a bank holds money)
+- **Clients** buy/sell chips from/to the company via PokerManagers
+- The **company earns** through spread (price difference) or rake commission
+
+Business operations:
+1. **Provide liquidity** - Buying and selling poker chips for clients
+2. **Manage settlements** - Reconciling client positions periodically
+3. **Earn revenue** - The **company** earns from spread and/or rake commission
+4. **Handle banking** - Company's bank accounts (Banks) receive/send fiat payments
+
+> **Key Concept:** PokerManagers don't earn commission personally - they hold assets on behalf of the company. The company earns the revenue.
 
 ### Key Business Processes
 
@@ -37,12 +44,23 @@ Player wins chips → Contact Manager → Player sells chips → Manager pays
 
 Entities that can hold assets and transact:
 
-| Entity | Description | Key Use |
-|--------|-------------|---------|
-| **Client** | Poker players/customers | Buy/sell chips |
-| **Bank** | Financial institutions | Hold fiat currency |
-| **Member** | Business partners | Revenue sharing |
-| **PokerManager** | Operations managers | Manage all transactions |
+| Entity | Description | Key Use | Balance Meaning |
+|--------|-------------|---------|-----------------|
+| **Client** | Poker players who buy/sell chips **via PokerManager** | Buy/sell chips | Positive = company OWES them |
+| **Bank** | **Company's own bank accounts** | Hold company's fiat | Positive = money company HAS |
+| **Member** | Team members (like clients + Share%/Salary TBD) | Transact like clients | Positive = company OWES them |
+| **PokerManager** | **Holds poker assets ON BEHALF OF company** | Company's poker inventory | Positive = company's inventory |
+
+#### Company Asset Holders vs Business Partners
+
+**Company Asset Holders** (hold FOR the company):
+- Bank: Company's bank accounts (FiatAssets)
+- PokerManager: Company's poker chip inventory (PokerAssets)
+- *(Future: CryptoManager for CryptoAssets)*
+
+**Business Partners** (transact WITH the company):
+- Client: External customers
+- Member: Internal team members
 
 ### Assets
 

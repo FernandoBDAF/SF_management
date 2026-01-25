@@ -12,19 +12,76 @@ The Settlement system handles periodic financial reconciliation between poker ma
 
 A settlement is a periodic reconciliation that:
 1. Calculates the net balance between poker manager and player
-2. Records the rake (commission) earned by the manager
-3. Creates settlement transactions to zero out positions
-4. Groups transactions by settlement date for reporting
+2. Records the rake paid by the client to the poker site
+3. Records the commission the **company earns** (via PokerManager) from the poker site
+4. Records the rakeback the **company returns** to the client
+5. Groups transactions by settlement date for reporting
+
+> **Important:** The PokerManager acts as an asset holder on behalf of the company. The rake commission represents company revenue, not personal manager income.
 
 ### Settlement Transaction
 
 ```csharp
 public class SettlementTransaction : BaseTransaction
 {
-    public decimal? RakeAmount { get; set; }       // Commission
-    public DateTime? SettlementDate { get; set; }  // Settlement period end
+    // Total rake the client paid to the poker site (in chips)
+    [Required] public decimal RakeAmount { get; set; }
+    
+    // Percentage of rake the poker site pays to the company
+    [Required] public decimal RakeCommission { get; set; }
+    
+    // Percentage of rake the company returns to the client
+    public decimal? RakeBack { get; set; }
 }
 ```
+
+**Field Meanings:**
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `RakeAmount` | Total rake client paid to poker site | 1000 chips |
+| `RakeCommission` | % of rake poker site pays company | 50% |
+| `RakeBack` | % of rake company returns to client | 10% |
+
+> **Note:** `AssetAmount` (from BaseTransaction) represents the chip flow and is used for tracking purposes only. It should NOT be used for balance calculation as those chips already flowed via DigitalAssetTransactions.
+
+---
+
+## Balance Impact
+
+### How SettlementTransactions Affect Balances
+
+⚠️ **Critical:** The `AssetAmount` field should NOT be used for balance calculation. The chips already flowed via `DigitalAssetTransactions`.
+
+| Entity | Balance Impact | Formula |
+|--------|---------------|---------|
+| **Client** | Receives rakeback | `+RakeAmount × (RakeBack / 100)` |
+| **PokerManager** | Company earns commission | `-RakeAmount × (RakeCommission / 100)` |
+
+**Example:**
+```
+Settlement Transaction:
+- RakeAmount: 1000 chips
+- RakeCommission: 50%
+- RakeBack: 10%
+
+Balance Impacts:
+- Client PokerAssets: +100 (1000 × 10%)
+- PokerManager PokerAssets: -500 (1000 × 50%)
+```
+
+### Company Profit (Finance Module - TBD)
+
+The company profit from each settlement is calculated as:
+
+```
+Company Profit = RakeAmount × ((RakeCommission - RakeBack) / 100)
+```
+
+Using the example above:
+- Company Profit = 1000 × ((50 - 10) / 100) = **400 chips**
+
+This will be tracked in the Finance Module (to be implemented).
 
 ---
 

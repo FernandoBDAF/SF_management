@@ -310,7 +310,8 @@ Manages company-owned asset pools (pools without a BaseAssetHolder).
 - **Unified**: Works with both Fiat and Digital assets
 - **Mode Inference**: Automatically detects TRANSFER vs INTERNAL mode
 - **Bank Restrictions**: Enforces business rule blocking banks from TRANSFER mode
-- **Wallet Auto-Creation**: Optional with confirmation (default: requires confirmation)
+- **AssetGroup Restriction**: TRANSFER mode only allows Internal wallets (AssetGroup 4)
+- **Explicit Wallet Creation**: Wallets must exist before transfer (auto-creation deprecated)
 - **Balance Validation**: Optional balance checking
 
 #### Request Body (POST)
@@ -321,10 +322,11 @@ Manages company-owned asset pools (pools without a BaseAssetHolder).
   "receiverAssetHolderId": "guid",
   "assetType": 21,
   "amount": 1000.00,
-  "date": "2026-01-22T10:00:00Z",
-  "createWalletsIfMissing": false
+  "date": "2026-01-22T10:00:00Z"
 }
 ```
+
+> ⚠️ **Note:** `createWalletsIfMissing` flag is **deprecated** (January 2026). If set to `true`, returns error `WALLETS_CREATION_DEPRECATED`. Create wallets explicitly before initiating transfer.
 
 > **Note:** For detailed documentation including all parameters, error codes, and examples, see [TRANSACTION_API_ENDPOINTS.md](./TRANSACTION_API_ENDPOINTS.md).
 

@@ -1,8 +1,19 @@
 # Transaction Documentation Improvement Plan
 
 > **Created:** January 22, 2026  
-> **Status:** ✅ Completed  
+> **Status:** ✅ Completed (with subsequent updates)  
 > **Scope:** Backend transaction documentation enrichment
+
+---
+
+> ⚠️ **HISTORICAL DOCUMENT:** This plan was completed in January 2026. Some content is now outdated:
+> 
+> **Changes since completion:**
+> - `CreateWalletsIfMissing` flag is **deprecated** - automatic wallet creation removed
+> - TRANSFER mode now restricted to **Internal wallets only** (AssetGroup 4)
+> - Guardrail 1 replaced with explicit wallet creation flow
+> 
+> For current documentation, see [TRANSACTION_INFRASTRUCTURE.md](../03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md).
 
 ---
 

@@ -164,6 +164,22 @@ public enum AccountClassification
 | 4 | REVENUE | Income from operations |
 | 5 | EXPENSE | Costs of operations |
 
+#### Business Usage by Entity Type
+
+| Entity | Classification | Balance Meaning |
+|--------|---------------|-----------------|
+| **Bank** | ASSET | Positive = company HAS money |
+| **PokerManager** (PokerAssets) | ASSET | Positive = company HAS chips |
+| **PokerManager** (FiatAssets) | LIABILITY | Positive = company OWES PM |
+| **Client** | LIABILITY | Positive = company OWES client |
+| **Member** | LIABILITY | Positive = company OWES member |
+
+#### Transaction Sign Behavior
+
+When both wallets have the **same** classification: Standard sender(-)/receiver(+) signs apply.
+
+When wallets have **different** classifications: LIABILITY wallet gets sign inverted.
+
 #### Usage
 
 This classification is crucial for:
@@ -464,7 +480,9 @@ public enum CryptoWalletMetadata
 
 ### ManagerProfitType
 
-Defines how a poker manager's profit is calculated.
+Defines how the **company** profits from a poker manager's operations.
+
+> **Important:** The PokerManager holds assets on behalf of the company. The profit goes to the company, not the manager personally.
 
 **File**: `Enums/ManagerProfitType.cs`
 
@@ -476,10 +494,31 @@ public enum ManagerProfitType
 }
 ```
 
-| Value | Name | Description |
-|-------|------|-------------|
-| 0 | Spread | Profit from price difference between buy/sell |
-| 1 | RakeOverrideCommission | Commission from rake override agreements |
+| Value | Name | Description | How Company Profits |
+|-------|------|-------------|---------------------|
+| 0 | Spread | Price spread between buy/sell rates | Different `ConversionRate` on buy vs sell transactions |
+| 1 | RakeOverrideCommission | Commission from poker site | `RakeCommission` % in SettlementTransaction |
+
+#### Spread Example
+
+```
+Client buys chips: ConversionRate = 5.10 (client pays more)
+Client sells chips: ConversionRate = 4.90 (client receives less)
+Company profit: 0.20 per chip traded
+```
+
+#### RakeOverrideCommission Example
+
+```
+SettlementTransaction:
+- RakeAmount: 1000 (chips client paid to poker site)
+- RakeCommission: 50% (poker site pays company)
+- RakeBack: 10% (company returns to client)
+
+Company profit: 1000 × ((50 - 10) / 100) = 400 chips
+```
+
+> **Note:** Implementation of company profit tracking is planned for the Finance Module (TBD).
 
 ---
 

@@ -2,8 +2,21 @@
 
 > **Version:** 1.1  
 > **Last Updated:** January 22, 2026  
-> **Status:** Ready for Implementation  
+> **Status:** ✅ Implemented (with subsequent changes)  
 > **Based On:** SF_management-front/documentation/03_CORE_SYSTEMS/TRANSACTION_SYSTEM_ANALYSIS.md
+
+---
+
+> ⚠️ **HISTORICAL DOCUMENT:** This plan was implemented in January 2026. Some details are now outdated:
+> 
+> **Changes since implementation:**
+> - `CreateWalletsIfMissing` flag is **deprecated** - automatic wallet creation removed
+> - TRANSFER mode now restricted to **Internal wallets only** (AssetGroup 4)
+> - Wallet creation is now explicit via dedicated API before transfer
+> 
+> For current behavior, see:
+> - [TRANSACTION_INFRASTRUCTURE.md](../03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md)
+> - [TRANSACTION_API_ENDPOINTS.md](../06_API/TRANSACTION_API_ENDPOINTS.md)
 
 ---
 

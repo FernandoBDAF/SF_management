@@ -219,20 +219,66 @@ public class DigitalAssetTransaction : BaseTransaction
 - Asset conversions between poker currencies
 - Currency exchange operations
 
+#### BalanceAs vs Coin Balance Scenarios
+
+**With BalanceAs (Standard Flow):**
+
+When `BalanceAs` and `ConversionRate` are set:
+- Client's balance in the **BalanceAs asset** (e.g., BRL) is impacted
+- Client's balance in the **transaction asset** (e.g., PokerStars) is **NOT** impacted
+- PokerManager's balance in transaction asset IS impacted
+
+```
+Example: Client buys 1000 chips at 5.0 BRL
+
+Transaction: PokerManager → Client (PokerStars)
+BalanceAs: BRL, ConversionRate: 5.0
+
+Balance Impacts:
+├─ PokerManager PokerAssets: -1000 (company inventory decreased)
+├─ Client PokerAssets: NO CHANGE (chips not in their balance)
+└─ Client FiatAssets (BRL): -5000 (owes company 5000 BRL)
+```
+
+**Without BalanceAs (Coin Balance):**
+
+When `BalanceAs` is null (checkbox "Troca ou saldo em fichas"):
+- Client's balance in the **transaction asset** is impacted
+- Represents debt in the SAME asset type
+- `Rate` field applies as a fee/discount percentage
+
+```
+Example: Client buys 1000 chips with 5% rate
+
+Transaction: PokerManager → Client (PokerStars)
+BalanceAs: null, Rate: 5%
+
+Balance Impacts:
+├─ PokerManager PokerAssets: -1000
+└─ Client PokerAssets: -1050 (owes 1000 + 5% fee IN CHIPS)
+```
+
+#### Rate vs ConversionRate
+
+| Field | Purpose | Used When |
+|-------|---------|-----------|
+| `ConversionRate` | Currency exchange rate | BalanceAs is set |
+| `Rate` | Fee/discount percentage | BalanceAs is null (Coin Balance) |
+
 ### SettlementTransaction
 
-Used for poker settlement operations that include rake and commission calculations.
+Used for poker settlement operations that record rake, commission, and rakeback.
 
 ```csharp
 public class SettlementTransaction : BaseTransaction
 {
-    // Total rake amount collected
+    // Total rake the client paid to the poker site (in chips)
     [Precision(18, 2), Required] public decimal RakeAmount { get; set; }
     
-    // Commission paid on the rake
+    // Percentage of rake the poker site pays to the company
     [Precision(18, 2), Required] public decimal RakeCommission { get; set; }
     
-    // Rakeback returned to player (if applicable)
+    // Percentage of rake the company returns to the client
     [Precision(18, 2)] public decimal? RakeBack { get; set; }
 }
 ```
@@ -241,14 +287,28 @@ public class SettlementTransaction : BaseTransaction
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `RakeAmount` | decimal | Total rake collected from poker play |
-| `RakeCommission` | decimal | Commission percentage applied to rake |
-| `RakeBack` | decimal? | Optional rakeback amount returned |
+| `RakeAmount` | decimal | Total rake client paid to poker site (chips) |
+| `RakeCommission` | decimal | % of rake poker site pays company |
+| `RakeBack` | decimal? | % of rake company returns to client |
+
+> **Important:** `AssetAmount` (from BaseTransaction) represents chip flow for tracking purposes. It should NOT be used for balance calculation as those chips already flowed via DigitalAssetTransactions.
+
+**Balance Impact:**
+
+| Entity | Balance Impact | Formula |
+|--------|---------------|---------|
+| Client | Receives rakeback | `+RakeAmount × (RakeBack / 100)` |
+| PokerManager | Company earns commission | `-RakeAmount × (RakeCommission / 100)` |
+
+**Company Profit (Finance Module - TBD):**
+```
+Company Profit = RakeAmount × ((RakeCommission - RakeBack) / 100)
+```
 
 **Use Cases:**
 - Weekly/monthly poker settlements
-- Player profit calculations
-- Rake tracking and reporting
+- Rake and commission tracking
+- Rakeback distribution to clients
 
 ### ImportedTransaction
 
@@ -306,12 +366,14 @@ The system supports 6 distinct transaction modes that represent different busine
 
 These transactions involve an intermediary (Bank or PokerManager) that facilitates the transaction:
 
-| Mode | Code | Description | Intermediary | Flow |
-|------|------|-------------|--------------|------|
-| **SALE** | `SALE` | Sale of digital assets to clients/members | PokerManager | PokerManager → Client/Member |
-| **PURCHASE** | `PURCHASE` | Purchase of digital assets from clients/members | PokerManager | Client/Member → PokerManager |
-| **RECEIPT** | `RECEIPT` | Receipt of fiat through bank | Bank | Client/Member → Bank |
-| **PAYMENT** | `PAYMENT` | Payment of fiat through bank | Bank | Bank → Client/Member |
+| Mode | Code | Description | Business Meaning | Flow |
+|------|------|-------------|------------------|------|
+| **SALE** | `SALE` | Client/Member **buys** chips from company | Company sells chips | PokerManager → Client/Member |
+| **PURCHASE** | `PURCHASE` | Client/Member **sells** chips to company | Company buys chips | Client/Member → PokerManager |
+| **RECEIPT** | `RECEIPT` | Client/Member **pays** money to company | Company receives payment | Client/Member → Bank |
+| **PAYMENT** | `PAYMENT` | Company **pays** money to Client/Member | Company makes payment | Bank → Client/Member |
+
+> **Key Insight:** The perspective is from the Client/Member. "SALE" means they are buying (company is selling to them).
 
 ### Non-Intermediary Transactions
 
@@ -320,7 +382,18 @@ These transactions occur directly between parties without an intermediary:
 | Mode | Code | Description | Flow |
 |------|------|-------------|------|
 | **TRANSFER** | `TRANSFER` | P2P transfer between different asset holders | Any → Any (same asset type) |
-| **INTERNAL** | `INTERNAL` | Movement between wallets of the same asset holder | Wallet A → Wallet B (same holder) |
+| **SELF_TRANSFER** | `INTERNAL` | Movement between wallets of the same asset holder | Wallet A → Wallet B (same holder) |
+
+> **Note:** The code `INTERNAL` refers to same-holder transfers (self-transfer). This is different from `AssetGroup.Internal` which is a wallet category. See [ENUMS_AND_TYPE_SYSTEM.md](../07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) for naming clarification.
+
+### Additional Transaction Types (Planned/Future)
+
+| Mode | Code | Description | Flow |
+|------|------|-------------|------|
+| **SYSTEM_OPERATION** | `SYSTEM_OPERATION` | Transaction involving System Wallets | Entity ↔ System Wallet |
+| **CONVERSION** | `CONVERSION` | PokerManager self-conversion | Internal → PokerAssets |
+
+These modes will be explicitly tracked as the system evolves.
 
 ### Mode Determination
 
@@ -364,27 +437,30 @@ public async Task<TransferResponse> TransferAsync(TransferRequest request)
 Creates a transfer transaction between two asset holders.
 
 **Features:**
-- Automatic wallet creation (opt-in via `CreateWalletsIfMissing`)
 - Asset type validation
 - Balance validation (opt-in)
 - Bank restriction for TRANSFER mode
+- TRANSFER mode restricted to Internal wallets only (AssetGroup 4)
 - Transaction atomicity with rollback on errors
+
+> **Note:** Automatic wallet creation via `CreateWalletsIfMissing` is **deprecated** as of January 2026. Wallets must be created explicitly before initiating a transfer.
 
 **Workflow:**
 
-1. Validate asset type is not None
-2. Determine entity type (fiat vs digital)
-3. Validate sender and receiver exist
-4. Infer mode and apply bank restriction (if TRANSFER)
-5. Check wallet existence (if not creating)
-6. Validate category (if provided)
-7. Get or create sender wallet
-8. Get or create receiver wallet
-9. Validate not same wallet
-10. Validate balance (if requested)
-11. Create appropriate transaction (Fiat or Digital)
-12. Save and commit
-13. Return response with wallet creation flags
+1. Reject deprecated `CreateWalletsIfMissing` flag if true
+2. Validate asset type is not None
+3. Determine entity type (fiat vs digital)
+4. Validate sender and receiver exist
+5. Infer mode and apply bank restriction (if TRANSFER)
+6. Check wallet existence (wallets must exist)
+7. Validate category (if provided)
+8. Get sender wallet
+9. Get receiver wallet
+10. Validate not same wallet
+11. Validate balance (if requested)
+12. Create appropriate transaction (Fiat or Digital)
+13. Save and commit
+14. Return response
 
 **Mode Inference:**
 
@@ -417,10 +493,8 @@ Retrieves a transfer transaction by ID.
 |--------|---------|
 | `ValidateNoBanksInTransferAsync` | Ensures banks don't participate in TRANSFER mode |
 | `CheckWalletsExistAsync` | Checks if wallets exist and returns detailed error if missing |
-| `FindOrCreateWalletAsync` | Finds existing wallet or creates new one |
 | `GetAndValidateWalletAsync` | Validates provided wallet belongs to expected holder |
 | `DetermineAccountClassificationAsync` | Determines ASSET vs LIABILITY classification |
-| `SetDefaultMetadata` | Sets placeholder metadata for auto-created wallets |
 | `GetBalanceForWalletAsync` | Calculates current wallet balance |
 | `FindWalletByAssetHolderAndType` | Queries for wallet by holder and asset type |
 | `GetAssetHolderInfoAsync` | Retrieves asset holder name and type |
@@ -437,45 +511,50 @@ See `TransferErrorCodes` static class (`Application/DTOs/Transactions/TransferEr
 | `RECEIVER_NOT_FOUND` | Receiver asset holder does not exist |
 | `SENDER_WALLET_NOT_FOUND` | Sender wallet not found for asset type |
 | `RECEIVER_WALLET_NOT_FOUND` | Receiver wallet not found for asset type |
-| `WALLET_CREATION_FAILED` | Failed to create new wallet |
 | `INSUFFICIENT_BALANCE` | Sender wallet has insufficient funds |
 | `INVALID_ASSET_TYPE` | AssetType.None or invalid type |
 | `ASSET_TYPE_MISMATCH` | Wallet asset type doesn't match request |
 | `WALLET_OWNERSHIP_MISMATCH` | Wallet doesn't belong to expected holder |
 | `SAME_SENDER_RECEIVER_WALLET` | Cannot transfer to same wallet |
 | `BANK_NOT_ALLOWED_IN_TRANSFER` | Banks cannot participate in TRANSFER mode |
-| `WALLETS_REQUIRED` | Wallets must be created (confirmation needed) |
+| `WALLETS_REQUIRED` | Wallets must be created before transfer |
+| `WALLETS_CREATION_DEPRECATED` | Automatic wallet creation no longer supported |
 | `TRANSACTION_FAILED` | General transaction error |
 
 ---
 
 ## Transaction Guardrails
 
-### Guardrail 1: Wallet Creation Confirmation
+### Guardrail 1: Explicit Wallet Creation (TRANSFER Mode)
 
-**Purpose:** Prevent automatic wallet proliferation from bugs or unintended actions.
+**Purpose:** Ensure wallets are created intentionally before transfers, preventing automatic wallet proliferation.
 
-**Behavior:**
-- Default: `CreateWalletsIfMissing = false`
-- When wallets are missing, throws `WalletMissingException` with detailed info
-- Frontend must explicitly confirm before retrying with `CreateWalletsIfMissing = true`
+**Behavior (as of January 2026):**
+- Wallets must exist before transfer
+- If wallets missing → Returns 400 with `WALLETS_REQUIRED` error
+- `CreateWalletsIfMissing` flag is **deprecated** - if true → Returns 400 with `WALLETS_CREATION_DEPRECATED`
 
 **Implementation:**
 
 ```csharp
 // TransferService.cs
-if (!request.CreateWalletsIfMissing)
+if (request.CreateWalletsIfMissing)
 {
-    var walletError = await CheckWalletsExistAsync(request);
-    if (walletError != null)
-    {
-        throw new WalletMissingException(walletError);
-    }
+    throw new BusinessException(
+        "Automatic wallet creation is no longer supported. Create wallets explicitly before initiating transfer.",
+        "WALLETS_CREATION_DEPRECATED");
+}
+
+var walletError = await CheckWalletsExistAsync(request);
+if (walletError != null)
+{
+    throw new WalletMissingException(walletError);
 }
 ```
 
-**Error Response:**
+**Error Responses:**
 
+Wallets Missing:
 ```json
 {
   "title": "Wallet Creation Required",
@@ -495,15 +574,46 @@ if (!request.CreateWalletsIfMissing)
 }
 ```
 
-### Guardrail 2: Bank Transfer Restriction
+Deprecated Flag Used:
+```json
+{
+  "title": "Transfer Failed",
+  "status": 400,
+  "detail": "Automatic wallet creation is no longer supported. Create wallets explicitly before initiating transfer.",
+  "extensions": {
+    "errorCode": "WALLETS_CREATION_DEPRECATED"
+  }
+}
+```
 
-**Purpose:** Enforce business rule that banks only participate via RECEIPT/PAYMENT modes, not TRANSFER.
+**Frontend Flow (TRANSFER mode):**
+1. User selects entity
+2. If no wallet exists → "Criar Carteira" button appears
+3. User clicks → inline preview shows wallet details
+4. User clicks "Confirmar Criação" → confirmation dialog
+5. User confirms → wallet created via wallet API
+6. Wallet auto-selected in form
+7. User completes transfer
 
-**Rule:**
-- **TRANSFER mode** (different asset holders): Banks not allowed
-- **INTERNAL mode** (same asset holder): Banks allowed
+### Guardrail 2: TRANSFER Mode Restrictions
 
-**Implementation:**
+**Purpose:** Enforce business rules for TRANSFER mode transactions.
+
+**Rules:**
+- **Bank Restriction:** Banks cannot participate in TRANSFER mode
+- **AssetGroup Restriction:** TRANSFER mode only allows **Internal wallets** (AssetGroup 4)
+- **INTERNAL mode** (same asset holder): No restrictions
+
+**AssetGroup Restriction (Frontend):**
+
+| AssetGroup | TRANSFER Mode | Use Instead |
+|------------|---------------|-------------|
+| FiatAssets (1) | ❌ Not allowed | RECEIPT/PAYMENT with Bank |
+| PokerAssets (2) | ❌ Not allowed | SALE/PURCHASE with PokerManager |
+| CryptoAssets (3) | ❌ Not allowed | Crypto flow (future) |
+| **Internal (4)** | ✅ Allowed | P2P transfers |
+
+**Bank Restriction (Backend):**
 
 ```csharp
 // Mode inference
