@@ -96,10 +96,11 @@ public class TransferRequest
     // === Options ===
     
     /// <summary>
-    /// If true, creates wallets if they don't exist.
-    /// Ignored when specific wallet IDs are provided.
-    /// Default: false (requires explicit confirmation)
+    /// DEPRECATED: Automatic wallet creation is no longer supported.
+    /// This flag is ignored and will cause an error if set to true.
+    /// Create wallets explicitly before initiating transfer.
     /// </summary>
+    [Obsolete("Automatic wallet creation is no longer supported. This flag will be removed in a future version.")]
     public bool CreateWalletsIfMissing { get; set; } = false;
     
     /// <summary>

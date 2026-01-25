@@ -47,6 +47,13 @@ public class TransferService
                     throw new BusinessException("AssetType.None is not valid for transfers", TransferErrorCodes.InvalidAssetType);
                 }
 
+            if (request.CreateWalletsIfMissing)
+            {
+                throw new BusinessException(
+                    "Automatic wallet creation is no longer supported. Create wallets explicitly before initiating transfer.",
+                    "WALLETS_CREATION_DEPRECATED");
+            }
+
             // 2. Determine transaction type
             var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(request.AssetType);
             var isFiat = assetGroup == AssetGroup.FiatAssets;
@@ -73,14 +80,11 @@ public class TransferService
                 await ValidateNoBanksInTransferAsync(request);
             }
 
-            // 4.2 Check wallet existence when not forcing creation
-            if (!request.CreateWalletsIfMissing)
+            // 4.2 Check wallet existence (wallets must exist before transfer)
+            var walletError = await CheckWalletsExistAsync(request);
+            if (walletError != null)
             {
-                var walletError = await CheckWalletsExistAsync(request);
-                if (walletError != null)
-                {
-                    throw new WalletMissingException(walletError);
-                }
+                throw new WalletMissingException(walletError);
             }
 
             // 5. Validate category if provided
@@ -114,7 +118,7 @@ public class TransferService
                 var senderWalletResult = await FindOrCreateWalletAsync(
                     request.SenderAssetHolderId,
                     request.AssetType,
-                    request.CreateWalletsIfMissing);
+                    false);
                 senderWallet = senderWalletResult.Wallet;
                 senderWalletCreated = senderWalletResult.Created;
                 
@@ -143,7 +147,7 @@ public class TransferService
                 var receiverWalletResult = await FindOrCreateWalletAsync(
                     request.ReceiverAssetHolderId,
                     request.AssetType,
-                    request.CreateWalletsIfMissing);
+                    false);
                 receiverWallet = receiverWalletResult.Wallet;
                 receiverWalletCreated = receiverWalletResult.Created;
                 
