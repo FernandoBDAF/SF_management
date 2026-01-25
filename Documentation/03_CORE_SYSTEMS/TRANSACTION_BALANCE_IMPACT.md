@@ -237,10 +237,10 @@ The chips represented by `AssetAmount` already flowed via `DigitalAssetTransacti
 ```
 For Client (GetBalancesByAssetType):
   If RakeBack > 0:
-    balances[AssetType] += RakeAmount * (RakeBack / 100)
+    balances[BrazilianReal] += RakeAmount * (RakeBack / 100)
 
 For PokerManager (GetBalancesByAssetGroup):
-  balances[PokerAssets] -= RakeAmount * (RakeCommission / 100)
+  balances[FiatAssets] -= RakeAmount * (RakeCommission / 100)
 ```
 
 ### Example: Settlement with Rake
@@ -251,9 +251,9 @@ Settlement Transaction:
 ├─ RakeCommission: 50% (poker site pays company)
 └─ RakeBack: 10% (company returns to client)
 
-Balance Impacts:
-├─ Client PokerAssets: +100 (receives 1000 × 10% rakeback)
-└─ PokerManager PokerAssets: -500 (company earns 1000 × 50%)
+Balance Impacts (BRL):
+├─ Client FiatAssets (BRL): +100 (receives 1000 × 10% rakeback)
+└─ PokerManager FiatAssets (BRL): -500 (company earns 1000 × 50%)
 
 Company Profit: 1000 × ((50 - 10) / 100) = 400 chips
 ```

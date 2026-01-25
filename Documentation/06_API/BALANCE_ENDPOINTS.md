@@ -166,12 +166,12 @@ Both methods (`GetBalancesByAssetType` and `GetBalancesByAssetGroup`) aggregate 
 
 > **CRITICAL BUG (Known Issue):** Current implementation incorrectly uses `AssetAmount` for settlement balance calculation. This causes double-counting because the actual chip movements already flow via `DigitalAssetTransactions`. See [BALANCE_SYSTEM_ANALYSIS.md](../10_REFACTORING/BALANCE_SYSTEM_ANALYSIS.md) for fix plan.
 
-**Correct Balance Calculation:**
+**Correct Balance Calculation (recorded in BRL / FiatAssets):**
 
 | Method | Entity Type | Formula |
 |--------|-------------|---------|
-| `GetBalancesByAssetType` | Client/Member | `+RakeAmount × (RakeBack / 100)` |
-| `GetBalancesByAssetGroup` | PokerManager | `-RakeAmount × (RakeCommission / 100)` |
+| `GetBalancesByAssetType` | Client/Member | `+RakeAmount × (RakeBack / 100)` → `AssetType.BrazilianReal` |
+| `GetBalancesByAssetGroup` | PokerManager | `-RakeAmount × (RakeCommission / 100)` → `AssetGroup.FiatAssets` |
 
 **Field Meanings:**
 - `RakeAmount`: Total rake client paid to poker site (chips)

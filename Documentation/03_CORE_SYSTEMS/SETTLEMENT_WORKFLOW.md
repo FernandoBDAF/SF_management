@@ -53,8 +53,8 @@ public class SettlementTransaction : BaseTransaction
 
 ⚠️ **Critical:** The `AssetAmount` field should NOT be used for balance calculation. The chips already flowed via `DigitalAssetTransactions`.
 
-| Entity | Balance Impact | Formula |
-|--------|---------------|---------|
+| Entity | Balance Impact (BRL) | Formula |
+|--------|----------------------|---------|
 | **Client** | Receives rakeback | `+RakeAmount × (RakeBack / 100)` |
 | **PokerManager** | Company earns commission | `-RakeAmount × (RakeCommission / 100)` |
 
@@ -65,9 +65,9 @@ Settlement Transaction:
 - RakeCommission: 50%
 - RakeBack: 10%
 
-Balance Impacts:
-- Client PokerAssets: +100 (1000 × 10%)
-- PokerManager PokerAssets: -500 (1000 × 50%)
+Balance Impacts (BRL):
+- Client FiatAssets (BRL): +100 (1000 × 10%)
+- PokerManager FiatAssets (BRL): -500 (1000 × 50%)
 ```
 
 ### Company Profit (Finance Module - TBD)

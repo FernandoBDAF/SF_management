@@ -318,7 +318,7 @@ When a DigitalTransaction has no `BalanceAs`:
 
 ### 3. Settlement Rake Distribution
 
-SettlementTransactions don't use `AssetAmount` for balance:
+SettlementTransactions don't use `AssetAmount` for balance. Impacts are recorded in BRL (AssetType 21 / FiatAssets):
 
 | Entity | Balance Impact |
 |--------|----------------|

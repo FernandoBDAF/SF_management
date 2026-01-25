@@ -13,22 +13,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/06_API/API_REFERENCE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/API_REFERENCE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/06_API/COMPANY_ASSET_POOL_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/COMPANY_ASSET_POOL_ENDPOINTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/06_API/TRANSACTION_API_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/TRANSACTION_API_ENDPOINTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20250713.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20250715.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20250716.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20250717.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20260115.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20260116.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20260120.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/sf-management-20260121.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/TransferService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/TransferService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +106,7 @@
       <workItem from="1750205338184" duration="4921000" />
       <workItem from="1751053067825" duration="713000" />
       <workItem from="1768587153210" duration="365000" />
-      <workItem from="1769029479284" duration="9501000" />
+      <workItem from="1769029479284" duration="10780000" />
     </task>
     <servers />
   </component>

@@ -325,7 +325,7 @@ public class TransferService
             {
                 BaseAssetHolderId = assetHolderId,
                 AssetType = assetType,
-                AccountClassification = await DetermineAccountClassificationAsync(assetHolderId)
+                AccountClassification = await DetermineAccountClassificationAsync(assetHolderId, assetType)
             };
             
             SetDefaultMetadata(newWallet, assetType);
@@ -340,14 +340,28 @@ public class TransferService
     }
 
     /// <summary>
-    /// Determines account classification: Banks/PokerManagers = ASSET, Clients/Members = LIABILITY.
+    /// Determines account classification based on entity type and asset group.
     /// </summary>
-    private async Task<AccountClassification> DetermineAccountClassificationAsync(Guid assetHolderId)
+    private async Task<AccountClassification> DetermineAccountClassificationAsync(
+        Guid assetHolderId,
+        AssetType assetType)
     {
         var isBank = await _context.Banks.AnyAsync(b => b.BaseAssetHolderId == assetHolderId);
-        var isPokerManager = await _context.PokerManagers.AnyAsync(pm => pm.BaseAssetHolderId == assetHolderId);
+        if (isBank)
+        {
+            return AccountClassification.ASSET;
+        }
         
-        return (isBank || isPokerManager) ? AccountClassification.ASSET : AccountClassification.LIABILITY;
+        var isPokerManager = await _context.PokerManagers.AnyAsync(pm => pm.BaseAssetHolderId == assetHolderId);
+        if (isPokerManager)
+        {
+            var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(assetType);
+            return assetGroup == AssetGroup.FiatAssets
+                ? AccountClassification.LIABILITY
+                : AccountClassification.ASSET;
+        }
+        
+        return AccountClassification.LIABILITY;
     }
 
     /// <summary>

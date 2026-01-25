@@ -433,6 +433,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .ToListAsync();
 
         var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();
+        var pokerManagerIds = await context.PokerManagers
+            .Select(pm => pm.BaseAssetHolderId)
+            .ToListAsync();
+        var pokerManagerIdSet = new HashSet<Guid>(pokerManagerIds);
        
         var digitalTransactions = await context.DigitalAssetTransactions
             .Where(dt => !dt.DeletedAt.HasValue && 
@@ -515,24 +519,28 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             balances[assetType] += signedAmount / ((100 + (tx.Rate ?? 0)) / 100);
         }
 
-        // Process SettlementTransactions
+        // Process SettlementTransactions (rake-only impact)
         foreach (var tx in settlementTransactions)
         {
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
-            var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
-            if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
+            var relevantWallet = walletIdentifiers.First(wi => wi.Id == relevantWalletId);
+            var settlementAssetHolderId = relevantWallet.AssetPool?.BaseAssetHolderId;
+            if (!settlementAssetHolderId.HasValue)
             {
-                signedAmount = -signedAmount;
+                continue;
             }
-            
-            var assetType = tx.IsReceiver(relevantWalletId) ?
-                tx.ReceiverWalletIdentifier!.AssetType :
-                tx.SenderWalletIdentifier!.AssetType;
-            
-                if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += signedAmount;
+            var isPokerManager = pokerManagerIdSet.Contains(settlementAssetHolderId.Value);
+
+            var balanceImpact = isPokerManager
+                ? -(tx.RakeAmount * (tx.RakeCommission / 100m))
+                : tx.RakeAmount * ((tx.RakeBack ?? 0m) / 100m);
+
+            var assetType = AssetType.BrazilianReal;
+
+            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+            balances[assetType] += balanceImpact;
         }
 
         return balances;
@@ -563,6 +571,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .ToListAsync();
 
         var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();
+        var pokerManagerIds = await context.PokerManagers
+            .Select(pm => pm.BaseAssetHolderId)
+            .ToListAsync();
+        var pokerManagerIdSet = new HashSet<Guid>(pokerManagerIds);
         
         if (!walletIdentifierIds.Any())
             return balances;
@@ -676,24 +688,28 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             balances[assetGroup] += signedAmount * (100 - (tx.Rate ?? 0)) / 100;
         }
 
-        // Process SettlementTransactions
+        // Process SettlementTransactions (rake-only impact)
         foreach (var tx in settlementTransactions)
         {
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
                 tx.SenderWalletIdentifierId == id || tx.ReceiverWalletIdentifierId == id);
             
-            var signedAmount = tx.GetSignedAmountForWalletIdentifier(relevantWalletId);
-            if (!tx.HaveBothWalletsSameAccountClassification() && tx.IsWalletIdentifierLiability(relevantWalletId))
+            var relevantWallet = walletIdentifiers.First(wi => wi.Id == relevantWalletId);
+            var settlementAssetHolderId = relevantWallet.AssetPool?.BaseAssetHolderId;
+            if (!settlementAssetHolderId.HasValue)
             {
-                signedAmount = -signedAmount;
+                continue;
             }
-            
-            var assetGroup = tx.IsReceiver(relevantWalletId) ?
-                tx.ReceiverWalletIdentifier!.AssetGroup :
-                tx.SenderWalletIdentifier!.AssetGroup;
-            
+            var isPokerManager = pokerManagerIdSet.Contains(settlementAssetHolderId.Value);
+
+            var balanceImpact = isPokerManager
+                ? -(tx.RakeAmount * (tx.RakeCommission / 100m))
+                : tx.RakeAmount * ((tx.RakeBack ?? 0m) / 100m);
+
+            var assetGroup = AssetGroup.FiatAssets;
+
             if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
-            balances[assetGroup] += signedAmount;
+            balances[assetGroup] += balanceImpact;
         }
 
         return balances;

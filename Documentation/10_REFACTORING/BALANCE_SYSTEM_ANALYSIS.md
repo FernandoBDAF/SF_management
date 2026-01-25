@@ -477,35 +477,35 @@ SettlementTransaction fields that impact balance:
 - `RakeCommission`: % the poker site pays to company (via PokerManager)
 - `RakeBack`: % of rake the company returns to client
 
-**Correct Balance Impacts:**
+**Correct Balance Impacts (recorded in BRL - AssetType 21 / FiatAssets):**
 
 | Entity | Impact Formula | Meaning |
 |--------|----------------|---------|
-| **Client** | `+RakeAmount * (RakeBack / 100)` | Client gets rakeback |
-| **PokerManager** | `-RakeAmount * (RakeCommission / 100)` | Company earns commission (negative impact on PM) |
+| **Client** | `+RakeAmount * (RakeBack / 100)` | Client gets rakeback (BRL balance) |
+| **PokerManager** | `-RakeAmount * (RakeCommission / 100)` | Company earns commission (BRL impact on PM) |
 
 **The `AssetAmount` should NOT be used** - it's only for tracking/control purposes.
 
 **Fix Required:**
 ```csharp
-// For Client (GetBalancesByAssetType)
+// For Client (GetBalancesByAssetType) - BRL impact
 foreach (var tx in settlementTransactions)
 {
     if (tx.RakeBack.HasValue && tx.RakeBack.Value > 0)
     {
         var rakebackAmount = tx.RakeAmount * (tx.RakeBack.Value / 100);
         // Add to client's balance (they receive rakeback)
-        balances[assetType] += rakebackAmount;
+        balances[AssetType.BrazilianReal] += rakebackAmount;
     }
 }
 
-// For PokerManager (GetBalancesByAssetGroup)
+// For PokerManager (GetBalancesByAssetGroup) - BRL impact
 foreach (var tx in settlementTransactions)
 {
     var commissionAmount = tx.RakeAmount * (tx.RakeCommission / 100);
     // Company earns commission (represents outflow from PM perspective)
-    if (!balances.ContainsKey(AssetGroup.PokerAssets)) balances[AssetGroup.PokerAssets] = 0;
-    balances[AssetGroup.PokerAssets] -= commissionAmount;
+    if (!balances.ContainsKey(AssetGroup.FiatAssets)) balances[AssetGroup.FiatAssets] = 0;
+    balances[AssetGroup.FiatAssets] -= commissionAmount;
 }
 ```
 
