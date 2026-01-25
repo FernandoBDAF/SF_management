@@ -153,7 +153,10 @@ Refactoring plans and implementation guides for code improvements.
 | [BALANCE_SYSTEM_ANALYSIS.md](10_REFACTORING/BALANCE_SYSTEM_ANALYSIS.md) | **Validated** analysis of balance system with entity behaviors, transaction impacts, and bug fixes |
 | [DOCUMENTATION_REVIEW_JANUARY_2026.md](10_REFACTORING/DOCUMENTATION_REVIEW_JANUARY_2026.md) | Documentation review with corrections, gaps, and action plan |
 | [FINANCE_MODULE_PLANNING.md](10_REFACTORING/FINANCE_MODULE_PLANNING.md) | **NEW:** Deferred financial features (profit tracking, member share, credit limits) |
-| [ACCOUNTCLASSIFICATION_BUG_FIX_PLAN.md](10_REFACTORING/ACCOUNTCLASSIFICATION_BUG_FIX_PLAN.md) | **NEW:** Fix plan for PM FiatAssets wallet classification bug |
+| [ACCOUNTCLASSIFICATION_BUG_FIX_PLAN.md](10_REFACTORING/ACCOUNTCLASSIFICATION_BUG_FIX_PLAN.md) | **NEW:** Fix plan for PM FiatAssets wallet classification bug (✅ Fixed in Phase 4) |
+| [MULTI_TRACK_PROGRESS_CONTROL.md](10_REFACTORING/MULTI_TRACK_PROGRESS_CONTROL.md) | **NEW:** Central coordination for 3 parallel improvement tracks (A: API Alignment, B: Statement Refactor, C: Finance Module) |
+| [FRONTEND_BACKEND_ALIGNMENT.md](10_REFACTORING/FRONTEND_BACKEND_ALIGNMENT.md) | **NEW:** Track A - Frontend-backend API mismatch documentation and fixes |
+| [FINANCE_CURRENT_STATE.md](10_REFACTORING/FINANCE_CURRENT_STATE.md) | **NEW:** Track C - Current finance implementation state and roadmap |
 
 ---
 
@@ -199,8 +202,8 @@ Refactoring plans and implementation guides for code improvements.
 | Reference | 2 |
 | Development | 1 |
 | Deployment | 2 |
-| Refactoring | 9 |
-| **Total** | **43** |
+| Refactoring | 12 |
+| **Total** | **46** |
 
 ---
 
