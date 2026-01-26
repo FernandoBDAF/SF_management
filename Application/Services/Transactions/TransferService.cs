@@ -536,20 +536,52 @@ public class TransferService
     private async Task ValidateNoBanksInTransferAsync(TransferRequest request)
     {
         var senderType = await GetAssetHolderTypeAsync(request.SenderAssetHolderId);
-        if (senderType == "Bank")
+        var receiverType = await GetAssetHolderTypeAsync(request.ReceiverAssetHolderId);
+        
+        // Determine if this is a bank transaction (RECEIPT or PAYMENT mode)
+        var isSenderBank = senderType == "Bank";
+        var isReceiverBank = receiverType == "Bank";
+        var isFiatAsset = IsFiatAssetType(request.AssetType);
+        
+        // RECEIPT mode: Non-bank → Bank (fiat only) - ALLOWED
+        // PAYMENT mode: Bank → Non-bank (fiat only) - ALLOWED
+        if (isFiatAsset && (isSenderBank || isReceiverBank))
+        {
+            // This is a valid RECEIPT or PAYMENT transaction
+            // Banks can only participate with fiat assets
+            if (isSenderBank && isReceiverBank)
+            {
+                throw new BusinessException(
+                    "Bank-to-bank transfers are not allowed.",
+                    "BANK_TO_BANK_NOT_ALLOWED");
+            }
+            
+            // Valid bank transaction - allow it
+            return;
+        }
+        
+        // TRANSFER mode: Non-bank → Non-bank - Banks not allowed
+        if (isSenderBank)
         {
             throw new BusinessException(
-                "Banks cannot be the sender in a transfer. Use Payment mode instead.",
+                "Banks can only send fiat assets (BRL). Use Payment mode for fiat transactions.",
                 "BANK_NOT_ALLOWED_IN_TRANSFER");
         }
 
-        var receiverType = await GetAssetHolderTypeAsync(request.ReceiverAssetHolderId);
-        if (receiverType == "Bank")
+        if (isReceiverBank)
         {
             throw new BusinessException(
-                "Banks cannot be the receiver in a transfer. Use Receipt mode instead.",
+                "Banks can only receive fiat assets (BRL). Use Receipt mode for fiat transactions.",
                 "BANK_NOT_ALLOWED_IN_TRANSFER");
         }
+    }
+    
+    private static bool IsFiatAssetType(AssetType assetType)
+    {
+        // FiatAssets: AssetTypes 1-20 (see AssetType enum)
+        // BrazilianReal = 21 is the main fiat type
+        var value = (int)assetType;
+        return value >= 1 && value <= 30; // Fiat range (including BRL at 21)
     }
 
     /// <summary>
