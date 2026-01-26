@@ -13,15 +13,17 @@ public class TransferRequest
     
     /// <summary>
     /// The asset holder sending the assets.
+    /// For system operations (company wallets), this can be null or Guid.Empty.
+    /// Validation: either this or SenderWalletIdentifierId must identify a valid participant.
     /// </summary>
-    [Required(ErrorMessage = "SenderAssetHolderId is required")]
-    public Guid SenderAssetHolderId { get; set; }
+    public Guid? SenderAssetHolderId { get; set; }
     
     /// <summary>
     /// The asset holder receiving the assets.
+    /// For system operations (company wallets), this can be null or Guid.Empty.
+    /// Validation: either this or ReceiverWalletIdentifierId must identify a valid participant.
     /// </summary>
-    [Required(ErrorMessage = "ReceiverAssetHolderId is required")]
-    public Guid ReceiverAssetHolderId { get; set; }
+    public Guid? ReceiverAssetHolderId { get; set; }
     
     // === Optional: Specific Wallet Selection ===
     

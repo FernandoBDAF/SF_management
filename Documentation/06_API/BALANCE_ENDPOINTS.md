@@ -1,7 +1,7 @@
 # Balance Endpoints
 
 > **Status:** Current Implementation Review  
-> **Last Updated:** January 23, 2026  
+> **Last Updated:** January 24, 2026  
 > **Scope:** Backend balance calculation logic and API endpoints
 
 ---
@@ -384,7 +384,7 @@ See `SF_management-front/documentation/03_CORE_SYSTEMS/BALANCE_DISPLAY_USAGE.md`
 
 ## Follow-up Items
 
-1. **Date-filtered balances:** Frontend planilha expects date-filtered balance endpoints that don't exist
+1. **Date-filtered balances:** Frontend planilha expects date-filtered balance endpoints that don't exist. Proposed design: optional `date` query parameter on `GET /{entity}/{id}/balance`.
 2. **Typed DTO:** Consider returning a typed balance DTO instead of raw `Dictionary<string, decimal>`
 3. **Frontend alignment:** Align frontend finance module with correct `/{entity}/{id}/balance` routes
 

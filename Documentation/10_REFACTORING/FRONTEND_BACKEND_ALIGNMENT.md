@@ -100,7 +100,7 @@ public async Task<IActionResult> GetWalletIdentifiers(Guid id)
 
 **Impact:** Base service method may fail. Individual services (client, member, etc.) override this method correctly with hyphenated path.
 
-**Action:** ✅ Fix path to `/wallet-identifiers` in base service
+**Action:** ✅ Fixed path to `/wallet-identifiers` in base service
 
 ---
 
@@ -110,10 +110,10 @@ public async Task<IActionResult> GetWalletIdentifiers(Guid id)
 
 | Endpoint | Controller | Frontend Status | Recommendation |
 |----------|-----------|-----------------|----------------|
-| `GET /{id}/statistics` | BaseAssetHolderController | Not implemented | **Review:** Is this used? If not, mark deprecated or remove |
-| `GET /{id}/client-statistics` | ClientController | Not implemented | **Review:** Is this used? If not, mark deprecated or remove |
-| `GET /{id}/member-statistics` | MemberController | Not implemented | **Review:** Is this used? If not, mark deprecated or remove |
-| `GET /transfer/{id}?entityType=fiat\|digital` | TransferController | Not implemented | **Optional:** Implement if viewing transfer details is needed |
+| `GET /{id}/statistics` | BaseAssetHolderController | Not implemented | **Decision:** Document as backend-only (no frontend usage) |
+| `GET /{id}/client-statistics` | ClientController | Not implemented | **Decision:** Document as backend-only (no frontend usage) |
+| `GET /{id}/member-statistics` | MemberController | Not implemented | **Decision:** Document as backend-only (no frontend usage) |
+| `GET /transfer/{id}?entityType=fiat\|digital` | TransferController | Not implemented | **Decision:** Optional; not needed for current UI |
 
 ---
 
@@ -121,7 +121,7 @@ public async Task<IActionResult> GetWalletIdentifiers(Guid id)
 
 | Frontend Expectation | Current Backend | Gap | Recommendation |
 |---------------------|-----------------|-----|----------------|
-| Date-filtered balance | `GET /{id}/balance` returns current balance only | No historical balance support | **Implement:** Add date parameter or new endpoint `/balance/at-date?date=` |
+| Date-filtered balance | `GET /{id}/balance` returns current balance only | No historical balance support | **Design:** Add optional `date` query parameter (Track C) |
 | Profit summary endpoint | Not implemented | No company profit API | **Track C:** Part of Finance Module |
 | Member share distribution | Not implemented | No share calculation | **Track C:** Part of Finance Module |
 | Client credit status | Not implemented | No credit limit tracking | **Track C:** Part of Finance Module |
@@ -140,14 +140,14 @@ public async Task<IActionResult> GetWalletIdentifiers(Guid id)
 
 | Issue | Action | Priority | Effort |
 |-------|--------|----------|--------|
-| Statistics endpoints unused | Document usage or mark deprecated | P1 | 30 min |
-| Date-filtered balance missing | Implement backend endpoint | P1 | 2-4 hours |
+| Statistics endpoints unused | Document as backend-only (no frontend usage) | P1 | 30 min |
+| Date-filtered balance missing | Design endpoint (Track C) | P1 | 2-4 hours |
 
 ### Medium Priority (Optional Features)
 
 | Issue | Action | Priority | Effort |
 |-------|--------|----------|--------|
-| Transfer GET endpoint | Implement frontend if needed | P2 | 1 hour |
+| Transfer GET endpoint | Document as optional (no frontend usage) | P2 | 1 hour |
 
 ### Low Priority (Future Work - Track C)
 
@@ -170,21 +170,37 @@ public async Task<IActionResult> GetWalletIdentifiers(Guid id)
 ### Phase 2: Endpoint Review
 
 **Task 2.1:** Verify statistics endpoints usage
-- Search backend for calls to `statistics`, `client-statistics`, `member-statistics`
-- Check if any report/dashboard uses them
-- Decision: Remove, document, or implement frontend
+- Searched frontend for usage: no matches in `SF_management-front/src`
+- Decision: Document as backend-only; no frontend implementation
 
 **Task 2.2:** Date-filtered balance design
 - Review `BALANCE_ENDPOINTS.md` for current implementation
-- Design new endpoint or parameter for historical balance
+- Design: add optional `date` query parameter to existing endpoints
 - Coordinate with Track C (finance needs this)
+
+#### Date-Filtered Balance Design (Track C)
+
+**Recommendation:** Add optional `date` query parameter to existing balance endpoints.
+
+**Proposed API:**
+- `GET /{entity}/{id}/balance?date=2026-01-20`
+- If `date` is omitted, return current balance (no change to existing behavior).
+
+**Backend Changes (Track C):**
+1. Add optional `DateTime? date` parameter in balance controllers
+2. Pass date into balance service methods
+3. Filter transactions by `tx.Date <= date`
+4. Keep response shape unchanged (`Dictionary<string, decimal>`)
+
+**Notes:**
+- This aligns with current frontend planilha expectations (date-based balances)
+- Avoids introducing new endpoints or response types
 
 ### Phase 3: Optional Features
 
 **Task 3.1:** Transfer GET endpoint (if needed)
-- Verify if "view transfer details" feature is planned
-- Implement `getTransfer(id, entityType)` in `transfer.service.ts`
-- Add corresponding frontend page if needed
+- Decision: Optional; no current frontend need
+- Document as backend-only until UI requires it
 
 ---
 
@@ -219,28 +235,28 @@ public async Task<IActionResult> GetWalletIdentifiers(Guid id)
 | DELETE | `/{id}` | `delete(id)` | ✅ Aligned |
 | GET | `/{id}/balance` | `getBalance(id)` | ✅ Aligned |
 | GET | `/{id}/transactions` | `getTransactions(id)` | ✅ Aligned |
-| GET | `/{id}/wallet-identifiers` | `getWalletIdentifiers(id)` | ⚠️ **Path mismatch in base** |
+| GET | `/{id}/wallet-identifiers` | `getWalletIdentifiers(id)` | ✅ Fixed in base service |
 | GET | `/{id}/can-delete` | `canDelete(id)` | ✅ Aligned |
-| GET | `/{id}/statistics` | Not implemented | ❓ **Missing frontend** |
+| GET | `/{id}/statistics` | Not implemented | **Backend-only (no frontend usage)** |
 
 ### Transfer Endpoints
 
 | Method | Backend Route | Frontend Method | Status |
 |--------|--------------|-----------------|--------|
 | POST | `/transfer` | `create(data)` | ✅ Aligned |
-| GET | `/transfer/{id}?entityType=` | Not implemented | ❓ **Missing frontend** |
+| GET | `/transfer/{id}?entityType=` | Not implemented | **Optional; no current frontend need** |
 
 ### Client-Specific Endpoints
 
 | Method | Backend Route | Frontend Method | Status |
 |--------|--------------|-----------------|--------|
-| GET | `/{id}/client-statistics` | Not implemented | ❓ **Missing frontend** |
+| GET | `/{id}/client-statistics` | Not implemented | **Backend-only (no frontend usage)** |
 
 ### Member-Specific Endpoints
 
 | Method | Backend Route | Frontend Method | Status |
 |--------|--------------|-----------------|--------|
-| GET | `/{id}/member-statistics` | Not implemented | ❓ **Missing frontend** |
+| GET | `/{id}/member-statistics` | Not implemented | **Backend-only (no frontend usage)** |
 
 ### PokerManager-Specific Endpoints
 
@@ -281,24 +297,24 @@ public async Task<IActionResult> GetWalletIdentifiers(Guid id)
 
 ### Immediate
 
-- [ ] Fix wallet identifiers path in `base-asset-holder.service.ts`
-- [ ] Test all asset holder wallet identifier fetching
+- [x] Fix wallet identifiers path in `base-asset-holder.service.ts`
+- [ ] Test all asset holder wallet identifier fetching (manual)
 
 ### Review & Decide
 
-- [ ] Investigate statistics endpoints usage (backend grep for calls)
-- [ ] Decision: Remove, document, or implement frontend
+- [x] Investigate statistics endpoints usage (frontend grep)
+- [x] Decision: Document as backend-only
 
 ### Coordinate with Track C
 
-- [ ] Design date-filtered balance endpoint
+- [x] Design date-filtered balance endpoint (Track C)
 - [ ] Implement once Track C defines requirements
 
 ---
 
 ## Testing Checklist
 
-After implementing fixes:
+After implementing fixes (manual verification pending):
 
 - [ ] Client wallet identifiers load correctly
 - [ ] Member wallet identifiers load correctly

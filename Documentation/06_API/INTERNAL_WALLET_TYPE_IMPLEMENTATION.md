@@ -205,13 +205,24 @@ var deposit = new DigitalAssetTransaction
 
 ### 3. Conversion Wallets (PokerManager-Owned)
 
-Internal wallets can also be created for PokerManagers to support self-conversion flows:
+**Conversion wallets** are `AssetGroup.Internal` wallets owned by PokerManagers, used specifically
+for self-conversion transactions that trigger **dual-balance impact**.
 
+#### What Are Conversion Wallets?
+
+- Internal wallets (`AssetGroup.Internal`) owned by a PokerManager
+- Used in CONVERSION mode transactions
+- Enable the PokerManager to convert assets and track the equivalent fiat value
+- When used with `BalanceAs` and `ConversionRate`, they trigger dual-balance impact
+
+#### Creating Conversion Wallets
+
+**Backend (C#):**
 ```csharp
 var conversionWallet = new WalletIdentifier
 {
     BaseAssetHolderId = pokerManagerId,
-    AssetType = AssetType.PokerStars,
+    AssetType = AssetType.PokerStars,  // or any poker platform
     AccountClassification = AccountClassification.ASSET
 };
 var result = await walletIdentifierService.AddWithAssetGroup(
@@ -219,8 +230,49 @@ var result = await walletIdentifierService.AddWithAssetGroup(
     AssetGroup.Internal);
 ```
 
-These wallets are used to trigger dual-balance impact (PokerAssets + FiatAssets) when
-`BalanceAs` and `ConversionRate` are set on a DigitalAssetTransaction.
+**API Endpoint:**
+```http
+POST /api/v1/WalletIdentifier/internal-wallet
+{
+  "assetType": 101,  // PokerStars, GGPoker, CredBrasil (108), etc.
+  "baseAssetHolderId": "pokermanager-guid",
+  "accountClassification": 1  // ASSET
+}
+```
+
+**Frontend:**
+- Located at `/administradoras/[mid]/conversao`
+- Uses `ConversionWalletCreateForm` component
+- Calls `useCreateInternalWalletIdentifier` hook
+
+#### Retrieving Conversion Wallets
+
+```http
+GET /api/v1/PokerManager/{id}/conversion-wallets
+```
+
+Returns all Internal wallets owned by the PokerManager that can be used for conversion transactions.
+
+#### Using Conversion Wallets
+
+Conversion wallets are used in the CONVERSION transaction mode:
+
+1. Open transaction modal with `transactionMode="CONVERSION"`
+2. Select an Internal (conversion) wallet on one side
+3. Select a PokerAssets wallet on the other side
+4. Set the conversion rate
+5. Transaction impacts both PokerAssets and FiatAssets balances
+
+#### Dual-Balance Impact Formula
+
+When a CONVERSION transaction is created:
+
+```
+PokerAssets Impact: ±AssetAmount (based on sender/receiver)
+FiatAssets Impact:  ±(AssetAmount * ConversionRate) (in BalanceAs currency, typically BRL)
+```
+
+See [TRANSACTION_BALANCE_IMPACT.md](../03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md) for detailed formulas.
 
 ### 4. Inter-Department Transfers
 

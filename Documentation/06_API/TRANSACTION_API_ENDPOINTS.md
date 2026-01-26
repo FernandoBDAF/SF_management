@@ -30,6 +30,29 @@ This document provides comprehensive reference for all transaction-related API e
 
 **Recommended for new implementations:** Use the unified `/transfer` endpoint for all non-settlement transactions.
 
+### Future Improvements
+
+> **📋 TODO: Frontend Transaction Pattern Screening**
+> 
+> A deep screening of the frontend codebase is needed to identify all transaction creation patterns
+> and verify they correctly use the unified `/transfer` endpoint. Currently `/dashboard` has been
+> verified to implement correctly. Future documentation reviews should check this note and perform
+> the screening if not yet completed.
+>
+> **Status:** Pending
+> **Added:** January 2026
+
+> **🔄 TODO: Endpoint Rename Consideration**
+> 
+> Consider renaming `/api/v1/transfer` to `/api/v1/asset-transaction` in a future version to:
+> 1. Clearly indicate the endpoint's purpose (asset transactions, not just "transfers")
+> 2. Distinguish from the TRANSFER transaction mode (which is just one of 7 modes)
+> 3. Reserve "transfer" naming for eventual non-asset transactions
+>
+> **Impact:** Backend endpoint rename + Frontend API calls update + Documentation updates
+> **Status:** Deferred
+> **Added:** January 2026
+
 ---
 
 ## Transfer Endpoint (Unified)
@@ -38,7 +61,7 @@ This document provides comprehensive reference for all transaction-related API e
 
 **Controller**: `TransferController`
 
-**Purpose**: Unified endpoint for all P2P transfers between asset holders, supporting both Fiat and Digital assets.
+**Purpose**: Unified endpoint for all asset transactions between asset holders, supporting both Fiat and Digital assets. Despite the name, this handles ALL transaction modes (SALE, PURCHASE, RECEIPT, PAYMENT, TRANSFER, INTERNAL, CONVERSION), not just "transfers".
 
 ---
 
@@ -74,13 +97,13 @@ Creates a transfer between any two asset holders.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `senderAssetHolderId` | Guid | ✅ Yes | - | ID of the sender asset holder |
-| `receiverAssetHolderId` | Guid | ✅ Yes | - | ID of the receiver asset holder |
+| `senderAssetHolderId` | Guid? | ✅ Yes* | - | ID of the sender asset holder. For system operations (company wallets), can be `null` or `Guid.Empty`. When null/empty, `senderWalletIdentifierId` must be provided. |
+| `receiverAssetHolderId` | Guid? | ✅ Yes* | - | ID of the receiver asset holder. For system operations (company wallets), can be `null` or `Guid.Empty`. When null/empty, `receiverWalletIdentifierId` must be provided. |
 | `assetType` | int | ✅ Yes | - | Asset type enum value (21=BRL, 101=PokerStars, etc.) |
 | `amount` | decimal | ✅ Yes | - | Transfer amount (positive) |
 | `date` | DateTime | ✅ Yes | - | Transaction date |
-| `senderWalletIdentifierId` | Guid? | ❌ No | null | Specific sender wallet (auto-finds if not provided) |
-| `receiverWalletIdentifierId` | Guid? | ❌ No | null | Specific receiver wallet (auto-finds if not provided) |
+| `senderWalletIdentifierId` | Guid? | ❌ No* | null | Specific sender wallet. **Required** for system operations when `senderAssetHolderId` is null/empty. |
+| `receiverWalletIdentifierId` | Guid? | ❌ No* | null | Specific receiver wallet. **Required** for system operations when `receiverAssetHolderId` is null/empty. |
 | `categoryId` | Guid? | ❌ No | null | Transaction category for classification |
 | `description` | string? | ❌ No | null | Transaction description |
 | `createWalletsIfMissing` | bool | ❌ No | false | Deprecated. If true, API returns `WALLETS_CREATION_DEPRECATED` |
@@ -89,6 +112,12 @@ Creates a transfer between any two asset holders.
 | `balanceAs` | int? | ❌ No | null | Record balance as different asset (digital only) |
 | `conversionRate` | decimal? | ❌ No | null | Conversion rate (digital only) |
 | `rate` | decimal? | ❌ No | null | Exchange rate (digital only) |
+
+> **Note on System Operations (*)**  
+> For system operations involving company wallets:
+> - `senderAssetHolderId` and/or `receiverAssetHolderId` can be `null` or `Guid.Empty` (`00000000-0000-0000-0000-000000000000`)
+> - When using null/empty asset holder ID, the corresponding wallet identifier **must** be provided
+> - The system will display "Company" as the asset holder name for system participants
 
 #### Success Response (200 OK)
 
@@ -117,12 +146,16 @@ Creates a transfer between any two asset holders.
 #### Business Rules
 
 1. **Mode Inference:**
-   - `SenderAssetHolderId == ReceiverAssetHolderId` → INTERNAL mode
-   - `SenderAssetHolderId != ReceiverAssetHolderId` → TRANSFER mode
+   - `SenderAssetHolderId == ReceiverAssetHolderId` (and not Guid.Empty) → INTERNAL mode
+   - `SenderAssetHolderId != ReceiverAssetHolderId` → TRANSFER mode (or RECEIPT/PAYMENT for bank transactions)
+   - System operations (null/Guid.Empty) are treated separately from regular asset holders
 
 2. **Bank Restrictions:**
-   - TRANSFER mode: Banks cannot be sender or receiver
-   - INTERNAL mode: Banks allowed (for internal movements)
+   - **TRANSFER mode:** Banks cannot be sender or receiver
+   - **RECEIPT mode:** Banks can be receiver (fiat assets only)
+   - **PAYMENT mode:** Banks can be sender (fiat assets only)
+   - **Bank-to-bank transfers:** Not allowed (throws `BANK_TO_BANK_NOT_ALLOWED`)
+   - **INTERNAL mode:** Banks allowed (for internal movements)
 
 3. **Wallet Creation:**
    - Wallets must exist before transfer
@@ -338,6 +371,8 @@ Response (200):
 Retrieves a transfer transaction by ID.
 
 **Authorization**: `Permission:read:transactions`
+
+> **Frontend Status:** Currently not used by the frontend. Keep for backend tooling or future UI needs.
 
 #### Query Parameters
 
@@ -644,6 +679,45 @@ GET /api/v1/company/asset-pools/system-wallet-to-pair-with/{walletIdentifierId}
 
 Then submit the transfer with the resolved system wallet as sender or receiver.
 
+**System Operation Behavior:**
+
+1. **Asset Holder ID Handling:**
+   - Set `senderAssetHolderId` or `receiverAssetHolderId` to `null` or `Guid.Empty` (`00000000-0000-0000-0000-000000000000`) to indicate a system operation
+   - The system will automatically use "Company" as the asset holder name
+
+2. **Wallet Requirement:**
+   - When using system operations, the corresponding `senderWalletIdentifierId` or `receiverWalletIdentifierId` **must** be provided
+   - System wallets are company-owned wallets with `null` `BaseAssetHolderId` in their `AssetPool`
+
+3. **Validation:**
+   - System wallets are validated to ensure they have `null` `BaseAssetHolderId` (company-owned)
+   - Regular wallets must belong to the specified asset holder
+
+**Example Request (Payment from Company):**
+```json
+{
+  "senderAssetHolderId": null,
+  "senderWalletIdentifierId": "company-internal-wallet-guid",
+  "receiverAssetHolderId": "client-guid",
+  "assetType": 21,
+  "amount": 5000.00,
+  "date": "2026-01-22T10:00:00Z",
+  "categoryId": "category-guid"
+}
+```
+
+**Example Response:**
+```json
+{
+  "transactionId": "...",
+  "senderAssetHolderId": "00000000-0000-0000-0000-000000000000",
+  "senderName": "Company",
+  "receiverAssetHolderId": "client-guid",
+  "receiverName": "Client João Silva",
+  ...
+}
+```
+
 ### PokerManager Self-Conversion (Internal Trigger)
 
 Self-conversion is a DigitalAssetTransaction where a PokerManager uses their **Internal** wallet as the counterparty to their own PokerAssets wallet. Both `balanceAs` and `conversionRate` must be set.
@@ -701,7 +775,8 @@ All transaction endpoints use RFC 7807 Problem Details format for errors.
 | `ASSET_TYPE_MISMATCH` | 400 | Wallet asset type doesn't match |
 | `WALLET_OWNERSHIP_MISMATCH` | 400 | Wallet doesn't belong to holder |
 | `SAME_SENDER_RECEIVER_WALLET` | 400 | Cannot transfer to same wallet |
-| `BANK_NOT_ALLOWED_IN_TRANSFER` | 400 | Banks restricted in TRANSFER mode |
+| `BANK_NOT_ALLOWED_IN_TRANSFER` | 400 | Banks restricted in TRANSFER mode (use RECEIPT/PAYMENT for fiat) |
+| `BANK_TO_BANK_NOT_ALLOWED` | 400 | Bank-to-bank transfers are not allowed |
 | `WALLETS_REQUIRED` | 400 | Wallets must be created |
 | `CATEGORY_NOT_FOUND` | 400 | Category doesn't exist |
 | `TRANSACTION_FAILED` | 400 | General transaction error |

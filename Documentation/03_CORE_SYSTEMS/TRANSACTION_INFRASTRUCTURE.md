@@ -383,15 +383,32 @@ These transactions occur directly between parties without an intermediary:
 |------|------|-------------|------|
 | **TRANSFER** | `TRANSFER` | P2P transfer between different asset holders | Any → Any (same asset type) |
 | **SELF_TRANSFER** | `INTERNAL` | Movement between wallets of the same asset holder | Wallet A → Wallet B (same holder) |
+| **CONVERSION** | `CONVERSION` | PokerManager self-conversion with dual-balance impact | Internal ↔ PokerAssets (same PokerManager) |
 
 > **Note:** The code `INTERNAL` refers to same-holder transfers (self-transfer). This is different from `AssetGroup.Internal` which is a wallet category. See [ENUMS_AND_TYPE_SYSTEM.md](../07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) for naming clarification.
+
+### CONVERSION Mode (Self-Conversion)
+
+The CONVERSION mode is specifically designed for PokerManager self-conversion transactions that trigger **dual-balance impact**.
+
+**Requirements:**
+- One wallet must be `AssetGroup.Internal` (conversion wallet)
+- Other wallet must be `AssetGroup.PokerAssets`
+- Both wallets belong to the same PokerManager
+- `ConversionRate` must be set
+- `BalanceAs` is typically set to BRL (AssetType.BrazilianReal)
+
+**Result:**
+- PokerAssets balance is affected by the transaction amount
+- FiatAssets balance is affected by `Amount * ConversionRate`
+
+See [TRANSACTION_BALANCE_IMPACT.md](./TRANSACTION_BALANCE_IMPACT.md) for detailed balance calculation formulas.
 
 ### Additional Transaction Types (Planned/Future)
 
 | Mode | Code | Description | Flow |
 |------|------|-------------|------|
 | **SYSTEM_OPERATION** | `SYSTEM_OPERATION` | Transaction involving System Wallets | Entity ↔ System Wallet |
-| **CONVERSION** | `CONVERSION` | PokerManager self-conversion | Internal → PokerAssets |
 
 These modes will be explicitly tracked as the system evolves.
 
@@ -491,15 +508,42 @@ Retrieves a transfer transaction by ID.
 
 | Method | Purpose |
 |--------|---------|
-| `ValidateNoBanksInTransferAsync` | Ensures banks don't participate in TRANSFER mode |
-| `CheckWalletsExistAsync` | Checks if wallets exist and returns detailed error if missing |
-| `GetAndValidateWalletAsync` | Validates provided wallet belongs to expected holder |
+| `ValidateNoBanksInTransferAsync` | Validates bank participation rules. Allows banks in RECEIPT/PAYMENT (fiat only), blocks banks in TRANSFER mode, and blocks bank-to-bank transfers. |
+| `CheckWalletsExistAsync` | Checks if wallets exist and returns detailed error if missing. Skips check for system operations (null/Guid.Empty asset holder ID). |
+| `GetAndValidateWalletAsync` | Validates provided wallet. For system operations (Guid.Empty), validates wallet has `null` BaseAssetHolderId. For regular operations, validates wallet belongs to specified asset holder. |
 | `DetermineAccountClassificationAsync` | Determines ASSET vs LIABILITY classification |
 | `GetBalanceForWalletAsync` | Calculates current wallet balance |
 | `FindWalletByAssetHolderAndType` | Queries for wallet by holder and asset type |
 | `GetAssetHolderInfoAsync` | Retrieves asset holder name and type |
-| `GetAssetHolderTypeAsync` | Determines asset holder type from ID |
+| `GetAssetHolderTypeAsync` | Returns "Company" for Guid.Empty, or "Client"/"Member"/"Bank"/"PokerManager" based on entity lookup. Returns null if not found. |
 | `GetAssetTypeName` | Converts AssetType enum to display name |
+
+#### GetAndValidateWalletAsync Details
+
+Validates that a provided wallet identifier:
+1. Exists and is not soft-deleted
+2. Belongs to the expected asset holder (or is a system wallet for system operations)
+3. Matches the requested asset type
+
+**System Operation Validation:**
+- When `expectedAssetHolderId == Guid.Empty`, the wallet must have `null` `BaseAssetHolderId` (company-owned)
+- If the wallet has a non-null `BaseAssetHolderId`, throws `WALLET_OWNERSHIP_MISMATCH`
+
+**Regular Operation Validation:**
+- The wallet's `AssetPool.BaseAssetHolderId` must match `expectedAssetHolderId`
+- If mismatch, throws `WALLET_OWNERSHIP_MISMATCH`
+
+#### GetAssetHolderTypeAsync Details
+
+Determines the asset holder type string for a given asset holder ID.
+
+**Return Values:**
+- `"Company"` - When `assetHolderId == Guid.Empty` (system operations)
+- `"Client"` - When asset holder is a Client entity
+- `"Member"` - When asset holder is a Member entity
+- `"Bank"` - When asset holder is a Bank entity
+- `"PokerManager"` - When asset holder is a PokerManager entity
+- `null` - When asset holder ID doesn't match any entity
 
 ### Error Codes
 
@@ -517,9 +561,57 @@ See `TransferErrorCodes` static class (`Application/DTOs/Transactions/TransferEr
 | `WALLET_OWNERSHIP_MISMATCH` | Wallet doesn't belong to expected holder |
 | `SAME_SENDER_RECEIVER_WALLET` | Cannot transfer to same wallet |
 | `BANK_NOT_ALLOWED_IN_TRANSFER` | Banks cannot participate in TRANSFER mode |
+| `BANK_TO_BANK_NOT_ALLOWED` | Bank-to-bank transfers are not allowed |
 | `WALLETS_REQUIRED` | Wallets must be created before transfer |
 | `WALLETS_CREATION_DEPRECATED` | Automatic wallet creation no longer supported |
 | `TRANSACTION_FAILED` | General transaction error |
+
+---
+
+## System Operations
+
+The system supports transactions involving company-owned system wallets. These are wallets that belong to the company itself rather than a specific asset holder (Client, Member, Bank, or PokerManager).
+
+### Identification
+
+- **System wallets** have `null` `BaseAssetHolderId` in their `AssetPool`
+- In `TransferRequest`, system operations are indicated by:
+  - `SenderAssetHolderId` or `ReceiverAssetHolderId` set to `null` or `Guid.Empty`
+  - The corresponding `SenderWalletIdentifierId` or `ReceiverWalletIdentifierId` must be provided
+
+### Behavior
+
+- System operations display **"Company"** as the asset holder name in responses
+- `GetAssetHolderTypeAsync` returns "Company" for `Guid.Empty` asset holder IDs
+- System wallets are validated to ensure they have `null` `BaseAssetHolderId`
+- `CheckWalletsExistAsync` skips wallet existence check for system operations (when wallet ID is provided)
+
+### Implementation Details
+
+```csharp
+// TransferService.cs
+var senderAssetHolderId = request.SenderAssetHolderId.GetValueOrDefault();
+var isSenderSystem = !request.SenderAssetHolderId.HasValue || request.SenderAssetHolderId.Value == Guid.Empty;
+string senderName = "Company";
+
+if (isSenderSystem)
+{
+    // System operation: sender is the company
+    // Validate that a sender wallet is provided for system operations
+    if (!request.SenderWalletIdentifierId.HasValue)
+    {
+        throw new BusinessException(
+            "System operations require a specific sender wallet",
+            TransferErrorCodes.SenderWalletNotFound);
+    }
+}
+```
+
+### Use Cases
+
+- **Company Internal Transfers:** Moving assets between company wallets
+- **System-level Adjustments:** Administrative balance corrections
+- **Company Treasury Operations:** Company-side receipts and payments
 
 ---
 
@@ -615,37 +707,75 @@ Deprecated Flag Used:
 
 **Bank Restriction (Backend):**
 
-```csharp
-// Mode inference
-var isInternalTransfer = request.SenderAssetHolderId == request.ReceiverAssetHolderId;
+The `ValidateNoBanksInTransferAsync` method implements conditional bank validation:
 
-if (!isInternalTransfer)  // TRANSFER mode
+```csharp
+// Mode inference (handles nullable asset holder IDs for system operations)
+var senderId = request.SenderAssetHolderId.GetValueOrDefault();
+var receiverId = request.ReceiverAssetHolderId.GetValueOrDefault();
+var isInternalTransfer = senderId == receiverId && senderId != Guid.Empty;
+
+if (!isInternalTransfer)  // TRANSFER mode (or RECEIPT/PAYMENT)
 {
-    // Validate neither sender nor receiver is a bank
+    // ValidateNoBanksInTransferAsync allows banks in RECEIPT/PAYMENT modes (fiat only)
     await ValidateNoBanksInTransferAsync(request);
 }
 ```
 
+**Bank Validation Logic:**
+
+1. **RECEIPT/PAYMENT Modes (Fiat Assets Only):**
+   - ✅ **RECEIPT**: Non-bank → Bank (fiat assets) - **ALLOWED**
+   - ✅ **PAYMENT**: Bank → Non-bank (fiat assets) - **ALLOWED**
+   - ❌ **Bank-to-Bank**: Bank → Bank - **BLOCKED** (throws `BANK_TO_BANK_NOT_ALLOWED`)
+
+2. **TRANSFER Mode:**
+   - ❌ Banks cannot participate in TRANSFER mode transactions
+   - Error message guides users to use RECEIPT/PAYMENT modes instead
+
+3. **INTERNAL Mode:**
+   - ✅ Banks allowed (no restrictions for same-holder transfers)
+
 **Validation Matrix:**
 
-| Mode | Bank as Sender | Bank as Receiver | Enforced By |
-|------|----------------|------------------|-------------|
-| SALE | N/A (PokerManager) | ❌ Blocked | Frontend |
-| PURCHASE | ❌ Blocked | N/A (PokerManager) | Frontend |
-| RECEIPT | ❌ Blocked | ✅ Allowed | Business logic |
-| PAYMENT | ✅ Allowed | ❌ Blocked | Business logic |
-| TRANSFER | ❌ Blocked | ❌ Blocked | **TransferService** |
-| INTERNAL | ✅ Allowed | ✅ Allowed | No restriction |
+| Mode | Bank as Sender | Bank as Receiver | Asset Type | Result | Enforced By |
+|------|----------------|------------------|------------|--------|-------------|
+| SALE | N/A (PokerManager) | ❌ Blocked | Digital | ❌ Blocked | Frontend |
+| PURCHASE | ❌ Blocked | N/A (PokerManager) | Digital | ❌ Blocked | Frontend |
+| RECEIPT | ❌ Blocked | ✅ Allowed | **Fiat only** | ✅ Allowed | **TransferService** |
+| PAYMENT | ✅ Allowed | ❌ Blocked | **Fiat only** | ✅ Allowed | **TransferService** |
+| RECEIPT/PAYMENT | ✅ Bank | ✅ Bank | Fiat | ❌ Blocked (Bank-to-Bank) | **TransferService** |
+| TRANSFER | ❌ Blocked | ❌ Blocked | Any | ❌ Blocked | **TransferService** |
+| INTERNAL | ✅ Allowed | ✅ Allowed | Any | ✅ Allowed | No restriction |
 
-**Error Response:**
+**Key Points:**
+- Banks can **only** participate in RECEIPT/PAYMENT modes with **fiat assets** (BRL, USD, etc.)
+- Bank-to-bank transfers are explicitly blocked
+- TRANSFER mode does not allow banks (use RECEIPT/PAYMENT instead)
+- The validation checks asset type to determine if bank participation is allowed
 
+**Error Responses:**
+
+Bank not allowed in transfer:
 ```json
 {
   "title": "Transfer Failed",
   "status": 400,
-  "detail": "Banks cannot be the sender in a transfer. Use Payment mode instead.",
+  "detail": "Banks can only send fiat assets (BRL). Use Payment mode for fiat transactions.",
   "extensions": {
     "errorCode": "BANK_NOT_ALLOWED_IN_TRANSFER"
+  }
+}
+```
+
+Bank-to-bank not allowed:
+```json
+{
+  "title": "Transfer Failed",
+  "status": 400,
+  "detail": "Bank-to-bank transfers are not allowed.",
+  "extensions": {
+    "errorCode": "BANK_TO_BANK_NOT_ALLOWED"
   }
 }
 ```

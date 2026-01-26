@@ -3,6 +3,7 @@ using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Validation;
 using SFManagement.Domain.Entities.Assets;
+using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
 using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Assets;
@@ -59,22 +60,62 @@ public class TransferService
             var isFiat = assetGroup == AssetGroup.FiatAssets;
             var entityType = isFiat ? "fiat" : "digital";
 
-            // 3. Validate sender exists
-            var senderAssetHolder = await _context.BaseAssetHolders
-                .FirstOrDefaultAsync(ah => ah.Id == request.SenderAssetHolderId && !ah.DeletedAt.HasValue)
-                ?? throw new BusinessException(
-                    $"Sender asset holder '{request.SenderAssetHolderId}' not found",
-                    TransferErrorCodes.SenderNotFound);
+            // 3. Validate sender exists (or is system/company with null/Guid.Empty)
+            var senderAssetHolderId = request.SenderAssetHolderId.GetValueOrDefault();
+            var isSenderSystem = !request.SenderAssetHolderId.HasValue || request.SenderAssetHolderId.Value == Guid.Empty;
+            BaseAssetHolder? senderAssetHolder = null;
+            string senderName = "Company";
+            
+            if (isSenderSystem)
+            {
+                // System operation: sender is the company
+                // Validate that a sender wallet is provided for system operations
+                if (!request.SenderWalletIdentifierId.HasValue)
+                {
+                    throw new BusinessException(
+                        "System operations require a specific sender wallet",
+                        TransferErrorCodes.SenderWalletNotFound);
+                }
+            }
+            else
+            {
+                senderAssetHolder = await _context.BaseAssetHolders
+                    .FirstOrDefaultAsync(ah => ah.Id == senderAssetHolderId && !ah.DeletedAt.HasValue)
+                    ?? throw new BusinessException(
+                        $"Sender asset holder '{senderAssetHolderId}' not found",
+                        TransferErrorCodes.SenderNotFound);
+                senderName = senderAssetHolder.Name;
+            }
 
-            // 4. Validate receiver exists
-            var receiverAssetHolder = await _context.BaseAssetHolders
-                .FirstOrDefaultAsync(ah => ah.Id == request.ReceiverAssetHolderId && !ah.DeletedAt.HasValue)
-                ?? throw new BusinessException(
-                    $"Receiver asset holder '{request.ReceiverAssetHolderId}' not found",
-                    TransferErrorCodes.ReceiverNotFound);
+            // 4. Validate receiver exists (or is system/company with null/Guid.Empty)
+            var receiverAssetHolderId = request.ReceiverAssetHolderId.GetValueOrDefault();
+            var isReceiverSystem = !request.ReceiverAssetHolderId.HasValue || request.ReceiverAssetHolderId.Value == Guid.Empty;
+            BaseAssetHolder? receiverAssetHolder = null;
+            string receiverName = "Company";
+            
+            if (isReceiverSystem)
+            {
+                // System operation: receiver is the company
+                // Validate that a receiver wallet is provided for system operations
+                if (!request.ReceiverWalletIdentifierId.HasValue)
+                {
+                    throw new BusinessException(
+                        "System operations require a specific receiver wallet",
+                        TransferErrorCodes.ReceiverWalletNotFound);
+                }
+            }
+            else
+            {
+                receiverAssetHolder = await _context.BaseAssetHolders
+                    .FirstOrDefaultAsync(ah => ah.Id == receiverAssetHolderId && !ah.DeletedAt.HasValue)
+                    ?? throw new BusinessException(
+                        $"Receiver asset holder '{receiverAssetHolderId}' not found",
+                        TransferErrorCodes.ReceiverNotFound);
+                receiverName = receiverAssetHolder.Name;
+            }
 
             // 4.1 Validate banks are not involved in TRANSFER mode (inferred)
-            var isInternalTransfer = request.SenderAssetHolderId == request.ReceiverAssetHolderId;
+            var isInternalTransfer = senderAssetHolderId == receiverAssetHolderId;
             if (!isInternalTransfer)
             {
                 await ValidateNoBanksInTransferAsync(request);
@@ -109,14 +150,14 @@ public class TransferService
             {
                 senderWallet = await GetAndValidateWalletAsync(
                     request.SenderWalletIdentifierId.Value,
-                    request.SenderAssetHolderId,
+                    senderAssetHolderId,
                     request.AssetType,
                     "Sender");
             }
             else
             {
                 var senderWalletResult = await FindOrCreateWalletAsync(
-                    request.SenderAssetHolderId,
+                    senderAssetHolderId,
                     request.AssetType,
                     false);
                 senderWallet = senderWalletResult.Wallet;
@@ -138,14 +179,14 @@ public class TransferService
             {
                 receiverWallet = await GetAndValidateWalletAsync(
                     request.ReceiverWalletIdentifierId.Value,
-                    request.ReceiverAssetHolderId,
+                    receiverAssetHolderId,
                     request.AssetType,
                     "Receiver");
             }
             else
             {
                 var receiverWalletResult = await FindOrCreateWalletAsync(
-                    request.ReceiverAssetHolderId,
+                    receiverAssetHolderId,
                     request.AssetType,
                     false);
                 receiverWallet = receiverWalletResult.Wallet;
@@ -229,11 +270,11 @@ public class TransferService
                 EntityType = entityType,
                 AssetType = request.AssetType,
                 SenderWalletIdentifierId = senderWallet.Id,
-                SenderAssetHolderId = request.SenderAssetHolderId,
-                SenderName = senderAssetHolder.Name,
+                SenderAssetHolderId = senderAssetHolderId,
+                SenderName = senderName,
                 ReceiverWalletIdentifierId = receiverWallet.Id,
-                ReceiverAssetHolderId = request.ReceiverAssetHolderId,
-                ReceiverName = receiverAssetHolder.Name,
+                ReceiverAssetHolderId = receiverAssetHolderId,
+                ReceiverName = receiverName,
                 Amount = request.Amount,
                 Date = request.Date,
                 IsInternalTransfer = isInternalTransfer,
@@ -278,11 +319,30 @@ public class TransferService
                     : TransferErrorCodes.ReceiverWalletNotFound);
         }
         
-        if (wallet.AssetPool?.BaseAssetHolderId != expectedAssetHolderId)
+        // For system operations (Guid.Empty), the wallet should have null BaseAssetHolderId (company-owned)
+        // For regular operations, the wallet must belong to the specified asset holder
+        var isSystemOperation = expectedAssetHolderId == Guid.Empty;
+        var walletAssetHolderId = wallet.AssetPool?.BaseAssetHolderId;
+        
+        if (isSystemOperation)
         {
-            throw new BusinessException(
-                $"{participantName} wallet does not belong to the specified asset holder",
-                TransferErrorCodes.WalletOwnershipMismatch);
+            // System wallet should have null BaseAssetHolderId (company-owned)
+            if (walletAssetHolderId.HasValue && walletAssetHolderId.Value != Guid.Empty)
+            {
+                throw new BusinessException(
+                    $"{participantName} wallet is not a system/company wallet",
+                    TransferErrorCodes.WalletOwnershipMismatch);
+            }
+        }
+        else
+        {
+            // Regular wallet must belong to the specified asset holder
+            if (walletAssetHolderId != expectedAssetHolderId)
+            {
+                throw new BusinessException(
+                    $"{participantName} wallet does not belong to the specified asset holder",
+                    TransferErrorCodes.WalletOwnershipMismatch);
+            }
         }
         
         if (wallet.AssetType != expectedAssetType)
@@ -440,21 +500,28 @@ public class TransferService
 
     private async Task<WalletMissingError?> CheckWalletsExistAsync(TransferRequest request)
     {
+        var senderAssetHolderId = request.SenderAssetHolderId.GetValueOrDefault();
+        var receiverAssetHolderId = request.ReceiverAssetHolderId.GetValueOrDefault();
+        var isSenderSystem = !request.SenderAssetHolderId.HasValue || request.SenderAssetHolderId.Value == Guid.Empty;
+        var isReceiverSystem = !request.ReceiverAssetHolderId.HasValue || request.ReceiverAssetHolderId.Value == Guid.Empty;
+        
         WalletIdentifier? senderWallet = null;
         WalletIdentifier? receiverWallet = null;
 
-        if (!request.SenderWalletIdentifierId.HasValue)
+        // For system operations with wallet IDs provided, skip wallet existence check
+        // For non-system operations without wallet IDs, check if wallet exists
+        if (!request.SenderWalletIdentifierId.HasValue && !isSenderSystem)
         {
-            senderWallet = await FindWalletByAssetHolderAndType(request.SenderAssetHolderId, request.AssetType);
+            senderWallet = await FindWalletByAssetHolderAndType(senderAssetHolderId, request.AssetType);
         }
 
-        if (!request.ReceiverWalletIdentifierId.HasValue)
+        if (!request.ReceiverWalletIdentifierId.HasValue && !isReceiverSystem)
         {
-            receiverWallet = await FindWalletByAssetHolderAndType(request.ReceiverAssetHolderId, request.AssetType);
+            receiverWallet = await FindWalletByAssetHolderAndType(receiverAssetHolderId, request.AssetType);
         }
 
-        var senderMissing = senderWallet == null && !request.SenderWalletIdentifierId.HasValue;
-        var receiverMissing = receiverWallet == null && !request.ReceiverWalletIdentifierId.HasValue;
+        var senderMissing = senderWallet == null && !request.SenderWalletIdentifierId.HasValue && !isSenderSystem;
+        var receiverMissing = receiverWallet == null && !request.ReceiverWalletIdentifierId.HasValue && !isReceiverSystem;
 
         if (!senderMissing && !receiverMissing)
         {
@@ -462,10 +529,10 @@ public class TransferService
         }
 
         var senderInfo = senderMissing
-            ? await GetAssetHolderInfoAsync(request.SenderAssetHolderId)
+            ? await GetAssetHolderInfoAsync(senderAssetHolderId)
             : (Name: null, Type: null);
         var receiverInfo = receiverMissing
-            ? await GetAssetHolderInfoAsync(request.ReceiverAssetHolderId)
+            ? await GetAssetHolderInfoAsync(receiverAssetHolderId)
             : (Name: null, Type: null);
 
         var assetTypeName = GetAssetTypeName(request.AssetType);
@@ -473,12 +540,12 @@ public class TransferService
         return new WalletMissingError
         {
             SenderWalletMissing = senderMissing,
-            SenderAssetHolderId = senderMissing ? request.SenderAssetHolderId : null,
+            SenderAssetHolderId = senderMissing ? senderAssetHolderId : null,
             SenderAssetHolderName = senderMissing ? senderInfo.Name : null,
             SenderAssetHolderType = senderMissing ? senderInfo.Type : null,
             SenderAssetTypeName = senderMissing ? assetTypeName : null,
             ReceiverWalletMissing = receiverMissing,
-            ReceiverAssetHolderId = receiverMissing ? request.ReceiverAssetHolderId : null,
+            ReceiverAssetHolderId = receiverMissing ? receiverAssetHolderId : null,
             ReceiverAssetHolderName = receiverMissing ? receiverInfo.Name : null,
             ReceiverAssetHolderType = receiverMissing ? receiverInfo.Type : null,
             ReceiverAssetTypeName = receiverMissing ? assetTypeName : null
@@ -505,6 +572,12 @@ public class TransferService
 
     private async Task<string?> GetAssetHolderTypeAsync(Guid assetHolderId)
     {
+        // System/Company operations use Guid.Empty
+        if (assetHolderId == Guid.Empty)
+        {
+            return "Company";
+        }
+        
         if (await _context.Clients.AnyAsync(c => c.BaseAssetHolderId == assetHolderId && !c.DeletedAt.HasValue))
         {
             return "Client";
@@ -535,8 +608,10 @@ public class TransferService
 
     private async Task ValidateNoBanksInTransferAsync(TransferRequest request)
     {
-        var senderType = await GetAssetHolderTypeAsync(request.SenderAssetHolderId);
-        var receiverType = await GetAssetHolderTypeAsync(request.ReceiverAssetHolderId);
+        var senderAssetHolderId = request.SenderAssetHolderId.GetValueOrDefault();
+        var receiverAssetHolderId = request.ReceiverAssetHolderId.GetValueOrDefault();
+        var senderType = await GetAssetHolderTypeAsync(senderAssetHolderId);
+        var receiverType = await GetAssetHolderTypeAsync(receiverAssetHolderId);
         
         // Determine if this is a bank transaction (RECEIPT or PAYMENT mode)
         var isSenderBank = senderType == "Bank";

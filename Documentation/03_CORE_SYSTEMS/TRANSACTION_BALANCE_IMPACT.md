@@ -181,15 +181,25 @@ Note: Client owes IN CHIPS, not in BRL
 
 ---
 
-### Self-Conversion
+### Self-Conversion (CONVERSION Mode)
 
 When a PokerManager moves between Internal and PokerAssets wallets with BalanceAs.
+This is represented by the **CONVERSION** transaction mode in the frontend.
 
 **Trigger Conditions:**
 1. Both wallets belong to same PokerManager
-2. One is `AssetGroup.Internal`, other is `AssetGroup.PokerAssets`
-3. `BalanceAs` is set
+2. One is `AssetGroup.Internal` (conversion wallet), other is `AssetGroup.PokerAssets`
+3. `BalanceAs` is set (typically BRL)
 4. `ConversionRate` is set
+
+**Frontend Usage:**
+```tsx
+<AssetTransactionModal
+  transactionMode="CONVERSION"
+  creatorAssetHolderId={manager.baseAssetHolderId}
+  creatorAssetHolderType="PokerManager"
+/>
+```
 
 **Balance Formula:**
 
