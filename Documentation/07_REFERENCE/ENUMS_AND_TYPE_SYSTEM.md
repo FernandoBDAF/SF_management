@@ -58,6 +58,7 @@ public enum AssetType
     SupremaPoker = 105,
     AstroPayICash = 106,
     LuxonPoker = 107,
+    CredBrasil = 108,
 
     // Crypto (AssetGroup.CryptoAssets)
     Bitcoin = 201,

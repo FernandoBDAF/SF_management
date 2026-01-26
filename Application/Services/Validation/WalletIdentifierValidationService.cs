@@ -78,7 +78,8 @@ public class WalletIdentifierValidationService
             // Poker Assets
             AssetType.PokerStars or AssetType.GgPoker or AssetType.YaPoker or 
             AssetType.AmericasCardRoom or AssetType.SupremaPoker or 
-            AssetType.AstroPayICash or AssetType.LuxonPoker => AssetGroup.PokerAssets,
+            AssetType.AstroPayICash or AssetType.LuxonPoker or 
+            AssetType.CredBrasil => AssetGroup.PokerAssets,
             
             // Crypto Assets
             AssetType.Bitcoin or AssetType.Ethereum or AssetType.Litecoin or 
@@ -134,7 +135,7 @@ public class WalletIdentifierValidationService
         var validPokerTypes = new[] { 
             AssetType.PokerStars, AssetType.GgPoker, AssetType.YaPoker, 
             AssetType.AmericasCardRoom, AssetType.SupremaPoker, 
-            AssetType.AstroPayICash, AssetType.LuxonPoker 
+            AssetType.AstroPayICash, AssetType.LuxonPoker, AssetType.CredBrasil 
         };
         
         if (!validPokerTypes.Contains(walletIdentifier.AssetType))
