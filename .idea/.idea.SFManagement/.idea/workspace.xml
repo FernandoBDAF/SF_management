@@ -11,7 +11,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="" />
+    <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/DTOs/Transactions/TransferRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/Transactions/TransferRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/TransferService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/TransferService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/06_API/BALANCE_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/BALANCE_ENDPOINTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/06_API/TRANSACTION_API_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/TRANSACTION_API_ENDPOINTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/10_REFACTORING/FRONTEND_BACKEND_ALIGNMENT.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/10_REFACTORING/FRONTEND_BACKEND_ALIGNMENT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/10_REFACTORING/MULTI_TRACK_PROGRESS_CONTROL.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/10_REFACTORING/MULTI_TRACK_PROGRESS_CONTROL.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -101,6 +112,8 @@
       <workItem from="1749577230009" duration="4895000" />
       <workItem from="1750205338184" duration="4921000" />
       <workItem from="1751053067825" duration="713000" />
+      <workItem from="1768587153210" duration="365000" />
+      <workItem from="1769029479284" duration="21219000" />
     </task>
     <servers />
   </component>
@@ -115,27 +128,13 @@
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Services/FiatAssetTransactionService.cs</url>
           <line>73</line>
-          <properties documentPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" containingFunctionPresentation="Method 'SendBrazilianReais'">
-            <startOffsets>
-              <option value="3255" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3278" />
-            </endOffsets>
-          </properties>
+          <properties documentPath="$PROJECT_DIR$/Services/FiatAssetTransactionService.cs" containingFunctionPresentation="Method 'SendBrazilianReais'" />
           <option name="timeStamp" value="45" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Services/SettlementTransactionService.cs</url>
           <line>40</line>
-          <properties documentPath="$PROJECT_DIR$/Services/SettlementTransactionService.cs" containingFunctionPresentation="Method 'CreateSettlementTransactionsByDate'">
-            <startOffsets>
-              <option value="1429" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1486" />
-            </endOffsets>
-          </properties>
+          <properties documentPath="$PROJECT_DIR$/Services/SettlementTransactionService.cs" containingFunctionPresentation="Method 'CreateSettlementTransactionsByDate'" />
           <option name="timeStamp" value="49" />
         </line-breakpoint>
       </breakpoints>

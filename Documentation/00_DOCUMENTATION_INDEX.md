@@ -1,0 +1,230 @@
+# SF Management Documentation Index
+
+Welcome to the SF Management documentation. This index provides a comprehensive guide to understanding the system's architecture, business domain, and implementation details.
+
+---
+
+## Quick Navigation
+
+| Category | Purpose | Key Documents |
+|----------|---------|---------------|
+| [Business](#01_business) | Business context and domain concepts | Business Domain Overview |
+| [Architecture](#02_architecture) | System design and patterns | Service Layer, Controllers, Database, AutoMapper |
+| [Core Systems](#03_core_systems) | Primary system functionality | Assets, Entities, Transactions, Referrals, Settlements |
+| [Supporting Systems](#04_supporting_systems) | Auxiliary features | Categories, Initial Balances, Contact Information |
+| [Infrastructure](#05_infrastructure) | Technical infrastructure | Auth, Logging, Error Handling, Validation, Configuration |
+| [API](#06_api) | API documentation | Complete API Reference, Specialized Endpoints |
+| [Reference](#07_reference) | Technical reference | Enums, Type System |
+| [Development](#08_development) | Developer resources | Development Guide |
+| [Deployment](#09_deployment) | CI/CD and cloud infrastructure | CI/CD Pipeline, Azure Infrastructure |
+| [Refactoring](#10_refactoring) | Code improvement plans | Folder Restructure Plan |
+
+---
+
+## Documentation Structure
+
+### 01_BUSINESS
+
+Business domain documentation providing context for non-technical stakeholders and new developers.
+
+| Document | Description |
+|----------|-------------|
+| [BUSINESS_DOMAIN_OVERVIEW.md](01_BUSINESS/BUSINESS_DOMAIN_OVERVIEW.md) | Overview of poker staking management, key business concepts, entity relationships, and common workflows |
+
+---
+
+### 02_ARCHITECTURE
+
+System architecture documentation covering design patterns and structural decisions.
+
+| Document | Description |
+|----------|-------------|
+| [SERVICE_LAYER_ARCHITECTURE.md](02_ARCHITECTURE/SERVICE_LAYER_ARCHITECTURE.md) | Service layer patterns including `BaseService`, `BaseAssetHolderService`, and `BaseTransactionService` |
+| [CONTROLLER_LAYER_ARCHITECTURE.md](02_ARCHITECTURE/CONTROLLER_LAYER_ARCHITECTURE.md) | API controller patterns, `BaseApiController`, `BaseAssetHolderController`, and route conventions |
+| [DATABASE_SCHEMA.md](02_ARCHITECTURE/DATABASE_SCHEMA.md) | Entity Framework configuration, database relationships, indexes, and constraints |
+| [AUTOMAPPER_CONFIGURATION.md](02_ARCHITECTURE/AUTOMAPPER_CONFIGURATION.md) | Object mapping profiles, custom resolvers, and mapping strategies |
+
+---
+
+### 03_CORE_SYSTEMS
+
+Documentation for the primary systems that power the application.
+
+| Document | Description |
+|----------|-------------|
+| [ENTITY_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md) | BaseAssetHolder hierarchy, entity relationships, and asset holder management |
+| [ENTITY_BUSINESS_BEHAVIOR.md](03_CORE_SYSTEMS/ENTITY_BUSINESS_BEHAVIOR.md) | **NEW:** Business behavior, balance meanings, and transaction rules per entity type |
+| [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md) | Asset pools, wallet identifiers, metadata system, and asset management |
+| [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) | Transaction models, **transaction modes**, **self-conversion**, **TransferService**, **guardrails**, and handling across asset types |
+| [TRANSACTION_BALANCE_IMPACT.md](03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md) | **NEW:** Single source of truth for how transactions impact balances |
+| [TRANSACTION_RESPONSE_VIEWMODELS.md](03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md) | Transaction response DTOs including **TransferResponse**, **WalletMissingError**, and API response structure |
+| [REFERRAL_SYSTEM.md](03_CORE_SYSTEMS/REFERRAL_SYSTEM.md) | Commission tracking system, referral management, and business rules |
+| [SETTLEMENT_WORKFLOW.md](03_CORE_SYSTEMS/SETTLEMENT_WORKFLOW.md) | Poker settlement process, rake calculations, and batch settlements |
+| [IMPORTED_TRANSACTIONS.md](03_CORE_SYSTEMS/IMPORTED_TRANSACTIONS.md) | File import system for OFX and Excel, reconciliation workflow |
+
+---
+
+### 04_SUPPORTING_SYSTEMS
+
+Documentation for auxiliary systems that support core functionality.
+
+| Document | Description |
+|----------|-------------|
+| [CATEGORY_SYSTEM.md](04_SUPPORTING_SYSTEMS/CATEGORY_SYSTEM.md) | Transaction categorization, hierarchical categories, and reporting |
+| [INITIAL_BALANCES.md](04_SUPPORTING_SYSTEMS/INITIAL_BALANCES.md) | Starting balance configuration per asset type and group |
+| [CONTACT_INFORMATION.md](04_SUPPORTING_SYSTEMS/CONTACT_INFORMATION.md) | Address and phone management for asset holders |
+
+---
+
+### 05_INFRASTRUCTURE
+
+Technical infrastructure documentation covering cross-cutting concerns.
+
+| Document | Description |
+|----------|-------------|
+| [AUTHENTICATION.md](05_INFRASTRUCTURE/AUTHENTICATION.md) | Auth0 integration, JWT handling, roles, and permissions |
+| [LOGGING.md](05_INFRASTRUCTURE/LOGGING.md) | Serilog configuration, log sinks, and structured logging |
+| [AUDIT_SYSTEM.md](05_INFRASTRUCTURE/AUDIT_SYSTEM.md) | Audit trail system, automatic timestamps, user tracking, and data change history |
+| [ERROR_HANDLING.md](05_INFRASTRUCTURE/ERROR_HANDLING.md) | Exception hierarchy, middleware, and error response structure |
+| [VALIDATION_SYSTEM.md](05_INFRASTRUCTURE/VALIDATION_SYSTEM.md) | FluentValidation setup and service-level validation |
+| [SOFT_DELETE_AND_DATA_LIFECYCLE.md](05_INFRASTRUCTURE/SOFT_DELETE_AND_DATA_LIFECYCLE.md) | Soft delete implementation and data retention |
+| [RATE_LIMITING_AND_PERFORMANCE.md](05_INFRASTRUCTURE/RATE_LIMITING_AND_PERFORMANCE.md) | Rate limiting configuration and performance optimization |
+| [CONFIGURATION_MANAGEMENT.md](05_INFRASTRUCTURE/CONFIGURATION_MANAGEMENT.md) | Application settings, environment variables, user secrets, and dependency management |
+
+---
+
+### 06_API
+
+API documentation and endpoint references.
+
+| Document | Description |
+|----------|-------------|
+| [API_REFERENCE.md](06_API/API_REFERENCE.md) | Complete endpoint reference for all controllers |
+| [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) | **Comprehensive transaction API reference** with detailed examples, error codes, and use cases |
+| [COMPANY_ASSET_POOL_ENDPOINTS.md](06_API/COMPANY_ASSET_POOL_ENDPOINTS.md) | Specialized endpoints for company-owned asset pools and system wallet pairing |
+| [INTERNAL_WALLET_TYPE_IMPLEMENTATION.md](06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md) | Internal and Settlement wallet group implementation |
+| [BALANCE_ENDPOINTS.md](06_API/BALANCE_ENDPOINTS.md) | Balance endpoint patterns and frontend alignment notes |
+
+---
+
+### 07_REFERENCE
+
+Technical reference documentation.
+
+| Document | Description |
+|----------|-------------|
+| [ENUMS_AND_TYPE_SYSTEM.md](07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) | All enumerations with business meanings and values |
+| [ASSET_POOL_COMPANY_OWNERSHIP_ANALYSIS.md](07_REFERENCE/ASSET_POOL_COMPANY_OWNERSHIP_ANALYSIS.md) | Analysis of company-owned asset pools |
+
+---
+
+### 08_DEVELOPMENT
+
+Developer resources for onboarding and daily development.
+
+| Document | Description |
+|----------|-------------|
+| [DEVELOPMENT_GUIDE.md](08_DEVELOPMENT/DEVELOPMENT_GUIDE.md) | Development environment setup, coding conventions, and common tasks |
+
+---
+
+### 09_DEPLOYMENT
+
+Deployment and cloud infrastructure documentation.
+
+| Document | Description |
+|----------|-------------|
+| [CI_CD_PIPELINE.md](09_DEPLOYMENT/CI_CD_PIPELINE.md) | GitHub Actions workflows, build/deploy stages, OIDC authentication, and rollback procedures |
+| [AZURE_INFRASTRUCTURE.md](09_DEPLOYMENT/AZURE_INFRASTRUCTURE.md) | Azure Web App configuration, SQL Database setup, health checks, and monitoring |
+
+---
+
+### 10_REFACTORING
+
+Refactoring plans and implementation guides for code improvements.
+
+| Document | Description |
+|----------|-------------|
+| [FOLDER_RESTRUCTURE_PLAN.md](10_REFACTORING/FOLDER_RESTRUCTURE_PLAN.md) | Comprehensive plan for reorganizing codebase into Clean Architecture folder structure (✅ Completed) |
+| [BUILD_WARNINGS_CLEANUP_PLAN.md](10_REFACTORING/BUILD_WARNINGS_CLEANUP_PLAN.md) | Detailed plan to resolve all 170 build warnings including NuGet vulnerabilities, null references, and deprecated APIs |
+| [TRANSFER_ENDPOINT_IMPLEMENTATION_PLAN.md](10_REFACTORING/TRANSFER_ENDPOINT_IMPLEMENTATION_PLAN.md) | Implementation plan for unified `/transfer` endpoint (✅ Completed) |
+| [TRANSACTION_DOCUMENTATION_IMPROVEMENT_PLAN.md](10_REFACTORING/TRANSACTION_DOCUMENTATION_IMPROVEMENT_PLAN.md) | Plan for enriching backend transaction documentation (✅ Completed) |
+| [ASSETGROUP_FLEXIBLE_RENAME_PLAN.md](10_REFACTORING/ASSETGROUP_FLEXIBLE_RENAME_PLAN.md) | Future plan to rename `AssetGroup.Internal` → `Flexible` and add behavior layer (Deferred) |
+| [BALANCE_SYSTEM_ANALYSIS.md](10_REFACTORING/BALANCE_SYSTEM_ANALYSIS.md) | **Validated** analysis of balance system with entity behaviors, transaction impacts, and bug fixes |
+| [DOCUMENTATION_REVIEW_JANUARY_2026.md](10_REFACTORING/DOCUMENTATION_REVIEW_JANUARY_2026.md) | Documentation review with corrections, gaps, and action plan |
+| [FINANCE_MODULE_PLANNING.md](10_REFACTORING/FINANCE_MODULE_PLANNING.md) | **NEW:** Deferred financial features (profit tracking, member share, credit limits) |
+| [ACCOUNTCLASSIFICATION_BUG_FIX_PLAN.md](10_REFACTORING/ACCOUNTCLASSIFICATION_BUG_FIX_PLAN.md) | **NEW:** Fix plan for PM FiatAssets wallet classification bug (✅ Fixed in Phase 4) |
+| [MULTI_TRACK_PROGRESS_CONTROL.md](10_REFACTORING/MULTI_TRACK_PROGRESS_CONTROL.md) | **NEW:** Central coordination for 3 parallel improvement tracks (A: API Alignment, B: Statement Refactor, C: Finance Module) |
+| [FRONTEND_BACKEND_ALIGNMENT.md](10_REFACTORING/FRONTEND_BACKEND_ALIGNMENT.md) | **NEW:** Track A - Frontend-backend API mismatch documentation and fixes |
+| [FINANCE_CURRENT_STATE.md](10_REFACTORING/FINANCE_CURRENT_STATE.md) | **NEW:** Track C - Current finance implementation state and roadmap |
+
+---
+
+## Getting Started
+
+### For New Developers
+
+1. **Start with business context**: Read [BUSINESS_DOMAIN_OVERVIEW.md](01_BUSINESS/BUSINESS_DOMAIN_OVERVIEW.md) to understand the poker staking domain
+2. **Understand the data model**: Review [ENTITY_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md) and [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md)
+3. **Learn the architecture**: Study [SERVICE_LAYER_ARCHITECTURE.md](02_ARCHITECTURE/SERVICE_LAYER_ARCHITECTURE.md) and [CONTROLLER_LAYER_ARCHITECTURE.md](02_ARCHITECTURE/CONTROLLER_LAYER_ARCHITECTURE.md)
+4. **Set up your environment**: Follow [DEVELOPMENT_GUIDE.md](08_DEVELOPMENT/DEVELOPMENT_GUIDE.md) and [CONFIGURATION_MANAGEMENT.md](05_INFRASTRUCTURE/CONFIGURATION_MANAGEMENT.md)
+5. **Explore the API**: Reference [API_REFERENCE.md](06_API/API_REFERENCE.md) for endpoint details
+
+### For Specific Topics
+
+| If you need to... | Read... |
+|-------------------|---------|
+| Add a new entity type | [ENTITY_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md) |
+| Create new endpoints | [CONTROLLER_LAYER_ARCHITECTURE.md](02_ARCHITECTURE/CONTROLLER_LAYER_ARCHITECTURE.md), [API_REFERENCE.md](06_API/API_REFERENCE.md) |
+| Add new asset types | [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md), [ENUMS_AND_TYPE_SYSTEM.md](07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) |
+| Handle transactions | [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md), [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) |
+| **Create transfers (P2P)** | [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) - **Use `/api/v1/transfer`** |
+| Configure authentication | [AUTHENTICATION.md](05_INFRASTRUCTURE/AUTHENTICATION.md) |
+| Add validation | [VALIDATION_SYSTEM.md](05_INFRASTRUCTURE/VALIDATION_SYSTEM.md) |
+| Handle errors | [ERROR_HANDLING.md](05_INFRASTRUCTURE/ERROR_HANDLING.md) |
+| Import external data | [IMPORTED_TRANSACTIONS.md](03_CORE_SYSTEMS/IMPORTED_TRANSACTIONS.md) |
+| Configure the application | [CONFIGURATION_MANAGEMENT.md](05_INFRASTRUCTURE/CONFIGURATION_MANAGEMENT.md) |
+| Deploy to Azure | [CI_CD_PIPELINE.md](09_DEPLOYMENT/CI_CD_PIPELINE.md), [AZURE_INFRASTRUCTURE.md](09_DEPLOYMENT/AZURE_INFRASTRUCTURE.md) |
+| Refactor folder structure | [FOLDER_RESTRUCTURE_PLAN.md](10_REFACTORING/FOLDER_RESTRUCTURE_PLAN.md) |
+
+---
+
+## Document Statistics
+
+| Category | Count |
+|----------|-------|
+| Business | 1 |
+| Architecture | 4 |
+| Core Systems | 9 |
+| Supporting Systems | 3 |
+| Infrastructure | 8 |
+| API | 5 |
+| Reference | 2 |
+| Development | 1 |
+| Deployment | 2 |
+| Refactoring | 12 |
+| **Total** | **46** |
+
+---
+
+## Maintenance
+
+### Documentation Standards
+
+- **Keep documentation current**: Update documents when code changes
+- **Use consistent formatting**: Follow Markdown conventions
+- **Include code examples**: Reference actual codebase code
+- **Cross-reference**: Link to related documents
+- **Version awareness**: Note significant changes
+
+### Contributing to Documentation
+
+1. Create or update documents in the appropriate category folder
+2. Update this index if adding new documents
+3. Maintain consistent formatting with existing documents
+4. Include practical examples where applicable
+5. Review for accuracy against current codebase
+
+---
+
+*Last updated: January 24, 2026*

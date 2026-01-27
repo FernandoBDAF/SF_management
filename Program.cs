@@ -1,16 +1,18 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 using AspNetCoreRateLimit;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using SFManagement;
-using SFManagement.Data;
-using SFManagement.StartupConfig;
-using SFManagement.ViewModels.Validators;
-using SFManagement.Middleware;
-using System.Text.Json.Serialization;
 using Serilog;
+using SFManagement.Api.Configuration;
+using SFManagement.Api.Middleware;
+using SFManagement.Application.Mappings;
+using SFManagement.Application.Validators;
+using SFManagement.Application.Validators.Transactions;
+using SFManagement.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,11 +48,9 @@ try
     // Remove Identity configuration - Auth0 handles authentication
     builder.Services.AddHttpContextAccessor();
 
-    builder.Services.AddFluentValidation(config =>
-    {
-        // why is this here?
-        config.RegisterValidatorsFromAssemblyContaining<WalletTransactionValidator>();
-    });
+    builder.Services.AddFluentValidationAutoValidation()
+        .AddFluentValidationClientsideAdapters();
+    builder.Services.AddValidatorsFromAssemblyContaining<WalletTransactionValidator>();
 
     builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
