@@ -59,6 +59,11 @@ public class InitialBalanceService : BaseService<InitialBalance>
         if (conversionRate.HasValue && conversionRate <= 0)
             throw new ArgumentException("ConversionRate must be positive");
 
+        await ValidateMutualExclusivity(
+            baseAssetHolderId,
+            assetType,
+            AssetGroup.None);
+
         // Check for existing active initial balance for this combination
         var existingBalance = await GetActiveInitialBalance(baseAssetHolderId, assetType);
         
@@ -111,6 +116,11 @@ public class InitialBalanceService : BaseService<InitialBalance>
 
         if (conversionRate.HasValue && conversionRate <= 0)
             throw new ArgumentException("ConversionRate must be positive");
+
+        await ValidateMutualExclusivity(
+            baseAssetHolderId,
+            AssetType.None,
+            assetGroup);
 
         // Check for existing active initial balance for this combination
         var existingBalance = await GetActiveInitialBalanceForAssetGroup(baseAssetHolderId, assetGroup);
@@ -314,6 +324,14 @@ public class InitialBalanceService : BaseService<InitialBalance>
         if (!balanceAs.HasValue && conversionRate.HasValue)
             errors.Add("BalanceAs is required when ConversionRate is specified");
 
+        var mutualExclusivityErrors = await ValidateMutualExclusivity(
+            baseAssetHolderId,
+            assetType ?? AssetType.None,
+            assetGroup ?? AssetGroup.None);
+
+        if (mutualExclusivityErrors.Any())
+            errors.AddRange(mutualExclusivityErrors);
+
         return errors;
     }
 
@@ -377,6 +395,47 @@ public class InitialBalanceService : BaseService<InitialBalance>
         };
 
         return await Add(initialBalance);
+    }
+
+    private async Task<List<string>> ValidateMutualExclusivity(
+        Guid baseAssetHolderId,
+        AssetType assetType,
+        AssetGroup assetGroup)
+    {
+        var errors = new List<string>();
+        var hasAssetType = assetType != AssetType.None;
+        var hasAssetGroup = assetGroup != AssetGroup.None;
+
+        if (!hasAssetType && !hasAssetGroup)
+        {
+            return errors;
+        }
+
+        var existingBalances = await context.InitialBalances
+            .Where(ib => ib.BaseAssetHolderId == baseAssetHolderId && !ib.DeletedAt.HasValue)
+            .ToListAsync();
+
+        if (hasAssetGroup)
+        {
+            var hasConflictingAssetType = existingBalances
+                .Where(ib => ib.AssetType != AssetType.None)
+                .Any(ib => WalletIdentifierValidationService.GetAssetGroupForAssetType(ib.AssetType) == assetGroup);
+
+            if (hasConflictingAssetType)
+                errors.Add("Cannot create AssetGroup InitialBalance: individual AssetType InitialBalance already exists for an asset in this group");
+        }
+
+        if (hasAssetType)
+        {
+            var typeGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(assetType);
+            var hasConflictingAssetGroup = existingBalances
+                .Any(ib => ib.AssetGroup == typeGroup && ib.AssetType == AssetType.None);
+
+            if (hasConflictingAssetGroup)
+                errors.Add("Cannot create AssetType InitialBalance: AssetGroup InitialBalance already exists for this group");
+        }
+
+        return errors;
     }
 
     /// <summary>

@@ -10,6 +10,8 @@ using SFManagement.Application.Services.Base;
 using SFManagement.Application.Services.AssetHolders;
 using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Domain;
+using SFManagement.Application.Services.Finance;
+using SFManagement.Application.Services.Infrastructure;
 using SFManagement.Application.Services.Support;
 using SFManagement.Application.Services.Transactions;
 using SFManagement.Application.Services.Validation;
@@ -203,6 +205,14 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<BaseService<ImportedTransaction>, ImportedTransactionService>();
         builder.Services.AddScoped<ImportedTransactionService>();
         builder.Services.AddScoped<TransferService>();
+
+        // Finance services
+        builder.Services.AddScoped<IAvgRateService, AvgRateService>();
+        builder.Services.AddScoped<IProfitCalculationService, ProfitCalculationService>();
+
+        // Infrastructure services (caching)
+        builder.Services.AddSingleton<ICacheMetricsService, CacheMetricsService>();
+        builder.Services.AddScoped<ICachedLookupService, CachedLookupService>();
         
         // Other services
         builder.Services.AddScoped<BaseService<Category>, CategoryService>();

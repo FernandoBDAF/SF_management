@@ -1,9 +1,11 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFManagement", "SFManagement.csproj", "{361A190E-1611-4331-BEB5-3257864DDC6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFManagement.Tests", "SFManagement.Tests\SFManagement.Tests.csproj", "{6D11388C-0B86-4D30-A158-8BEDE97C432B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{361A190E-1611-4331-BEB5-3257864DDC6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{361A190E-1611-4331-BEB5-3257864DDC6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{361A190E-1611-4331-BEB5-3257864DDC6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D11388C-0B86-4D30-A158-8BEDE97C432B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D11388C-0B86-4D30-A158-8BEDE97C432B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D11388C-0B86-4D30-A158-8BEDE97C432B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D11388C-0B86-4D30-A158-8BEDE97C432B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -410,7 +410,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     }
 
     // add variable BaseAssetWalletType so the balance could have different behavior
-    public async Task<Dictionary<AssetType, decimal>> GetBalancesByAssetType(Guid baseAssetHolderId)
+    public async Task<Dictionary<AssetType, decimal>> GetBalancesByAssetType(
+        Guid baseAssetHolderId,
+        DateTime? asOfDate = null)
     {
         var balances = new Dictionary<AssetType, decimal>();
 
@@ -433,35 +435,58 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .ToListAsync();
 
         var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();
+        
         var pokerManagerIds = await context.PokerManagers
             .Select(pm => pm.BaseAssetHolderId)
             .ToListAsync();
         var pokerManagerIdSet = new HashSet<Guid>(pokerManagerIds);
        
-        var digitalTransactions = await context.DigitalAssetTransactions
-            .Where(dt => !dt.DeletedAt.HasValue && 
-                (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) || 
-                 walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)))
+        var digitalQuery = context.DigitalAssetTransactions
+            .Where(dt => !dt.DeletedAt.HasValue &&
+                (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) ||
+                 walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            digitalQuery = digitalQuery.Where(dt => dt.Date <= asOfDate.Value);
+        }
+
+        var digitalTransactions = await digitalQuery
             .Include(dt => dt.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .Include(dt => dt.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .ToArrayAsync() ?? [];
+            
 
-        var fiatTransactions = await context.FiatAssetTransactions
-            .Where(ft => !ft.DeletedAt.HasValue && 
-                (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) || 
-                 walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)))
+        var fiatQuery = context.FiatAssetTransactions
+            .Where(ft => !ft.DeletedAt.HasValue &&
+                (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) ||
+                 walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            fiatQuery = fiatQuery.Where(ft => ft.Date <= asOfDate.Value);
+        }
+
+        var fiatTransactions = await fiatQuery
             .Include(ft => ft.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .Include(ft => ft.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .ToArrayAsync() ?? [];
 
-        var settlementTransactions = await context.SettlementTransactions
-            .Where(st => !st.DeletedAt.HasValue && 
-                (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) || 
-                 walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))
+        var settlementQuery = context.SettlementTransactions
+            .Where(st => !st.DeletedAt.HasValue &&
+                (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) ||
+                 walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            settlementQuery = settlementQuery.Where(st => st.Date <= asOfDate.Value);
+        }
+
+        var settlementTransactions = await settlementQuery
             .Include(st => st.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .Include(st => st.ReceiverWalletIdentifier)
@@ -548,7 +573,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     
     // add variable BaseAssetWalletType so the balance could have different behavior
     // calculates balance for PokerManager
-    public async Task<Dictionary<AssetGroup, decimal>> GetBalancesByAssetGroup(Guid baseAssetHolderId)
+    public async Task<Dictionary<AssetGroup, decimal>> GetBalancesByAssetGroup(
+        Guid baseAssetHolderId,
+        DateTime? asOfDate = null)
     {
         var balances = new Dictionary<AssetGroup, decimal>();
 
@@ -580,30 +607,51 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             return balances;
 
         // Get all transactions for these wallet identifiers
-        var fiatTransactions = await context.FiatAssetTransactions
-            .Where(ft => !ft.DeletedAt.HasValue && 
-                        (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) || 
-                         walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)))
+        var fiatQuery = context.FiatAssetTransactions
+            .Where(ft => !ft.DeletedAt.HasValue &&
+                        (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) ||
+                         walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            fiatQuery = fiatQuery.Where(ft => ft.Date <= asOfDate.Value);
+        }
+
+        var fiatTransactions = await fiatQuery
             .Include(ft => ft.SenderWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .Include(ft => ft.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .ToListAsync();
 
-        var digitalTransactions = await context.DigitalAssetTransactions
-            .Where(dt => !dt.DeletedAt.HasValue && 
-                        (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) || 
-                         walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)))
+        var digitalQuery = context.DigitalAssetTransactions
+            .Where(dt => !dt.DeletedAt.HasValue &&
+                        (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) ||
+                         walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            digitalQuery = digitalQuery.Where(dt => dt.Date <= asOfDate.Value);
+        }
+
+        var digitalTransactions = await digitalQuery
             .Include(dt => dt.SenderWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .Include(dt => dt.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .ToListAsync();
 
-        var settlementTransactions = await context.SettlementTransactions
-            .Where(st => !st.DeletedAt.HasValue && 
-                        (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) || 
-                         walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))
+        var settlementQuery = context.SettlementTransactions
+            .Where(st => !st.DeletedAt.HasValue &&
+                        (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) ||
+                         walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            settlementQuery = settlementQuery.Where(st => st.Date <= asOfDate.Value);
+        }
+
+        var settlementTransactions = await settlementQuery
             .Include(st => st.SenderWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .Include(st => st.ReceiverWalletIdentifier)
@@ -667,9 +715,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 var pokerAssetsImpact = isEntering ? tx.AssetAmount : -tx.AssetAmount;
                 pokerAssetsImpact = pokerAssetsImpact * (100 - (tx.Rate ?? 0)) / 100;
 
-                var fiatAssetsImpact = isEntering
-                    ? tx.AssetAmount * tx.ConversionRate.Value
-                    : -tx.AssetAmount * tx.ConversionRate.Value;
+            var conversionRate = tx.ConversionRate.GetValueOrDefault();
+            var fiatAssetsImpact = isEntering
+                ? tx.AssetAmount * conversionRate
+                : -tx.AssetAmount * conversionRate;
 
                 if (!balances.ContainsKey(AssetGroup.PokerAssets)) balances[AssetGroup.PokerAssets] = 0;
                 balances[AssetGroup.PokerAssets] += pokerAssetsImpact;

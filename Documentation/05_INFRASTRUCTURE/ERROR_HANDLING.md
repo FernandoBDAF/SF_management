@@ -210,22 +210,66 @@ var errorContext = new
 };
 ```
 
+### Security Event Logging
+
+For security-related exceptions (`UnauthorizedAccessException`), the middleware logs enhanced context:
+
+```csharp
+// Security events are logged at Error level with full context
+_logger.LogError(exception, 
+    "Unhandled Exception: {ExceptionType} - {Method} {Path} - User: {UserId} ({UserEmail}) - IP: {IpAddress}",
+    exception.GetType().Name, method, path, userId, userEmail, ipAddress, exception.Message);
+```
+
+**Security context captured:**
+- User ID (from JWT claims)
+- User email
+- IP address
+- User agent (browser/client)
+- Request path and method
+- Full stack trace (logged, not returned to client)
+
+### Development vs Production Behavior
+
+| Aspect | Development | Production |
+|--------|-------------|------------|
+| Stack trace in response | Included | Omitted |
+| Inner exception in response | Included | Omitted |
+| Exception type in response | Included | Omitted |
+| JSON formatting | Indented | Minified |
+| Full stack trace | Logged | Logged |
+
 ---
 
 ## HTTP Status Code Mapping
 
-| Exception Type | HTTP Status | Error Code |
-|---------------|-------------|------------|
-| `ValidationException` | 400 Bad Request | `VALIDATION_ERROR` |
-| `EntityNotFoundException` | 404 Not Found | `ENTITY_NOT_FOUND` |
-| `DuplicateEntityException` | 409 Conflict | `DUPLICATE_ENTITY` |
-| `BusinessRuleException` | 409 Conflict | `BUSINESS_RULE_VIOLATION` |
-| `BusinessException` | 400 Bad Request | `BUSINESS_ERROR` |
-| `UnauthorizedAccessException` | 401 Unauthorized | `UNAUTHORIZED` |
-| `ArgumentException` | 400 Bad Request | `INVALID_ARGUMENT` |
-| `KeyNotFoundException` | 404 Not Found | `NOT_FOUND` |
-| `TimeoutException` | 408 Request Timeout | `TIMEOUT` |
-| All other exceptions | 500 Internal Server Error | `INTERNAL_ERROR` |
+### Complete Exception Mapping Table
+
+| Exception Type | HTTP Status | Error Code | Log Level | Rationale |
+|---------------|-------------|------------|-----------|-----------|
+| `ValidationException` | 400 Bad Request | `VALIDATION_ERROR` | Warning | Expected user input errors |
+| `EntityNotFoundException` | 404 Not Found | `ENTITY_NOT_FOUND` | Warning | Expected "not found" cases |
+| `DuplicateEntityException` | 409 Conflict | `DUPLICATE_ENTITY` | Warning | Expected constraint violations |
+| `BusinessRuleException` | 409 Conflict | `BUSINESS_RULE_VIOLATION` | Warning | Expected business logic rejections |
+| `BusinessException` | 400 Bad Request | `BUSINESS_ERROR` | Warning | General business errors |
+| `UnauthorizedAccessException` | 401 Unauthorized | `UNAUTHORIZED` | **Error** | Security concern |
+| `ArgumentException` | 400 Bad Request | `INVALID_ARGUMENT` | Warning | Usually validation issues |
+| `KeyNotFoundException` | 404 Not Found | `NOT_FOUND` | Warning | Resource not found |
+| `TimeoutException` | 408 Request Timeout | `TIMEOUT` | **Error** | Infrastructure issue |
+| All other exceptions | 500 Internal Server Error | `INTERNAL_ERROR` | **Error** | Unexpected errors |
+
+### Error Code Conventions
+
+Error codes follow these patterns:
+
+| Pattern | Example | Usage |
+|---------|---------|-------|
+| `{ENTITY}_NOT_FOUND` | `CLIENT_NOT_FOUND` | Entity not found |
+| `{ENTITY}_HAS_DEPENDENCIES` | `CLIENT_HAS_DEPENDENCIES` | Cannot delete due to references |
+| `{FIELD}_REQUIRED` | `NAME_REQUIRED` | Required field missing |
+| `{OPERATION}_FAILED` | `TRANSFER_FAILED` | Operation failed |
+| `INSUFFICIENT_{RESOURCE}` | `INSUFFICIENT_BALANCE` | Resource constraint |
+| `INVALID_{FIELD}` | `INVALID_AMOUNT` | Validation failure |
 
 ---
 

@@ -8,40 +8,59 @@ using SFManagement.Domain.Enums.Assets;
 namespace SFManagement.Domain.Entities.Support;
 
 /// <summary>
-/// Represents the initial balance for a BaseAssetHolder for a specific AssetType or AssetGroup
-/// This is used as the starting point for balance calculations
+/// Represents the initial balance for a BaseAssetHolder and acts as configuration
+/// for how balances are calculated.
+///
+/// DUAL PURPOSE:
+/// 1. Provides starting balance for calculations
+/// 2. Configures calculation mode:
+///    - AssetGroup set (AssetType = None): consolidate all assets in the group
+///    - AssetType set (AssetGroup = None): track this asset individually
+///
+/// MUTUAL EXCLUSIVITY:
+/// - A BaseAssetHolder cannot have both AssetGroup and AssetType InitialBalances
+///   for the same AssetGroup.
+///
+/// AVGRATE (Spread Managers only):
+/// - If ConversionRate > 0 and BalanceAs is set, it becomes the starting AvgRate
+/// - If ConversionRate is null/0, AvgRate starts at 0 but Balance still applies
 /// </summary>
 public class InitialBalance : BaseDomain
 {
     /// <summary>
-    /// The initial balance amount
-    /// Can be negative to represent initial debts or adjustments
+    /// The initial balance amount in asset units.
+    /// Can be negative to represent initial debts or adjustments.
+    /// For consolidated groups, this is the sum of all assets in the group.
     /// </summary>
     [Precision(18, 2)] 
     [Required] 
     public decimal Balance { get; set; }
     
     /// <summary>
-    /// The asset type this balance represents (e.g., BRL, USD, BTC)
-    /// This is the unit of the balance
+    /// The asset type this balance represents (e.g., BRL, USD, BTC).
+    /// This is the unit of the balance.
+    /// Must be AssetType.None when AssetGroup is set.
     /// </summary>
     [Required] 
     public AssetType AssetType { get; set; }
     
     /// <summary>
-    /// Optional conversion rate to financial purposes
+    /// Optional conversion rate used as the starting AvgRate for Spread managers.
+    /// When set, BalanceAs must also be set.
     /// </summary>
     [Precision(18, 4)] 
     public decimal? ConversionRate { get; set; }
     
     /// <summary>
-    /// Optional target asset type for conversion to financial purposes
+    /// Optional target asset type for financial valuation (e.g., BRL).
+    /// Required when ConversionRate is set.
     /// </summary>
     public AssetType? BalanceAs { get; set; }
 
     /// <summary>
-    /// The balance of an AssetGroup is the sum of the balances of all AssetTypes in the group
-    /// If this has a value, AssetType must be 0
+    /// The asset group for consolidated tracking.
+    /// When set, all AssetTypes in this group are consolidated into a single balance.
+    /// Must be AssetGroup.None when AssetType is set.
     /// </summary>
     public AssetGroup AssetGroup { get; set; }
     

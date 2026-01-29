@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SFManagement.Application.DTOs.Assets;
 using SFManagement.Application.Services.Base;
+using SFManagement.Application.Services.Finance;
+using SFManagement.Application.Services.Infrastructure;
 using SFManagement.Application.Services.Support;
 using SFManagement.Application.Services.Validation;
 using SFManagement.Domain.Entities.Assets;
@@ -16,13 +19,27 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
     private readonly WalletIdentifierValidationService _validationService;
     private readonly AssetPoolService _AssetPoolService;
     private readonly ReferralService _referralService;
+    private readonly IAvgRateService _avgRateService;
+    private readonly ICachedLookupService _cachedLookupService;
+    private readonly IMemoryCache _cache;
+
+    private const string SystemWalletCacheKey = "finance.system-wallet-ids";
     
-    public WalletIdentifierService(DataContext context, IHttpContextAccessor httpContextAccessor, 
-    AssetPoolService AssetPoolService, ReferralService referralService) : base(context, httpContextAccessor)
+    public WalletIdentifierService(
+        DataContext context,
+        IHttpContextAccessor httpContextAccessor,
+        AssetPoolService AssetPoolService,
+        ReferralService referralService,
+        IAvgRateService avgRateService,
+        ICachedLookupService cachedLookupService,
+        IMemoryCache cache) : base(context, httpContextAccessor)
     {
         _validationService = new WalletIdentifierValidationService();
         _AssetPoolService = AssetPoolService;
         _referralService = referralService;
+        _avgRateService = avgRateService;
+        _cachedLookupService = cachedLookupService;
+        _cache = cache;
     }
 
     
@@ -90,7 +107,8 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         }
         
         var result = await base.Add(walletIdentifier);
-        
+
+        await InvalidateWalletCachesAsync(assetPool);
         return result;
     }
     
@@ -134,6 +152,40 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         }
         
         return await base.Update(id, walletIdentifier);
+    }
+
+    public override async Task Delete(Guid id)
+    {
+        var wallet = await context.WalletIdentifiers
+            .Include(wi => wi.AssetPool)
+            .FirstOrDefaultAsync(wi => wi.Id == id && !wi.DeletedAt.HasValue);
+
+        await base.Delete(id);
+
+        if (wallet?.AssetPool != null)
+        {
+            await InvalidateWalletCachesAsync(wallet.AssetPool);
+        }
+    }
+
+    private async Task InvalidateWalletCachesAsync(AssetPool assetPool)
+    {
+        if (assetPool.BaseAssetHolderId.HasValue &&
+            assetPool.AssetGroup == AssetGroup.PokerAssets)
+        {
+            var isPokerManager = await _cachedLookupService
+                .IsPokerManagerAsync(assetPool.BaseAssetHolderId.Value);
+
+            if (isPokerManager)
+            {
+                _avgRateService.InvalidateManagerWalletCache(assetPool.BaseAssetHolderId.Value);
+            }
+        }
+
+        if (assetPool.AssetGroup == AssetGroup.Internal && assetPool.BaseAssetHolderId == null)
+        {
+            _cache.Remove(SystemWalletCacheKey);
+        }
     }
     
     public override async Task<WalletIdentifier?> Get(Guid id)

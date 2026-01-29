@@ -431,17 +431,19 @@ public class BaseAssetHolderController<TEntity, TRequest, TResponse> : BaseApiCo
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(Dictionary<string, decimal>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public virtual async Task<IActionResult> GetBalance(Guid id)
+    public virtual async Task<IActionResult> GetBalance(
+        Guid id,
+        [FromQuery] DateTime? asOfDate = null)
     {
         var requestId = HttpContext.TraceIdentifier;
         var entityType = typeof(TEntity).Name;
         
-        _logger.LogInformation("Retrieving balance for {EntityType} {EntityId} - RequestId: {RequestId}", 
-            entityType, id, requestId);
+        _logger.LogInformation("Retrieving balance for {EntityType} {EntityId} asOfDate={AsOfDate} - RequestId: {RequestId}", 
+            entityType, id, asOfDate, requestId);
         
         try
         {
-            var balances = await _assetHolderService.GetBalancesByAssetType(id);
+            var balances = await _assetHolderService.GetBalancesByAssetType(id, asOfDate);
             
             _logger.LogInformation("Successfully retrieved balance for {EntityType} {EntityId} - AssetTypes: {AssetTypeCount} - RequestId: {RequestId}", 
                 entityType, id, balances.Count, requestId);

@@ -34,7 +34,8 @@ The SF Management API provides a comprehensive set of endpoints for managing fin
 7. [Supporting Resources](#supporting-resources)
    - [Category](#category)
    - [InitialBalance](#initialbalance)
-8. [Error Handling](#error-handling)
+8. [Diagnostics](#diagnostics)
+9. [Error Handling](#error-handling)
 
 ---
 
@@ -487,6 +488,66 @@ Manages initial balance records for asset holders.
 | GET | `/asset-holder/{id}/count` | Get balance count | - | `int` |
 | DELETE | `/asset-holder/{id}/asset-type/{type}` | Remove balance for type | - | `204 No Content` |
 | DELETE | `/asset-holder/{id}/asset-group/{group}` | Remove balance for group | - | `204 No Content` |
+
+---
+
+## Diagnostics
+
+### DiagnosticsController
+
+Provides system diagnostics and monitoring endpoints. **Requires admin role.**
+
+**Base Route**: `/api/v1/diagnostics`
+
+#### Endpoints
+
+| Method | Route | Description | Authorization | Response |
+|--------|-------|-------------|---------------|----------|
+| GET | `/cache-stats` | Get cache hit/miss statistics | `Role:admin` | `CacheStatistics` |
+
+#### Cache Statistics Response
+
+```json
+{
+  "categories": {
+    "AvgRate": {
+      "hits": 500,
+      "misses": 50,
+      "hitRate": 0.909
+    },
+    "SystemWallets": {
+      "hits": 150,
+      "misses": 10,
+      "hitRate": 0.9375
+    },
+    "PokerManagerLookup": {
+      "hits": 200,
+      "misses": 20,
+      "hitRate": 0.909
+    }
+  }
+}
+```
+
+#### Response Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `categories` | `Dictionary<string, CategoryStats>` | Cache statistics by category |
+| `hits` | `long` | Number of cache hits |
+| `misses` | `long` | Number of cache misses |
+| `hitRate` | `double` | Ratio of hits to total requests (0-1) |
+
+#### Usage
+
+Monitor cache performance to identify optimization opportunities:
+
+```http
+GET /api/v1/diagnostics/cache-stats
+Authorization: Bearer {admin-token}
+```
+
+**See Also:** [RATE_LIMITING_AND_PERFORMANCE.md](../05_INFRASTRUCTURE/RATE_LIMITING_AND_PERFORMANCE.md) for cache implementation details.
 
 ---
 

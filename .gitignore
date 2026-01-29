@@ -1,16 +1,34 @@
-﻿################################################################################
+################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/SFManagement/.vs
-/SFManagement/bin/Debug/net7.0
-/SFManagement/obj
-/.vs/SF_management/v17
-/SFManagement/bin/Debug/net8.0
-/.vs/VSWorkspaceState.json
-/bin/Debug/net8.0
+# Visual Studio
 /.vs
-/obj
+/SFManagement/.vs
+/.vs/SF_management/v17
+/.vs/VSWorkspaceState.json
 /.github/.vs
+
+# Build outputs
 /bin/
+/obj/
+/SFManagement/bin/
+/SFManagement/obj/
+
+# User-specific files
+*.user
+*.DotSettings.user
+
+# Test artifacts
+**/TestResults/
+**/coverage/
+
+# IDE
 .idea
+
+# Logs
+/logs
+
+# macOS
+.DS_Store
+**/.DS_Store

@@ -11,6 +11,7 @@ using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
 using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Metadata;
+using SFManagement.Domain.Exceptions;
 using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.AssetHolders;
@@ -52,6 +53,55 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     protected override async Task<PokerManager> UpdateEntityFromRequest(Guid id, PokerManagerRequest request)
     {
         return await _pokerManagerService.UpdateFromRequest(id, request);
+    }
+
+    /// <summary>
+    /// Deletes a poker manager with cache invalidation
+    /// </summary>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public override async Task<IActionResult> Delete(Guid id)
+    {
+        var requestId = HttpContext.TraceIdentifier;
+        var entityType = typeof(PokerManager).Name;
+
+        _logger.LogInformation("Deleting {EntityType} {EntityId} - RequestId: {RequestId}", entityType, id, requestId);
+
+        try
+        {
+            await _pokerManagerService.DeleteWithValidationAndInvalidate(id);
+
+            _logger.LogInformation("Successfully deleted {EntityType} {EntityId} - RequestId: {RequestId}",
+                entityType, id, requestId);
+
+            return NoContent();
+        }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning("{EntityType} {EntityId} not found for deletion - RequestId: {RequestId}",
+                entityType, id, requestId);
+            return HandleEntityNotFoundException(ex);
+        }
+        catch (BusinessRuleException ex)
+        {
+            _logger.LogWarning("Business rule violation for {EntityType} {EntityId} deletion - RequestId: {RequestId} - Message: {Message}",
+                entityType, id, requestId, ex.Message);
+            return HandleBusinessRuleException(ex);
+        }
+        catch (BusinessException ex)
+        {
+            _logger.LogWarning("Business error for {EntityType} {EntityId} deletion - RequestId: {RequestId} - Message: {Message}",
+                entityType, id, requestId, ex.Message);
+            return HandleBusinessException(ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error deleting {EntityType} {EntityId} - RequestId: {RequestId}",
+                entityType, id, requestId);
+            return HandleGenericException("deleting");
+        }
     }
     
     /// <summary>
@@ -190,11 +240,13 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(Dictionary<string, decimal>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public override async Task<IActionResult> GetBalance(Guid id)
+    public override async Task<IActionResult> GetBalance(
+        Guid id,
+        [FromQuery] DateTime? asOfDate = null)
     {
         try
         {
-            var balancesByAssetGroup = await _pokerManagerService.GetBalancesByAssetGroup(id);
+            var balancesByAssetGroup = await _pokerManagerService.GetBalancesByAssetGroup(id, asOfDate);
             
             // Convert AssetGroup enum keys to strings for the response
             var response = balancesByAssetGroup.ToDictionary(
