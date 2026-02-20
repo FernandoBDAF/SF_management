@@ -235,9 +235,10 @@ public bool IsWalletIdentifierLiability(Guid walletIdentifierId)
 
 **Business Rule:** Asset accounts follow the transaction's natural sign. Liability accounts get inverted signs when interacting with a different account type.
 
-### Digital Transaction Rate Adjustment
+### Digital Transaction Balance Handling
 
-For `DigitalAssetTransaction`, rates are applied:
+For `DigitalAssetTransaction`, chip quantity impact uses the **gross signed amount**.  
+`Rate` and `ConversionRate` influence profit and BRL conversion paths, but do not reduce/increase chip quantity in balance aggregation (except explicit BalanceAs conversion branch).
 
 **By AssetType (clients, banks, members):**
 ```csharp
@@ -248,13 +249,13 @@ if (tx.BalanceAs != null && tx.ConversionRate != null)
     continue;
 }
 
-// Standard rate adjustment
-balances[assetType] += signedAmount / ((100 + (tx.Rate ?? 0)) / 100);
+// Standard chip quantity impact (gross)
+balances[assetType] += signedAmount;
 ```
 
 **By AssetGroup (poker managers):**
 ```csharp
-balances[assetGroup] += signedAmount * (100 - (tx.Rate ?? 0)) / 100;
+balances[assetGroup] += signedAmount;
 ```
 
 ### Internal AssetGroup Handling (Poker Managers Only)

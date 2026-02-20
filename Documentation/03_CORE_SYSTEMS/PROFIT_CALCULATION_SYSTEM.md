@@ -198,11 +198,17 @@ BRL earned   = 400 × 5.25 = 2,100 BRL
 - `Date` within the requested range
 - `Rate` is not null and not zero
 
+**Manager attribution (B1):**
+- For each transaction, fee conversion uses the manager side wallet:
+  - If sender belongs to a manager, use sender manager
+  - Else if receiver belongs to a manager, use receiver manager
+  - Else skip fee conversion for that transaction
+
 **Formula:**
 
 ```
 FeeInChips = AssetAmount × (Rate / (100 + Rate))
-FeeInBRL   = FeeInChips × AvgRate(managerId, transactionDate)
+FeeInBRL   = FeeInChips × AvgRate(managerSideManagerId, transactionDate)
 ```
 
 **Step-by-step example:**
@@ -609,6 +615,7 @@ ProfitCalculationService.GetProfitSummary()
     │
     ├── CalculateRateFees()
     │       ├── Query DigitalAssetTransactions (Rate != null && Rate != 0)
+    │       ├── Resolve manager side (sender/receiver wallet that belongs to manager)
     │       └── For each: AvgRateService.GetAvgRateAtDate() for BRL conversion
     │
     └── CalculateSpreadProfit()

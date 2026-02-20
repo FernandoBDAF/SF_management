@@ -540,8 +540,8 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.ReceiverWalletIdentifier!.AssetType :
                 tx.SenderWalletIdentifier!.AssetType;
 
-                    if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += signedAmount / ((100 + (tx.Rate ?? 0)) / 100);
+            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+            balances[assetType] += signedAmount;
         }
 
         // Process SettlementTransactions (rake-only impact)
@@ -734,7 +734,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.SenderWalletIdentifier!.AssetGroup;
 
             if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
-            balances[assetGroup] += signedAmount * (100 - (tx.Rate ?? 0)) / 100;
+            balances[assetGroup] += signedAmount;
         }
 
         // Process SettlementTransactions (rake-only impact)

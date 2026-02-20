@@ -395,6 +395,13 @@ public class ProfitCalculationService : IProfitCalculationService
         DateTime endDate,
         Guid? managerId)
     {
+        var activeManagerIds = await _context.PokerManagers
+            .AsNoTracking()
+            .Where(m => !m.DeletedAt.HasValue)
+            .Select(m => m.BaseAssetHolderId)
+            .ToListAsync();
+        var activeManagerIdSet = activeManagerIds.ToHashSet();
+
         var query = _context.DigitalAssetTransactions
             .AsNoTracking()
             .Include(t => t.SenderWalletIdentifier).ThenInclude(w => w!.AssetPool)
@@ -418,10 +425,20 @@ public class ProfitCalculationService : IProfitCalculationService
         foreach (var tx in transactions)
         {
             var feeInChips = tx.AssetAmount * (tx.Rate!.Value / (100m + tx.Rate.Value));
-            
-            var txManagerId = tx.SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId
-                ?? tx.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
-            
+
+            var senderHolderId = tx.SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+            var receiverHolderId = tx.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+
+            Guid? txManagerId = null;
+            if (senderHolderId.HasValue && activeManagerIdSet.Contains(senderHolderId.Value))
+            {
+                txManagerId = senderHolderId.Value;
+            }
+            else if (receiverHolderId.HasValue && activeManagerIdSet.Contains(receiverHolderId.Value))
+            {
+                txManagerId = receiverHolderId.Value;
+            }
+
             if (txManagerId.HasValue)
             {
                 var avgRate = await _avgRateService.GetAvgRateAtDate(txManagerId.Value, tx.Date);
