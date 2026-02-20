@@ -152,11 +152,13 @@ See [ASSET_VALUATION_RULES.md](../08_BUSINESS_RULES/ASSET_VALUATION_RULES.md) fo
 
 ### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `startDate` | DateTime | Yes | Start of date range (YYYY-MM-DD) |
-| `endDate` | DateTime | Yes | End of date range (YYYY-MM-DD) |
-| `managerId` | Guid | No | Filter by specific manager |
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `startDate` | DateTime | No | `SystemImplementation.FinanceDataStartDateUtc` (2025-07-17) | Start of date range (YYYY-MM-DD) |
+| `endDate` | DateTime | No | Today (UTC) | End of date range (YYYY-MM-DD) |
+| `managerId` | Guid | No | null | Filter by manager (`BaseAssetHolderId` or `PokerManager.Id` accepted) |
+
+See [PROFIT_CALCULATION_SYSTEM.md](PROFIT_CALCULATION_SYSTEM.md) for the complete calculation pipeline.
 
 ### Example Request
 
@@ -207,3 +209,4 @@ See [RATE_LIMITING_AND_PERFORMANCE.md](../05_INFRASTRUCTURE/RATE_LIMITING_AND_PE
 ---
 
 *Created: January 23, 2026*
+*Last updated: February 20, 2026*

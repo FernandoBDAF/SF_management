@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SFManagement.Application.DTOs.Finance;
 using SFManagement.Application.Services.Finance;
+using SFManagement.Domain.Common;
 
 namespace SFManagement.Api.Controllers.v1.Finance;
 
@@ -22,16 +23,20 @@ public class ProfitController : ControllerBase
 
     /// <summary>
     /// Gets profit summary for a date range, optionally filtered by manager.
+    /// If dates are omitted, defaults to [SystemImplementation.FinanceDataStartDateUtc, today UTC].
+    /// managerId accepts either BaseAssetHolderId or PokerManager.Id.
     /// </summary>
     [HttpGet("summary")]
     [ProducesResponseType(typeof(ProfitSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetProfitSummary(
-        [FromQuery] DateTime startDate,
-        [FromQuery] DateTime endDate,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
         [FromQuery] Guid? managerId = null)
     {
-        if (startDate > endDate)
+        var (resolvedStartDate, resolvedEndDate) = ResolveDateRange(startDate, endDate);
+
+        if (resolvedStartDate > resolvedEndDate)
         {
             return BadRequest(new ProblemDetails
             {
@@ -43,9 +48,9 @@ public class ProfitController : ControllerBase
 
         _logger.LogInformation(
             "Getting profit summary: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}, ManagerId={ManagerId}",
-            startDate, endDate, managerId);
+            resolvedStartDate, resolvedEndDate, managerId);
 
-        var summary = await _profitService.GetProfitSummary(startDate, endDate, managerId);
+        var summary = await _profitService.GetProfitSummary(resolvedStartDate, resolvedEndDate, managerId);
         return Ok(summary);
     }
 
@@ -56,10 +61,12 @@ public class ProfitController : ControllerBase
     [ProducesResponseType(typeof(DirectIncomeDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetDirectIncomeDetails(
-        [FromQuery] DateTime startDate,
-        [FromQuery] DateTime endDate)
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
     {
-        if (startDate > endDate)
+        var (resolvedStartDate, resolvedEndDate) = ResolveDateRange(startDate, endDate);
+
+        if (resolvedStartDate > resolvedEndDate)
         {
             return BadRequest(new ProblemDetails
             {
@@ -71,23 +78,26 @@ public class ProfitController : ControllerBase
 
         _logger.LogInformation(
             "Getting direct income details: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}",
-            startDate, endDate);
+            resolvedStartDate, resolvedEndDate);
 
-        var details = await _profitService.GetDirectIncomeDetails(startDate, endDate);
+        var details = await _profitService.GetDirectIncomeDetails(resolvedStartDate, resolvedEndDate);
         return Ok(details);
     }
 
     /// <summary>
     /// Gets profit breakdown by manager for a date range.
+    /// If dates are omitted, defaults to [SystemImplementation.FinanceDataStartDateUtc, today UTC].
     /// </summary>
     [HttpGet("by-manager")]
     [ProducesResponseType(typeof(List<ProfitByManager>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetProfitByManager(
-        [FromQuery] DateTime startDate,
-        [FromQuery] DateTime endDate)
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
     {
-        if (startDate > endDate)
+        var (resolvedStartDate, resolvedEndDate) = ResolveDateRange(startDate, endDate);
+
+        if (resolvedStartDate > resolvedEndDate)
         {
             return BadRequest(new ProblemDetails
             {
@@ -97,7 +107,7 @@ public class ProfitController : ControllerBase
             });
         }
 
-        var results = await _profitService.GetProfitByManager(startDate, endDate);
+        var results = await _profitService.GetProfitByManager(resolvedStartDate, resolvedEndDate);
         return Ok(results);
     }
 
@@ -108,10 +118,12 @@ public class ProfitController : ControllerBase
     [ProducesResponseType(typeof(List<ProfitBySource>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetProfitBySource(
-        [FromQuery] DateTime startDate,
-        [FromQuery] DateTime endDate)
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
     {
-        if (startDate > endDate)
+        var (resolvedStartDate, resolvedEndDate) = ResolveDateRange(startDate, endDate);
+
+        if (resolvedStartDate > resolvedEndDate)
         {
             return BadRequest(new ProblemDetails
             {
@@ -121,7 +133,14 @@ public class ProfitController : ControllerBase
             });
         }
 
-        var results = await _profitService.GetProfitBySource(startDate, endDate);
+        var results = await _profitService.GetProfitBySource(resolvedStartDate, resolvedEndDate);
         return Ok(results);
+    }
+
+    private static (DateTime startDate, DateTime endDate) ResolveDateRange(DateTime? startDate, DateTime? endDate)
+    {
+        var resolvedStart = (startDate ?? SystemImplementation.FinanceDataStartDateUtc).Date;
+        var resolvedEnd = (endDate ?? DateTime.UtcNow.Date).Date;
+        return (resolvedStart, resolvedEnd);
     }
 }

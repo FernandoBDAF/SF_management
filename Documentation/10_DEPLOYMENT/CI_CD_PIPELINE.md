@@ -143,10 +143,10 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build SFManagement.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish SFManagement.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -195,6 +195,7 @@ Key differences from production:
 - Uses `include-prerelease: true` for .NET SDK
 - Artifact retention set to 1 day
 - Deploys to `sfmanagement-api-hmg`
+- Also targets `SFManagement.csproj` explicitly in build and publish steps
 
 ---
 
@@ -224,14 +225,16 @@ Key differences from production:
 3. **Build Application**
    ```yaml
    - name: Build with dotnet
-     run: dotnet build --configuration Release
+     run: dotnet build SFManagement.csproj --configuration Release
    ```
 
 4. **Publish Application**
    ```yaml
    - name: dotnet publish
-     run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+     run: dotnet publish SFManagement.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
    ```
+
+> **Note:** Both build and publish target `SFManagement.csproj` explicitly (not the solution file) to avoid build failures from stale or missing project references in `SFManagement.sln`.
 
 5. **Upload Artifacts**
    ```yaml

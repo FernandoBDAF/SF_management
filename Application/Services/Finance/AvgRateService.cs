@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using SFManagement.Application.DTOs.Finance;
 using SFManagement.Application.Services.Validation;
+using SFManagement.Domain.Common;
 using SFManagement.Domain.Entities.Support;
 using SFManagement.Domain.Entities.Transactions;
 using SFManagement.Domain.Enums;
@@ -180,10 +181,31 @@ public class AvgRateService : IAvgRateService
         var currentYear = year;
         var currentMonth = month;
         AvgRateSnapshot? startingSnapshot = null;
+        var financeStartMonth = new DateTime(
+            SystemImplementation.FinanceDataStartDateUtc.Year,
+            SystemImplementation.FinanceDataStartDateUtc.Month,
+            1);
         
         // Walk backwards to find cached data or the first month
         while (true)
         {
+            var currentMonthStart = new DateTime(currentYear, currentMonth, 1);
+            if (currentMonthStart < financeStartMonth)
+            {
+                _logger.LogInformation(
+                    "AvgRate backward walk reached system implementation start ({FinanceStart:yyyy-MM}) for {ManagerId}. Stopping lookback.",
+                    financeStartMonth, pokerManagerId);
+
+                startingSnapshot = new AvgRateSnapshot
+                {
+                    PokerManagerId = pokerManagerId,
+                    TotalChips = 0,
+                    TotalCost = 0,
+                    AvgRate = 0
+                };
+                break;
+            }
+
             // Check if this month is already cached
             var cacheKey = GetCacheKey(pokerManagerId, currentYear, currentMonth);
             if (!IsCurrentMonth(currentYear, currentMonth) &&
@@ -424,6 +446,23 @@ public class AvgRateService : IAvgRateService
         
         decimal totalChips = previousSnapshot.TotalChips;
         decimal totalCost = previousSnapshot.TotalCost;
+
+        // If this is the manager's first calculable month, seed the running state from InitialBalance.
+        // Without this, current-month dynamic calculation may ignore InitialBalance and overstate spread profit.
+        if (await IsFirstCalculatedMonth(pokerManagerId, upToDate.Year, upToDate.Month))
+        {
+            var initialBalance = await GetInitialBalance(pokerManagerId, AssetType.None);
+            if (initialBalance != null)
+            {
+                var initialChips = initialBalance.Balance;
+                var initialAvgRate = initialBalance.ConversionRate > 0
+                    ? initialBalance.ConversionRate.Value
+                    : 0;
+
+                totalChips = initialChips;
+                totalCost = initialChips * initialAvgRate;
+            }
+        }
         
         var walletIds = await GetPokerAssetWalletIds(pokerManagerId);
         var monthStart = new DateTime(upToDate.Year, upToDate.Month, 1);

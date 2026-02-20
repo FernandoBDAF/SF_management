@@ -44,7 +44,7 @@ public class ProfitByManager
 {
     public Guid ManagerId { get; set; }
     public string ManagerName { get; set; } = string.Empty;
-    public ManagerProfitType ManagerProfitType { get; set; }
+    public ManagerProfitType? ManagerProfitType { get; set; }
     public decimal DirectIncome { get; set; }
     public decimal RakeCommission { get; set; }
     public decimal RateFees { get; set; }

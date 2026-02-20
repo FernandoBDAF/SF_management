@@ -59,7 +59,8 @@ Documentation for the primary systems that power the application.
 | [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) | Transaction models, transaction modes, self-conversion, TransferService, guardrails |
 | [TRANSACTION_BALANCE_IMPACT.md](03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md) | Single source of truth for how transactions impact balances |
 | [TRANSACTION_RESPONSE_VIEWMODELS.md](03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md) | Transaction response DTOs including TransferResponse and WalletMissingError |
-| [FINANCE_SYSTEM.md](03_CORE_SYSTEMS/FINANCE_SYSTEM.md) | **NEW:** Company revenue model, profit calculation, finance API endpoints |
+| [FINANCE_SYSTEM.md](03_CORE_SYSTEMS/FINANCE_SYSTEM.md) | Company revenue model overview and finance API endpoints |
+| [PROFIT_CALCULATION_SYSTEM.md](03_CORE_SYSTEMS/PROFIT_CALCULATION_SYSTEM.md) | **NEW:** Deep-dive into all four profit sources, AvgRate algorithm, caching, and data flows |
 | [REFERRAL_SYSTEM.md](03_CORE_SYSTEMS/REFERRAL_SYSTEM.md) | Commission tracking system, referral management, and business rules |
 | [SETTLEMENT_WORKFLOW.md](03_CORE_SYSTEMS/SETTLEMENT_WORKFLOW.md) | Poker settlement process, rake calculations, and batch settlements |
 | [IMPORTED_TRANSACTIONS.md](03_CORE_SYSTEMS/IMPORTED_TRANSACTIONS.md) | File import system for OFX and Excel, reconciliation workflow |
@@ -188,7 +189,7 @@ Future implementation plans and roadmaps.
 | Add new asset types | [ASSET_INFRASTRUCTURE.md](03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md), [ENUMS_AND_TYPE_SYSTEM.md](07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) |
 | Handle transactions | [TRANSACTION_INFRASTRUCTURE.md](03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md), [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) |
 | Create transfers (P2P) | [TRANSACTION_API_ENDPOINTS.md](06_API/TRANSACTION_API_ENDPOINTS.md) - Use `/api/v1/transfer` |
-| Understand profit calculation | [FINANCE_SYSTEM.md](03_CORE_SYSTEMS/FINANCE_SYSTEM.md), [ASSET_VALUATION_RULES.md](08_BUSINESS_RULES/ASSET_VALUATION_RULES.md) |
+| Understand profit calculation | [PROFIT_CALCULATION_SYSTEM.md](03_CORE_SYSTEMS/PROFIT_CALCULATION_SYSTEM.md), [FINANCE_SYSTEM.md](03_CORE_SYSTEMS/FINANCE_SYSTEM.md), [ASSET_VALUATION_RULES.md](08_BUSINESS_RULES/ASSET_VALUATION_RULES.md) |
 | Configure authentication | [AUTHENTICATION.md](05_INFRASTRUCTURE/AUTHENTICATION.md) |
 | Add validation | [VALIDATION_SYSTEM.md](05_INFRASTRUCTURE/VALIDATION_SYSTEM.md) |
 | Handle errors | [ERROR_HANDLING.md](05_INFRASTRUCTURE/ERROR_HANDLING.md) |
@@ -205,7 +206,7 @@ Future implementation plans and roadmaps.
 |----------|-------|
 | Business | 1 |
 | Architecture | 4 |
-| Core Systems | 10 |
+| Core Systems | 11 |
 | Supporting Systems | 3 |
 | Infrastructure | 10 |
 | API | 5 |
@@ -214,7 +215,7 @@ Future implementation plans and roadmaps.
 | Development | 1 |
 | Deployment | 2 |
 | Refactoring | 6 |
-| **Total** | **46** |
+| **Total** | **47** |
 
 ---
 
@@ -238,4 +239,4 @@ Future implementation plans and roadmaps.
 
 ---
 
-*Last updated: January 23, 2026*
+*Last updated: February 21, 2026*

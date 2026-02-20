@@ -72,6 +72,7 @@ Spread Profit = AssetAmount × (SaleConversionRate - AvgRate)
 
 ### Not Required For
 - Managers with `ManagerProfitType = RakeOverrideCommission`
+- Managers with `ManagerProfitType = null` (not configured)
 - Clients
 - Banks
 - Members
@@ -86,6 +87,20 @@ ELSE:
     StartingAvgRate = 0
     StartingChips = Balance (if provided)
 ```
+
+This seeding applies in **both** calculation paths:
+- Monthly iterative snapshot (`CalculateMonthlySnapshotIterative`)
+- Current-month dynamic calculation (`CalculateAvgRateUpToDate`)
+
+### Backward Lookback Floor
+
+The AvgRate algorithm walks backward month-by-month to find cached data or the first calculable month. A hard floor prevents lookback before the system implementation date:
+
+```
+Stop if month < SystemImplementation.FinanceDataStartDateUtc (2025-07-17)
+```
+
+**File:** `Domain/Common/SystemImplementation.cs`
 
 ---
 

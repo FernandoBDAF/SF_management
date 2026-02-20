@@ -37,20 +37,22 @@ public class ProfitCalculationService : IProfitCalculationService
         DateTime endDate,
         Guid? managerId = null)
     {
-        _logger.LogInformation(
-            "Calculating profit summary from {Start:yyyy-MM-dd} to {End:yyyy-MM-dd}, ManagerId={ManagerId}",
-            startDate, endDate, managerId);
+        var normalizedManagerId = await NormalizeManagerBaseAssetHolderId(managerId);
 
-        var directIncome = await CalculateDirectIncome(startDate, endDate, managerId);
-        var rakeCommission = await CalculateRakeCommission(startDate, endDate, managerId);
-        var rateFees = await CalculateRateFees(startDate, endDate, managerId);
-        var spreadProfit = await CalculateSpreadProfit(startDate, endDate, managerId);
+        _logger.LogInformation(
+            "Calculating profit summary from {Start:yyyy-MM-dd} to {End:yyyy-MM-dd}, ManagerId={ManagerId}, NormalizedManagerId={NormalizedManagerId}",
+            startDate, endDate, managerId, normalizedManagerId);
+
+        var directIncome = await CalculateDirectIncome(startDate, endDate, normalizedManagerId);
+        var rakeCommission = await CalculateRakeCommission(startDate, endDate, normalizedManagerId);
+        var rateFees = await CalculateRateFees(startDate, endDate, normalizedManagerId);
+        var spreadProfit = await CalculateSpreadProfit(startDate, endDate, normalizedManagerId);
 
         return new ProfitSummary
         {
             StartDate = startDate,
             EndDate = endDate,
-            ManagerId = managerId,
+            ManagerId = normalizedManagerId,
             DirectIncome = directIncome,
             RakeCommission = rakeCommission,
             RateFees = rateFees,
@@ -75,7 +77,7 @@ public class ProfitCalculationService : IProfitCalculationService
             {
                 ManagerId = manager.BaseAssetHolderId,
                 ManagerName = manager.BaseAssetHolder?.Name ?? "Unknown",
-                ManagerProfitType = manager.ManagerProfitType ?? ManagerProfitType.Spread,
+                ManagerProfitType = manager.ManagerProfitType,
                 DirectIncome = summary.DirectIncome,
                 RakeCommission = summary.RakeCommission,
                 RateFees = summary.RateFees,
@@ -537,5 +539,44 @@ public class ProfitCalculationService : IProfitCalculationService
 
         _cache.Set(cacheKey, managerIds, ManagerProfitTypeCacheDuration);
         return managerIds;
+    }
+
+    /// <summary>
+    /// Profit endpoints are centered on BaseAssetHolderId. To avoid client-side confusion,
+    /// this method accepts either BaseAssetHolderId or PokerManager.Id and normalizes to BaseAssetHolderId.
+    /// </summary>
+    private async Task<Guid?> NormalizeManagerBaseAssetHolderId(Guid? managerId)
+    {
+        if (!managerId.HasValue)
+            return null;
+
+        var id = managerId.Value;
+
+        // Already a BaseAssetHolderId for an active poker manager.
+        var existsAsBaseAssetHolderId = await _context.PokerManagers
+            .AsNoTracking()
+            .AnyAsync(m => !m.DeletedAt.HasValue && m.BaseAssetHolderId == id);
+        if (existsAsBaseAssetHolderId)
+            return id;
+
+        // Provided as PokerManager.Id; normalize to BaseAssetHolderId.
+        var mappedBaseAssetHolderId = await _context.PokerManagers
+            .AsNoTracking()
+            .Where(m => !m.DeletedAt.HasValue && m.Id == id)
+            .Select(m => (Guid?)m.BaseAssetHolderId)
+            .FirstOrDefaultAsync();
+
+        if (mappedBaseAssetHolderId.HasValue)
+        {
+            _logger.LogInformation(
+                "Normalized managerId from PokerManager.Id {ManagerEntityId} to BaseAssetHolderId {BaseAssetHolderId}",
+                id, mappedBaseAssetHolderId.Value);
+            return mappedBaseAssetHolderId.Value;
+        }
+
+        _logger.LogWarning(
+            "ManagerId {ManagerId} did not match an active PokerManager as BaseAssetHolderId or PokerManager.Id. Profit result will be zero for manager-scoped calculations.",
+            id);
+        return id;
     }
 }
