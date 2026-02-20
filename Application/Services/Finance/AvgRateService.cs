@@ -324,10 +324,12 @@ public class AvgRateService : IAvgRateService
                 continue;
             }
             
-            if (isReceiving && tx.ConversionRate.HasValue)
+            if (isReceiving)
             {
+                var currentAvgRate = totalChips > 0 ? totalCost / totalChips : 0;
+                var receivePrice = tx.ConversionRate ?? currentAvgRate;
                 totalChips += tx.AssetAmount;
-                totalCost += tx.AssetAmount * tx.ConversionRate.Value;
+                totalCost += tx.AssetAmount * receivePrice;
             }
             else if (isSending)
             {
@@ -337,6 +339,13 @@ public class AvgRateService : IAvgRateService
                     totalCost -= totalCost * proportion;
                     totalChips -= tx.AssetAmount;
                     
+                    if (totalChips < 0 || totalCost < 0)
+                    {
+                        _logger.LogWarning(
+                            "AvgRate clamp-to-zero triggered for manager {ManagerId} at {Year}-{Month}. TxId={TransactionId}, Amount={Amount}, PreClampChips={PreClampChips}, PreClampCost={PreClampCost}",
+                            pokerManagerId, year, month, tx.Id, tx.AssetAmount, totalChips, totalCost);
+                    }
+
                     if (totalChips < 0) totalChips = 0;
                     if (totalCost < 0) totalCost = 0;
                 }
@@ -488,10 +497,12 @@ public class AvgRateService : IAvgRateService
                 continue;
             }
             
-            if (isReceiving && tx.ConversionRate.HasValue)
+            if (isReceiving)
             {
+                var currentAvgRate = totalChips > 0 ? totalCost / totalChips : 0;
+                var receivePrice = tx.ConversionRate ?? currentAvgRate;
                 totalChips += tx.AssetAmount;
-                totalCost += tx.AssetAmount * tx.ConversionRate.Value;
+                totalCost += tx.AssetAmount * receivePrice;
             }
             else if (isSending && totalChips > 0)
             {

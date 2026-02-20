@@ -92,6 +92,26 @@ This seeding applies in **both** calculation paths:
 - Monthly iterative snapshot (`CalculateMonthlySnapshotIterative`)
 - Current-month dynamic calculation (`CalculateAvgRateUpToDate`)
 
+### Receive Pricing Rule (No ConversionRate)
+
+For Spread managers, all incoming chips are tracked in AvgRate inventory:
+
+```
+IF ConversionRate is provided:
+    ReceivePrice = ConversionRate
+ELSE:
+    ReceivePrice = CurrentAvgRate (TotalCost / TotalChips, or 0 if empty)
+
+TotalChips += AssetAmount
+TotalCost  += AssetAmount × ReceivePrice
+```
+
+This keeps inventory accurate and is price-neutral when `ConversionRate` is missing (AvgRate does not jump because chips are added at the current average cost).
+
+### Known Limitation: Borrow/Lend Financing Cycles
+
+When chips are borrowed and later repaid at a different price, spread profit is still calculated per sale leg using AvgRate at sale time. Repayment financing cost is not explicitly netted as part of the same cycle. This can create a temporary mismatch between economic P&L and reported spread profit in borrow/lend-heavy flows.
+
 ### Backward Lookback Floor
 
 The AvgRate algorithm walks backward month-by-month to find cached data or the first calculable month. A hard floor prevents lookback before the system implementation date:

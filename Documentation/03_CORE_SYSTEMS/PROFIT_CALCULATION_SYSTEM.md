@@ -340,13 +340,18 @@ If cached month found, use the cached snapshot.
 
 Pop months from the stack and process each one's transactions:
 
-**On chip PURCHASE (manager receives chips with `ConversionRate`):**
+**On chip RECEIVE (manager receives chips):**
 
 ```
+ReceivePrice = ConversionRate (if provided)
+            OR CurrentAvgRate (if ConversionRate is null)
+
 TotalChips += AssetAmount
-TotalCost  += AssetAmount × ConversionRate
+TotalCost  += AssetAmount × ReceivePrice
 AvgRate     = TotalCost / TotalChips
 ```
+
+This makes receives without `ConversionRate` price-neutral: chips are tracked in inventory while AvgRate remains stable.
 
 **On chip SALE (manager sends chips):**
 
@@ -666,6 +671,25 @@ GetAvgRateAtDate(managerId, date)
 | `managerId` matches neither ID type | Warning logged; calculations proceed (will return zero) |
 | ManagerId filter on `/summary` for wrong profit type | Rake returns 0 for Spread managers, Spread returns 0 for Rake managers |
 | Current month is manager's first month | `CalculateAvgRateUpToDate()` seeds from `InitialBalance` |
+| Borrow/lend cycle closes at a different price (e.g., borrow then repay higher) | Spread profit can be overstated/understated because repayment financing cost is not netted in the current model |
+
+---
+
+## Known Limitation: Borrow/Lend Financing Cost
+
+The current spread profit model calculates profit per sale transaction:
+
+```
+SpreadProfit = SaleAmount × (SaleConversionRate - AvgRateAtSaleTime)
+```
+
+If chips are borrowed and later repaid at a different market price, the financing effect of the repayment leg is not explicitly netted against the earlier spread profit. This means:
+
+- Sell leg can show positive spread profit using current AvgRate
+- Later repayment buy can happen at a higher price
+- Economic P&L of the full borrow/lend cycle may differ from reported spread profit
+
+This is a known modeling limitation. The current implementation prioritizes consistent inventory/cost tracking in AvgRate and keeps financing-cycle netting as a future enhancement.
 
 ---
 
