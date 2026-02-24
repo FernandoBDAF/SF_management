@@ -70,8 +70,13 @@ Spread Profit = AssetAmount × (SaleConversionRate - AvgRate)
 - Managers with `ManagerProfitType = Spread`
 - Even if no InitialBalance exists (AvgRate starts at 0)
 
+### RakeOverrideCommission Managers
+
+Managers with `ManagerProfitType = RakeOverrideCommission` do not track weighted AvgRate. Their chips are quoted in BRL (1 chip = 1 BRL), so `GetAvgRateAtDate()` returns `1`. This allows rake commission to convert chips to BRL correctly.
+
+> **Future consideration:** If a RakeOverrideCommission manager ever works with non-BRL chips, this fallback must be replaced with actual AvgRate tracking or a configurable conversion rate.
+
 ### Not Required For
-- Managers with `ManagerProfitType = RakeOverrideCommission`
 - Managers with `ManagerProfitType = null` (not configured)
 - Clients
 - Banks
@@ -108,9 +113,29 @@ TotalCost  += AssetAmount × ReceivePrice
 
 This keeps inventory accurate and is price-neutral when `ConversionRate` is missing (AvgRate does not jump because chips are added at the current average cost).
 
+### Intra-day Ordering Rule
+
+AvgRate processing applies this order when transactions share the same day:
+
+1. Group by `Date` (day)
+2. Process **all receives first**
+3. Process sends after receives
+4. Use `CreatedAt` to break ties inside each group
+
+This prevents registration-time inversions from distorting AvgRate (for example, when a same-day buy is saved after a same-day sell).
+
+### Negative Inventory Guard
+
+Negative chips are treated as data inconsistency, not as a recoverable scenario:
+
+- If a send is processed with `TotalChips <= 0`, calculation logs a critical error and throws `BusinessException`
+- If a send pushes `TotalChips` or `TotalCost` below zero, calculation logs a critical error and throws `BusinessException`
+
 ### Known Limitation: Borrow/Lend Financing Cycles
 
 When chips are borrowed and later repaid at a different price, spread profit is still calculated per sale leg using AvgRate at sale time. Repayment financing cost is not explicitly netted as part of the same cycle. This can create a temporary mismatch between economic P&L and reported spread profit in borrow/lend-heavy flows.
+
+When true business chronology inside a day differs from persisted registration order, receives-first ordering is used as a deterministic approximation. If a specific case depends on exact sequence semantics, timestamps/history should be corrected before recomputing finance metrics.
 
 ### Backward Lookback Floor
 

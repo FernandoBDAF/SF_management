@@ -372,14 +372,22 @@ public class ProfitCalculationService : IProfitCalculationService
         
         decimal totalRakeProfit = 0;
         
+        var targetManagerIdSet = targetManagerIds.ToHashSet();
+
         foreach (var s in settlements)
         {
             var rakeChips = s.RakeAmount * ((s.RakeCommission - (s.RakeBack ?? 0)) / 100m);
-            
-            var mgrId = s.SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId
-                ?? s.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
-            
-            if (mgrId.HasValue && targetManagerIds.Contains(mgrId.Value))
+
+            var senderHolderId = s.SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+            var receiverHolderId = s.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+
+            Guid? mgrId = null;
+            if (senderHolderId.HasValue && targetManagerIdSet.Contains(senderHolderId.Value))
+                mgrId = senderHolderId.Value;
+            else if (receiverHolderId.HasValue && targetManagerIdSet.Contains(receiverHolderId.Value))
+                mgrId = receiverHolderId.Value;
+
+            if (mgrId.HasValue)
             {
                 var avgRate = await _avgRateService.GetAvgRateAtDate(mgrId.Value, s.Date);
                 totalRakeProfit += rakeChips * avgRate;

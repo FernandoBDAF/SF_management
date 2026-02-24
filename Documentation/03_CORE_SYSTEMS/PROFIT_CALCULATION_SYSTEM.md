@@ -300,7 +300,7 @@ Where:
 
 ### Who Needs AvgRate
 
-**Only Spread managers.** The service explicitly checks:
+**Full AvgRate tracking applies only to Spread managers.** The service checks:
 
 ```csharp
 public async Task<bool> RequiresAvgRateTracking(Guid assetHolderId)
@@ -313,7 +313,9 @@ public async Task<bool> RequiresAvgRateTracking(Guid assetHolderId)
 }
 ```
 
-For all other entity types, `GetAvgRateAtDate()` returns `0`.
+For **RakeOverrideCommission managers**, `GetAvgRateAtDate()` returns `1` (their chips are quoted in BRL, so 1 chip = 1 BRL). This enables rake commission BRL conversion without full AvgRate tracking. If a future manager type works with non-BRL chips, this fallback must be replaced with actual AvgRate tracking or a configurable rate.
+
+For non-manager entity types (clients, banks, members), `GetAvgRateAtDate()` returns `0`.
 
 ### Calculation Algorithm
 
@@ -370,7 +372,13 @@ AvgRate     = TotalCost / TotalChips  (if TotalChips > 0)
 
 **Internal transfers (same manager on both sides) are skipped.**
 
-Transactions within a month are processed in order: `ORDER BY Date, CreatedAt`.
+Transactions are processed with an intra-day guardrail:
+
+- First by `Date` (day-level chronology)
+- Within each day, **receives before sends**
+- Then by `CreatedAt` inside each direction bucket
+
+This reduces sensitivity to registration-time inversions where a same-day buy is stored after a same-day sell.
 
 Each completed month is cached before proceeding to the next.
 
@@ -668,7 +676,8 @@ GetAvgRateAtDate(managerId, date)
 | Manager has no wallets | Returns 0 for that revenue source |
 | No system wallets exist | Direct Income returns 0 |
 | `AvgRate = 0` for Spread manager | Warning logged; spread profit will equal `Amount × ConversionRate` |
-| `TotalChips` goes to 0 or negative | Clamped to 0; `TotalCost` also clamped to 0 |
+| Send is attempted with no available chips (`TotalChips <= 0`) | Critical error is logged and AvgRate calculation throws `BusinessException` |
+| Send causes negative state (`TotalChips < 0` or `TotalCost < 0`) | Critical error is logged and AvgRate calculation throws `BusinessException` |
 | `RakeBack` is null | Treated as 0 in the formula |
 | Manager has `ManagerProfitType = null` | Returned as `null` in API; excluded from Spread and Rake profit calculations |
 | Date parameters omitted | Defaults to `[FinanceDataStartDateUtc, today UTC]` |
@@ -715,4 +724,4 @@ This is a known modeling limitation. The current implementation prioritizes cons
 ---
 
 *Created: February 20, 2026*
-*Last updated: February 20, 2026*
+*Last updated: February 23, 2026*

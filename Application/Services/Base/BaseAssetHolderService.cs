@@ -886,7 +886,11 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 AssetType = st.SenderWalletIdentifier!.AssetType,
                 CounterPartyName = st.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = st.GetWalletIdentifierInput(relevantWalletId),
-                AssetGroup = st.SenderWalletIdentifier!.AssetGroup
+                AssetGroup = st.SenderWalletIdentifier!.AssetGroup,
+                RakeAmount = st.RakeAmount,
+                RakeCommission = st.RakeCommission,
+                RakeBack = st.RakeBack,
+                RakeBackAmount = st.RakeAmount * ((st.RakeBack ?? 0m) / 100m)
             });
         }
         

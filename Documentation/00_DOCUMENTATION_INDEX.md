@@ -18,7 +18,7 @@ Welcome to the SF Management documentation. This index provides a comprehensive 
 | [Business Rules](#08_business_rules) | Business rule documentation | Asset Valuation Rules |
 | [Development](#09_development) | Developer resources | Development Guide |
 | [Deployment](#10_deployment) | CI/CD and cloud infrastructure | CI/CD Pipeline, Azure Infrastructure |
-| [Refactoring](#11_refactoring) | Code improvement plans | Architecture, Testing, Contracts |
+| [Refactoring](#11_refactoring) | Code improvement plans | Architecture, Testing, Contracts, AvgRate Fix |
 
 ---
 
@@ -166,6 +166,7 @@ Future implementation plans and roadmaps.
 | [BALANCE_IMPROVEMENTS_PLAN.md](11_REFACTORING/BALANCE_IMPROVEMENTS_PLAN.md) | 📋 Planning | Balance API improvements and date-filtered endpoints |
 | [CONTRACTS_IMPLEMENTATION_PLAN.md](11_REFACTORING/CONTRACTS_IMPLEMENTATION_PLAN.md) | 📋 Planning | Recurring payments for services, employees, and contracts |
 | [FINANCE_MODULE_VISION.md](11_REFACTORING/FINANCE_MODULE_VISION.md) | 🔄 Active | Guiding vision for Finance Module (some phases pending) |
+| [AVGRATE_CALCULATION_FIX_PLAN.md](11_REFACTORING/AVGRATE_CALCULATION_FIX_PLAN.md) | 📋 Planning | Fix for AvgRate calculation inconsistencies and transaction ordering |
 | [ASSETGROUP_FLEXIBLE_RENAME_PLAN.md](11_REFACTORING/ASSETGROUP_FLEXIBLE_RENAME_PLAN.md) | ⏸️ Deferred | Rename `AssetGroup.Internal` → `Flexible` |
 
 ---
@@ -214,8 +215,8 @@ Future implementation plans and roadmaps.
 | Business Rules | 1 |
 | Development | 1 |
 | Deployment | 2 |
-| Refactoring | 6 |
-| **Total** | **47** |
+| Refactoring | 7 |
+| **Total** | **48** |
 
 ---
 
@@ -239,4 +240,4 @@ Future implementation plans and roadmaps.
 
 ---
 
-*Last updated: February 21, 2026*
+*Last updated: February 23, 2026*

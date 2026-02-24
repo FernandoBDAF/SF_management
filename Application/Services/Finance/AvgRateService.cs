@@ -8,6 +8,7 @@ using SFManagement.Domain.Entities.Support;
 using SFManagement.Domain.Entities.Transactions;
 using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Domain.Exceptions;
 using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Finance;
@@ -39,7 +40,21 @@ public class AvgRateService : IAvgRateService
     {
         if (!await RequiresAvgRateTracking(pokerManagerId))
         {
-            _logger.LogDebug("AvgRate not required for {ManagerId}", pokerManagerId);
+            // RakeOverrideCommission managers don't track weighted cost basis.
+            // Their chips are quoted in BRL (1 chip = 1 BRL), so AvgRate = 1.
+            // If a future manager type works with non-BRL chips, this fallback
+            // must be replaced with actual AvgRate tracking or a configurable rate.
+            var isActiveManager = await _context.PokerManagers
+                .AsNoTracking()
+                .AnyAsync(pm => pm.BaseAssetHolderId == pokerManagerId && !pm.DeletedAt.HasValue);
+
+            if (isActiveManager)
+            {
+                _logger.LogDebug("AvgRate not tracked for {ManagerId}; returning 1 (BRL-quoted chips)", pokerManagerId);
+                return 1;
+            }
+
+            _logger.LogDebug("AvgRate not required for {ManagerId} (not a poker manager)", pokerManagerId);
             return 0;
         }
 
@@ -127,7 +142,6 @@ public class AvgRateService : IAvgRateService
 
     public async Task<bool> RequiresAvgRateTracking(Guid assetHolderId)
     {
-        // AvgRate is ONLY required for Spread managers (spread profit calculation).
         return await _context.PokerManagers
             .AsNoTracking()
             .AnyAsync(pm => pm.BaseAssetHolderId == assetHolderId
@@ -314,42 +328,15 @@ public class AvgRateService : IAvgRateService
         
         var transactions = await GetTransactionsForMonth(walletIds, year, month);
         
-        foreach (var tx in transactions.OrderBy(t => t.Date).ThenBy(t => t.CreatedAt))
+        foreach (var tx in OrderTransactionsForAvgRate(transactions, walletIds))
         {
-            var isReceiving = walletIds.Contains(tx.ReceiverWalletIdentifierId);
-            var isSending = walletIds.Contains(tx.SenderWalletIdentifierId);
-            
-            if (isReceiving && isSending)
-            {
-                continue;
-            }
-            
-            if (isReceiving)
-            {
-                var currentAvgRate = totalChips > 0 ? totalCost / totalChips : 0;
-                var receivePrice = tx.ConversionRate ?? currentAvgRate;
-                totalChips += tx.AssetAmount;
-                totalCost += tx.AssetAmount * receivePrice;
-            }
-            else if (isSending)
-            {
-                if (totalChips > 0)
-                {
-                    var proportion = tx.AssetAmount / totalChips;
-                    totalCost -= totalCost * proportion;
-                    totalChips -= tx.AssetAmount;
-                    
-                    if (totalChips < 0 || totalCost < 0)
-                    {
-                        _logger.LogWarning(
-                            "AvgRate clamp-to-zero triggered for manager {ManagerId} at {Year}-{Month}. TxId={TransactionId}, Amount={Amount}, PreClampChips={PreClampChips}, PreClampCost={PreClampCost}",
-                            pokerManagerId, year, month, tx.Id, tx.AssetAmount, totalChips, totalCost);
-                    }
-
-                    if (totalChips < 0) totalChips = 0;
-                    if (totalCost < 0) totalCost = 0;
-                }
-            }
+            ApplyTransactionImpact(
+                pokerManagerId,
+                tx,
+                walletIds,
+                ref totalChips,
+                ref totalCost,
+                $"{year}-{month:D2}");
         }
         
         var avgRate = totalChips > 0 ? totalCost / totalChips : 0;
@@ -405,33 +392,15 @@ public class AvgRateService : IAvgRateService
         var walletIds = await GetPokerAssetWalletIds(pokerManagerId);
         var transactions = await GetTransactionsForMonth(walletIds, year, month);
         
-        foreach (var tx in transactions.OrderBy(t => t.Date).ThenBy(t => t.CreatedAt))
+        foreach (var tx in OrderTransactionsForAvgRate(transactions, walletIds))
         {
-            var isReceiving = walletIds.Contains(tx.ReceiverWalletIdentifierId);
-            var isSending = walletIds.Contains(tx.SenderWalletIdentifierId);
-            
-            if (isReceiving && isSending)
-            {
-                continue;
-            }
-            
-            if (isReceiving && tx.ConversionRate.HasValue)
-            {
-                totalChips += tx.AssetAmount;
-                totalCost += tx.AssetAmount * tx.ConversionRate.Value;
-            }
-            else if (isSending)
-            {
-                if (totalChips > 0)
-                {
-                    var proportion = tx.AssetAmount / totalChips;
-                    totalCost -= totalCost * proportion;
-                    totalChips -= tx.AssetAmount;
-                    
-                    if (totalChips < 0) totalChips = 0;
-                    if (totalCost < 0) totalCost = 0;
-                }
-            }
+            ApplyTransactionImpact(
+                pokerManagerId,
+                tx,
+                walletIds,
+                ref totalChips,
+                ref totalCost,
+                $"{year}-{month:D2}");
         }
         
         var avgRate = totalChips > 0 ? totalCost / totalChips : 0;
@@ -483,33 +452,17 @@ public class AvgRateService : IAvgRateService
                 && t.Date <= upToDate
                 && (walletIds.Contains(t.SenderWalletIdentifierId) 
                     || walletIds.Contains(t.ReceiverWalletIdentifierId)))
-            .OrderBy(t => t.Date)
-            .ThenBy(t => t.CreatedAt)
             .ToListAsync();
         
-        foreach (var tx in transactions)
+        foreach (var tx in OrderTransactionsForAvgRate(transactions, walletIds))
         {
-            var isReceiving = walletIds.Contains(tx.ReceiverWalletIdentifierId);
-            var isSending = walletIds.Contains(tx.SenderWalletIdentifierId);
-            
-            if (isReceiving && isSending)
-            {
-                continue;
-            }
-            
-            if (isReceiving)
-            {
-                var currentAvgRate = totalChips > 0 ? totalCost / totalChips : 0;
-                var receivePrice = tx.ConversionRate ?? currentAvgRate;
-                totalChips += tx.AssetAmount;
-                totalCost += tx.AssetAmount * receivePrice;
-            }
-            else if (isSending && totalChips > 0)
-            {
-                var proportion = tx.AssetAmount / totalChips;
-                totalCost -= totalCost * proportion;
-                totalChips -= tx.AssetAmount;
-            }
+            ApplyTransactionImpact(
+                pokerManagerId,
+                tx,
+                walletIds,
+                ref totalChips,
+                ref totalCost,
+                $"{upToDate:yyyy-MM}");
         }
         
         return totalChips > 0 ? totalCost / totalChips : 0;
@@ -598,6 +551,104 @@ public class AvgRateService : IAvgRateService
                 && (walletIds.Contains(t.SenderWalletIdentifierId)
                     || walletIds.Contains(t.ReceiverWalletIdentifierId)))
             .ToListAsync();
+    }
+
+    /// <summary>
+    /// Orders transactions by day and processes receives before sends within each day
+    /// to avoid registration-time inversions affecting weighted cost basis.
+    /// </summary>
+    private static IEnumerable<DigitalAssetTransaction> OrderTransactionsForAvgRate(
+        IEnumerable<DigitalAssetTransaction> transactions,
+        List<Guid> walletIds)
+    {
+        return transactions
+            .OrderBy(t => t.Date.Date)
+            .ThenBy(t => GetDirectionRank(t, walletIds))
+            .ThenBy(t => t.CreatedAt);
+    }
+
+    private static int GetDirectionRank(DigitalAssetTransaction tx, List<Guid> walletIds)
+    {
+        var isReceiving = walletIds.Contains(tx.ReceiverWalletIdentifierId);
+        var isSending = walletIds.Contains(tx.SenderWalletIdentifierId);
+
+        if (isReceiving && !isSending) return 0; // receives first
+        if (isSending && !isReceiving) return 1; // sends second
+        return 2; // internal/self/unknown last
+    }
+
+    private void ApplyTransactionImpact(
+        Guid pokerManagerId,
+        DigitalAssetTransaction tx,
+        List<Guid> walletIds,
+        ref decimal totalChips,
+        ref decimal totalCost,
+        string periodLabel)
+    {
+        var isReceiving = walletIds.Contains(tx.ReceiverWalletIdentifierId);
+        var isSending = walletIds.Contains(tx.SenderWalletIdentifierId);
+
+        if (isReceiving && isSending)
+        {
+            return;
+        }
+
+        if (isReceiving)
+        {
+            var currentAvgRate = totalChips > 0 ? totalCost / totalChips : 0;
+            var receivePrice = tx.ConversionRate ?? currentAvgRate;
+            totalChips += tx.AssetAmount;
+            totalCost += tx.AssetAmount * receivePrice;
+            return;
+        }
+
+        if (!isSending)
+        {
+            return;
+        }
+
+        if (totalChips <= 0)
+        {
+            LogAndThrowNegativeState(
+                pokerManagerId,
+                tx,
+                periodLabel,
+                totalChips,
+                totalCost,
+                "send attempted with no available chips");
+        }
+
+        var proportion = tx.AssetAmount / totalChips;
+        totalCost -= totalCost * proportion;
+        totalChips -= tx.AssetAmount;
+
+        if (totalChips < 0 || totalCost < 0)
+        {
+            LogAndThrowNegativeState(
+                pokerManagerId,
+                tx,
+                periodLabel,
+                totalChips,
+                totalCost,
+                "resulting state became negative after send");
+        }
+    }
+
+    private void LogAndThrowNegativeState(
+        Guid pokerManagerId,
+        DigitalAssetTransaction tx,
+        string periodLabel,
+        decimal totalChips,
+        decimal totalCost,
+        string reason)
+    {
+        _logger.LogError(
+            "CRITICAL AvgRate state for manager {ManagerId} at {Period}. TxId={TransactionId}, TxDate={TxDate:yyyy-MM-dd}, Amount={Amount}, Chips={Chips}, Cost={Cost}, Reason={Reason}.",
+            pokerManagerId, periodLabel, tx.Id, tx.Date, tx.AssetAmount, totalChips, totalCost, reason);
+
+        throw new BusinessException(
+            $"Invalid AvgRate state for manager {pokerManagerId} at {periodLabel}. " +
+            $"Transaction {tx.Id} produced negative/unavailable chips ({reason}).");
     }
     
     private static string GetCacheKey(Guid managerId, int year, int month)

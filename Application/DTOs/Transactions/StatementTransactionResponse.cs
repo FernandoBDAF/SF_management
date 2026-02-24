@@ -28,4 +28,12 @@ public class StatementTransactionResponse
     public string? WalletIdentifierInput { get; set; }
 
     public AssetGroup AssetGroup { get; set; }
+
+    public decimal? RakeAmount { get; set; }
+
+    public decimal? RakeCommission { get; set; }
+
+    public decimal? RakeBack { get; set; }
+
+    public decimal? RakeBackAmount { get; set; }
 }
