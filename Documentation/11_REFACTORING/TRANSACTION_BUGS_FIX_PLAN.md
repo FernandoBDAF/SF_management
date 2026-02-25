@@ -1,9 +1,10 @@
 # Transaction Bugs Fix Plan
 
-> **Status:** In progress (Issues 1 and 3 implemented, post-implementation tuning applied)  
+> **Status:** In progress (Issues 1, 3, and 4 implemented; Issue 2 deferred)  
 > **Created:** February 23, 2026  
-> **Scope:** Three bugs identified during finance module validation  
-> **Priority:** High (Issues 1 and 3), Medium (Issue 2 - deferred investigation)
+> **Last Updated:** February 23, 2026  
+> **Scope:** Four bugs identified during finance module validation  
+> **Priority:** High (Issues 1, 3, and 4), Medium (Issue 2 - deferred investigation)
 
 ---
 
@@ -13,6 +14,7 @@
 - [Issue 1: System Wallet Position Inverted](#issue-1-system-wallet-position-inverted)
 - [Issue 2: Settlement Rake Commission Missing in Planilha](#issue-2-settlement-rake-commission-missing-in-planilha)
 - [Issue 3: Rakeback Missing from Client/Member Statements](#issue-3-rakeback-missing-from-clientmember-statements)
+- [Issue 4: Sync Bank Transaction Direction Inverted in SALE Mode](#issue-4-sync-bank-transaction-direction-inverted-in-sale-mode)
 - [Implementation Order](#implementation-order)
 - [Testing Checklist](#testing-checklist)
 
@@ -20,13 +22,14 @@
 
 ## Executive Summary
 
-During validation of the finance module (planilha) and settlement closing flows, three bugs were identified:
+During validation of the finance module (planilha) and settlement closing flows, four bugs were identified:
 
 | #   | Issue                                                                  | Severity | Status                                |
 | --- | ---------------------------------------------------------------------- | -------- | ------------------------------------- |
 | 1   | System wallet position inverted in SALE/PURCHASE/RECEIPT/PAYMENT modes | High     | Implemented                           |
 | 2   | Settlement rake commission shows zero in planilha balance              | Medium   | Deferred - needs deeper investigation |
 | 3   | Rakeback not displayed in client/member statement transactions         | High     | Implemented + fine-tuned              |
+| 4   | "Cadastrar pagamento" creates wrong fiat direction for SALE mode       | High     | Implemented                           |
 
 ---
 
@@ -372,22 +375,301 @@ Example:
 
 ---
 
+## Issue 4: Sync Bank Transaction Direction Inverted in SALE Mode
+
+### Problem
+
+When using "Cadastrar pagamento" (sync bank transaction) in SALE mode, the fiat transaction is created with inverted sender/receiver. The client shows a **RECEIPT** (money IN) instead of a **PAYMENT** (money OUT).
+
+### Evidence (Screenshots)
+
+**Form Configuration:**
+- Mode: "Venda" (SALE)
+- Digital Transaction: CredBrasil (PM) → Chastinet (Client) - 100 chips @ 5.35
+- "Cadastrar pagamento" checked with R$ 535.00
+- Conta do Banco: semprefichas@gmail.com - Banco do Brasil
+- Conta do Cliente/Membro: ***539.033-** - Chastinet
+
+**Result on Client Statement (Extrato - Chastinet):**
+- Transaction 1: R$ 535.00 - "Venda 100 @ 5.35 GgPoker Chastinet85" (digital - chips received) ✓
+- Transaction 2: R$ 535.00 - "Banco do Brasil" (fiat - shows as GREEN/receipt) ✗
+
+**Expected:**
+- Transaction 2 should be RED/payment (client PAYS for chips received)
+
+### Business Logic
+
+The sync fiat transaction should mirror the BRL flow, not the chip flow:
+
+| Mode     | Chip Flow     | BRL Flow       | Fiat Transaction Expected |
+| -------- | ------------- | -------------- | ------------------------- |
+| SALE     | PM → Client   | Client → Bank  | Client pays Manager       |
+| PURCHASE | Client → PM   | Bank → Client  | Manager pays Client       |
+
+### Root Cause Analysis
+
+#### Bug 4A: SALE mode fiat direction inverted
+
+File: `SF_management-front/src/features/transactions/components/AssetTransactionForm.tsx` (lines 574-589)
+
+```typescript
+// CURRENT (WRONG for SALE)
+await transactionsService.createFiatAssetTransaction({
+  date: values.date,
+  senderWalletIdentifierId: values.syncSenderBankWalletId,     // Bank wallet
+  receiverWalletIdentifierId: values.syncReceiverBankWalletId, // Client wallet
+  assetAmount: parseFloat(values.syncAmount),
+  description: values.description,
+  categoryId: values.categoryId || null,
+});
+```
+
+This creates: **Bank → Client** (client receives BRL) ✗
+Expected for SALE: **Client → Bank** (client pays BRL) ✓
+
+The current code is correct for PURCHASE (manager pays client) but wrong for SALE (client should pay manager).
+
+#### Bug 4B: PURCHASE mode wrong fiat wallets displayed
+
+File: `SF_management-front/src/features/transactions/components/AssetTransactionForm.tsx` (lines 354-360)
+
+```typescript
+// CURRENT (WRONG for PURCHASE)
+const receiverAssetHolderId = form.watch("receiverAssetHolderId");
+const receiverFiatWallets = useMemo(() => {
+  const fiatWallets = [...clientsFiatWallets, ...membersFiatWallets];
+  return fiatWallets.filter(
+    (wallet) => wallet.baseAssetHolderId === receiverAssetHolderId,
+  );
+}, [clientsFiatWallets, membersFiatWallets, receiverAssetHolderId]);
+```
+
+For PURCHASE mode:
+- Digital receiver = PokerManager (who receives chips)
+- `receiverFiatWallets` = PokerManager's fiat wallets (WRONG)
+- Expected: Client's fiat wallets (client receives BRL payment)
+
+#### Bug 4C: Confusing variable naming
+
+The field names `syncSenderBankWalletId` and `syncReceiverBankWalletId` are misleading:
+- `syncSenderBankWalletId` → "Conta do Banco" → Bank wallet selected
+- `syncReceiverBankWalletId` → "Conta do Cliente/Membro" → Client's fiat wallet selected
+
+But their roles as fiat sender/receiver change based on transaction mode.
+
+### Fix Plan
+
+#### Approach: Mode-aware fiat transaction creation
+
+Instead of renaming fields (which would require extensive changes), we'll make the fiat transaction creation mode-aware.
+
+#### Step 1: Rename form fields for clarity (Optional but Recommended)
+
+Replace ambiguous names with role-based names:
+
+```typescript
+// Form schema changes
+syncBankTransaction: z.boolean().optional(),
+fiatBankWalletId: z.string().optional(),         // Was: syncSenderBankWalletId
+fiatCounterpartyWalletId: z.string().optional(), // Was: syncReceiverBankWalletId
+fiatAmount: z.string().optional(),               // Was: syncAmount
+```
+
+#### Step 2: Compute correct counterparty wallet source
+
+File: `AssetTransactionForm.tsx`
+
+For "Conta do Cliente/Membro" dropdown, determine which entity's fiat wallets to show:
+
+```typescript
+// Counterparty in fiat transaction depends on mode:
+// - SALE: Client is counterparty (they pay)
+// - PURCHASE: Client is counterparty (they receive)
+// In both cases, it's the NON-manager participant
+
+const fiatCounterpartyAssetHolderId = useMemo(() => {
+  if (transactionMode === 'SALE') {
+    // SALE: PM is sender (fixed), Client is receiver -> fiat counterparty is receiver
+    return form.watch("receiverAssetHolderId");
+  } else if (transactionMode === 'PURCHASE') {
+    // PURCHASE: Client is sender, PM is receiver (fixed) -> fiat counterparty is sender
+    return form.watch("senderAssetHolderId");
+  }
+  return undefined;
+}, [transactionMode, form.watch("senderAssetHolderId"), form.watch("receiverAssetHolderId")]);
+
+const fiatCounterpartyWallets = useMemo(() => {
+  const fiatWallets = [...clientsFiatWallets, ...membersFiatWallets];
+  return fiatWallets.filter(
+    (wallet) => wallet.baseAssetHolderId === fiatCounterpartyAssetHolderId,
+  );
+}, [clientsFiatWallets, membersFiatWallets, fiatCounterpartyAssetHolderId]);
+```
+
+#### Step 3: Mode-aware fiat transaction direction
+
+File: `AssetTransactionForm.tsx` (in executeTransfer)
+
+```typescript
+if (
+  config.showSyncBankTransaction &&
+  values.syncBankTransaction &&
+  values.fiatBankWalletId &&
+  values.fiatCounterpartyWalletId &&
+  values.fiatAmount &&
+  transactionsService
+) {
+  // Determine fiat flow direction based on transaction mode
+  let fiatSenderWalletId: string;
+  let fiatReceiverWalletId: string;
+
+  if (transactionMode === 'SALE') {
+    // SALE: Client pays Manager -> Client is sender, Bank is receiver
+    fiatSenderWalletId = values.fiatCounterpartyWalletId;
+    fiatReceiverWalletId = values.fiatBankWalletId;
+  } else {
+    // PURCHASE: Manager pays Client -> Bank is sender, Client is receiver
+    fiatSenderWalletId = values.fiatBankWalletId;
+    fiatReceiverWalletId = values.fiatCounterpartyWalletId;
+  }
+
+  await transactionsService.createFiatAssetTransaction({
+    date: values.date,
+    senderWalletIdentifierId: fiatSenderWalletId,
+    receiverWalletIdentifierId: fiatReceiverWalletId,
+    assetAmount: parseFloat(values.fiatAmount),
+    description: values.description,
+    categoryId: values.categoryId || null,
+  });
+}
+```
+
+#### Step 4: Update form default values
+
+```typescript
+function getDefaultValues(/* ... */): AssetTransactionFormValues {
+  return {
+    // ... existing fields ...
+    syncBankTransaction: false,
+    fiatBankWalletId: "",
+    fiatCounterpartyWalletId: "",
+    fiatAmount: "",
+  };
+}
+```
+
+#### Step 5: Update UI labels for clarity (Optional Enhancement)
+
+The "Conta do Cliente/Membro" label could be enhanced to show context:
+- SALE: "Conta do Cliente/Membro (pagador)"
+- PURCHASE: "Conta do Cliente/Membro (recebedor)"
+
+### Files to Modify
+
+| File                                                                                | Change                                                     |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `SF_management-front/src/features/transactions/components/AssetTransactionForm.tsx` | Mode-aware fiat direction, counterparty wallet computation |
+| `SF_management-front/src/features/transactions/types/asset-transaction.types.ts`    | Rename sync fields in form values type                     |
+
+### Impact Analysis
+
+- **SALE mode**: Fiat transaction will correctly show as PAYMENT on client's statement
+- **PURCHASE mode**: Fiat transaction will correctly show client's wallets in dropdown
+- No backend changes needed - fix is frontend only
+- Existing incorrectly created fiat transactions cannot be auto-corrected (manual fix if important)
+- Other sync bank transaction logic (checkbox, amount calculation) remains unchanged
+
+### Implementation Applied (February 23, 2026)
+
+File updated:
+
+- `SF_management-front/src/features/transactions/components/AssetTransactionForm.tsx`
+
+Changes implemented:
+
+1. Added mode-aware counterparty wallet source for the sync section:
+   - `SALE`: uses `receiverAssetHolderId`
+   - `PURCHASE`: uses `senderAssetHolderId`
+2. Replaced `receiverFiatWallets` with `syncCounterpartyFiatWallets` for "Conta do Cliente/Membro" options.
+3. Added mode-aware fiat direction in `executeTransfer`:
+   - `SALE`: swaps sender/receiver to persist `Client -> Bank`
+   - `PURCHASE`: keeps `Bank -> Client`
+4. Updated the sync counterparty label for clarity:
+   - `SALE`: "Conta do Cliente/Membro (pagador)"
+   - `PURCHASE`: "Conta do Cliente/Membro (recebedor)"
+
+### Alternative Minimal Fix
+
+If renaming fields is too invasive, a minimal fix can be applied:
+
+```typescript
+// In executeTransfer, swap sender/receiver for SALE mode only
+if (transactionMode === 'SALE') {
+  await transactionsService.createFiatAssetTransaction({
+    date: values.date,
+    senderWalletIdentifierId: values.syncReceiverBankWalletId, // Client pays
+    receiverWalletIdentifierId: values.syncSenderBankWalletId, // Bank receives
+    assetAmount: parseFloat(values.syncAmount),
+    description: values.description,
+    categoryId: values.categoryId || null,
+  });
+} else {
+  // PURCHASE: existing logic is correct
+  await transactionsService.createFiatAssetTransaction({
+    date: values.date,
+    senderWalletIdentifierId: values.syncSenderBankWalletId,
+    receiverWalletIdentifierId: values.syncReceiverBankWalletId,
+    assetAmount: parseFloat(values.syncAmount),
+    description: values.description,
+    categoryId: values.categoryId || null,
+  });
+}
+```
+
+And fix the wallet source for PURCHASE mode:
+
+```typescript
+// Replace receiverFiatWallets computation
+const counterpartyFiatWallets = useMemo(() => {
+  const fiatWallets = [...clientsFiatWallets, ...membersFiatWallets];
+  // For both modes, counterparty is the non-PM participant
+  const counterpartyId = transactionMode === 'SALE'
+    ? form.watch("receiverAssetHolderId")  // Client receiving chips
+    : form.watch("senderAssetHolderId");   // Client sending chips
+  return fiatWallets.filter(
+    (wallet) => wallet.baseAssetHolderId === counterpartyId,
+  );
+}, [clientsFiatWallets, membersFiatWallets, transactionMode, /* watch deps */]);
+```
+
+---
+
 ## Implementation Order
 
 ```
-Issue 1: System Wallet Position (Frontend only)
+Issue 1: System Wallet Position (Frontend only) [IMPLEMENTED]
 ├── 1. Fix getDefaultSystemPosition mapping
 ├── 2. Handle fixed-side conflict in AssetTransactionForm
 ├── 3. Update ParticipantSelector effective fixed props
 └── 4. Test all four modes with system operation
 
-Issue 3: Rakeback in Statements (Backend + Frontend)
+Issue 3: Rakeback in Statements (Backend + Frontend) [IMPLEMENTED]
 ├── 1. Add fields to StatementTransactionResponse DTO
 ├── 2. Map fields in GetTransactionsStatementForAssetHolder (+ compute RakeBackAmount)
 ├── 3. Add fields to SimplifiedTransaction frontend type
 ├── 4. Add settlement value helpers in TransactionTable utils
 ├── 5. Use settlement value in statement sort/filter
 └── 6. Display settlement rows as "Fechamento +/-" using rakeback amount
+
+Issue 4: Sync Bank Transaction Direction (Frontend only) [IMPLEMENTED]
+├── 1. Compute counterparty wallet source based on transaction mode
+│   └── SALE: use receiverAssetHolderId (client receiving chips)
+│   └── PURCHASE: use senderAssetHolderId (client sending chips)
+├── 2. Mode-aware fiat transaction direction in executeTransfer
+│   └── SALE: swap sender/receiver (Client → Bank)
+│   └── PURCHASE: keep current (Bank → Client)
+├── 3. Update receiverFiatWallets computation to counterpartyFiatWallets
+└── 4. Test both SALE and PURCHASE with "Cadastrar pagamento"
 
 Issue 2: Rake Commission in Planilha (Deferred)
 └── Investigate and fix later
@@ -415,6 +697,18 @@ Issue 2: Rake Commission in Planilha (Deferred)
 - [ ] Non-settlement transactions keep existing behavior
 - [ ] Balance totals remain unchanged (rakeback was already included in balances)
 
+### Issue 4
+
+- [ ] SALE + "Cadastrar pagamento": Fiat transaction shows as PAYMENT (red) on client statement
+- [ ] SALE + "Cadastrar pagamento": Client's fiat wallet dropdown shows client's wallets
+- [ ] SALE + "Cadastrar pagamento": Bank receives BRL, Client sends BRL
+- [ ] PURCHASE + "Cadastrar pagamento": Fiat transaction shows as RECEIPT (green) on client statement
+- [ ] PURCHASE + "Cadastrar pagamento": Client's fiat wallet dropdown shows client's wallets (not PM's)
+- [ ] PURCHASE + "Cadastrar pagamento": Bank sends BRL, Client receives BRL
+- [ ] Digital transaction direction unchanged in both modes
+- [ ] Planilha balance reflects correct BRL flow after transactions
+
 ---
 
 _Created: February 23, 2026_
+_Last Updated: February 23, 2026_

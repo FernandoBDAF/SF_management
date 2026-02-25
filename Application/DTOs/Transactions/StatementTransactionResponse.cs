@@ -20,6 +20,12 @@ public class StatementTransactionResponse
     public decimal? ConversionRate { get; set; }
     
     public decimal? Rate { get; set; }
+
+    /// <summary>
+    /// Embedded rate fee amount in chips for digital transactions without BalanceAs.
+    /// This keeps statement amount raw while exposing the fee portion to users.
+    /// </summary>
+    public decimal? RateFeeAmount { get; set; }
     
     public AssetType AssetType { get; set; }
     

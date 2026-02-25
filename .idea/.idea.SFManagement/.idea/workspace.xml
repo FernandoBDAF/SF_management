@@ -15,11 +15,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Application/DTOs/Transactions/StatementTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/Transactions/StatementTransactionResponse.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Finance/AvgRateService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Finance/AvgRateService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Finance/ProfitCalculationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Finance/ProfitCalculationService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/PROFIT_CALCULATION_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/PROFIT_CALCULATION_SYSTEM.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/08_BUSINESS_RULES/ASSET_VALUATION_RULES.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/08_BUSINESS_RULES/ASSET_VALUATION_RULES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/TRANSACTION_BUGS_FIX_PLAN.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/11_REFACTORING/TRANSACTION_BUGS_FIX_PLAN.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +110,7 @@
       <workItem from="1751053067825" duration="713000" />
       <workItem from="1768587153210" duration="365000" />
       <workItem from="1769029479284" duration="37333000" />
-      <workItem from="1771607532737" duration="8104000" />
+      <workItem from="1771607532737" duration="9495000" />
     </task>
     <servers />
   </component>

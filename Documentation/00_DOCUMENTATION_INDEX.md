@@ -166,7 +166,9 @@ Future implementation plans and roadmaps.
 | [BALANCE_IMPROVEMENTS_PLAN.md](11_REFACTORING/BALANCE_IMPROVEMENTS_PLAN.md) | 📋 Planning | Balance API improvements and date-filtered endpoints |
 | [CONTRACTS_IMPLEMENTATION_PLAN.md](11_REFACTORING/CONTRACTS_IMPLEMENTATION_PLAN.md) | 📋 Planning | Recurring payments for services, employees, and contracts |
 | [FINANCE_MODULE_VISION.md](11_REFACTORING/FINANCE_MODULE_VISION.md) | 🔄 Active | Guiding vision for Finance Module (some phases pending) |
-| [AVGRATE_CALCULATION_FIX_PLAN.md](11_REFACTORING/AVGRATE_CALCULATION_FIX_PLAN.md) | 📋 Planning | Fix for AvgRate calculation inconsistencies and transaction ordering |
+| [AVGRATE_CALCULATION_FIX_PLAN.md](11_REFACTORING/AVGRATE_CALCULATION_FIX_PLAN.md) | ✅ Implemented | Fix for AvgRate calculation inconsistencies and transaction ordering |
+| [TRANSACTION_BUGS_FIX_PLAN.md](11_REFACTORING/TRANSACTION_BUGS_FIX_PLAN.md) | 🔄 Active | Transaction form bugs: system wallet position, rakeback display, sync payment direction |
+| [RATE_BALANCE_FIX_PLAN.md](11_REFACTORING/RATE_BALANCE_FIX_PLAN.md) | 📋 Planning | Fix Rate adjustment missing in Client/Member balance calculation |
 | [ASSETGROUP_FLEXIBLE_RENAME_PLAN.md](11_REFACTORING/ASSETGROUP_FLEXIBLE_RENAME_PLAN.md) | ⏸️ Deferred | Rename `AssetGroup.Internal` → `Flexible` |
 
 ---

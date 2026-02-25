@@ -535,6 +535,11 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 balances[tx.BalanceAs.Value] += signedAmount * tx.ConversionRate.Value;
                     continue;
                 }
+
+            if (tx.Rate.HasValue && tx.Rate.Value > 0)
+            {
+                signedAmount = signedAmount * 100m / (100m + tx.Rate.Value);
+            }
                 
             var assetType = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier!.AssetType :
@@ -833,6 +838,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         BalanceAs = dat.BalanceAs,
                         ConversionRate = dat.ConversionRate,
                         Rate = dat.Rate,
+                RateFeeAmount = (dat.BalanceAs == null && dat.Rate.HasValue && dat.Rate.Value > 0)
+                    ? Math.Abs(signedAmount) * dat.Rate.Value / (100m + dat.Rate.Value)
+                    : null,
                 AssetType = dat.SenderWalletIdentifier!.AssetType,
                 CounterPartyName = dat.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = dat.GetWalletIdentifierInput(relevantWalletId),
@@ -861,6 +869,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         BalanceAs = null, // Fiat transactions don't have BalanceAs
                         ConversionRate = null, // Fiat transactions don't have ConversionRate
                         Rate = null, // Fiat transactions don't have Rate
+                RateFeeAmount = null,
                 AssetType = fat.SenderWalletIdentifier!.AssetType,
                 CounterPartyName = fat.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = fat.GetWalletIdentifierInput(relevantWalletId),
@@ -883,6 +892,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 BalanceAs = null, // Settlement transactions don't have BalanceAs
                 ConversionRate = null, // Settlement transactions don't have ConversionRate
                 Rate = null, // Settlement transactions don't have Rate
+                RateFeeAmount = null,
                 AssetType = st.SenderWalletIdentifier!.AssetType,
                 CounterPartyName = st.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = st.GetWalletIdentifierInput(relevantWalletId),
