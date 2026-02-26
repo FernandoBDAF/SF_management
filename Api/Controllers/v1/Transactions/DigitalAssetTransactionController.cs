@@ -82,4 +82,34 @@ public class
     //     return _mapper.Map<(DigitalAssetTransactionResponse from, DigitalAssetTransactionResponse to)>(
     //         await _digitalAssetTransactionService.Link(fromWalletTransactionId, toWalletTransactionId));
     // }
+
+    [NonAction]
+    public override Task<IActionResult> Put(Guid id, DigitalAssetTransactionRequest model)
+    {
+        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status405MethodNotAllowed));
+    }
+
+    [HttpPut]
+    [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDigitalAssetTransactionRequest model)
+    {
+        try
+        {
+            var result = await _digitalAssetTransactionService.PartialUpdateAsync(id, model);
+            var response = _mapper.Map<DigitalAssetTransactionResponse>(result);
+            return Ok(response);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
 }

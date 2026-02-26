@@ -53,6 +53,48 @@ public class DigitalAssetTransactionService : BaseTransactionService<DigitalAsse
         await base.Delete(id);
     }
 
+    public async Task<DigitalAssetTransaction> PartialUpdateAsync(Guid id, UpdateDigitalAssetTransactionRequest request)
+    {
+        var entity = await context.DigitalAssetTransactions
+            .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
+
+        if (entity == null)
+        {
+            throw new KeyNotFoundException($"DigitalAssetTransaction with ID {id} not found.");
+        }
+
+        if (entity.ApprovedAt.HasValue)
+        {
+            throw new InvalidOperationException("Cannot update an approved transaction. Remove approval first.");
+        }
+
+        if (request.Date.HasValue)
+        {
+            entity.Date = request.Date.Value;
+        }
+
+        if (request.AssetAmount.HasValue)
+        {
+            entity.AssetAmount = request.AssetAmount.Value;
+        }
+
+        if (request.ConversionRate.HasValue)
+        {
+            entity.ConversionRate = request.ConversionRate.Value;
+        }
+
+        if (request.CategoryId.HasValue)
+        {
+            entity.CategoryId = request.CategoryId.Value == Guid.Empty
+                ? null
+                : request.CategoryId;
+        }
+
+        await context.SaveChangesAsync();
+        await InvalidateAvgRateCacheAsync(entity.SenderWalletIdentifierId, entity.ReceiverWalletIdentifierId, entity.Date);
+        return entity;
+    }
+
     private async Task InvalidateAvgRateCacheAsync(
         Guid senderWalletIdentifierId,
         Guid receiverWalletIdentifierId,

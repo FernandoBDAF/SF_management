@@ -168,7 +168,8 @@ Future implementation plans and roadmaps.
 | [FINANCE_MODULE_VISION.md](11_REFACTORING/FINANCE_MODULE_VISION.md) | 🔄 Active | Guiding vision for Finance Module (some phases pending) |
 | [AVGRATE_CALCULATION_FIX_PLAN.md](11_REFACTORING/AVGRATE_CALCULATION_FIX_PLAN.md) | ✅ Implemented | Fix for AvgRate calculation inconsistencies and transaction ordering |
 | [TRANSACTION_BUGS_FIX_PLAN.md](11_REFACTORING/TRANSACTION_BUGS_FIX_PLAN.md) | 🔄 Active | Transaction form bugs: system wallet position, rakeback display, sync payment direction |
-| [RATE_BALANCE_FIX_PLAN.md](11_REFACTORING/RATE_BALANCE_FIX_PLAN.md) | 📋 Planning | Fix Rate adjustment missing in Client/Member balance calculation |
+| [RATE_BALANCE_FIX_PLAN.md](11_REFACTORING/RATE_BALANCE_FIX_PLAN.md) | ✅ Implemented | Fix Rate adjustment missing in Client/Member balance calculation |
+| [TRANSACTION_FORM_IMPROVEMENTS_PLAN.md](11_REFACTORING/TRANSACTION_FORM_IMPROVEMENTS_PLAN.md) | 📋 Planning | Transaction forms UX: date default, auto-select, inline creation, checkbox styling |
 | [ASSETGROUP_FLEXIBLE_RENAME_PLAN.md](11_REFACTORING/ASSETGROUP_FLEXIBLE_RENAME_PLAN.md) | ⏸️ Deferred | Rename `AssetGroup.Internal` → `Flexible` |
 
 ---
@@ -217,8 +218,8 @@ Future implementation plans and roadmaps.
 | Business Rules | 1 |
 | Development | 1 |
 | Deployment | 2 |
-| Refactoring | 7 |
-| **Total** | **48** |
+| Refactoring | 8 |
+| **Total** | **49** |
 
 ---
 
@@ -242,4 +243,4 @@ Future implementation plans and roadmaps.
 
 ---
 
-*Last updated: February 23, 2026*
+*Last updated: January 23, 2026*

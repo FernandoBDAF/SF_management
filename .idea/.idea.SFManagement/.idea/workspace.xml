@@ -13,11 +13,12 @@
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/Transactions/StatementTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/Transactions/StatementTransactionResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/DigitalAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/DigitalAssetTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/FiatAssetTransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Transactions/FiatAssetTransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/DigitalAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/DigitalAssetTransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/FiatAssetTransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/FiatAssetTransactionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/TRANSACTION_BUGS_FIX_PLAN.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/11_REFACTORING/TRANSACTION_BUGS_FIX_PLAN.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +111,7 @@
       <workItem from="1751053067825" duration="713000" />
       <workItem from="1768587153210" duration="365000" />
       <workItem from="1769029479284" duration="37333000" />
-      <workItem from="1771607532737" duration="9495000" />
+      <workItem from="1771607532737" duration="13085000" />
     </task>
     <servers />
   </component>

@@ -109,4 +109,34 @@ public class
     //     return _mapper.Map<List<FiatAssetTransactionResponse>>(
     //         await _fiatAssetTransactionService.ListByClientIdAndBankId(clientId, bankId));
     // }
+
+    [NonAction]
+    public override Task<IActionResult> Put(Guid id, FiatAssetTransactionRequest model)
+    {
+        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status405MethodNotAllowed));
+    }
+
+    [HttpPut]
+    [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateFiatAssetTransactionRequest model)
+    {
+        try
+        {
+            var result = await _fiatAssetTransactionService.PartialUpdateAsync(id, model);
+            var response = _mapper.Map<FiatAssetTransactionResponse>(result);
+            return Ok(response);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
 }

@@ -72,6 +72,42 @@ public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTrans
         return fiatTransaction;
     }
 
+    public async Task<FiatAssetTransaction> PartialUpdateAsync(Guid id, UpdateFiatAssetTransactionRequest request)
+    {
+        var entity = await context.FiatAssetTransactions
+            .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
+
+        if (entity == null)
+        {
+            throw new KeyNotFoundException($"FiatAssetTransaction with ID {id} not found.");
+        }
+
+        if (entity.ApprovedAt.HasValue)
+        {
+            throw new InvalidOperationException("Cannot update an approved transaction. Remove approval first.");
+        }
+
+        if (request.Date.HasValue)
+        {
+            entity.Date = request.Date.Value;
+        }
+
+        if (request.AssetAmount.HasValue)
+        {
+            entity.AssetAmount = request.AssetAmount.Value;
+        }
+
+        if (request.CategoryId.HasValue)
+        {
+            entity.CategoryId = request.CategoryId.Value == Guid.Empty
+                ? null
+                : request.CategoryId;
+        }
+
+        await context.SaveChangesAsync();
+        return entity;
+    }
+
     // public override async Task<List<FiatAssetTransaction>> List()
     // {
     //     await Task.Yield();
