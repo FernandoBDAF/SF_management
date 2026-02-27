@@ -92,6 +92,9 @@ public static class Auth0Permissions
     public const string ReadSettlements = "read:settlements";
     public const string CreateSettlements = "create:settlements";
 
+    // Balance management
+    public const string ReadBalances = "read:balances";
+
     // Diagnostics
     public const string ReadDiagnostics = "read:diagnostics";
 

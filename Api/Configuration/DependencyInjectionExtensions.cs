@@ -168,6 +168,7 @@ public static class DependencyInjectionExtensions
             .AddPolicy("Permission:delete:wallets", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteWallets)))
             .AddPolicy("Permission:read:settlements", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadSettlements)))
             .AddPolicy("Permission:create:settlements", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateSettlements)))
+            .AddPolicy("Permission:read:balances", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadBalances)))
             .AddPolicy("Permission:read:diagnostics", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadDiagnostics)))
             .AddPolicy("Permission:read:ledger", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadLedger)))
             .AddPolicy("Permission:read:invoices", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadInvoices)))

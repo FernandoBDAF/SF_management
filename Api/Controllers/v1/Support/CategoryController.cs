@@ -12,7 +12,7 @@ namespace SFManagement.Api.Controllers.v1.Support;
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-[RequireRole(Auth0Roles.Admin)]
+[RequirePermission(Auth0Permissions.ReadCategories)]
 public class CategoryController : BaseApiController<Category, CategoryRequest, 
     CategoryResponse>
 {
@@ -31,6 +31,24 @@ public class CategoryController : BaseApiController<Category, CategoryRequest,
         var categories = await _categoryService.List();
         var response = _mapper.Map<List<CategoryResponse>>(categories);
         return Ok(response);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Post(CategoryRequest model)
+    {
+        return base.Post(model);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Put(Guid id, CategoryRequest model)
+    {
+        return base.Put(id, model);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Delete(Guid id)
+    {
+        return base.Delete(id);
     }
 
     // [HttpGet]
