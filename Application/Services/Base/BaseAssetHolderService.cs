@@ -440,6 +440,12 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .Select(pm => pm.BaseAssetHolderId)
             .ToListAsync();
         var pokerManagerIdSet = new HashSet<Guid>(pokerManagerIds);
+
+        var rakeOverrideManagerIdsForType = await context.PokerManagers
+            .Where(pm => pm.ManagerProfitType == ManagerProfitType.RakeOverrideCommission && !pm.DeletedAt.HasValue)
+            .Select(pm => pm.BaseAssetHolderId)
+            .ToListAsync();
+        var rakeOverrideManagerIdSetForType = new HashSet<Guid>(rakeOverrideManagerIdsForType);
        
         var digitalQuery = context.DigitalAssetTransactions
             .Where(dt => !dt.DeletedAt.HasValue &&
@@ -549,7 +555,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             balances[assetType] += signedAmount;
         }
 
-        // Process SettlementTransactions (rake-only impact)
+        // Process SettlementTransactions
         foreach (var tx in settlementTransactions)
         {
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
@@ -563,14 +569,34 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             }
             var isPokerManager = pokerManagerIdSet.Contains(settlementAssetHolderId.Value);
 
-            var balanceImpact = isPokerManager
+            // Rake impact
+            var rakeImpact = isPokerManager
                 ? -(tx.RakeAmount * (tx.RakeCommission / 100m))
                 : tx.RakeAmount * ((tx.RakeBack ?? 0m) / 100m);
 
-            var assetType = AssetType.BrazilianReal;
+            if (!balances.ContainsKey(AssetType.BrazilianReal)) balances[AssetType.BrazilianReal] = 0;
+            balances[AssetType.BrazilianReal] += rakeImpact;
 
-            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += balanceImpact;
+            // For RakeOverrideCommission managers, reflect AssetAmount in both chip and BRL balances.
+            // The chip type is determined by the wallet's AssetType (e.g., PokerStars).
+            // Both use the same signal: receiver +, sender -
+            if (settlementAssetHolderId.HasValue && rakeOverrideManagerIdSetForType.Contains(settlementAssetHolderId.Value))
+            {
+                var isReceiver = tx.ReceiverWalletIdentifierId == relevantWalletId;
+                var signedChipAmount = isReceiver ? tx.AssetAmount : -tx.AssetAmount;
+
+                var chipAssetType = isReceiver
+                    ? tx.ReceiverWalletIdentifier?.AssetType ?? AssetType.None
+                    : tx.SenderWalletIdentifier?.AssetType ?? AssetType.None;
+
+                if (chipAssetType != AssetType.None)
+                {
+                    if (!balances.ContainsKey(chipAssetType)) balances[chipAssetType] = 0;
+                    balances[chipAssetType] += signedChipAmount;
+                }
+
+                balances[AssetType.BrazilianReal] += signedChipAmount;
+            }
         }
 
         return balances;
@@ -607,6 +633,12 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .Select(pm => pm.BaseAssetHolderId)
             .ToListAsync();
         var pokerManagerIdSet = new HashSet<Guid>(pokerManagerIds);
+
+        var rakeOverrideManagerIds = await context.PokerManagers
+            .Where(pm => pm.ManagerProfitType == ManagerProfitType.RakeOverrideCommission && !pm.DeletedAt.HasValue)
+            .Select(pm => pm.BaseAssetHolderId)
+            .ToListAsync();
+        var rakeOverrideManagerIdSet = new HashSet<Guid>(rakeOverrideManagerIds);
         
         if (!walletIdentifierIds.Any())
             return balances;
@@ -742,7 +774,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             balances[assetGroup] += signedAmount;
         }
 
-        // Process SettlementTransactions (rake-only impact)
+        // Process SettlementTransactions
         foreach (var tx in settlementTransactions)
         {
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
@@ -756,14 +788,27 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             }
             var isPokerManager = pokerManagerIdSet.Contains(settlementAssetHolderId.Value);
 
-            var balanceImpact = isPokerManager
+            // Rake impact (existing logic): deducts rake cost for managers, adds rakeback for non-managers
+            var rakeImpact = isPokerManager
                 ? -(tx.RakeAmount * (tx.RakeCommission / 100m))
                 : tx.RakeAmount * ((tx.RakeBack ?? 0m) / 100m);
 
-            var assetGroup = AssetGroup.FiatAssets;
+            if (!balances.ContainsKey(AssetGroup.FiatAssets)) balances[AssetGroup.FiatAssets] = 0;
+            balances[AssetGroup.FiatAssets] += rakeImpact;
 
-            if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
-            balances[assetGroup] += balanceImpact;
+            // For RakeOverrideCommission managers, the settlement's AssetAmount represents
+            // chips transferred that must also be reflected in both PokerAssets and FiatAssets.
+            // Both use the same signal: receiver +, sender -
+            if (settlementAssetHolderId.HasValue && rakeOverrideManagerIdSet.Contains(settlementAssetHolderId.Value))
+            {
+                var isReceiver = tx.ReceiverWalletIdentifierId == relevantWalletId;
+                var signedChipAmount = isReceiver ? tx.AssetAmount : -tx.AssetAmount;
+
+                if (!balances.ContainsKey(AssetGroup.PokerAssets)) balances[AssetGroup.PokerAssets] = 0;
+                balances[AssetGroup.PokerAssets] += signedChipAmount;
+
+                balances[AssetGroup.FiatAssets] += signedChipAmount;
+            }
         }
 
         return balances;

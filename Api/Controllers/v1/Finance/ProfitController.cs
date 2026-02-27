@@ -137,6 +137,117 @@ public class ProfitController : ControllerBase
         return Ok(results);
     }
 
+    /// <summary>
+    /// Gets itemized rate fee transactions for a date range.
+    /// Each item shows the transaction, fee calculation, and BRL conversion.
+    /// </summary>
+    [HttpGet("rate-fee-details")]
+    [ProducesResponseType(typeof(RateFeeDetailsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetRateFeeDetails(
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
+    {
+        var (resolvedStartDate, resolvedEndDate) = ResolveDateRange(startDate, endDate);
+
+        if (resolvedStartDate > resolvedEndDate)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid date range",
+                Detail = "Start date must be before or equal to end date",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        _logger.LogInformation(
+            "Getting rate fee details: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}",
+            resolvedStartDate, resolvedEndDate);
+
+        var details = await _profitService.GetRateFeeDetails(resolvedStartDate, resolvedEndDate);
+        return Ok(details);
+    }
+
+    /// <summary>
+    /// Gets itemized rake commission settlements for a date range.
+    /// Each item shows the settlement, rake calculation, and BRL conversion.
+    /// </summary>
+    [HttpGet("rake-commission-details")]
+    [ProducesResponseType(typeof(RakeCommissionDetailsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetRakeCommissionDetails(
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
+    {
+        var (resolvedStartDate, resolvedEndDate) = ResolveDateRange(startDate, endDate);
+
+        if (resolvedStartDate > resolvedEndDate)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid date range",
+                Detail = "Start date must be before or equal to end date",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        _logger.LogInformation(
+            "Getting rake commission details: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}",
+            resolvedStartDate, resolvedEndDate);
+
+        var details = await _profitService.GetRakeCommissionDetails(resolvedStartDate, resolvedEndDate);
+        return Ok(details);
+    }
+
+    /// <summary>
+    /// Gets itemized spread profit transactions for a date range.
+    /// Each item shows the sale transaction, AvgRate cost basis, and BRL profit.
+    /// </summary>
+    [HttpGet("spread-details")]
+    [ProducesResponseType(typeof(SpreadProfitDetailsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetSpreadProfitDetails(
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
+    {
+        var (resolvedStartDate, resolvedEndDate) = ResolveDateRange(startDate, endDate);
+
+        if (resolvedStartDate > resolvedEndDate)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid date range",
+                Detail = "Start date must be before or equal to end date",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        _logger.LogInformation(
+            "Getting spread profit details: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}",
+            resolvedStartDate, resolvedEndDate);
+
+        var details = await _profitService.GetSpreadProfitDetails(resolvedStartDate, resolvedEndDate);
+        return Ok(details);
+    }
+
+    /// <summary>
+    /// Gets the AvgRate (Cotação) for each poker manager at a given date.
+    /// RakeOverrideCommission managers always return 1.
+    /// Spread managers return the AvgRate from the cost basis service.
+    /// </summary>
+    [HttpGet("avg-rates")]
+    [ProducesResponseType(typeof(Dictionary<Guid, decimal>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetManagerAvgRates(
+        [FromQuery] DateTime? asOfDate = null)
+    {
+        var resolvedDate = (asOfDate ?? DateTime.UtcNow.Date).Date;
+
+        _logger.LogInformation("Getting manager avg rates at {Date:yyyy-MM-dd}", resolvedDate);
+
+        var rates = await _profitService.GetManagerAvgRates(resolvedDate);
+        return Ok(rates);
+    }
+
     private static (DateTime startDate, DateTime endDate) ResolveDateRange(DateTime? startDate, DateTime? endDate)
     {
         var resolvedStart = (startDate ?? SystemImplementation.FinanceDataStartDateUtc).Date;

@@ -72,17 +72,22 @@ public class ProfitCalculationService : IProfitCalculationService
 
         foreach (var manager in managers)
         {
-            var summary = await GetProfitSummary(startDate, endDate, manager.BaseAssetHolderId);
+            var normalizedId = manager.BaseAssetHolderId;
+
+            // Only compute manager-specific profit sources (no DirectIncome).
+            // DirectIncome is a system-level metric retrieved via /profit/direct-income-details.
+            var rakeCommission = await CalculateRakeCommission(startDate, endDate, normalizedId);
+            var rateFees = await CalculateRateFees(startDate, endDate, normalizedId);
+            var spreadProfit = await CalculateSpreadProfit(startDate, endDate, normalizedId);
+
             results.Add(new ProfitByManager
             {
-                ManagerId = manager.BaseAssetHolderId,
+                ManagerId = normalizedId,
                 ManagerName = manager.BaseAssetHolder?.Name ?? "Unknown",
                 ManagerProfitType = manager.ManagerProfitType,
-                DirectIncome = summary.DirectIncome,
-                RakeCommission = summary.RakeCommission,
-                RateFees = summary.RateFees,
-                SpreadProfit = summary.SpreadProfit,
-                TotalProfit = summary.TotalProfit
+                RakeCommission = rakeCommission,
+                RateFees = rateFees,
+                SpreadProfit = spreadProfit,
             });
         }
 
@@ -148,6 +153,242 @@ public class ProfitCalculationService : IProfitCalculationService
             TotalIncome = totalIncome,
             TotalExpense = totalExpense,
             NetDirectIncome = totalIncome - totalExpense
+        };
+    }
+
+    public async Task<RateFeeDetailsResponse> GetRateFeeDetails(DateTime startDate, DateTime endDate)
+    {
+        _logger.LogInformation(
+            "Getting rate fee details from {Start:yyyy-MM-dd} to {End:yyyy-MM-dd}",
+            startDate, endDate);
+
+        var activeManagers = await _context.PokerManagers
+            .AsNoTracking()
+            .Include(m => m.BaseAssetHolder)
+            .Where(m => !m.DeletedAt.HasValue)
+            .ToDictionaryAsync(m => m.BaseAssetHolderId, m => m.BaseAssetHolder?.Name ?? "Desconhecido");
+        var activeManagerIdSet = activeManagers.Keys.ToHashSet();
+
+        var transactions = await _context.DigitalAssetTransactions
+            .AsNoTracking()
+            .Include(t => t.SenderWalletIdentifier).ThenInclude(w => w!.AssetPool)
+            .Include(t => t.ReceiverWalletIdentifier).ThenInclude(w => w!.AssetPool)
+            .Where(t => !t.DeletedAt.HasValue
+                && t.Date >= startDate
+                && t.Date <= endDate
+                && t.Rate.HasValue
+                && t.Rate.Value != 0)
+            .ToListAsync();
+
+        var items = new List<RateFeeItem>();
+
+        foreach (var tx in transactions)
+        {
+            var feeInChips = tx.AssetAmount * (tx.Rate!.Value / (100m + tx.Rate.Value));
+
+            var senderHolderId = tx.SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+            var receiverHolderId = tx.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+
+            Guid? txManagerId = null;
+            if (senderHolderId.HasValue && activeManagerIdSet.Contains(senderHolderId.Value))
+                txManagerId = senderHolderId.Value;
+            else if (receiverHolderId.HasValue && activeManagerIdSet.Contains(receiverHolderId.Value))
+                txManagerId = receiverHolderId.Value;
+
+            if (!txManagerId.HasValue) continue;
+
+            var avgRate = await _avgRateService.GetAvgRateAtDate(txManagerId.Value, tx.Date);
+            var feeBrl = feeInChips * avgRate;
+
+            items.Add(new RateFeeItem
+            {
+                TransactionId = tx.Id,
+                Date = tx.Date,
+                ManagerName = activeManagers.GetValueOrDefault(txManagerId.Value, "Desconhecido"),
+                ManagerId = txManagerId.Value,
+                AssetAmount = tx.AssetAmount,
+                RatePct = tx.Rate.Value,
+                FeeChips = feeInChips,
+                AvgRate = avgRate,
+                FeeBRL = feeBrl
+            });
+        }
+
+        items = items.OrderByDescending(i => i.Date).ToList();
+
+        return new RateFeeDetailsResponse
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            Items = items,
+            TotalFeeChips = items.Sum(i => i.FeeChips),
+            TotalFeeBRL = items.Sum(i => i.FeeBRL)
+        };
+    }
+
+    public async Task<RakeCommissionDetailsResponse> GetRakeCommissionDetails(DateTime startDate, DateTime endDate)
+    {
+        _logger.LogInformation(
+            "Getting rake commission details from {Start:yyyy-MM-dd} to {End:yyyy-MM-dd}",
+            startDate, endDate);
+
+        var rakeManagerIds = await GetManagerIdsByProfitType(ManagerProfitType.RakeOverrideCommission);
+        if (!rakeManagerIds.Any())
+        {
+            return new RakeCommissionDetailsResponse
+            {
+                StartDate = startDate,
+                EndDate = endDate
+            };
+        }
+
+        var managerNames = await _context.PokerManagers
+            .AsNoTracking()
+            .Include(m => m.BaseAssetHolder)
+            .Where(m => rakeManagerIds.Contains(m.BaseAssetHolderId))
+            .ToDictionaryAsync(m => m.BaseAssetHolderId, m => m.BaseAssetHolder?.Name ?? "Desconhecido");
+
+        var managerWalletIds = await _context.WalletIdentifiers
+            .AsNoTracking()
+            .Include(w => w.AssetPool)
+            .Where(w => rakeManagerIds.Contains(w.AssetPool!.BaseAssetHolderId!.Value)
+                && !w.DeletedAt.HasValue)
+            .Select(w => w.Id)
+            .ToListAsync();
+
+        var settlements = await _context.SettlementTransactions
+            .AsNoTracking()
+            .Include(t => t.SenderWalletIdentifier).ThenInclude(w => w!.AssetPool)
+            .Include(t => t.ReceiverWalletIdentifier).ThenInclude(w => w!.AssetPool)
+            .Where(t => !t.DeletedAt.HasValue
+                && t.Date >= startDate
+                && t.Date <= endDate
+                && t.RakeAmount > 0
+                && (managerWalletIds.Contains(t.SenderWalletIdentifierId)
+                    || managerWalletIds.Contains(t.ReceiverWalletIdentifierId)))
+            .ToListAsync();
+
+        var items = new List<RakeCommissionItem>();
+        var targetManagerIdSet = rakeManagerIds.ToHashSet();
+
+        foreach (var s in settlements)
+        {
+            var rakeChips = s.RakeAmount * ((s.RakeCommission - (s.RakeBack ?? 0)) / 100m);
+
+            var senderHolderId = s.SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+            var receiverHolderId = s.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+
+            Guid? mgrId = null;
+            if (senderHolderId.HasValue && targetManagerIdSet.Contains(senderHolderId.Value))
+                mgrId = senderHolderId.Value;
+            else if (receiverHolderId.HasValue && targetManagerIdSet.Contains(receiverHolderId.Value))
+                mgrId = receiverHolderId.Value;
+
+            if (!mgrId.HasValue) continue;
+
+            var avgRate = await _avgRateService.GetAvgRateAtDate(mgrId.Value, s.Date);
+            var rakeBrl = rakeChips * avgRate;
+
+            items.Add(new RakeCommissionItem
+            {
+                SettlementId = s.Id,
+                Date = s.Date,
+                ManagerName = managerNames.GetValueOrDefault(mgrId.Value, "Desconhecido"),
+                ManagerId = mgrId.Value,
+                RakeAmount = s.RakeAmount,
+                RakeCommissionPct = s.RakeCommission,
+                RakeBackPct = s.RakeBack ?? 0,
+                RakeChips = rakeChips,
+                AvgRate = avgRate,
+                RakeBRL = rakeBrl
+            });
+        }
+
+        items = items.OrderByDescending(i => i.Date).ToList();
+
+        return new RakeCommissionDetailsResponse
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            Items = items,
+            TotalRakeChips = items.Sum(i => i.RakeChips),
+            TotalRakeBRL = items.Sum(i => i.RakeBRL)
+        };
+    }
+
+    public async Task<SpreadProfitDetailsResponse> GetSpreadProfitDetails(DateTime startDate, DateTime endDate)
+    {
+        _logger.LogInformation(
+            "Getting spread profit details from {Start:yyyy-MM-dd} to {End:yyyy-MM-dd}",
+            startDate, endDate);
+
+        var spreadManagerIds = await GetManagerIdsByProfitType(ManagerProfitType.Spread);
+        if (!spreadManagerIds.Any())
+        {
+            return new SpreadProfitDetailsResponse
+            {
+                StartDate = startDate,
+                EndDate = endDate
+            };
+        }
+
+        var managerNames = await _context.PokerManagers
+            .AsNoTracking()
+            .Include(m => m.BaseAssetHolder)
+            .Where(m => spreadManagerIds.Contains(m.BaseAssetHolderId))
+            .ToDictionaryAsync(m => m.BaseAssetHolderId, m => m.BaseAssetHolder?.Name ?? "Desconhecido");
+
+        var items = new List<SpreadProfitItem>();
+
+        foreach (var mgrId in spreadManagerIds)
+        {
+            var walletIds = await _context.WalletIdentifiers
+                .AsNoTracking()
+                .Include(w => w.AssetPool)
+                .Where(w => w.AssetPool!.BaseAssetHolderId == mgrId
+                    && w.AssetPool.AssetGroup == AssetGroup.PokerAssets
+                    && !w.DeletedAt.HasValue)
+                .Select(w => w.Id)
+                .ToListAsync();
+
+            if (!walletIds.Any()) continue;
+
+            var sales = await _context.DigitalAssetTransactions
+                .AsNoTracking()
+                .Where(t => !t.DeletedAt.HasValue
+                    && t.Date >= startDate
+                    && t.Date <= endDate
+                    && walletIds.Contains(t.SenderWalletIdentifierId)
+                    && t.ConversionRate.HasValue)
+                .ToListAsync();
+
+            foreach (var sale in sales)
+            {
+                var avgRate = await _avgRateService.GetAvgRateAtDate(mgrId, sale.Date);
+                var profit = sale.AssetAmount * (sale.ConversionRate!.Value - avgRate);
+
+                items.Add(new SpreadProfitItem
+                {
+                    TransactionId = sale.Id,
+                    Date = sale.Date,
+                    ManagerName = managerNames.GetValueOrDefault(mgrId, "Desconhecido"),
+                    ManagerId = mgrId,
+                    AssetAmount = sale.AssetAmount,
+                    SaleRate = sale.ConversionRate.Value,
+                    AvgRate = avgRate,
+                    SpreadBRL = profit
+                });
+            }
+        }
+
+        items = items.OrderByDescending(i => i.Date).ToList();
+
+        return new SpreadProfitDetailsResponse
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            Items = items,
+            TotalSpreadBRL = items.Sum(i => i.SpreadBRL)
         };
     }
 
@@ -516,6 +757,30 @@ public class ProfitCalculationService : IProfitCalculationService
         
         _logger.LogDebug("Spread Profit: {Amount:C}", totalSpreadProfit);
         return totalSpreadProfit;
+    }
+
+    public async Task<Dictionary<Guid, decimal>> GetManagerAvgRates(DateTime asOfDate)
+    {
+        var managers = await _context.PokerManagers
+            .AsNoTracking()
+            .Where(m => !m.DeletedAt.HasValue)
+            .Select(m => new { m.BaseAssetHolderId, m.ManagerProfitType })
+            .ToListAsync();
+
+        var rates = new Dictionary<Guid, decimal>();
+        foreach (var m in managers)
+        {
+            if (m.ManagerProfitType == ManagerProfitType.RakeOverrideCommission)
+            {
+                rates[m.BaseAssetHolderId] = 1m;
+            }
+            else
+            {
+                rates[m.BaseAssetHolderId] = await _avgRateService.GetAvgRateAtDate(m.BaseAssetHolderId, asOfDate);
+            }
+        }
+
+        return rates;
     }
     
     private async Task<List<Guid>> GetSystemWalletIds()
