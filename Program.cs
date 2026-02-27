@@ -9,6 +9,7 @@ using OfficeOpenXml;
 using Serilog;
 using SFManagement.Api.Configuration;
 using SFManagement.Api.Middleware;
+using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.Mappings;
 using SFManagement.Application.Validators;
 using SFManagement.Application.Validators.Transactions;
@@ -51,6 +52,8 @@ try
     builder.Services.AddFluentValidationAutoValidation()
         .AddFluentValidationClientsideAdapters();
     builder.Services.AddValidatorsFromAssemblyContaining<WalletTransactionValidator>();
+    builder.Services.AddScoped<IValidator<UpdateFiatAssetTransactionRequest>, UpdateFiatAssetTransactionValidator>();
+    builder.Services.AddScoped<IValidator<UpdateDigitalAssetTransactionRequest>, UpdateDigitalAssetTransactionValidator>();
 
     builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

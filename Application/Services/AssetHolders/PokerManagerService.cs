@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SFManagement.Application.DTOs.AssetHolders;
 using SFManagement.Application.DTOs.Common;
 using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Base;
+using SFManagement.Application.Services.Finance;
+using SFManagement.Application.Services.Infrastructure;
 using SFManagement.Application.Services.Support;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Assets;
@@ -15,14 +18,27 @@ namespace SFManagement.Application.Services.AssetHolders;
 
 public class PokerManagerService : BaseAssetHolderService<PokerManager>
 {
+    private readonly ICachedLookupService _cachedLookupService;
+    private readonly IAvgRateService _avgRateService;
+    private readonly IMemoryCache _cache;
+
+    private const string RakeManagersCacheKey = "profit.rake-manager-ids";
+    private const string SpreadManagersCacheKey = "profit.spread-manager-ids";
+
     public PokerManagerService(
         DataContext context, 
         IHttpContextAccessor httpContextAccessor,
         IAssetHolderDomainService domainService,
         ReferralService referralService,
-        InitialBalanceService initialBalanceService) 
+        InitialBalanceService initialBalanceService,
+        ICachedLookupService cachedLookupService,
+        IAvgRateService avgRateService,
+        IMemoryCache cache) 
         : base(context, httpContextAccessor, domainService, referralService, initialBalanceService)
     {
+        _cachedLookupService = cachedLookupService;
+        _avgRateService = avgRateService;
+        _cache = cache;
     }
     
     /// <summary>
@@ -30,7 +46,7 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
     /// </summary>
     public async Task<PokerManager> AddFromRequest(PokerManagerRequest request)
     {
-        return await base.AddFromRequest(
+        var result = await base.AddFromRequest(
             request,
             baseAssetHolder => new PokerManager
             {
@@ -38,6 +54,9 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
             },
             _domainService.ValidatePokerManagerCreation
         );
+
+        InvalidatePokerManagerCaches(result.BaseAssetHolderId);
+        return result;
     }
 
     /// <summary>
@@ -45,7 +64,7 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
     /// </summary>
     public async Task<PokerManager> UpdateFromRequest(Guid pokerManagerId, PokerManagerRequest request)
     {
-        return await base.UpdateFromRequest(
+        var result = await base.UpdateFromRequest(
             pokerManagerId,
             request,
             (pokerManager, req) => 
@@ -55,6 +74,30 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
             },
             _domainService.ValidatePokerManagerCreation
         );
+
+        InvalidatePokerManagerCaches(result.BaseAssetHolderId);
+        return result;
+    }
+
+    public async Task<bool> DeleteWithValidationAndInvalidate(Guid pokerManagerId)
+    {
+        var entity = await Get(pokerManagerId);
+        if (entity == null)
+        {
+            return false;
+        }
+
+        var result = await DeleteWithValidation(pokerManagerId);
+        InvalidatePokerManagerCaches(entity.BaseAssetHolderId);
+        return result;
+    }
+
+    private void InvalidatePokerManagerCaches(Guid baseAssetHolderId)
+    {
+        _cachedLookupService.InvalidatePokerManagerCache();
+        _avgRateService.InvalidateManagerWalletCache(baseAssetHolderId);
+        _cache.Remove(RakeManagersCacheKey);
+        _cache.Remove(SpreadManagersCacheKey);
     }
     
     //Get all wallet identifiers of other AssetHolders for all AssetPool types a Manager have

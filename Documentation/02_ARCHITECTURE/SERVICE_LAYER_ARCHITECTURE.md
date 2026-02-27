@@ -74,6 +74,13 @@ BaseService<TEntity>
     ├── FiatAssetTransactionService (FiatAssetTransaction)
     ├── DigitalAssetTransactionService (DigitalAssetTransaction)
     └── SettlementTransactionService (SettlementTransaction)
+
+Standalone Services (not inheriting from BaseService)
+├── Finance/
+│   ├── AvgRateService (IAvgRateService) - AvgRate calculation with caching
+│   └── ProfitCalculationService (IProfitCalculationService) - Company profit tracking
+└── Transactions/
+    └── TransferService (ITransferService) - Unified transfer API
 ```
 
 ---
@@ -427,6 +434,50 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
 - Validates asset pool creation and deletion
 - Prevents orphaned pools
 
+### Finance Services
+
+Financial calculation and tracking services that support the `/financeiro/planilha` page.
+
+**AvgRateService** (`Application/Services/Finance/AvgRateService.cs`)
+```csharp
+public interface IAvgRateService
+{
+    Task<decimal> GetAvgRateAtDate(Guid pokerManagerId, DateTime date);
+    Task<AvgRateSnapshot> GetAvgRateForMonth(Guid pokerManagerId, int year, int month);
+    Task InvalidateFromDate(Guid pokerManagerId, DateTime fromDate);
+}
+```
+
+Features:
+- Calculates weighted average cost rate for PokerManager chip inventory
+- Caches monthly snapshots in `IMemoryCache` (24h TTL for past months)
+- Current month is always calculated dynamically
+- Cache invalidation triggers cascade recalculation for subsequent months
+
+**ProfitCalculationService** (`Application/Services/Finance/ProfitCalculationService.cs`)
+```csharp
+public interface IProfitCalculationService
+{
+    Task<ProfitSummary> GetProfitSummary(DateTime startDate, DateTime endDate, Guid? managerId = null);
+    Task<List<ProfitByManager>> GetProfitByManager(DateTime startDate, DateTime endDate);
+    Task<List<ProfitBySource>> GetProfitBySource(DateTime startDate, DateTime endDate);
+}
+```
+
+Features:
+- Calculates company profit from four sources: Direct Income, Rake Commission, Rate Fees, Spread
+- Caches system wallet IDs for performance (10min TTL)
+- Uses optimized LINQ joins to avoid slow navigation property queries
+
+**Profit Calculation Formulas:**
+
+| Source | Formula |
+|--------|---------|
+| Direct Income | System wallet transactions (+ received, - sent) |
+| Rake Commission | `RakeAmount × (RakeCommission - RakeBack) / 100 × AvgRate` |
+| Rate Fees | `AssetAmount × (Rate / (100 + Rate)) × AvgRate` |
+| Spread Profit | `SaleAmount × (SaleRate - AvgRate)` |
+
 ---
 
 ## Dependency Injection
@@ -453,8 +504,14 @@ public static void AddScopedServices(this WebApplicationBuilder builder)
     // Support services
     builder.Services.AddScoped<BaseService<Category>, CategoryService>();
     builder.Services.AddScoped<CategoryService>();
+    
+    // Finance services (interface-based registration)
+    builder.Services.AddScoped<IAvgRateService, AvgRateService>();
+    builder.Services.AddScoped<IProfitCalculationService, ProfitCalculationService>();
 }
 ```
+
+**Note:** Finance services use interface-based registration (`IService` → `Service`) because they don't inherit from generic base classes and are always injected by interface.
 
 ### Dual Registration Pattern
 
@@ -521,6 +578,125 @@ public virtual async Task<TEntity> Add(TEntity obj)
 
 ```csharp
 await context.SaveChangesAsync();  // Commits all changes as a unit
+```
+
+---
+
+## Domain Services
+
+Domain services encapsulate business rules that span multiple aggregates or don't naturally fit in a single entity. They are distinct from application services in that they contain pure domain logic.
+
+### AssetHolderDomainService
+
+**File:** `Application/Services/Domain/AssetHolderDomainService.cs`  
+**Interface:** `Domain/Interfaces/IAssetHolderDomainService.cs`
+
+The `AssetHolderDomainService` validates asset holder lifecycle operations and enforces business rules that apply across entity types.
+
+#### Interface
+
+```csharp
+public interface IAssetHolderDomainService
+{
+    Task<bool> CanDeleteAssetHolder(Guid assetHolderId);
+    Task<DomainValidationResult> ValidateAssetHolderCreation(BaseAssetHolderRequest request);
+    Task<AssetHolderType> DetermineAssetHolderType(Guid assetHolderId);
+    Task<bool> HasActiveTransactions(Guid assetHolderId);
+    Task<decimal> GetTotalBalance(Guid assetHolderId);
+    Task<bool> HasActiveAssetPools(Guid assetHolderId);
+    Task<bool> IsBankCodeUnique(string code, Guid? excludeBankId = null);
+    
+    // Entity-specific validation
+    Task<DomainValidationResult> ValidateClientCreation(ClientRequest request);
+    Task<DomainValidationResult> ValidateBankCreation(BankRequest request);
+    Task<DomainValidationResult> ValidateMemberCreation(MemberRequest request);
+    Task<DomainValidationResult> ValidatePokerManagerCreation(PokerManagerRequest request);
+}
+```
+
+#### Key Methods
+
+| Method | Purpose |
+|--------|---------|
+| `CanDeleteAssetHolder` | Checks dependencies before allowing soft-delete |
+| `DetermineAssetHolderType` | Returns Client, Bank, Member, PokerManager, or Unknown |
+| `HasActiveTransactions` | Checks all transaction types for activity |
+| `GetTotalBalance` | Sums all wallet balances for an asset holder |
+| `Validate*Creation` | Entity-specific validation rules |
+
+#### Deletion Validation Rules
+
+The `CanDeleteAssetHolder` method enforces:
+
+1. **No Active Transactions:** Checks `FiatAssetTransaction`, `DigitalAssetTransaction`, and `SettlementTransaction`
+2. **No Active Asset Pools:** Entity must not have any non-deleted `AssetPools`
+3. **No Active Referrals:** (Future) Entity must not have active referrals
+
+```csharp
+public async Task<bool> CanDeleteAssetHolder(Guid assetHolderId)
+{
+    if (await HasActiveTransactions(assetHolderId)) return false;
+    if (await HasActiveAssetPools(assetHolderId)) return false;
+    // Future: if (await HasActiveReferrals(assetHolderId)) return false;
+    return true;
+}
+```
+
+#### Entity-Specific Validation
+
+Each entity type has specialized validation rules:
+
+| Entity | Validation Rules |
+|--------|------------------|
+| **Client** | Name (2-40 chars), Birthday (not future, not > 150 years ago) |
+| **Bank** | Name, Code (1-10 chars, unique) |
+| **Member** | Name, Share (0-100%), Birthday |
+| **PokerManager** | Name (inherits base validation) |
+
+#### DomainValidationResult
+
+A structured validation result with detailed error information:
+
+```csharp
+public class DomainValidationResult
+{
+    public bool IsValid { get; set; } = true;
+    public List<ValidationError> Errors { get; set; } = new();
+    
+    public void AddError(string field, string message, string? code = null)
+    {
+        IsValid = false;
+        Errors.Add(new ValidationError(field, message, code));
+    }
+}
+```
+
+#### Usage Pattern
+
+```csharp
+// In BaseAssetHolderService.AddFromRequest
+public async Task<TEntity> AddFromRequest<TRequest>(
+    TRequest request, 
+    Func<BaseAssetHolder, TEntity> entityFactory,
+    Func<TRequest, Task<DomainValidationResult>> validationMethod) 
+{
+    // Use domain service for validation
+    var validationResult = await validationMethod(request);
+    if (!validationResult.IsValid)
+        throw new ValidationException(validationResult.Errors);
+    
+    // ... create entity
+}
+
+// In ClientService
+public async Task<Client> AddFromRequest(ClientRequest request)
+{
+    return await AddFromRequest(
+        request,
+        entityFactory: baseAssetHolder => new Client { ... },
+        validationMethod: _domainService.ValidateClientCreation  // Domain service validation
+    );
+}
 ```
 
 ---

@@ -10,6 +10,8 @@ using SFManagement.Application.Services.Base;
 using SFManagement.Application.Services.AssetHolders;
 using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Domain;
+using SFManagement.Application.Services.Finance;
+using SFManagement.Application.Services.Infrastructure;
 using SFManagement.Application.Services.Support;
 using SFManagement.Application.Services.Transactions;
 using SFManagement.Application.Services.Validation;
@@ -133,6 +135,18 @@ public static class DependencyInjectionExtensions
             .AddPolicy("Permission:create:clients", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateClients)))
             .AddPolicy("Permission:update:clients", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateClients)))
             .AddPolicy("Permission:delete:clients", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteClients)))
+            .AddPolicy("Permission:read:members", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadMembers)))
+            .AddPolicy("Permission:create:members", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateMembers)))
+            .AddPolicy("Permission:update:members", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateMembers)))
+            .AddPolicy("Permission:delete:members", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteMembers)))
+            .AddPolicy("Permission:read:banks", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadBanks)))
+            .AddPolicy("Permission:create:banks", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateBanks)))
+            .AddPolicy("Permission:update:banks", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateBanks)))
+            .AddPolicy("Permission:delete:banks", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteBanks)))
+            .AddPolicy("Permission:read:managers", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadManagers)))
+            .AddPolicy("Permission:create:managers", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateManagers)))
+            .AddPolicy("Permission:update:managers", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateManagers)))
+            .AddPolicy("Permission:delete:managers", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteManagers)))
             .AddPolicy("Permission:read:transactions", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadTransactions)))
             .AddPolicy("Permission:create:transactions", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateTransactions)))
             .AddPolicy("Permission:update:transactions", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateTransactions)))
@@ -140,7 +154,31 @@ public static class DependencyInjectionExtensions
             .AddPolicy("Permission:read:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadFinancialData)))
             .AddPolicy("Permission:create:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateFinancialData)))
             .AddPolicy("Permission:update:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateFinancialData)))
-            .AddPolicy("Permission:delete:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteFinancialData)));
+            .AddPolicy("Permission:delete:financial_data", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteFinancialData)))
+            .AddPolicy("Permission:read:imports", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadImports)))
+            .AddPolicy("Permission:create:imports", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateImports)))
+            .AddPolicy("Permission:delete:imports", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteImports)))
+            .AddPolicy("Permission:read:categories", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadCategories)))
+            .AddPolicy("Permission:create:categories", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateCategories)))
+            .AddPolicy("Permission:update:categories", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateCategories)))
+            .AddPolicy("Permission:delete:categories", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteCategories)))
+            .AddPolicy("Permission:read:wallets", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadWallets)))
+            .AddPolicy("Permission:create:wallets", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateWallets)))
+            .AddPolicy("Permission:update:wallets", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateWallets)))
+            .AddPolicy("Permission:delete:wallets", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteWallets)))
+            .AddPolicy("Permission:read:settlements", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadSettlements)))
+            .AddPolicy("Permission:create:settlements", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateSettlements)))
+            .AddPolicy("Permission:read:balances", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadBalances)))
+            .AddPolicy("Permission:read:diagnostics", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadDiagnostics)))
+            .AddPolicy("Permission:read:ledger", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadLedger)))
+            .AddPolicy("Permission:read:invoices", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadInvoices)))
+            .AddPolicy("Permission:create:invoices", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateInvoices)))
+            .AddPolicy("Permission:update:invoices", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateInvoices)))
+            .AddPolicy("Permission:delete:invoices", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteInvoices)))
+            .AddPolicy("Permission:read:expenses", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadExpenses)))
+            .AddPolicy("Permission:create:expenses", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.CreateExpenses)))
+            .AddPolicy("Permission:update:expenses", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.UpdateExpenses)))
+            .AddPolicy("Permission:delete:expenses", policy => policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.DeleteExpenses)));
 
         // Add authorization handlers
         builder.Services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
@@ -203,6 +241,14 @@ public static class DependencyInjectionExtensions
         builder.Services.AddScoped<BaseService<ImportedTransaction>, ImportedTransactionService>();
         builder.Services.AddScoped<ImportedTransactionService>();
         builder.Services.AddScoped<TransferService>();
+
+        // Finance services
+        builder.Services.AddScoped<IAvgRateService, AvgRateService>();
+        builder.Services.AddScoped<IProfitCalculationService, ProfitCalculationService>();
+
+        // Infrastructure services (caching)
+        builder.Services.AddSingleton<ICacheMetricsService, CacheMetricsService>();
+        builder.Services.AddScoped<ICachedLookupService, CachedLookupService>();
         
         // Other services
         builder.Services.AddScoped<BaseService<Category>, CategoryService>();

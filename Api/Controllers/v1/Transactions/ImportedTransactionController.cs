@@ -12,12 +12,14 @@ using SFManagement.Domain.Enums.ImportedFiles;
 using SFManagement.Domain.Entities.Transactions;
 using SFManagement.Application.Services;
 using SFManagement.Application.DTOs;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Transactions;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequireRole(Auth0Roles.Admin)]
 public class ImportedTransactionController : BaseApiController<ImportedTransaction, ImportTransactionRequest, ImportedTransactionResponse>
 {
     private readonly ImportedTransactionService _importedTransactionService;

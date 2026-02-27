@@ -177,6 +177,34 @@ Commission percentage must be between 0 and 100:
 public decimal? ParentCommission { get; set; }
 ```
 
+### Rule 5: Active Period Handling
+
+When a new referral is created, any overlapping existing referral is automatically deactivated:
+
+```
+Timeline: Jan 1 ──────────────────────────────────────► Dec 31
+                                                        
+Existing:  [── Referral A (John) ───────────────────────────►]
+                       │                                      
+New:                   │ [── Referral B (Jane) ──────────────►]
+                       │                                      
+Result:    [── A ──────]│[── Referral B (Jane) ──────────────►]
+           Jan 1    Feb 14  Feb 15                       Dec 31
+```
+
+**Logic:**
+1. New referral starts Feb 15
+2. System finds active referral A
+3. Sets A's `ActiveUntil = Feb 14` (day before new referral)
+4. Creates referral B starting Feb 15
+
+### Rule 6: Automatic Default Dates
+
+| Parameter | If Not Provided | Behavior |
+|-----------|----------------|----------|
+| `activeFrom` | `DateTime.UtcNow` | Referral active immediately |
+| `activeUntil` | `null` | Referral never expires |
+
 ---
 
 ## Service Methods
@@ -243,6 +271,89 @@ public async Task<bool> DeactivateActiveReferral(
     DateTime deactivationDate)
 
 public async Task<bool> DeactivateActiveReferralNow(Guid walletIdentifierId)
+```
+
+---
+
+### ClientReferralService
+
+**File:** `Application/Services/Support/ClientReferralService.cs`
+
+A specialized service that wraps `ReferralService` with Client-specific validation. Use this service when working specifically with Client referrals.
+
+#### Purpose
+
+| Aspect | ReferralService | ClientReferralService |
+|--------|-----------------|----------------------|
+| **Scope** | All asset holder types | Clients only |
+| **Validation** | Basic entity existence | Validates both parties are Clients |
+| **Use Case** | General referral operations | Client-to-client referrals |
+
+#### Methods
+
+| Method | Description |
+|--------|-------------|
+| `CreateClientReferral` | Creates referral, validates both referrer and referred are Clients |
+| `GetClientReferralsMade` | Gets referrals made by a Client |
+| `GetClientReferralsReceived` | Gets referrals on a Client's wallets |
+| `GetActiveReferralForClientWallet` | Gets active referral, validates wallet is Client-owned |
+| `DeactivateClientWalletReferral` | Deactivates referral on Client wallet |
+| `GetPotentialReferrers` | Lists other Clients who could be referrers |
+| `GetClientReferralStatistics` | Returns aggregated statistics for a Client |
+
+#### CreateClientReferral
+
+```csharp
+public async Task<Referral> CreateClientReferral(
+    Guid referrerClientId, 
+    Guid walletIdentifierId, 
+    decimal commissionPercentage, 
+    DateTime? activeFrom = null, 
+    DateTime? activeUntil = null)
+```
+
+**Validation:**
+1. Referrer must be a Client (not Member, Bank, or PokerManager)
+2. Wallet must belong to a Client
+3. Cannot be self-referral
+
+#### GetClientReferralStatistics
+
+Returns comprehensive statistics for a Client's referral activity:
+
+```csharp
+public async Task<ClientReferralStatistics> GetClientReferralStatistics(Guid clientId)
+```
+
+**Response DTO:**
+
+```csharp
+public class ClientReferralStatistics
+{
+    public Guid ClientId { get; set; }
+    public int TotalReferralsMade { get; set; }
+    public int ActiveReferralsMade { get; set; }
+    public int TotalReferralsReceived { get; set; }
+    public int ActiveReferralsReceived { get; set; }
+    public decimal TotalCommissionEarned { get; set; }
+    public int UniqueClientsReferred { get; set; }
+}
+```
+
+#### When to Use Which Service
+
+```csharp
+// Use ReferralService for:
+// - PokerManager managing Client wallets
+// - Generic referral operations
+// - Mixed entity type scenarios
+await _referralService.CreateReferral(pokerManagerId, clientWalletId, 15m);
+
+// Use ClientReferralService for:
+// - Client-to-Client referrals
+// - UI that only shows Clients
+// - Client-specific statistics
+await _clientReferralService.CreateClientReferral(referrerClientId, referredClientWalletId, 5m);
 ```
 
 ---

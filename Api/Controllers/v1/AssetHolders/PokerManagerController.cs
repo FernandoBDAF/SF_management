@@ -11,6 +11,7 @@ using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
 using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Metadata;
+using SFManagement.Domain.Exceptions;
 using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.AssetHolders;
@@ -18,6 +19,7 @@ namespace SFManagement.Api.Controllers.v1.AssetHolders;
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadManagers)]
 public class PokerManagerController : BaseAssetHolderController<PokerManager, PokerManagerRequest, PokerManagerResponse>
 {
     private readonly PokerManagerService _pokerManagerService;
@@ -53,12 +55,63 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     {
         return await _pokerManagerService.UpdateFromRequest(id, request);
     }
+
+    /// <summary>
+    /// Deletes a poker manager with cache invalidation
+    /// </summary>
+    [HttpDelete("{id}")]
+    [RequireRole(Auth0Roles.Admin)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public override async Task<IActionResult> Delete(Guid id)
+    {
+        var requestId = HttpContext.TraceIdentifier;
+        var entityType = typeof(PokerManager).Name;
+
+        _logger.LogInformation("Deleting {EntityType} {EntityId} - RequestId: {RequestId}", entityType, id, requestId);
+
+        try
+        {
+            await _pokerManagerService.DeleteWithValidationAndInvalidate(id);
+
+            _logger.LogInformation("Successfully deleted {EntityType} {EntityId} - RequestId: {RequestId}",
+                entityType, id, requestId);
+
+            return NoContent();
+        }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning("{EntityType} {EntityId} not found for deletion - RequestId: {RequestId}",
+                entityType, id, requestId);
+            return HandleEntityNotFoundException(ex);
+        }
+        catch (BusinessRuleException ex)
+        {
+            _logger.LogWarning("Business rule violation for {EntityType} {EntityId} deletion - RequestId: {RequestId} - Message: {Message}",
+                entityType, id, requestId, ex.Message);
+            return HandleBusinessRuleException(ex);
+        }
+        catch (BusinessException ex)
+        {
+            _logger.LogWarning("Business error for {EntityType} {EntityId} deletion - RequestId: {RequestId} - Message: {Message}",
+                entityType, id, requestId, ex.Message);
+            return HandleBusinessException(ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error deleting {EntityType} {EntityId} - RequestId: {RequestId}",
+                entityType, id, requestId);
+            return HandleGenericException("deleting");
+        }
+    }
     
     /// <summary>
     /// Send Brazilian Real transaction for poker manager
     /// </summary>
     [Obsolete("Use POST /api/v1/transfer instead. Will be removed in v2.")]
     [HttpPost("{id}/send-brazilian-real")]
+    [RequirePermission(Auth0Permissions.CreateTransactions)]
     [ProducesResponseType(typeof(FiatAssetTransaction), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SendBrazilianReais(Guid id, [FromBody] FiatAssetTransactionRequest request)
@@ -78,7 +131,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Get wallet identifiers connected to other asset holders
     /// </summary>
     [HttpGet("{id}/wallet-identifiers-connected")]
-    // [RequirePermission("read:wallet-identifiers")]
+    [RequirePermission(Auth0Permissions.ReadWallets)]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(WalletIdentifiersConnectedResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -144,6 +197,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Get conversion wallets for poker manager (Internal wallets owned by this manager)
     /// </summary>
     [HttpGet("{id}/conversion-wallets")]
+    [RequireRole(Auth0Roles.Admin)]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(List<WalletIdentifierResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetConversionWallets(Guid id)
@@ -164,7 +218,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Create settlement transactions by date
     /// </summary>
     [HttpPost("{assetHolderId}/settlement-by-date")]
-    // [RequireRole("admin")]
+    [RequirePermission(Auth0Permissions.CreateSettlements)]
     [ProducesResponseType(typeof(SettlementTransactionByDateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateSettlementTransactionsByDate(
@@ -187,14 +241,17 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Gets balance by asset group for the poker manager
     /// </summary>
     [HttpGet("{id}/balance")]
+    [RequirePermission(Auth0Permissions.ReadManagers)]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(Dictionary<string, decimal>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public override async Task<IActionResult> GetBalance(Guid id)
+    public override async Task<IActionResult> GetBalance(
+        Guid id,
+        [FromQuery] DateTime? asOfDate = null)
     {
         try
         {
-            var balancesByAssetGroup = await _pokerManagerService.GetBalancesByAssetGroup(id);
+            var balancesByAssetGroup = await _pokerManagerService.GetBalancesByAssetGroup(id, asOfDate);
             
             // Convert AssetGroup enum keys to strings for the response
             var response = balancesByAssetGroup.ToDictionary(
@@ -208,6 +265,18 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
         {
             return HandleGenericException("retrieving balance for");
         }
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Post([FromBody] PokerManagerRequest request)
+    {
+        return base.Post(request);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Put(Guid id, [FromBody] PokerManagerRequest request)
+    {
+        return base.Put(id, request);
     }
     
     // [HttpGet]

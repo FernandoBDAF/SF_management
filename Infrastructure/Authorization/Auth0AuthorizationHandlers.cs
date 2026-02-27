@@ -7,6 +7,7 @@ namespace SFManagement.Infrastructure.Authorization;
 
 public class RoleAuthorizationHandler : AuthorizationHandler<RoleRequirement>
 {
+    private const string RolesClaim = "https://www.semprefichas.com.br/roles";
     private readonly ILogger<RoleAuthorizationHandler> _logger;
     private readonly ILoggingService _loggingService;
 
@@ -20,7 +21,12 @@ public class RoleAuthorizationHandler : AuthorizationHandler<RoleRequirement>
     {
         var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
         var userEmail = context.User.FindFirst(ClaimTypes.Email)?.Value ?? "unknown";
-        var roles = context.User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        var roles = context.User
+            .FindAll(ClaimTypes.Role)
+            .Concat(context.User.FindAll(RolesClaim))
+            .Select(c => c.Value)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
         
         if (roles.Contains(requirement.Role))
         {
@@ -44,6 +50,7 @@ public class RoleAuthorizationHandler : AuthorizationHandler<RoleRequirement>
 
 public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {
+    private const string RolesClaim = "https://www.semprefichas.com.br/roles";
     private readonly ILogger<PermissionAuthorizationHandler> _logger;
     private readonly ILoggingService _loggingService;
 
@@ -57,7 +64,22 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
     {
         var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
         var userEmail = context.User.FindFirst(ClaimTypes.Email)?.Value ?? "unknown";
+        var roles = context.User
+            .FindAll(ClaimTypes.Role)
+            .Concat(context.User.FindAll(RolesClaim))
+            .Select(c => c.Value)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
         var permissions = context.User.FindAll("permissions").Select(c => c.Value).ToList();
+
+        if (roles.Contains(Auth0Roles.Admin, StringComparer.OrdinalIgnoreCase))
+        {
+            _logger.LogInformation("Permission authorization granted via admin bypass: User {UserId} ({UserEmail}) for permission {RequiredPermission}",
+                userId, userEmail, requirement.Permission);
+            _loggingService.LogAuthorizationEvent("permission", requirement.Permission, true, "Granted via admin role bypass");
+            context.Succeed(requirement);
+            return Task.CompletedTask;
+        }
         
         if (permissions.Contains(requirement.Permission))
         {

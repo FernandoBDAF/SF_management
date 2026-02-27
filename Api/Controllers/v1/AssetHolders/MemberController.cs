@@ -8,12 +8,14 @@ using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.AssetHolders;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadMembers)]
 public class MemberController : BaseAssetHolderController<Member, MemberRequest, MemberResponse>
 {
     private readonly MemberService _memberService;
@@ -69,6 +71,7 @@ public class MemberController : BaseAssetHolderController<Member, MemberRequest,
     /// <summary>
     /// Send Brazilian Real transaction for member
     /// </summary>
+    [RequirePermission(Auth0Permissions.CreateTransactions)]
     [Obsolete("Use POST /api/v1/transfer instead. Will be removed in v2.")]
     [HttpPost("{id}/send-brazilian-real")]
     [ProducesResponseType(typeof(FiatAssetTransaction), StatusCodes.Status200OK)]
@@ -84,5 +87,23 @@ public class MemberController : BaseAssetHolderController<Member, MemberRequest,
         {
             return HandleGenericException("processing Brazilian Real transaction for");
         }
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Post([FromBody] MemberRequest request)
+    {
+        return base.Post(request);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Put(Guid id, [FromBody] MemberRequest request)
+    {
+        return base.Put(id, request);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Delete(Guid id)
+    {
+        return base.Delete(id);
     }
 }

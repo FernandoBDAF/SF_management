@@ -8,12 +8,14 @@ using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Entities.AssetHolders;
 using SFManagement.Domain.Entities.Transactions;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.AssetHolders;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadClients)]
 public class ClientController : BaseAssetHolderController<Client, ClientRequest, ClientResponse>
 {
     private readonly ClientService _clientService;

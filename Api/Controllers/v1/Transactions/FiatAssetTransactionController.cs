@@ -8,12 +8,14 @@ using SFManagement.Application.Services.AssetHolders;
 using SFManagement.Application.Services.Base;
 using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Entities.Transactions;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Transactions;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadTransactions)]
 public class
     FiatAssetTransactionController : BaseApiController<FiatAssetTransaction, FiatAssetTransactionRequest, FiatAssetTransactionResponse>
 {
@@ -31,6 +33,7 @@ public class
     
     [HttpGet]
     [Route("bank-transactions")]
+    [RequirePermission(Auth0Permissions.ReadTransactions)]
     public async Task<TableResponse<FiatAssetTransactionResponse>> BankTransactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
         var bankAssetPoolIds = await _bankService.GetAssetHolderAssetPoolIds();
@@ -58,6 +61,7 @@ public class
     
     [HttpGet]
     [Route("direct-transactions")]
+    [RequirePermission(Auth0Permissions.ReadTransactions)]
     public async Task<TableResponse<FiatAssetTransactionResponse>> DirectTransactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
         var bankAssetPoolIds = await _bankService.GetAssetHolderAssetPoolIds();
@@ -109,4 +113,47 @@ public class
     //     return _mapper.Map<List<FiatAssetTransactionResponse>>(
     //         await _fiatAssetTransactionService.ListByClientIdAndBankId(clientId, bankId));
     // }
+
+    [NonAction]
+    public override Task<IActionResult> Put(Guid id, FiatAssetTransactionRequest model)
+    {
+        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status405MethodNotAllowed));
+    }
+
+    [HttpPut]
+    [Route("{id}")]
+    [RequirePermission(Auth0Permissions.UpdateTransactions)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateFiatAssetTransactionRequest model)
+    {
+        try
+        {
+            var result = await _fiatAssetTransactionService.PartialUpdateAsync(id, model);
+            var response = _mapper.Map<FiatAssetTransactionResponse>(result);
+            return Ok(response);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
+
+    [RequirePermission(Auth0Permissions.CreateTransactions)]
+    public override Task<IActionResult> Post(FiatAssetTransactionRequest model)
+    {
+        return base.Post(model);
+    }
+
+    [RequirePermission(Auth0Permissions.DeleteTransactions)]
+    public override Task<IActionResult> Delete(Guid id)
+    {
+        return base.Delete(id);
+    }
 }

@@ -1,28 +1,136 @@
+using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.ImportedTransactions;
 using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.Services.Base;
+using SFManagement.Application.Services.Finance;
 using SFManagement.Domain.Entities.Transactions;
+using SFManagement.Domain.Enums.Assets;
 using SFManagement.Infrastructure.Data;
 
 namespace SFManagement.Application.Services.Transactions;
 
 public class DigitalAssetTransactionService : BaseTransactionService<DigitalAssetTransaction>
 {
-    public DigitalAssetTransactionService(DataContext context, IHttpContextAccessor httpContextAccessor) :
+    private readonly IAvgRateService _avgRateService;
+
+    public DigitalAssetTransactionService(
+        DataContext context,
+        IHttpContextAccessor httpContextAccessor,
+        IAvgRateService avgRateService) :
         base(context, httpContextAccessor)
     {
+        _avgRateService = avgRateService;
     }
 
     // NOTE: Most methods in this service are commented out. When implementing them,
     // ensure they use the new transaction model with SenderWalletIdentifierId and ReceiverWalletIdentifierId
     // instead of the old AssetPoolId and WalletIdentifierId properties.
 
-    // public override async Task<DigitalAssetTransaction> Add(DigitalAssetTransaction obj)
-    // {
-    //     // When implementing: ensure obj.SenderWalletIdentifierId and obj.ReceiverWalletIdentifierId are set
-    //     obj = await base.Add(obj);
-    //     return obj;
-    // }
+    public override async Task<DigitalAssetTransaction> Add(DigitalAssetTransaction obj)
+    {
+        obj = await base.Add(obj);
+        await InvalidateAvgRateCacheAsync(obj.SenderWalletIdentifierId, obj.ReceiverWalletIdentifierId, obj.Date);
+        return obj;
+    }
+
+    public override async Task<DigitalAssetTransaction> Update(Guid id, DigitalAssetTransaction obj)
+    {
+        var updated = await base.Update(id, obj);
+        await InvalidateAvgRateCacheAsync(updated.SenderWalletIdentifierId, updated.ReceiverWalletIdentifierId, updated.Date);
+        return updated;
+    }
+
+    public override async Task Delete(Guid id)
+    {
+        var existing = await Get(id);
+        if (existing != null)
+        {
+            await base.Delete(id);
+            await InvalidateAvgRateCacheAsync(existing.SenderWalletIdentifierId, existing.ReceiverWalletIdentifierId, existing.Date);
+            return;
+        }
+
+        await base.Delete(id);
+    }
+
+    public async Task<DigitalAssetTransaction> PartialUpdateAsync(Guid id, UpdateDigitalAssetTransactionRequest request)
+    {
+        var entity = await context.DigitalAssetTransactions
+            .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
+
+        if (entity == null)
+        {
+            throw new KeyNotFoundException($"DigitalAssetTransaction with ID {id} not found.");
+        }
+
+        if (entity.ApprovedAt.HasValue)
+        {
+            throw new InvalidOperationException("Cannot update an approved transaction. Remove approval first.");
+        }
+
+        if (request.Date.HasValue)
+        {
+            entity.Date = request.Date.Value;
+        }
+
+        if (request.AssetAmount.HasValue)
+        {
+            entity.AssetAmount = request.AssetAmount.Value;
+        }
+
+        if (request.ConversionRate.HasValue)
+        {
+            entity.ConversionRate = request.ConversionRate.Value;
+        }
+
+        if (request.CategoryId.HasValue)
+        {
+            entity.CategoryId = request.CategoryId.Value == Guid.Empty
+                ? null
+                : request.CategoryId;
+        }
+
+        await context.SaveChangesAsync();
+        await InvalidateAvgRateCacheAsync(entity.SenderWalletIdentifierId, entity.ReceiverWalletIdentifierId, entity.Date);
+        return entity;
+    }
+
+    private async Task InvalidateAvgRateCacheAsync(
+        Guid senderWalletIdentifierId,
+        Guid receiverWalletIdentifierId,
+        DateTime transactionDate)
+    {
+        var affectedManagerIds = new HashSet<Guid>();
+
+        var walletIds = new[] { senderWalletIdentifierId, receiverWalletIdentifierId };
+        var wallets = await context.WalletIdentifiers
+            .AsNoTracking()
+            .Include(w => w.AssetPool)
+            .Where(w => walletIds.Contains(w.Id) && !w.DeletedAt.HasValue)
+            .ToListAsync();
+
+        foreach (var wallet in wallets)
+        {
+            if (wallet.AssetPool?.BaseAssetHolderId == null ||
+                wallet.AssetPool.AssetGroup != AssetGroup.PokerAssets)
+            {
+                continue;
+            }
+
+            var isPokerManager = await context.PokerManagers
+                .AnyAsync(pm => pm.BaseAssetHolderId == wallet.AssetPool.BaseAssetHolderId
+                    && !pm.DeletedAt.HasValue);
+            if (isPokerManager)
+            {
+                affectedManagerIds.Add(wallet.AssetPool.BaseAssetHolderId.Value);
+            }
+        }
+
+        foreach (var managerId in affectedManagerIds)
+        {
+            await _avgRateService.InvalidateFromDate(managerId, transactionDate);
+        }
+    }
 
     // public async Task<DigitalAssetTransactionResponse> ApproveTransaction(Guid walletTransactionId,
     //     WalletTransactionApproveRequest model)

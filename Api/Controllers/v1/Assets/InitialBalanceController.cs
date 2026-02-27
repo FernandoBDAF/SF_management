@@ -8,12 +8,14 @@ using SFManagement.Application.Services.Base;
 using SFManagement.Domain.Entities.Support;
 using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Assets;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadBalances)]
 public class InitialBalanceController : BaseApiController<InitialBalance, InitialBalanceRequest, InitialBalanceResponse>
 {
     private readonly InitialBalanceService _initialBalanceService;
@@ -30,6 +32,7 @@ public class InitialBalanceController : BaseApiController<InitialBalance, Initia
     /// Sets an initial balance for a specific AssetType
     /// </summary>
     [HttpPost("asset-type")]
+    [RequireRole(Auth0Roles.Admin)]
     public async Task<ActionResult<InitialBalanceResponse>> SetInitialBalanceForAssetType([FromBody] InitialBalanceRequest request)
     {
         try
@@ -61,6 +64,7 @@ public class InitialBalanceController : BaseApiController<InitialBalance, Initia
     /// Sets an initial balance for a specific AssetGroup
     /// </summary>
     [HttpPost("asset-group")]
+    [RequireRole(Auth0Roles.Admin)]
     public async Task<ActionResult<InitialBalanceResponse>> SetInitialBalanceForAssetGroup([FromBody] InitialBalanceRequest request)
     {
         try
@@ -94,6 +98,7 @@ public class InitialBalanceController : BaseApiController<InitialBalance, Initia
     /// This unified endpoint handles both scenarios based on the request data
     /// </summary>
     [HttpPost("unified")]
+    [RequireRole(Auth0Roles.Admin)]
     public async Task<ActionResult<InitialBalanceResponse>> SetInitialBalanceUnified([FromBody] InitialBalanceRequest request)
     {
         try
@@ -178,6 +183,7 @@ public class InitialBalanceController : BaseApiController<InitialBalance, Initia
     /// Removes an initial balance for a specific AssetType
     /// </summary>
     [HttpDelete("asset-holder/{baseAssetHolderId:guid}/asset-type/{assetType}")]
+    [RequireRole(Auth0Roles.Admin)]
     public async Task<ActionResult> RemoveInitialBalanceForAssetType(Guid baseAssetHolderId, AssetType assetType)
     {
         try
@@ -198,6 +204,7 @@ public class InitialBalanceController : BaseApiController<InitialBalance, Initia
     /// Removes an initial balance for a specific AssetGroup
     /// </summary>
     [HttpDelete("asset-holder/{baseAssetHolderId:guid}/asset-group/{assetGroup}")]
+    [RequireRole(Auth0Roles.Admin)]
     public async Task<ActionResult> RemoveInitialBalanceForAssetGroup(Guid baseAssetHolderId, AssetGroup assetGroup)
     {
         try
@@ -218,6 +225,7 @@ public class InitialBalanceController : BaseApiController<InitialBalance, Initia
     /// Validates initial balance data
     /// </summary>
     [HttpPost("validate")]
+    [RequireRole(Auth0Roles.Admin)]
     public async Task<ActionResult<List<string>>> ValidateInitialBalance([FromBody] InitialBalanceRequest request)
     {
         try

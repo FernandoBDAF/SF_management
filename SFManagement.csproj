@@ -41,6 +41,12 @@
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
     </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="SFManagement.Tests/**" />
+    <Compile Remove="SFManagement.Tests/obj/**" />
+    <Compile Remove="SFManagement.Tests/bin/**" />
+  </ItemGroup>
+
     <ItemGroup>
         <Folder Include="wwwroot\" />
     </ItemGroup>

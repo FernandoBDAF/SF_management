@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.Services.Assets;
+using SFManagement.Application.Services.Finance;
+using SFManagement.Application.Services.Infrastructure;
 using SFManagement.Application.Services.Validation;
 using SFManagement.Domain.Entities.Assets;
 using SFManagement.Domain.Entities.AssetHolders;
@@ -19,13 +21,19 @@ public class TransferService
 {
     private readonly DataContext _context;
     private readonly WalletIdentifierService _walletIdentifierService;
+    private readonly IAvgRateService _avgRateService;
+    private readonly ICachedLookupService _cachedLookupService;
 
     public TransferService(
         DataContext context,
-        WalletIdentifierService walletIdentifierService)
+        WalletIdentifierService walletIdentifierService,
+        IAvgRateService avgRateService,
+        ICachedLookupService cachedLookupService)
     {
         _context = context;
         _walletIdentifierService = walletIdentifierService;
+        _avgRateService = avgRateService;
+        _cachedLookupService = cachedLookupService;
     }
 
     /// <summary>
@@ -48,12 +56,16 @@ public class TransferService
                     throw new BusinessException("AssetType.None is not valid for transfers", TransferErrorCodes.InvalidAssetType);
                 }
 
+            // Keep legacy flag validation to reject deprecated behavior.
+            // Suppress CS0618 only for this block to avoid warning noise.
+#pragma warning disable CS0618
             if (request.CreateWalletsIfMissing)
             {
                 throw new BusinessException(
                     "Automatic wallet creation is no longer supported. Create wallets explicitly before initiating transfer.",
                     "WALLETS_CREATION_DEPRECATED");
             }
+#pragma warning restore CS0618
 
             // 2. Determine transaction type
             var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(request.AssetType);
@@ -263,7 +275,13 @@ public class TransferService
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            // 12. Return response
+            // 12. Invalidate AvgRate cache for affected PokerManagers
+            if (!isFiat)
+            {
+                await InvalidateAvgRateCacheAsync(senderWallet, receiverWallet, request.Date);
+            }
+
+            // 13. Return response
             return new TransferResponse
             {
                 TransactionId = transactionId,
@@ -412,7 +430,7 @@ public class TransferService
             return AccountClassification.ASSET;
         }
         
-        var isPokerManager = await _context.PokerManagers.AnyAsync(pm => pm.BaseAssetHolderId == assetHolderId);
+        var isPokerManager = await _cachedLookupService.IsPokerManagerAsync(assetHolderId);
         if (isPokerManager)
         {
             var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(assetType);
@@ -593,7 +611,7 @@ public class TransferService
             return "Bank";
         }
 
-        if (await _context.PokerManagers.AnyAsync(pm => pm.BaseAssetHolderId == assetHolderId && !pm.DeletedAt.HasValue))
+        if (await _cachedLookupService.IsPokerManagerAsync(assetHolderId))
         {
             return "PokerManager";
         }
@@ -657,6 +675,44 @@ public class TransferService
         // BrazilianReal = 21 is the main fiat type
         var value = (int)assetType;
         return value >= 1 && value <= 30; // Fiat range (including BRL at 21)
+    }
+
+    /// <summary>
+    /// Invalidates AvgRate cache for any PokerManagers involved in the transaction.
+    /// </summary>
+    private async Task InvalidateAvgRateCacheAsync(
+        WalletIdentifier senderWallet,
+        WalletIdentifier receiverWallet,
+        DateTime transactionDate)
+    {
+        var affectedManagerIds = new HashSet<Guid>();
+
+        if (senderWallet.AssetPool?.BaseAssetHolderId != null &&
+            senderWallet.AssetPool.AssetGroup == AssetGroup.PokerAssets)
+        {
+            var isPokerManager = await _cachedLookupService.IsPokerManagerAsync(
+                senderWallet.AssetPool.BaseAssetHolderId.Value);
+            if (isPokerManager)
+            {
+                affectedManagerIds.Add(senderWallet.AssetPool.BaseAssetHolderId.Value);
+            }
+        }
+
+        if (receiverWallet.AssetPool?.BaseAssetHolderId != null &&
+            receiverWallet.AssetPool.AssetGroup == AssetGroup.PokerAssets)
+        {
+            var isPokerManager = await _cachedLookupService.IsPokerManagerAsync(
+                receiverWallet.AssetPool.BaseAssetHolderId.Value);
+            if (isPokerManager)
+            {
+                affectedManagerIds.Add(receiverWallet.AssetPool.BaseAssetHolderId.Value);
+            }
+        }
+
+        foreach (var managerId in affectedManagerIds)
+        {
+            await _avgRateService.InvalidateFromDate(managerId, transactionDate);
+        }
     }
 
     /// <summary>

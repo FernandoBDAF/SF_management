@@ -153,14 +153,16 @@ When `BalanceAs` is null (checkbox "Troca ou saldo em fichas"), debt is in the s
 ```
 For Client/Member (GetBalancesByAssetType):
   signedAmount = GetSignedAmountForWallet()
-  signedAmount = signedAmount / ((100 + Rate) / 100)
+  If Rate > 0:
+    signedAmount = signedAmount * (100 / (100 + Rate))
   balances[AssetType] += signedAmount
 
 For PokerManager (GetBalancesByAssetGroup):
   signedAmount = GetSignedAmountForWallet()
-  signedAmount = signedAmount * (100 - Rate) / 100
   balances[AssetGroup] += signedAmount
 ```
+
+> **Important:** In this model, Rate adjustment is applied to Client/Member balances. PokerManager inventory keeps the raw transfer amount. Rate fee is accounted for separately in finance/profit (`RateFees`).
 
 ### Example: SALE without BalanceAs (Coin Balance)
 
@@ -168,13 +170,13 @@ For PokerManager (GetBalancesByAssetGroup):
 Business: Client BUYS 1000 chips with 5% rate
 
 Transaction: PokerManager → Client (PokerStars)
-AssetAmount: 1000
+AssetAmount: 1050 (raw transfer includes embedded fee)
 BalanceAs: null
 Rate: 5
 
 Balance Impacts:
-├─ PokerManager PokerAssets: -1000 (or -950 after rate)
-└─ Client PokerAssets: -1050 (owes company 1050 chips)
+├─ PokerManager PokerAssets: -1050 (raw transfer amount)
+└─ Client PokerAssets: -1000 (1050 × 100/105)
 
 Note: Client owes IN CHIPS, not in BRL
 ```
@@ -285,8 +287,8 @@ With BalanceAs (BRL, Rate 5.0):
 └─ Client FiatAssets: -5000 (debt in BRL)
 
 Without BalanceAs (Rate 5%):
-├─ PM PokerAssets: -1000
-└─ Client PokerAssets: -1050 (debt in chips)
+├─ PM PokerAssets: -1050 (raw transfer amount)
+└─ Client PokerAssets: -1000 (net after embedded fee)
 ```
 
 ### PURCHASE (Client Sells Chips)
@@ -302,9 +304,17 @@ With BalanceAs (BRL, Rate 4.9):
 └─ PM PokerAssets: +1000
 
 Without BalanceAs (Rate 5%):
-├─ Client PokerAssets: +950 (credit in chips after rate)
-└─ PM PokerAssets: +1000
+├─ Client PokerAssets: +1000 (1050 × 100/105)
+└─ PM PokerAssets: +1050 (raw transfer amount)
 ```
+
+### Statement Display Rule (Rate Transactions)
+
+For statement rows (`GetTransactionsStatementForAssetHolder`):
+
+- `AssetAmount` remains the **raw signed value** (what was actually transferred)
+- `RateFeeAmount` exposes the embedded fee portion when `Rate > 0` and `BalanceAs = null`
+- UI should show a fee indicator (example: `Taxa: 20.00 fichas (2%)`) to explain why balance impact differs from raw amount
 
 ### RECEIPT (Client Pays Company)
 

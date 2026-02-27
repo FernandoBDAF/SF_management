@@ -410,7 +410,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     }
 
     // add variable BaseAssetWalletType so the balance could have different behavior
-    public async Task<Dictionary<AssetType, decimal>> GetBalancesByAssetType(Guid baseAssetHolderId)
+    public async Task<Dictionary<AssetType, decimal>> GetBalancesByAssetType(
+        Guid baseAssetHolderId,
+        DateTime? asOfDate = null)
     {
         var balances = new Dictionary<AssetType, decimal>();
 
@@ -433,35 +435,64 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .ToListAsync();
 
         var walletIdentifierIds = walletIdentifiers.Select(wi => wi.Id).ToArray();
+        
         var pokerManagerIds = await context.PokerManagers
             .Select(pm => pm.BaseAssetHolderId)
             .ToListAsync();
         var pokerManagerIdSet = new HashSet<Guid>(pokerManagerIds);
+
+        var rakeOverrideManagerIdsForType = await context.PokerManagers
+            .Where(pm => pm.ManagerProfitType == ManagerProfitType.RakeOverrideCommission && !pm.DeletedAt.HasValue)
+            .Select(pm => pm.BaseAssetHolderId)
+            .ToListAsync();
+        var rakeOverrideManagerIdSetForType = new HashSet<Guid>(rakeOverrideManagerIdsForType);
        
-        var digitalTransactions = await context.DigitalAssetTransactions
-            .Where(dt => !dt.DeletedAt.HasValue && 
-                (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) || 
-                 walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)))
+        var digitalQuery = context.DigitalAssetTransactions
+            .Where(dt => !dt.DeletedAt.HasValue &&
+                (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) ||
+                 walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            digitalQuery = digitalQuery.Where(dt => dt.Date <= asOfDate.Value);
+        }
+
+        var digitalTransactions = await digitalQuery
             .Include(dt => dt.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .Include(dt => dt.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .ToArrayAsync() ?? [];
+            
 
-        var fiatTransactions = await context.FiatAssetTransactions
-            .Where(ft => !ft.DeletedAt.HasValue && 
-                (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) || 
-                 walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)))
+        var fiatQuery = context.FiatAssetTransactions
+            .Where(ft => !ft.DeletedAt.HasValue &&
+                (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) ||
+                 walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            fiatQuery = fiatQuery.Where(ft => ft.Date <= asOfDate.Value);
+        }
+
+        var fiatTransactions = await fiatQuery
             .Include(ft => ft.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .Include(ft => ft.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .ToArrayAsync() ?? [];
 
-        var settlementTransactions = await context.SettlementTransactions
-            .Where(st => !st.DeletedAt.HasValue && 
-                (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) || 
-                 walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))
+        var settlementQuery = context.SettlementTransactions
+            .Where(st => !st.DeletedAt.HasValue &&
+                (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) ||
+                 walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            settlementQuery = settlementQuery.Where(st => st.Date <= asOfDate.Value);
+        }
+
+        var settlementTransactions = await settlementQuery
             .Include(st => st.SenderWalletIdentifier)
                 .ThenInclude(wi => wi.AssetPool)
             .Include(st => st.ReceiverWalletIdentifier)
@@ -510,16 +541,21 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 balances[tx.BalanceAs.Value] += signedAmount * tx.ConversionRate.Value;
                     continue;
                 }
+
+            if (tx.Rate.HasValue && tx.Rate.Value > 0)
+            {
+                signedAmount = signedAmount * 100m / (100m + tx.Rate.Value);
+            }
                 
             var assetType = tx.IsReceiver(relevantWalletId) ?
                 tx.ReceiverWalletIdentifier!.AssetType :
                 tx.SenderWalletIdentifier!.AssetType;
 
-                    if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += signedAmount / ((100 + (tx.Rate ?? 0)) / 100);
+            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
+            balances[assetType] += signedAmount;
         }
 
-        // Process SettlementTransactions (rake-only impact)
+        // Process SettlementTransactions
         foreach (var tx in settlementTransactions)
         {
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
@@ -533,14 +569,34 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             }
             var isPokerManager = pokerManagerIdSet.Contains(settlementAssetHolderId.Value);
 
-            var balanceImpact = isPokerManager
+            // Rake impact
+            var rakeImpact = isPokerManager
                 ? -(tx.RakeAmount * (tx.RakeCommission / 100m))
                 : tx.RakeAmount * ((tx.RakeBack ?? 0m) / 100m);
 
-            var assetType = AssetType.BrazilianReal;
+            if (!balances.ContainsKey(AssetType.BrazilianReal)) balances[AssetType.BrazilianReal] = 0;
+            balances[AssetType.BrazilianReal] += rakeImpact;
 
-            if (!balances.ContainsKey(assetType)) balances[assetType] = 0;
-            balances[assetType] += balanceImpact;
+            // For RakeOverrideCommission managers, reflect AssetAmount in both chip and BRL balances.
+            // The chip type is determined by the wallet's AssetType (e.g., PokerStars).
+            // Both use the same signal: receiver +, sender -
+            if (settlementAssetHolderId.HasValue && rakeOverrideManagerIdSetForType.Contains(settlementAssetHolderId.Value))
+            {
+                var isReceiver = tx.ReceiverWalletIdentifierId == relevantWalletId;
+                var signedChipAmount = isReceiver ? tx.AssetAmount : -tx.AssetAmount;
+
+                var chipAssetType = isReceiver
+                    ? tx.ReceiverWalletIdentifier?.AssetType ?? AssetType.None
+                    : tx.SenderWalletIdentifier?.AssetType ?? AssetType.None;
+
+                if (chipAssetType != AssetType.None)
+                {
+                    if (!balances.ContainsKey(chipAssetType)) balances[chipAssetType] = 0;
+                    balances[chipAssetType] += signedChipAmount;
+                }
+
+                balances[AssetType.BrazilianReal] += signedChipAmount;
+            }
         }
 
         return balances;
@@ -548,7 +604,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
     
     // add variable BaseAssetWalletType so the balance could have different behavior
     // calculates balance for PokerManager
-    public async Task<Dictionary<AssetGroup, decimal>> GetBalancesByAssetGroup(Guid baseAssetHolderId)
+    public async Task<Dictionary<AssetGroup, decimal>> GetBalancesByAssetGroup(
+        Guid baseAssetHolderId,
+        DateTime? asOfDate = null)
     {
         var balances = new Dictionary<AssetGroup, decimal>();
 
@@ -575,35 +633,62 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             .Select(pm => pm.BaseAssetHolderId)
             .ToListAsync();
         var pokerManagerIdSet = new HashSet<Guid>(pokerManagerIds);
+
+        var rakeOverrideManagerIds = await context.PokerManagers
+            .Where(pm => pm.ManagerProfitType == ManagerProfitType.RakeOverrideCommission && !pm.DeletedAt.HasValue)
+            .Select(pm => pm.BaseAssetHolderId)
+            .ToListAsync();
+        var rakeOverrideManagerIdSet = new HashSet<Guid>(rakeOverrideManagerIds);
         
         if (!walletIdentifierIds.Any())
             return balances;
 
         // Get all transactions for these wallet identifiers
-        var fiatTransactions = await context.FiatAssetTransactions
-            .Where(ft => !ft.DeletedAt.HasValue && 
-                        (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) || 
-                         walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)))
+        var fiatQuery = context.FiatAssetTransactions
+            .Where(ft => !ft.DeletedAt.HasValue &&
+                        (walletIdentifierIds.Contains(ft.SenderWalletIdentifierId) ||
+                         walletIdentifierIds.Contains(ft.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            fiatQuery = fiatQuery.Where(ft => ft.Date <= asOfDate.Value);
+        }
+
+        var fiatTransactions = await fiatQuery
             .Include(ft => ft.SenderWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .Include(ft => ft.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .ToListAsync();
 
-        var digitalTransactions = await context.DigitalAssetTransactions
-            .Where(dt => !dt.DeletedAt.HasValue && 
-                        (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) || 
-                         walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)))
+        var digitalQuery = context.DigitalAssetTransactions
+            .Where(dt => !dt.DeletedAt.HasValue &&
+                        (walletIdentifierIds.Contains(dt.SenderWalletIdentifierId) ||
+                         walletIdentifierIds.Contains(dt.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            digitalQuery = digitalQuery.Where(dt => dt.Date <= asOfDate.Value);
+        }
+
+        var digitalTransactions = await digitalQuery
             .Include(dt => dt.SenderWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .Include(dt => dt.ReceiverWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .ToListAsync();
 
-        var settlementTransactions = await context.SettlementTransactions
-            .Where(st => !st.DeletedAt.HasValue && 
-                        (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) || 
-                         walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)))
+        var settlementQuery = context.SettlementTransactions
+            .Where(st => !st.DeletedAt.HasValue &&
+                        (walletIdentifierIds.Contains(st.SenderWalletIdentifierId) ||
+                         walletIdentifierIds.Contains(st.ReceiverWalletIdentifierId)));
+
+        if (asOfDate.HasValue)
+        {
+            settlementQuery = settlementQuery.Where(st => st.Date <= asOfDate.Value);
+        }
+
+        var settlementTransactions = await settlementQuery
             .Include(st => st.SenderWalletIdentifier)
                 .ThenInclude(wi => wi!.AssetPool)
             .Include(st => st.ReceiverWalletIdentifier)
@@ -667,9 +752,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 var pokerAssetsImpact = isEntering ? tx.AssetAmount : -tx.AssetAmount;
                 pokerAssetsImpact = pokerAssetsImpact * (100 - (tx.Rate ?? 0)) / 100;
 
-                var fiatAssetsImpact = isEntering
-                    ? tx.AssetAmount * tx.ConversionRate.Value
-                    : -tx.AssetAmount * tx.ConversionRate.Value;
+            var conversionRate = tx.ConversionRate.GetValueOrDefault();
+            var fiatAssetsImpact = isEntering
+                ? tx.AssetAmount * conversionRate
+                : -tx.AssetAmount * conversionRate;
 
                 if (!balances.ContainsKey(AssetGroup.PokerAssets)) balances[AssetGroup.PokerAssets] = 0;
                 balances[AssetGroup.PokerAssets] += pokerAssetsImpact;
@@ -685,10 +771,10 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 tx.SenderWalletIdentifier!.AssetGroup;
 
             if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
-            balances[assetGroup] += signedAmount * (100 - (tx.Rate ?? 0)) / 100;
+            balances[assetGroup] += signedAmount;
         }
 
-        // Process SettlementTransactions (rake-only impact)
+        // Process SettlementTransactions
         foreach (var tx in settlementTransactions)
         {
             var relevantWalletId = walletIdentifierIds.FirstOrDefault(id => 
@@ -702,14 +788,27 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
             }
             var isPokerManager = pokerManagerIdSet.Contains(settlementAssetHolderId.Value);
 
-            var balanceImpact = isPokerManager
+            // Rake impact (existing logic): deducts rake cost for managers, adds rakeback for non-managers
+            var rakeImpact = isPokerManager
                 ? -(tx.RakeAmount * (tx.RakeCommission / 100m))
                 : tx.RakeAmount * ((tx.RakeBack ?? 0m) / 100m);
 
-            var assetGroup = AssetGroup.FiatAssets;
+            if (!balances.ContainsKey(AssetGroup.FiatAssets)) balances[AssetGroup.FiatAssets] = 0;
+            balances[AssetGroup.FiatAssets] += rakeImpact;
 
-            if (!balances.ContainsKey(assetGroup)) balances[assetGroup] = 0;
-            balances[assetGroup] += balanceImpact;
+            // For RakeOverrideCommission managers, the settlement's AssetAmount represents
+            // chips transferred that must also be reflected in both PokerAssets and FiatAssets.
+            // Both use the same signal: receiver +, sender -
+            if (settlementAssetHolderId.HasValue && rakeOverrideManagerIdSet.Contains(settlementAssetHolderId.Value))
+            {
+                var isReceiver = tx.ReceiverWalletIdentifierId == relevantWalletId;
+                var signedChipAmount = isReceiver ? tx.AssetAmount : -tx.AssetAmount;
+
+                if (!balances.ContainsKey(AssetGroup.PokerAssets)) balances[AssetGroup.PokerAssets] = 0;
+                balances[AssetGroup.PokerAssets] += signedChipAmount;
+
+                balances[AssetGroup.FiatAssets] += signedChipAmount;
+            }
         }
 
         return balances;
@@ -784,6 +883,9 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         BalanceAs = dat.BalanceAs,
                         ConversionRate = dat.ConversionRate,
                         Rate = dat.Rate,
+                RateFeeAmount = (dat.BalanceAs == null && dat.Rate.HasValue && dat.Rate.Value > 0)
+                    ? Math.Abs(signedAmount) * dat.Rate.Value / (100m + dat.Rate.Value)
+                    : null,
                 AssetType = dat.SenderWalletIdentifier!.AssetType,
                 CounterPartyName = dat.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = dat.GetWalletIdentifierInput(relevantWalletId),
@@ -812,6 +914,7 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                         BalanceAs = null, // Fiat transactions don't have BalanceAs
                         ConversionRate = null, // Fiat transactions don't have ConversionRate
                         Rate = null, // Fiat transactions don't have Rate
+                RateFeeAmount = null,
                 AssetType = fat.SenderWalletIdentifier!.AssetType,
                 CounterPartyName = fat.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = fat.GetWalletIdentifierInput(relevantWalletId),
@@ -834,10 +937,15 @@ public class BaseAssetHolderService<TEntity>(DataContext context, IHttpContextAc
                 BalanceAs = null, // Settlement transactions don't have BalanceAs
                 ConversionRate = null, // Settlement transactions don't have ConversionRate
                 Rate = null, // Settlement transactions don't have Rate
+                RateFeeAmount = null,
                 AssetType = st.SenderWalletIdentifier!.AssetType,
                 CounterPartyName = st.GetCounterPartyName(relevantWalletId),
                 WalletIdentifierInput = st.GetWalletIdentifierInput(relevantWalletId),
-                AssetGroup = st.SenderWalletIdentifier!.AssetGroup
+                AssetGroup = st.SenderWalletIdentifier!.AssetGroup,
+                RakeAmount = st.RakeAmount,
+                RakeCommission = st.RakeCommission,
+                RakeBack = st.RakeBack,
+                RakeBackAmount = st.RakeAmount * ((st.RakeBack ?? 0m) / 100m)
             });
         }
         

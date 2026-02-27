@@ -12,16 +12,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/DTOs/Transactions/TransferRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/Transactions/TransferRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/TransferService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/TransferService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/06_API/BALANCE_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/BALANCE_ENDPOINTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/06_API/TRANSACTION_API_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/TRANSACTION_API_ENDPOINTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/10_REFACTORING/FRONTEND_BACKEND_ALIGNMENT.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/10_REFACTORING/FRONTEND_BACKEND_ALIGNMENT.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/10_REFACTORING/MULTI_TRACK_PROGRESS_CONTROL.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/10_REFACTORING/MULTI_TRACK_PROGRESS_CONTROL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Configuration/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Configuration/DependencyInjectionExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Assets/InitialBalanceController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Assets/InitialBalanceController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Support/CategoryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Support/CategoryController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Authorization/Auth0AuthorizationAttributes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Authorization/Auth0AuthorizationAttributes.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,7 +107,8 @@
       <workItem from="1750205338184" duration="4921000" />
       <workItem from="1751053067825" duration="713000" />
       <workItem from="1768587153210" duration="365000" />
-      <workItem from="1769029479284" duration="21219000" />
+      <workItem from="1769029479284" duration="37333000" />
+      <workItem from="1771607532737" duration="18089000" />
     </task>
     <servers />
   </component>

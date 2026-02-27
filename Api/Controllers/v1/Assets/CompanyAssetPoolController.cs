@@ -13,12 +13,14 @@ using SFManagement.Application.Services;
 using SFManagement.Application.DTOs;
 using System.Text.Json;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Assets;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/company/asset-pools")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadWallets)]
 public class CompanyAssetPoolController : ControllerBase
 {
     private readonly AssetPoolService _assetPoolService;
@@ -159,6 +161,7 @@ public class CompanyAssetPoolController : ControllerBase
     /// Creates a new company asset pool
     /// </summary>
     [HttpPost]
+    [RequireRole(Auth0Roles.Admin)]
     [ProducesResponseType(typeof(CompanyAssetPoolResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -284,6 +287,7 @@ public class CompanyAssetPoolController : ControllerBase
     /// Deletes a company asset pool (with validation)
     /// </summary>
     [HttpDelete("{assetGroup}")]
+    [RequireRole(Auth0Roles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
