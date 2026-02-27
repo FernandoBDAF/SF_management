@@ -5,12 +5,14 @@ using SFManagement.Application.DTOs.Support;
 using SFManagement.Application.Services.Base;
 using SFManagement.Application.Services.Support;
 using SFManagement.Domain.Entities.Support;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Support;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequireRole(Auth0Roles.Admin)]
 public class CategoryController : BaseApiController<Category, CategoryRequest, 
     CategoryResponse>
 {

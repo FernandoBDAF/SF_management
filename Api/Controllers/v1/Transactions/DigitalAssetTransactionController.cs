@@ -8,12 +8,14 @@ using SFManagement.Application.Services.AssetHolders;
 using SFManagement.Application.Services.Base;
 using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Entities.Transactions;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Transactions;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadTransactions)]
 public class
     DigitalAssetTransactionController : BaseApiController<DigitalAssetTransaction, DigitalAssetTransactionRequest,
     DigitalAssetTransactionResponse>
@@ -33,6 +35,7 @@ public class
     
     [HttpGet]
     [Route("poker-manager-transactions")]
+    [RequirePermission(Auth0Permissions.ReadTransactions)]
     public async Task<TableResponse<DigitalAssetTransactionResponse>> Transactions([FromQuery] int? quantity, [FromQuery] int? page)
     {
         var pokerManagerAssetPoolIds = await _pokerManagerService.GetAssetHolderAssetPoolIds();
@@ -91,6 +94,7 @@ public class
 
     [HttpPut]
     [Route("{id}")]
+    [RequirePermission(Auth0Permissions.UpdateTransactions)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -111,5 +115,17 @@ public class
         {
             return Conflict(new { message = ex.Message });
         }
+    }
+
+    [RequirePermission(Auth0Permissions.CreateTransactions)]
+    public override Task<IActionResult> Post(DigitalAssetTransactionRequest model)
+    {
+        return base.Post(model);
+    }
+
+    [RequirePermission(Auth0Permissions.DeleteTransactions)]
+    public override Task<IActionResult> Delete(Guid id)
+    {
+        return base.Delete(id);
     }
 }

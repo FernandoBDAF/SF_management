@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Exceptions;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Transactions;
 
@@ -12,7 +13,7 @@ namespace SFManagement.Api.Controllers.v1.Transactions;
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-[Authorize]
+[RequirePermission(Auth0Permissions.ReadTransactions)]
 public class TransferController : ControllerBase
 {
     private readonly TransferService _transferService;
@@ -35,7 +36,7 @@ public class TransferController : ControllerBase
     /// - Digital assets (PokerStars=101, Bitcoin=201, etc.) -> DigitalAssetTransaction
     /// </remarks>
     [HttpPost]
-    // [Authorize(Policy = "Permission:create:transactions")]
+    [RequirePermission(Auth0Permissions.CreateTransactions)]
     [ProducesResponseType(typeof(TransferResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -107,7 +108,7 @@ public class TransferController : ControllerBase
     /// Gets a transfer by ID.
     /// </summary>
     [HttpGet("{id}")]
-    // [Authorize(Policy = "Permission:read:transactions")]
+    [RequirePermission(Auth0Permissions.ReadTransactions)]
     [ProducesResponseType(typeof(TransferResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTransfer(Guid id, [FromQuery] string entityType = "fiat")

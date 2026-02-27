@@ -2,12 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using SFManagement.Application.DTOs.Finance;
 using SFManagement.Application.Services.Finance;
 using SFManagement.Domain.Common;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Finance;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/finance/profit")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadFinancialData)]
 public class ProfitController : ControllerBase
 {
     private readonly IProfitCalculationService _profitService;

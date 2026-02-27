@@ -19,6 +19,7 @@ namespace SFManagement.Api.Controllers.v1.AssetHolders;
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadManagers)]
 public class PokerManagerController : BaseAssetHolderController<PokerManager, PokerManagerRequest, PokerManagerResponse>
 {
     private readonly PokerManagerService _pokerManagerService;
@@ -59,6 +60,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Deletes a poker manager with cache invalidation
     /// </summary>
     [HttpDelete("{id}")]
+    [RequireRole(Auth0Roles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -109,6 +111,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// </summary>
     [Obsolete("Use POST /api/v1/transfer instead. Will be removed in v2.")]
     [HttpPost("{id}/send-brazilian-real")]
+    [RequirePermission(Auth0Permissions.CreateTransactions)]
     [ProducesResponseType(typeof(FiatAssetTransaction), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SendBrazilianReais(Guid id, [FromBody] FiatAssetTransactionRequest request)
@@ -128,7 +131,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Get wallet identifiers connected to other asset holders
     /// </summary>
     [HttpGet("{id}/wallet-identifiers-connected")]
-    // [RequirePermission("read:wallet-identifiers")]
+    [RequirePermission(Auth0Permissions.ReadWallets)]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(WalletIdentifiersConnectedResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -194,6 +197,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Get conversion wallets for poker manager (Internal wallets owned by this manager)
     /// </summary>
     [HttpGet("{id}/conversion-wallets")]
+    [RequireRole(Auth0Roles.Admin)]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(List<WalletIdentifierResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetConversionWallets(Guid id)
@@ -214,7 +218,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Create settlement transactions by date
     /// </summary>
     [HttpPost("{assetHolderId}/settlement-by-date")]
-    // [RequireRole("admin")]
+    [RequirePermission(Auth0Permissions.CreateSettlements)]
     [ProducesResponseType(typeof(SettlementTransactionByDateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateSettlementTransactionsByDate(
@@ -237,6 +241,7 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
     /// Gets balance by asset group for the poker manager
     /// </summary>
     [HttpGet("{id}/balance")]
+    [RequirePermission(Auth0Permissions.ReadManagers)]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [ProducesResponseType(typeof(Dictionary<string, decimal>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -260,6 +265,18 @@ public class PokerManagerController : BaseAssetHolderController<PokerManager, Po
         {
             return HandleGenericException("retrieving balance for");
         }
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Post([FromBody] PokerManagerRequest request)
+    {
+        return base.Post(request);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Put(Guid id, [FromBody] PokerManagerRequest request)
+    {
+        return base.Put(id, request);
     }
     
     // [HttpGet]

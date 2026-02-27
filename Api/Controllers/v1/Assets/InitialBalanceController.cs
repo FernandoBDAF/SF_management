@@ -8,12 +8,14 @@ using SFManagement.Application.Services.Base;
 using SFManagement.Domain.Entities.Support;
 using SFManagement.Domain.Enums;
 using SFManagement.Domain.Enums.Assets;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Assets;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequireRole(Auth0Roles.Admin)]
 public class InitialBalanceController : BaseApiController<InitialBalance, InitialBalanceRequest, InitialBalanceResponse>
 {
     private readonly InitialBalanceService _initialBalanceService;

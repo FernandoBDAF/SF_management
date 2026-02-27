@@ -7,12 +7,14 @@ using SFManagement.Application.DTOs.Transactions;
 using SFManagement.Application.Services.Base;
 using SFManagement.Application.Services.Transactions;
 using SFManagement.Domain.Entities.Transactions;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Transactions;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadSettlements)]
 public class
     SettlementTransactionController : BaseApiController<SettlementTransaction, SettlementTransactionRequest,
     SettlementTransactionResponse>
@@ -29,6 +31,7 @@ public class
 
     [HttpPost]
     [Route("")]
+    [RequirePermission(Auth0Permissions.CreateSettlements)]
     [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
     public override Task<IActionResult> Post(SettlementTransactionRequest model)
     {
@@ -42,6 +45,7 @@ public class
     
     [HttpGet]
     [Route("closings/{pokerManagerId}")]
+    [RequirePermission(Auth0Permissions.ReadSettlements)]
     public async Task<SettlementClosingsGroupedResponse> GetClosingsGrouped(Guid pokerManagerId)
     {
         var closings = await _service.GetClosings(pokerManagerId);

@@ -6,12 +6,14 @@ using SFManagement.Application.DTOs.CompanyAssets;
 using SFManagement.Application.Services.Assets;
 using SFManagement.Application.Services.Base;
 using SFManagement.Domain.Entities.Assets;
+using SFManagement.Infrastructure.Authorization;
 
 namespace SFManagement.Api.Controllers.v1.Assets;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadWallets)]
 public class AssetPoolController : BaseApiController<AssetPool, AssetPoolRequest, AssetPoolResponse>
 {
     private readonly AssetPoolService _service;
@@ -25,10 +27,29 @@ public class AssetPoolController : BaseApiController<AssetPool, AssetPoolRequest
     [HttpGet]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
     [Route("asset-holder/{assetHolderId}")]
+    [RequirePermission(Auth0Permissions.ReadWallets)]
     public async Task<List<AssetPoolResponse>> GetAssetPools(Guid assetHolderId)
     {
         var assetPools = await _service.GetAssetPools(assetHolderId);
         return _mapper.Map<List<AssetPoolResponse>>(assetPools);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Post(AssetPoolRequest model)
+    {
+        return base.Post(model);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Put(Guid id, AssetPoolRequest model)
+    {
+        return base.Put(id, model);
+    }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Delete(Guid id)
+    {
+        return base.Delete(id);
     }
 
     // [HttpGet]

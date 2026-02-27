@@ -15,6 +15,7 @@ public interface IAuth0UserService
 
 public class Auth0UserService : IAuth0UserService
 {
+    private const string RolesClaim = "https://www.semprefichas.com.br/roles";
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public Auth0UserService(IHttpContextAccessor httpContextAccessor)
@@ -47,8 +48,20 @@ public class Auth0UserService : IAuth0UserService
 
     public List<string> GetUserRoles()
     {
-        var roles = _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role)?.Select(c => c.Value).ToList();
-        return roles ?? new List<string>();
+        var user = _httpContextAccessor.HttpContext?.User;
+        if (user is null)
+        {
+            return new List<string>();
+        }
+
+        var mappedRoles = user.FindAll(ClaimTypes.Role).Select(c => c.Value);
+        var namespacedRoles = user.FindAll(RolesClaim).Select(c => c.Value);
+
+        return mappedRoles
+            .Concat(namespacedRoles)
+            .Where(role => !string.IsNullOrWhiteSpace(role))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     public List<string> GetUserPermissions()
