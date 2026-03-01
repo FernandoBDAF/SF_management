@@ -78,7 +78,6 @@ jobs:
         with:
           name: .net-app
 
-
       - name: Login to Azure
         uses: azure/login@v1
         with:
