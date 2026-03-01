@@ -119,7 +119,7 @@ public class Client : BaseDomain, IAssetHolder
 
 **Business Behavior:**
 - Buys/sells chips **via PokerManager** (not directly)
-- Balance is `AccountClassification.LIABILITY` (positive = company OWES client)
+- Balance is `AccountClassification.Liability` (positive = company OWES client)
 - Can have negative balance (credit line - owes company)
 - Pays debts via FiatTransactions to Bank (RECEIPT mode)
 
@@ -141,7 +141,7 @@ public class Bank : BaseDomain, IAssetHolder
 
 **Business Behavior:**
 - Holds **company's** fiat currency (BRL, USD)
-- Balance is `AccountClassification.ASSET` (positive = company HAS money)
+- Balance is `AccountClassification.Asset` (positive = company HAS money)
 - Only participates in FiatTransactions (RECEIPT/PAYMENT modes)
 - **Cannot** participate in TRANSFER mode (enforced by TransferService)
 - Can only hold FiatAssets (no poker/crypto)
@@ -172,7 +172,7 @@ public class Member : BaseDomain, IAssetHolder
 
 **Business Behavior:**
 - Transacts **exactly like a Client** (buy/sell chips, pay/receive fiat)
-- Balance is `AccountClassification.LIABILITY` (positive = company OWES member)
+- Balance is `AccountClassification.Liability` (positive = company OWES member)
 - Additionally has `Share` and `Salary` fields for financial module
 
 **Future Implementation (Finance Module):**
@@ -196,7 +196,7 @@ public class PokerManager : BaseDomain, IAssetHolder
 
 **Business Behavior:**
 - Holds poker chips **FOR the company** (company's inventory)
-- PokerAssets balance is `AccountClassification.ASSET` (positive = company HAS chips)
+- PokerAssets balance is `AccountClassification.Asset` (positive = company HAS chips)
 - Facilitates SALE/PURCHASE transactions with Clients/Members
 - The **company** earns revenue through spread or rake commission
 

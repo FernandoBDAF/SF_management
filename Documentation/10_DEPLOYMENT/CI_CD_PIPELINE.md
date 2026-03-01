@@ -68,9 +68,11 @@ Both pipelines follow a two-stage process:
 ├─────────────────────────────────────────────────────────────────┤
 │  1. Checkout code from repository                               │
 │  2. Setup .NET 9.x SDK                                          │
-│  3. Build with Release configuration                            │
-│  4. Publish application to output directory                     │
-│  5. Upload build artifacts                                      │
+│  3. Security scan (`dotnet list package --vulnerable`)          │
+│  4. Generate idempotent EF migration script                     │
+│  5. Build with Release configuration                            │
+│  6. Publish application to output directory                     │
+│  7. Upload build + migration + vulnerability artifacts          │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -236,7 +238,19 @@ Key differences from production:
 
 > **Note:** Both build and publish target `SFManagement.csproj` explicitly (not the solution file) to avoid build failures from stale or missing project references in `SFManagement.sln`.
 
-5. **Upload Artifacts**
+5. **Generate Migration Script**
+   ```yaml
+   - name: Generate idempotent migration script
+     run: dotnet ef migrations script --project SFManagement.csproj --idempotent --output migration.sql
+   ```
+
+6. **Security Scan**
+   ```yaml
+   - name: Check vulnerable packages
+     run: dotnet list SFManagement.csproj package --vulnerable --include-transitive > vulnerability-report.txt
+   ```
+
+7. **Upload Artifacts**
    ```yaml
    - name: Upload artifact for deployment job
      uses: actions/upload-artifact@v4
@@ -244,6 +258,10 @@ Key differences from production:
        name: .net-app
        path: ${{env.DOTNET_ROOT}}/myapp
    ```
+
+   Additional artifacts:
+   - `migration.sql` (idempotent migration script)
+   - `vulnerability-report.txt` (dependency vulnerability report)
 
 ### Artifact Management
 
@@ -327,33 +345,20 @@ permissions:
 
 ## Database Migrations
 
-### Automatic Migration Strategy
+### Controlled Migration Strategy
 
-Database migrations run automatically when the application starts. This is configured in `Program.cs`:
+Production uses a controlled migration process:
 
-```csharp
-using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-{
-    serviceScope.ServiceProvider.GetService<DataContext>().Database.Migrate();
-}
-```
+1. Generate idempotent migration script in CI (`migration.sql`)
+2. Review migration changes before production deployment
+3. Deploy to HMG first and validate behavior
+4. Promote to production only after validation
 
-### How It Works
-
-1. Application starts after deployment
-2. Entity Framework Core checks for pending migrations
-3. Any new migrations are applied to the database
-4. Application continues normal startup
-
-### Considerations
-
-- **Simple changes**: Automatic migration works well for additive changes (new tables, columns)
-- **Breaking changes**: For destructive changes, consider manual migration before deployment
-- **Rollback**: Database migrations are not automatically rolled back on deployment failure
+`RunMigrationsOnStartup` should remain disabled in production environments.
 
 ### Manual Migration (When Needed)
 
-For breaking schema changes, run migrations manually before deployment:
+For schema changes, generate and review scripts before production:
 
 ```bash
 # Generate SQL script for review

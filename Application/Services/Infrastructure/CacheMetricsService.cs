@@ -46,9 +46,9 @@ public class CacheMetricsService : ICacheMetricsService
         _logger.LogDebug("Cache REMOVE [{Category}] {Key}", category, key);
     }
 
-    public CacheStatistics GetStatistics()
+    public CacheStatisticsResponse GetStatistics()
     {
-        return new CacheStatistics
+        return new CacheStatisticsResponse
         {
             Categories = _stats.ToDictionary(
                 kvp => kvp.Key,

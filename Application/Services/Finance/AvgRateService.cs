@@ -68,12 +68,12 @@ public class AvgRateService : IAvgRateService
         return snapshot.AvgRate;
     }
     
-    public async Task<AvgRateSnapshot> GetAvgRateForMonth(Guid pokerManagerId, int year, int month)
+    public async Task<AvgRateSnapshotResponse> GetAvgRateForMonth(Guid pokerManagerId, int year, int month)
     {
         if (!await RequiresAvgRateTracking(pokerManagerId))
         {
             _logger.LogDebug("AvgRate not required for {ManagerId} {Year}-{Month}", pokerManagerId, year, month);
-            return new AvgRateSnapshot
+            return new AvgRateSnapshotResponse
             {
                 PokerManagerId = pokerManagerId,
                 Year = year,
@@ -88,7 +88,7 @@ public class AvgRateService : IAvgRateService
         var cacheKey = GetCacheKey(pokerManagerId, year, month);
         
         if (!IsCurrentMonth(year, month) &&
-            _cache.TryGetValue(cacheKey, out AvgRateSnapshot? cached) &&
+            _cache.TryGetValue(cacheKey, out AvgRateSnapshotResponse? cached) &&
             cached != null)
         {
             _logger.LogDebug("AvgRate cache hit for {ManagerId} {Year}-{Month}", pokerManagerId, year, month);
@@ -188,13 +188,13 @@ public class AvgRateService : IAvgRateService
     /// 2. Calculate from that month forward, caching each result before proceeding
     /// 3. Return the final snapshot for the target month
     /// </summary>
-    private async Task<AvgRateSnapshot> CalculateMonthlySnapshotIterative(Guid pokerManagerId, int year, int month)
+    private async Task<AvgRateSnapshotResponse> CalculateMonthlySnapshotIterative(Guid pokerManagerId, int year, int month)
     {
         // Step 1: Find the starting point - either a cached month or the first month
         var monthsToCalculate = new Stack<(int Year, int Month)>();
         var currentYear = year;
         var currentMonth = month;
-        AvgRateSnapshot? startingSnapshot = null;
+        AvgRateSnapshotResponse? startingSnapshot = null;
         var financeStartMonth = new DateTime(
             SystemImplementation.FinanceDataStartDateUtc.Year,
             SystemImplementation.FinanceDataStartDateUtc.Month,
@@ -210,7 +210,7 @@ public class AvgRateService : IAvgRateService
                     "AvgRate backward walk reached system implementation start ({FinanceStart:yyyy-MM}) for {ManagerId}. Stopping lookback.",
                     financeStartMonth, pokerManagerId);
 
-                startingSnapshot = new AvgRateSnapshot
+                startingSnapshot = new AvgRateSnapshotResponse
                 {
                     PokerManagerId = pokerManagerId,
                     TotalChips = 0,
@@ -223,7 +223,7 @@ public class AvgRateService : IAvgRateService
             // Check if this month is already cached
             var cacheKey = GetCacheKey(pokerManagerId, currentYear, currentMonth);
             if (!IsCurrentMonth(currentYear, currentMonth) &&
-                _cache.TryGetValue(cacheKey, out AvgRateSnapshot? cached) &&
+                _cache.TryGetValue(cacheKey, out AvgRateSnapshotResponse? cached) &&
                 cached != null)
             {
                 startingSnapshot = cached;
@@ -243,7 +243,7 @@ public class AvgRateService : IAvgRateService
                     ? initialBalance.ConversionRate.Value
                     : 0;
                 
-                startingSnapshot = new AvgRateSnapshot
+                startingSnapshot = new AvgRateSnapshotResponse
                 {
                     PokerManagerId = pokerManagerId,
                     TotalChips = initialChips,
@@ -273,7 +273,7 @@ public class AvgRateService : IAvgRateService
             if (year - currentYear > 20)
             {
                 _logger.LogWarning("AvgRate calculation exceeded 20 year lookback for {ManagerId}, stopping", pokerManagerId);
-                startingSnapshot = new AvgRateSnapshot
+                startingSnapshot = new AvgRateSnapshotResponse
                 {
                     PokerManagerId = pokerManagerId,
                     TotalChips = 0,
@@ -316,11 +316,11 @@ public class AvgRateService : IAvgRateService
     /// Calculates a single month's snapshot given the previous month's snapshot.
     /// This is the non-recursive core calculation that processes transactions.
     /// </summary>
-    private async Task<AvgRateSnapshot> CalculateSingleMonth(
+    private async Task<AvgRateSnapshotResponse> CalculateSingleMonth(
         Guid pokerManagerId, 
         int year, 
         int month, 
-        AvgRateSnapshot previousSnapshot,
+        AvgRateSnapshotResponse previousSnapshot,
         List<Guid> walletIds)
     {
         decimal totalChips = previousSnapshot.TotalChips;
@@ -341,7 +341,7 @@ public class AvgRateService : IAvgRateService
         
         var avgRate = totalChips > 0 ? totalCost / totalChips : 0;
         
-        return new AvgRateSnapshot
+        return new AvgRateSnapshotResponse
         {
             PokerManagerId = pokerManagerId,
             Year = year,
@@ -355,9 +355,9 @@ public class AvgRateService : IAvgRateService
     
     // Keep for reference - this was the original recursive implementation that caused stack overflow
     [Obsolete("Use CalculateMonthlySnapshotIterative instead to avoid stack overflow")]
-    private async Task<AvgRateSnapshot> CalculateMonthlySnapshot(Guid pokerManagerId, int year, int month)
+    private async Task<AvgRateSnapshotResponse> CalculateMonthlySnapshot(Guid pokerManagerId, int year, int month)
     {
-        AvgRateSnapshot previousSnapshot;
+        AvgRateSnapshotResponse previousSnapshot;
         
         if (await IsFirstCalculatedMonth(pokerManagerId, year, month))
         {
@@ -368,7 +368,7 @@ public class AvgRateService : IAvgRateService
                 ? initialBalance.ConversionRate.Value
                 : 0;
             
-            previousSnapshot = new AvgRateSnapshot
+            previousSnapshot = new AvgRateSnapshotResponse
             {
                 PokerManagerId = pokerManagerId,
                 TotalChips = initialChips,
@@ -405,7 +405,7 @@ public class AvgRateService : IAvgRateService
         
         var avgRate = totalChips > 0 ? totalCost / totalChips : 0;
         
-        return new AvgRateSnapshot
+        return new AvgRateSnapshotResponse
         {
             PokerManagerId = pokerManagerId,
             Year = year,

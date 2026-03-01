@@ -34,8 +34,11 @@ The SF Management API provides a comprehensive set of endpoints for managing fin
 7. [Supporting Resources](#supporting-resources)
    - [Category](#category)
    - [InitialBalance](#initialbalance)
+   - [Address](#address)
+   - [ContactPhone](#contactphone)
 8. [Diagnostics](#diagnostics)
-9. [Error Handling](#error-handling)
+9. [Finance](#finance)
+10. [Error Handling](#error-handling)
 
 ---
 
@@ -78,6 +81,16 @@ Entity controllers that extend `BaseAssetHolderController` (Client, Bank, Member
 | GET | `/{id}/balance` | Get balance by asset type |
 | GET | `/{id}/transactions` | Get transaction statement |
 
+### Authorization
+
+All API endpoints require authentication via JWT bearer token. Authorization follows a role-based model:
+
+- **Read operations (GET):** Require entity-specific read permissions (e.g., `read:clients`, `read:financial_data`)
+- **Write operations (POST/PUT/DELETE):** Typically require Admin role or entity-specific write permissions (e.g., `create:wallets`)
+- **Admin-only endpoints:** Restricted to users with `[RequireRole(Auth0Roles.Admin)]`
+
+Individual controller sections note specific authorization requirements. For full RBAC configuration, see [AUTHENTICATION.md](../05_INFRASTRUCTURE/AUTHENTICATION.md).
+
 ### Response Caching
 
 Some endpoints implement response caching for performance:
@@ -101,6 +114,7 @@ Cached endpoints include:
 Manages client entities (poker players/customers).
 
 **Base Route**: `/api/v1/client`
+**Authorization:** `read:clients` for GET; Admin role for write operations
 
 #### Standard Endpoints (inherited from BaseAssetHolderController)
 
@@ -133,6 +147,7 @@ Manages client entities (poker players/customers).
 Manages bank entities for fiat currency operations.
 
 **Base Route**: `/api/v1/bank`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Standard Endpoints (inherited from BaseAssetHolderController)
 
@@ -156,6 +171,7 @@ Manages bank entities for fiat currency operations.
 Manages member entities (business partners/stakeholders).
 
 **Base Route**: `/api/v1/member`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Standard Endpoints (inherited from BaseAssetHolderController)
 
@@ -188,6 +204,7 @@ Manages member entities (business partners/stakeholders).
 Manages poker manager entities who oversee poker operations and settlements.
 
 **Base Route**: `/api/v1/pokermanager`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Standard Endpoints (inherited from BaseAssetHolderController)
 
@@ -209,7 +226,7 @@ Manages poker manager entities who oversee poker operations and settlements.
 |--------|-------|-------------|---------|----------|
 | POST | `/{id}/send-brazilian-real` | ⚠️ **DEPRECATED** - Send BRL transaction | `FiatAssetTransactionRequest` | `FiatAssetTransaction` |
 | GET | `/{id}/wallet-identifiers-connected` | Get connected wallets from other holders | - | `WalletIdentifiersConnectedResponse` |
-| GET | `/{id}/conversion-wallets` | Get Internal wallets for self-conversion | - | `List<WalletIdentifierResponse>` |
+| GET | `/{id}/conversion-wallets` | Get Flexible wallets for self-conversion | - | `List<WalletIdentifierResponse>` |
 | POST | `/{assetHolderId}/settlement-by-date` | Create settlement by date | `SettlementTransactionByDateRequest` | `SettlementTransactionByDateResponse` |
 | GET | `/{id}/balance` | Get balance by **AssetGroup** (overridden) | - | `Dictionary<string, decimal>` |
 
@@ -226,6 +243,7 @@ Manages poker manager entities who oversee poker operations and settlements.
 Manages asset pools that group wallet identifiers.
 
 **Base Route**: `/api/v1/assetpool`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Endpoints
 
@@ -245,6 +263,7 @@ Manages asset pools that group wallet identifiers.
 Manages individual wallet identifiers within asset pools.
 
 **Base Route**: `/api/v1/walletidentifier`
+**Authorization:** Authenticated; `create:wallets` for POST operations
 
 #### Endpoints
 
@@ -255,7 +274,7 @@ Manages individual wallet identifiers within asset pools.
 | POST | `/` | Create wallet identifier | `WalletIdentifierRequest` | `WalletIdentifierResponse` |
 | PUT | `/{id}` | Update wallet identifier | `WalletIdentifierRequest` | `WalletIdentifierResponse` |
 | DELETE | `/{id}` | Delete wallet identifier | - | `204 No Content` |
-| POST | `/internal-wallet` | Create internal wallet | `WalletIdentifierRequest` | `WalletIdentifierResponse` |
+| POST | `/flexible-wallet` | Create flexible wallet | `WalletIdentifierRequest` | `WalletIdentifierResponse` |
 | POST | `/settlement-wallet` | Create settlement wallet | `WalletIdentifierRequest` | `WalletIdentifierResponse` |
 
 ---
@@ -265,6 +284,7 @@ Manages individual wallet identifiers within asset pools.
 Manages company-owned asset pools (pools without a BaseAssetHolder).
 
 **Base Route**: `/api/v1/company/asset-pools`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Endpoints
 
@@ -294,6 +314,7 @@ Manages company-owned asset pools (pools without a BaseAssetHolder).
 ### Transfer (Unified Transfer Endpoint) ⭐ Recommended
 
 **Base Route**: `/api/v1/transfer`
+**Authorization:** Authenticated; requires transaction creation permissions
 
 **Purpose**: Unified endpoint for all P2P transfers between asset holders, supporting both Fiat and Digital assets. This is the **recommended endpoint** for new implementations.
 
@@ -311,7 +332,6 @@ Manages company-owned asset pools (pools without a BaseAssetHolder).
 - **Unified**: Works with both Fiat and Digital assets
 - **Mode Inference**: Automatically detects TRANSFER vs INTERNAL mode
 - **Bank Restrictions**: Enforces business rule blocking banks from TRANSFER mode
-- **AssetGroup Restriction**: TRANSFER mode only allows Internal wallets (AssetGroup 4)
 - **Explicit Wallet Creation**: Wallets must exist before transfer (auto-creation deprecated)
 - **Balance Validation**: Optional balance checking
 
@@ -338,6 +358,7 @@ Manages company-owned asset pools (pools without a BaseAssetHolder).
 Manages fiat currency transactions (BRL, USD, etc.).
 
 **Base Route**: `/api/v1/fiatasettransaction`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Endpoints
 
@@ -365,6 +386,7 @@ Manages fiat currency transactions (BRL, USD, etc.).
 Manages digital asset transactions (poker chips, cryptocurrency).
 
 **Base Route**: `/api/v1/digitalassettransaction`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Endpoints
 
@@ -391,6 +413,7 @@ Manages digital asset transactions (poker chips, cryptocurrency).
 Manages poker settlement transactions.
 
 **Base Route**: `/api/v1/settlementtransaction`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Endpoints
 
@@ -412,6 +435,7 @@ Manages poker settlement transactions.
 Handles importing transactions from external files (OFX bank statements, Excel spreadsheets).
 
 **Base Route**: `/api/v1/importedtransaction`
+**Authorization:** Authenticated; requires import/reconciliation permissions
 
 #### Import Endpoints
 
@@ -449,6 +473,7 @@ Handles importing transactions from external files (OFX bank statements, Excel s
 Manages transaction categories for classification.
 
 **Base Route**: `/api/v1/category`
+**Authorization:** Authenticated; Admin role for write operations
 
 #### Endpoints
 
@@ -467,6 +492,7 @@ Manages transaction categories for classification.
 Manages initial balance records for asset holders.
 
 **Base Route**: `/api/v1/initialbalance`
+**Authorization:** Authenticated; standard RBAC applies (see [Common Patterns](#authorization))
 
 #### Endpoints
 
@@ -491,6 +517,42 @@ Manages initial balance records for asset holders.
 
 ---
 
+### Address
+
+**Controller:** `AddressController`
+**Base Route:** `/api/v1/address`
+**Authorization:** `read:clients` for GET; Admin only for POST/PUT/DELETE
+
+#### Endpoints
+
+| Method | Route | Description | Authorization |
+|--------|-------|-------------|---------------|
+| GET | `/` | List all addresses | `read:clients` |
+| GET | `/{id}` | Get address by ID | `read:clients` |
+| POST | `/` | Create address | Admin only |
+| PUT | `/{id}` | Update address | Admin only |
+| DELETE | `/{id}` | Delete address (soft) | Admin only |
+
+---
+
+### ContactPhone
+
+**Controller:** `ContactPhoneController`
+**Base Route:** `/api/v1/contactphone`
+**Authorization:** `read:clients` for GET; Admin only for POST/PUT/DELETE
+
+#### Endpoints
+
+| Method | Route | Description | Authorization |
+|--------|-------|-------------|---------------|
+| GET | `/` | List all contact phones | `read:clients` |
+| GET | `/{id}` | Get contact phone by ID | `read:clients` |
+| POST | `/` | Create contact phone | Admin only |
+| PUT | `/{id}` | Update contact phone | Admin only |
+| DELETE | `/{id}` | Delete contact phone (soft) | Admin only |
+
+---
+
 ## Diagnostics
 
 ### DiagnosticsController
@@ -503,7 +565,7 @@ Provides system diagnostics and monitoring endpoints. **Requires admin role.**
 
 | Method | Route | Description | Authorization | Response |
 |--------|-------|-------------|---------------|----------|
-| GET | `/cache-stats` | Get cache hit/miss statistics | `Role:admin` | `CacheStatistics` |
+| GET | `/cache-stats` | Get cache hit/miss statistics | `Role:admin` | `CacheStatisticsResponse` |
 
 #### Cache Statistics Response
 
@@ -548,6 +610,68 @@ Authorization: Bearer {admin-token}
 ```
 
 **See Also:** [RATE_LIMITING_AND_PERFORMANCE.md](../05_INFRASTRUCTURE/RATE_LIMITING_AND_PERFORMANCE.md) for cache implementation details.
+
+---
+
+## Finance
+
+**Controller:** `ProfitController`  
+**Base Route:** `/api/v1/finance/profit`
+
+### Endpoints
+
+| Method | Route | Description | Authorization |
+|--------|-------|-------------|---------------|
+| GET | `/summary` | Profit summary for date range | `read:financial_data` |
+| GET | `/by-manager` | Profit breakdown per manager | `read:financial_data` |
+| GET | `/by-source` | Profit breakdown by source | `read:financial_data` |
+| GET | `/direct-income-details` | Itemized direct income transactions | `read:financial_data` |
+| GET | `/rate-fee-details` | Itemized rate fee transactions | `read:financial_data` |
+| GET | `/rake-commission-details` | Itemized rake commission settlements | `read:financial_data` |
+| GET | `/spread-details` | Itemized spread profit sales | `read:financial_data` |
+| GET | `/avg-rates` | Manager AvgRates as of a specific date | `read:financial_data` |
+
+### Query Parameters
+
+| Parameter | Type | Required | Used By | Default |
+|-----------|------|----------|---------|---------|
+| `startDate` | DateTime | No | All except `/avg-rates` | `2025-07-17` (system start) |
+| `endDate` | DateTime | No | All except `/avg-rates` | Today (UTC) |
+| `managerId` | Guid | No | `/summary` only | null |
+| `asOfDate` | DateTime | No | `/avg-rates` only | Today (UTC) |
+
+### Response Models
+
+**ProfitSummary:**
+```json
+{
+  "startDate": "2026-01-01",
+  "endDate": "2026-01-31",
+  "managerId": null,
+  "directIncome": 15000.00,
+  "rakeCommission": 8500.00,
+  "rateFees": 1200.00,
+  "spreadProfit": 3500.00,
+  "totalProfit": 28200.00
+}
+```
+
+**ProfitByManager:**
+```json
+{
+  "managerId": "guid",
+  "managerName": "Manager Name",
+  "managerProfitType": 0,
+  "rakeCommission": 0.00,
+  "rateFees": 600.00,
+  "spreadProfit": 3500.00,
+  "totalProfit": 4100.00
+}
+```
+
+> **Note:** `ProfitByManager` does not include `directIncome`. Direct income is a system-level metric and should be fetched via `/direct-income-details`.
+
+**See Also:** [PROFIT_CALCULATION_SYSTEM.md](../03_CORE_SYSTEMS/PROFIT_CALCULATION_SYSTEM.md) for calculation details.
 
 ---
 
@@ -696,7 +820,9 @@ For detailed documentation, see [TRANSACTION_API_ENDPOINTS.md](./TRANSACTION_API
 ## Related Documentation
 
 - [TRANSACTION_API_ENDPOINTS.md](./TRANSACTION_API_ENDPOINTS.md) - **Detailed transaction API reference**
-- [AUTHENTICATION.md](../05_INFRASTRUCTURE/AUTHENTICATION.md) - Authentication details
+- [AUTHENTICATION.md](../05_INFRASTRUCTURE/AUTHENTICATION.md) - Authentication and RBAC details
+- [PROFIT_CALCULATION_SYSTEM.md](../03_CORE_SYSTEMS/PROFIT_CALCULATION_SYSTEM.md) - Finance profit calculation pipeline
+- [FINANCE_SYSTEM.md](../03_CORE_SYSTEMS/FINANCE_SYSTEM.md) - Finance system overview
 - [ENUMS_AND_TYPE_SYSTEM.md](../07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) - Enum definitions
 - [ERROR_HANDLING.md](../05_INFRASTRUCTURE/ERROR_HANDLING.md) - Exception handling details
 - [VALIDATION_SYSTEM.md](../05_INFRASTRUCTURE/VALIDATION_SYSTEM.md) - Validation rules

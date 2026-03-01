@@ -137,10 +137,9 @@ public class WalletIdentifier : BaseDomain
             if (!string.IsNullOrEmpty(walletCategory))
                 metadata[CryptoWalletMetadata.WalletCategory.ToString()] = walletCategory;
         }
-        else if (AssetGroup == AssetGroup.Internal)
+        else if (AssetGroup == AssetGroup.Flexible)
         {
-            // Internal wallets can have optional metadata, but none is required
-            // For now, we don't set any specific metadata for internal wallets
+            // Flexible wallets can have optional metadata, but none is required
         }
         
         Metadata = metadata;
@@ -154,7 +153,7 @@ public class WalletIdentifier : BaseDomain
             AssetGroup.FiatAssets => ValidateBankWalletMetadata(),
             AssetGroup.PokerAssets => ValidatePokerWalletMetadata(),
             AssetGroup.CryptoAssets => ValidateCryptoWalletMetadata(),
-            AssetGroup.Internal => true, // Internal wallets require no metadata validation
+            AssetGroup.Flexible => true, // Flexible wallets require no metadata validation
             _ => false
         };
     }
@@ -169,7 +168,7 @@ public class WalletIdentifier : BaseDomain
             AssetGroup.FiatAssets => ValidateBankWalletMetadata(),
             AssetGroup.PokerAssets => ValidatePokerWalletMetadata(),
             AssetGroup.CryptoAssets => ValidateCryptoWalletMetadata(),
-            AssetGroup.Internal => true, // Internal wallets require no metadata validation
+            AssetGroup.Flexible => true, // Flexible wallets require no metadata validation
             AssetGroup.Settlements => true, // Settlements require no metadata validation
             _ => false
         };
@@ -227,7 +226,7 @@ public class WalletIdentifier : BaseDomain
         AssetGroup == AssetGroup.CryptoAssets ? GetMetadataValue(field.ToString()) : null;
     
     public string? GetInternalMetadata(string field) => 
-        AssetGroup == AssetGroup.Internal ? GetMetadataValue(field) : null;
+        AssetGroup == AssetGroup.Flexible ? GetMetadataValue(field) : null;
     
     public void SetBankMetadata(BankWalletMetadata field, string value)
     {
@@ -249,7 +248,7 @@ public class WalletIdentifier : BaseDomain
     
     public void SetInternalMetadata(string field, string value)
     {
-        if (AssetGroup == AssetGroup.Internal)
+        if (AssetGroup == AssetGroup.Flexible)
             SetMetadataValue(field, value);
     }
     

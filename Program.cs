@@ -16,6 +16,9 @@ using SFManagement.Application.Validators.Transactions;
 using SFManagement.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+var enableDetailedLogging = builder.Configuration.GetValue<bool>("EnableDetailedLogging");
+var runMigrationsOnStartup = builder.Configuration.GetValue<bool>("RunMigrationsOnStartup");
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -35,16 +38,23 @@ try
     builder.Services.AddResponseCaching();
     builder.Services.AddMemoryCache();
     builder.AddRateLimitServices();
+    builder.Services.AddApplicationInsightsTelemetry();
 
     builder.Services.AddDbContext<DataContext>(p =>
+    {
         p.UseSqlServer(
             builder.Configuration.GetConnectionString("DefaultConnection"),
             o => o
                 .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
                 .EnableRetryOnFailure(6, TimeSpan.FromSeconds(15), null)
             )
-            .LogTo(Console.WriteLine, [DbLoggerCategory.Database.Command.Name], LogLevel.Information)
-            .EnableSensitiveDataLogging());
+            .EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
+
+        if (builder.Environment.IsDevelopment() || enableDetailedLogging)
+        {
+            p.LogTo(Console.WriteLine, [DbLoggerCategory.Database.Command.Name], LogLevel.Information);
+        }
+    });
 
     // Remove Identity configuration - Auth0 handles authentication
     builder.Services.AddHttpContextAccessor();
@@ -76,19 +86,35 @@ try
 
     var app = builder.Build();
 
-    app.UseCors(x => x
-        .WithOrigins()
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials());
+    app.UseCors(x =>
+    {
+        if (allowedOrigins.Length > 0)
+        {
+            x.WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+            return;
+        }
+
+        Log.Warning("No CORS origins configured. Falling back to AllowAnyOrigin without credentials.");
+        x.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
     
     app.UseIpRateLimiting();
     app.UseResponseCaching();
     app.UseHttpsRedirection();
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+    }
+    app.UseMiddleware<SecurityHeadersMiddleware>();
     app.UseStaticFiles();
 
-    // if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
-    // {
+    if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+    {
         app.UseDeveloperExceptionPage();
         app.UseSwagger(opts =>
         {
@@ -101,7 +127,7 @@ try
             opts.RoutePrefix = string.Empty;
             opts.InjectStylesheet("/css/theme-modern.css");
         });
-    // }
+    }
 
     app.UseAuthentication();
     
@@ -110,7 +136,7 @@ try
     
     // Add detailed request/response logging middleware (especially for debugging 400 errors)
     // Only enable in development or when debugging issues
-    if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("EnableDetailedLogging"))
+    if (app.Environment.IsDevelopment() || enableDetailedLogging)
     {
         app.UseRequestResponseLogging();
     }
@@ -135,9 +161,10 @@ try
         SupportedUICultures = new List<CultureInfo> { cultureInfo }
     });
 
-    using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+    if (runMigrationsOnStartup)
     {
-        serviceScope.ServiceProvider.GetService<DataContext>().Database.Migrate();
+        using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        serviceScope.ServiceProvider.GetRequiredService<DataContext>().Database.Migrate();
     }
 
     // Remove Identity seeding - Auth0 handles user management

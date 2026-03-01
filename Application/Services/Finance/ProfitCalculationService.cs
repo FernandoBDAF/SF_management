@@ -421,9 +421,9 @@ public class ProfitCalculationService : IProfitCalculationService
         
         foreach (var tx in fiatTransactions)
         {
-            var systemIsReceiver = systemWalletIds.Contains(tx.ReceiverWalletIdentifierId);
+            var systemIsSender = systemWalletIds.Contains(tx.SenderWalletIdentifierId);
             
-            if (systemIsReceiver)
+            if (systemIsSender)
                 totalDirectIncome += tx.AssetAmount;
             else
                 totalDirectIncome -= tx.AssetAmount;
@@ -443,11 +443,11 @@ public class ProfitCalculationService : IProfitCalculationService
         
         foreach (var tx in digitalTransactions)
         {
-            var systemIsReceiver = systemWalletIds.Contains(tx.ReceiverWalletIdentifierId);
+            var systemIsSender = systemWalletIds.Contains(tx.SenderWalletIdentifierId);
             
-            var nonSystemAssetHolderId = systemIsReceiver
-                ? tx.SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId
-                : tx.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId;
+            var nonSystemAssetHolderId = systemIsSender
+                ? tx.ReceiverWalletIdentifier?.AssetPool?.BaseAssetHolderId
+                : tx.SenderWalletIdentifier?.AssetPool?.BaseAssetHolderId;
             
             var brlValue = tx.AssetAmount;
             if (nonSystemAssetHolderId.HasValue)
@@ -456,7 +456,7 @@ public class ProfitCalculationService : IProfitCalculationService
                 brlValue = tx.AssetAmount * avgRate;
             }
             
-            if (systemIsReceiver)
+            if (systemIsSender)
                 totalDirectIncome += brlValue;
             else
                 totalDirectIncome -= brlValue;
@@ -492,10 +492,10 @@ public class ProfitCalculationService : IProfitCalculationService
 
         foreach (var tx in fiatTransactions)
         {
-            var systemIsReceiver = systemWalletIds.Contains(tx.ReceiverWalletIdentifierId);
-            var nonSystemWallet = systemIsReceiver
-                ? tx.SenderWalletIdentifier
-                : tx.ReceiverWalletIdentifier;
+            var systemIsSender = systemWalletIds.Contains(tx.SenderWalletIdentifierId);
+            var nonSystemWallet = systemIsSender
+                ? tx.ReceiverWalletIdentifier
+                : tx.SenderWalletIdentifier;
             var origin = nonSystemWallet?.AssetPool?.BaseAssetHolder?.Name ?? "Desconhecido";
 
             var item = new DirectIncomeItem
@@ -509,7 +509,7 @@ public class ProfitCalculationService : IProfitCalculationService
                 CategoryId = tx.CategoryId
             };
 
-            if (systemIsReceiver)
+            if (systemIsSender)
                 incomes.Add(item);
             else
                 expenses.Add(item);
@@ -542,10 +542,10 @@ public class ProfitCalculationService : IProfitCalculationService
 
         foreach (var tx in digitalTransactions)
         {
-            var systemIsReceiver = systemWalletIds.Contains(tx.ReceiverWalletIdentifierId);
-            var nonSystemWallet = systemIsReceiver
-                ? tx.SenderWalletIdentifier
-                : tx.ReceiverWalletIdentifier;
+            var systemIsSender = systemWalletIds.Contains(tx.SenderWalletIdentifierId);
+            var nonSystemWallet = systemIsSender
+                ? tx.ReceiverWalletIdentifier
+                : tx.SenderWalletIdentifier;
             var origin = nonSystemWallet?.AssetPool?.BaseAssetHolder?.Name ?? "Desconhecido";
             var nonSystemAssetHolderId = nonSystemWallet?.AssetPool?.BaseAssetHolderId;
 
@@ -567,7 +567,7 @@ public class ProfitCalculationService : IProfitCalculationService
                 CategoryId = tx.CategoryId
             };
 
-            if (systemIsReceiver)
+            if (systemIsSender)
                 incomes.Add(item);
             else
                 expenses.Add(item);
@@ -799,7 +799,7 @@ public class ProfitCalculationService : IProfitCalculationService
                     on wallet.AssetPoolId equals pool.Id
                 where !wallet.DeletedAt.HasValue
                       && !pool.DeletedAt.HasValue
-                      && pool.AssetGroup == AssetGroup.Internal
+                      && pool.AssetGroup == AssetGroup.Flexible
                       && pool.BaseAssetHolderId == null
                 select wallet.Id
             )

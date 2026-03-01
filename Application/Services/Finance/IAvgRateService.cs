@@ -21,7 +21,7 @@ public interface IAvgRateService
     /// Get or calculate monthly snapshot.
     /// Cached for past months, calculated dynamically for current month.
     /// </summary>
-    Task<AvgRateSnapshot> GetAvgRateForMonth(Guid pokerManagerId, int year, int month);
+    Task<AvgRateSnapshotResponse> GetAvgRateForMonth(Guid pokerManagerId, int year, int month);
     
     /// <summary>
     /// Invalidate cache from a date forward.

@@ -23,8 +23,22 @@ jobs:
         with:
           dotnet-version: '9.x'
 
+      - name: Restore dependencies
+        run: dotnet restore SFManagement.csproj
+
+      - name: Check vulnerable packages
+        run: dotnet list SFManagement.csproj package --vulnerable --include-transitive > vulnerability-report.txt
+        continue-on-error: true
+
+      - name: Generate idempotent migration script
+        run: |
+          dotnet new tool-manifest --force
+          dotnet tool install dotnet-ef --version 9.*
+          dotnet ef migrations script --project SFManagement.csproj --idempotent --output migration.sql
+        continue-on-error: true
+
       - name: Build with dotnet
-        run: dotnet build SFManagement.csproj --configuration Release
+        run: dotnet build SFManagement.csproj --configuration Release --no-restore
 
       - name: dotnet publish
         run: dotnet publish SFManagement.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
@@ -34,6 +48,18 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+
+      - name: Upload migration artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-script
+          path: migration.sql
+
+      - name: Upload vulnerability report
+        uses: actions/upload-artifact@v4
+        with:
+          name: vulnerability-report
+          path: vulnerability-report.txt
 
   deploy:
     runs-on: windows-latest

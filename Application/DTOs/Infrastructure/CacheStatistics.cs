@@ -1,6 +1,6 @@
 namespace SFManagement.Application.DTOs.Infrastructure;
 
-public class CacheStatistics
+public class CacheStatisticsResponse
 {
     public Dictionary<string, CategoryStats> Categories { get; init; } = new();
 }

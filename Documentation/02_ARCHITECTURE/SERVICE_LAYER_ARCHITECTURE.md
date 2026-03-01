@@ -409,6 +409,18 @@ public class PokerManagerService : BaseAssetHolderService<PokerManager>
 public class FiatAssetTransactionService : BaseTransactionService<FiatAssetTransaction>
 {
     public async Task<FiatAssetTransaction> SendBrazilianReais(Guid assetHolderId, FiatAssetTransactionRequest request)
+    
+    // Partial update - only updates provided fields
+    public async Task<FiatAssetTransaction> PartialUpdateAsync(Guid id, UpdateFiatAssetTransactionRequest request)
+}
+```
+
+**DigitalAssetTransactionService**
+```csharp
+public class DigitalAssetTransactionService : BaseTransactionService<DigitalAssetTransaction>
+{
+    // Partial update with AvgRate cache invalidation
+    public async Task<DigitalAssetTransaction> PartialUpdateAsync(Guid id, UpdateDigitalAssetTransactionRequest request)
 }
 ```
 
@@ -424,6 +436,42 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
 }
 ```
 
+#### Partial Update Pattern
+
+Transaction services implement a `PartialUpdateAsync` method that differs from the generic `Update` method:
+
+```csharp
+public async Task<FiatAssetTransaction> PartialUpdateAsync(Guid id, UpdateFiatAssetTransactionRequest request)
+{
+    var entity = await context.FiatAssetTransactions
+        .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedAt.HasValue);
+    
+    if (entity == null)
+        throw new KeyNotFoundException($"FiatAssetTransaction with ID {id} not found.");
+    
+    // Business rule: Cannot update approved transactions
+    if (entity.ApprovedAt.HasValue)
+        throw new InvalidOperationException("Cannot update an approved transaction. Remove approval first.");
+
+    // Only update fields that are provided (not null)
+    if (request.Date.HasValue)
+        entity.Date = request.Date.Value;
+    if (request.AssetAmount.HasValue)
+        entity.AssetAmount = request.AssetAmount.Value;
+    if (request.CategoryId.HasValue)
+        entity.CategoryId = request.CategoryId.Value == Guid.Empty ? null : request.CategoryId;
+
+    await context.SaveChangesAsync();
+    return entity;
+}
+```
+
+**Key differences from generic Update:**
+- Uses dedicated Update Request DTOs with all nullable fields
+- Only modifies fields that are explicitly provided
+- Enforces business rule: approved transactions cannot be updated
+- `DigitalAssetTransactionService` also invalidates AvgRate cache after update
+
 ### Validation Services
 
 **WalletIdentifierValidationService**
@@ -438,43 +486,86 @@ public class SettlementTransactionService : BaseTransactionService<SettlementTra
 
 Financial calculation and tracking services that support the `/financeiro/planilha` page.
 
-**AvgRateService** (`Application/Services/Finance/AvgRateService.cs`)
+#### AvgRateService
+
+**File:** `Application/Services/Finance/AvgRateService.cs`  
+**Interface:** `IAvgRateService`  
+**Purpose:** Calculates the weighted average rate (AvgRate / Cotação) for poker managers.
+
 ```csharp
 public interface IAvgRateService
 {
     Task<decimal> GetAvgRateAtDate(Guid pokerManagerId, DateTime date);
     Task<AvgRateSnapshot> GetAvgRateForMonth(Guid pokerManagerId, int year, int month);
     Task InvalidateFromDate(Guid pokerManagerId, DateTime fromDate);
+    bool RequiresAvgRateTracking(Guid assetHolderId);
+    AvgRateCalculationMode GetCalculationMode(Guid assetHolderId, AssetGroup assetGroup);
 }
 ```
 
-Features:
-- Calculates weighted average cost rate for PokerManager chip inventory
-- Caches monthly snapshots in `IMemoryCache` (24h TTL for past months)
-- Current month is always calculated dynamically
-- Cache invalidation triggers cascade recalculation for subsequent months
+**Key Methods:**
 
-**ProfitCalculationService** (`Application/Services/Finance/ProfitCalculationService.cs`)
+| Method | Description |
+|--------|-------------|
+| `GetAvgRateAtDate(managerId, date)` | Returns AvgRate at a specific date; returns 1 for RakeOverrideCommission managers |
+| `GetAvgRateForMonth(managerId, year, month)` | Monthly snapshot (cached for past months) |
+| `InvalidateFromDate(managerId, fromDate)` | Cache invalidation from date forward |
+| `RequiresAvgRateTracking(assetHolderId)` | Returns true for Spread managers |
+| `GetCalculationMode(assetHolderId, assetGroup)` | Returns Consolidated or PerAssetType based on InitialBalance |
+
+**Design Decisions:**
+
+- **Past months cached for 24 hours** — immutable data that won't change
+- **Current month calculated dynamically** — active data that changes with new transactions
+- **Iterative forward calculation** — avoids stack overflow from recursive approaches
+- **Transactions ordered: receives before sends within same day** — ensures correct weighted average when multiple transactions occur on the same date
+
+#### ProfitCalculationService
+
+**File:** `Application/Services/Finance/ProfitCalculationService.cs`  
+**Interface:** `IProfitCalculationService`  
+**Purpose:** Calculates profit metrics from four revenue sources.  
+**Dependencies:** `DataContext`, `IAvgRateService`, `IMemoryCache`
+
 ```csharp
 public interface IProfitCalculationService
 {
     Task<ProfitSummary> GetProfitSummary(DateTime startDate, DateTime endDate, Guid? managerId = null);
     Task<List<ProfitByManager>> GetProfitByManager(DateTime startDate, DateTime endDate);
     Task<List<ProfitBySource>> GetProfitBySource(DateTime startDate, DateTime endDate);
+    Task<List<DirectIncomeDetail>> GetDirectIncomeDetails(DateTime startDate, DateTime endDate);
+    Task<List<RateFeeDetail>> GetRateFeeDetails(DateTime startDate, DateTime endDate);
+    Task<List<RakeCommissionDetail>> GetRakeCommissionDetails(DateTime startDate, DateTime endDate);
+    Task<List<SpreadProfitDetail>> GetSpreadProfitDetails(DateTime startDate, DateTime endDate);
+    Task<Dictionary<Guid, decimal>> GetManagerAvgRates(DateTime asOfDate);
 }
 ```
 
-Features:
+**Key Methods:**
+
+| Method | Description |
+|--------|-------------|
+| `GetProfitSummary(startDate, endDate, managerId?)` | Aggregated profit summary across all sources |
+| `GetProfitByManager(startDate, endDate)` | Per-manager breakdown (excludes DirectIncome) |
+| `GetProfitBySource(startDate, endDate)` | Profit grouped by revenue source |
+| `GetDirectIncomeDetails(startDate, endDate)` | Itemized direct income transactions |
+| `GetRateFeeDetails(startDate, endDate)` | Itemized rate fee calculations |
+| `GetRakeCommissionDetails(startDate, endDate)` | Itemized rake commission calculations |
+| `GetSpreadProfitDetails(startDate, endDate)` | Itemized spread profit calculations |
+| `GetManagerAvgRates(asOfDate)` | Dictionary of manager AvgRates at a given date |
+
+**Features:**
 - Calculates company profit from four sources: Direct Income, Rake Commission, Rate Fees, Spread
 - Caches system wallet IDs for performance (10min TTL)
 - Uses optimized LINQ joins to avoid slow navigation property queries
+- Per-manager breakdown excludes DirectIncome (company-level, not attributable to a manager)
 
 **Profit Calculation Formulas:**
 
 | Source | Formula |
 |--------|---------|
-| Direct Income | System wallet transactions (+ received, - sent) |
-| Rake Commission | `RakeAmount × (RakeCommission - RakeBack) / 100 × AvgRate` |
+| Direct Income | System wallet transactions with categories (+ received, - sent) |
+| Rake Commission | `RakeAmount × ((RakeCommission% - RakeBack%) / 100) × AvgRate` |
 | Rate Fees | `AssetAmount × (Rate / (100 + Rate)) × AvgRate` |
 | Spread Profit | `SaleAmount × (SaleRate - AvgRate)` |
 

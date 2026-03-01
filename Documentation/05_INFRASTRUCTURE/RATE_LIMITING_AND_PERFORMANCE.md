@@ -141,7 +141,7 @@ var walletIds = await (
         on wallet.AssetPoolId equals pool.Id
     where !wallet.DeletedAt.HasValue
           && !pool.DeletedAt.HasValue
-          && pool.AssetGroup == AssetGroup.Internal
+          && pool.AssetGroup == AssetGroup.Flexible
           && pool.BaseAssetHolderId == null
     select wallet.Id
 ).ToListAsync();
@@ -159,14 +159,14 @@ _cache.Set(SystemWalletCacheKey, walletIds, TimeSpan.FromMinutes(10));
 // Slow: Include + navigation property filter
 await _context.WalletIdentifiers
     .Include(w => w.AssetPool)
-    .Where(w => w.AssetPool.AssetGroup == AssetGroup.Internal)
+    .Where(w => w.AssetPool.AssetGroup == AssetGroup.Flexible)
     .ToListAsync();
 
 // Fast: Direct join
 await (
     from wallet in _context.WalletIdentifiers
     join pool in _context.AssetPools on wallet.AssetPoolId equals pool.Id
-    where pool.AssetGroup == AssetGroup.Internal
+    where pool.AssetGroup == AssetGroup.Flexible
     select wallet
 ).ToListAsync();
 ```
@@ -193,7 +193,7 @@ public interface ICacheMetricsService
         string category);
     
     void Remove(string key, string category);
-    CacheStatistics GetStatistics();
+    CacheStatisticsResponse GetStatistics();
 }
 ```
 

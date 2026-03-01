@@ -30,6 +30,12 @@ This document provides comprehensive reference for all transaction-related API e
 
 **Recommended for new implementations:** Use the unified `/transfer` endpoint for all non-settlement transactions.
 
+### February 2026 Status Update
+
+- Automatic wallet creation during transfer is deprecated and explicitly rejected (`WALLETS_CREATION_DEPRECATED`).
+- System operations are supported by sending `senderAssetHolderId` and/or `receiverAssetHolderId` as `null` or `Guid.Empty` plus explicit wallet IDs.
+- Transfer mode bank rules are enforced on backend; `AssetGroup.Flexible` restriction remains a frontend guardrail (not a backend hard validation).
+
 ### Future Improvements
 
 > **📋 TODO: Frontend Transaction Pattern Screening**
@@ -84,7 +90,6 @@ Creates a transfer between any two asset holders.
   "date": "2026-01-22T10:00:00Z",
   "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "description": "Payment for services",
-  "createWalletsIfMissing": false,
   "autoApprove": false,
   "validateBalance": false,
   "balanceAs": null,
@@ -177,7 +182,7 @@ Creates a transfer between any two asset holders.
 
 ##### Wallets Required (400)
 
-Returned when wallets don't exist and `CreateWalletsIfMissing = false`:
+Returned when one or more required participant wallets do not exist:
 
 ```json
 {
@@ -429,7 +434,7 @@ Standard CRUD endpoints for fiat currency transactions.
 | GET | `/` | List all fiat transactions | `List<FiatAssetTransactionResponse>` |
 | GET | `/{id}` | Get transaction by ID | `FiatAssetTransactionResponse` |
 | POST | `/` | Create transaction | `FiatAssetTransactionResponse` |
-| PUT | `/{id}` | Update transaction | `FiatAssetTransactionResponse` |
+| PUT | `/{id}` | **Partial update** transaction | `FiatAssetTransactionResponse` |
 | DELETE | `/{id}` | Delete transaction | `204 No Content` |
 | GET | `/bank-transactions` | Get bank-related transactions | `TableResponse<FiatAssetTransactionResponse>` |
 | GET | `/direct-transactions` | Get non-bank transactions | `TableResponse<FiatAssetTransactionResponse>` |
@@ -440,6 +445,46 @@ Standard CRUD endpoints for fiat currency transactions.
 |-----------|------|----------|---------|-------------|
 | `quantity` | int | No | 1000 | Number of records |
 | `page` | int | No | 0 | Page number (0-indexed) |
+
+### PUT /api/v1/fiatasettransaction/{id} (Partial Update)
+
+Updates a fiat asset transaction with **partial update semantics**. Only fields that are provided will be updated; other fields remain unchanged.
+
+**Request Body** (`UpdateFiatAssetTransactionRequest`):
+
+```json
+{
+  "date": "2026-01-22T10:00:00Z",
+  "assetAmount": 1500.00,
+  "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `date` | DateTime? | No | Transaction date (cannot be in the future) |
+| `assetAmount` | decimal? | No | Amount (must be > 0) |
+| `categoryId` | Guid? | No | Category ID (send empty GUID to clear) |
+
+**Business Rules:**
+- **Approved transactions cannot be updated** - returns 409 Conflict
+- Only provided fields are updated; null/missing fields are ignored
+- `SenderWalletIdentifierId` and `ReceiverWalletIdentifierId` cannot be changed (intentional)
+
+**Response Codes:**
+| Code | Description |
+|------|-------------|
+| 200 | Success - returns updated transaction |
+| 400 | Validation error (future date, negative amount) |
+| 404 | Transaction not found |
+| 409 | Transaction is already approved |
+
+**Example Error Response (409 Conflict):**
+```json
+{
+  "message": "Cannot update an approved transaction. Remove approval first."
+}
+```
 
 ---
 
@@ -454,9 +499,52 @@ Standard CRUD endpoints for digital asset transactions.
 | GET | `/` | List all digital transactions | `List<DigitalAssetTransactionResponse>` |
 | GET | `/{id}` | Get transaction by ID | `DigitalAssetTransactionResponse` |
 | POST | `/` | Create transaction | `DigitalAssetTransactionResponse` |
-| PUT | `/{id}` | Update transaction | `DigitalAssetTransactionResponse` |
+| PUT | `/{id}` | **Partial update** transaction | `DigitalAssetTransactionResponse` |
 | DELETE | `/{id}` | Delete transaction | `204 No Content` |
 | GET | `/poker-manager-transactions` | Get poker manager transactions | `TableResponse<DigitalAssetTransactionResponse>` |
+
+### PUT /api/v1/digitalassettransaction/{id} (Partial Update)
+
+Updates a digital asset transaction with **partial update semantics**. Only fields that are provided will be updated; other fields remain unchanged.
+
+**Request Body** (`UpdateDigitalAssetTransactionRequest`):
+
+```json
+{
+  "date": "2026-01-22T10:00:00Z",
+  "assetAmount": 5000.00,
+  "conversionRate": 5.25,
+  "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `date` | DateTime? | No | Transaction date (cannot be in the future) |
+| `assetAmount` | decimal? | No | Amount (must be > 0) |
+| `conversionRate` | decimal? | No | Conversion rate (must be > 0) |
+| `categoryId` | Guid? | No | Category ID (send empty GUID to clear) |
+
+**Business Rules:**
+- **Approved transactions cannot be updated** - returns 409 Conflict
+- Only provided fields are updated; null/missing fields are ignored
+- `SenderWalletIdentifierId` and `ReceiverWalletIdentifierId` cannot be changed (intentional)
+- **AvgRate cache is invalidated** after successful update for affected PokerManagers
+
+**Response Codes:**
+| Code | Description |
+|------|-------------|
+| 200 | Success - returns updated transaction |
+| 400 | Validation error (future date, negative amount/rate) |
+| 404 | Transaction not found |
+| 409 | Transaction is already approved |
+
+**Example Error Response (409 Conflict):**
+```json
+{
+  "message": "Cannot update an approved transaction. Remove approval first."
+}
+```
 
 ---
 
@@ -718,9 +806,9 @@ Then submit the transfer with the resolved system wallet as sender or receiver.
 }
 ```
 
-### PokerManager Self-Conversion (Internal Trigger)
+### PokerManager Self-Conversion (Flexible Trigger)
 
-Self-conversion is a DigitalAssetTransaction where a PokerManager uses their **Internal** wallet as the counterparty to their own PokerAssets wallet. Both `balanceAs` and `conversionRate` must be set.
+Self-conversion is a DigitalAssetTransaction where a PokerManager uses their **Flexible** wallet as the counterparty to their own PokerAssets wallet. Both `balanceAs` and `conversionRate` must be set.
 
 ```json
 {
@@ -839,6 +927,6 @@ For detailed authentication information, see [AUTHENTICATION.md](../05_INFRASTRU
 
 ---
 
-*Last updated: January 2026*
+*Last updated: February 2026*
 
 

@@ -28,7 +28,8 @@ Understanding these enums is essential for working with the API, interpreting da
    - [CryptoWalletMetadata](#cryptowalletmetadata)
 5. [Business Enums](#business-enums)
    - [ManagerProfitType](#managerprofittype)
-6. [Relationships Between Enums](#relationships-between-enums)
+6. [Finance DTOs](#finance-dtos)
+7. [Relationships Between Enums](#relationships-between-enums)
 
 ---
 
@@ -103,7 +104,7 @@ public enum AssetGroup
     FiatAssets = 1,
     PokerAssets = 2,
     CryptoAssets = 3,
-    Internal = 4,
+    Flexible = 4,
     Settlements = 5,
 }
 ```
@@ -114,7 +115,7 @@ public enum AssetGroup
 | 1 | FiatAssets | Traditional currencies (BRL, USD) |
 | 2 | PokerAssets | Poker platform chips and credits |
 | 3 | CryptoAssets | Cryptocurrency holdings |
-| 4 | Internal | Internal accounting entries |
+| 4 | Flexible | Flexible/system accounting entries |
 | 5 | Settlements | Settlement transaction records |
 
 #### Usage
@@ -127,12 +128,12 @@ AssetGroup is used in:
 
 #### Special Groups
 
-**Internal (`AssetGroup.Internal`)**: Used for internal accounting entries and company-level wallets. Wallet identifiers with this group skip metadata validation.
+**Flexible (`AssetGroup.Flexible`)**: Used for internal accounting entries and company-level wallets. Wallet identifiers with this group skip metadata validation.
 
-**Settlements (`AssetGroup.Settlements`)**: Specifically for settlement transaction tracking. Like Internal, these skip metadata validation requirements.
+**Settlements (`AssetGroup.Settlements`)**: Specifically for settlement transaction tracking. Like Flexible, these skip metadata validation requirements.
 
 **Naming Clarification:**
-- `AssetGroup.Internal` (enum) is a wallet category
+- `AssetGroup.Flexible` (enum) is a wallet category
 - `INTERNAL` (transaction mode) is a same-holder transfer mode
 - `IsInternalTransfer` (transaction property) checks if both wallets share the same owner
 
@@ -149,31 +150,60 @@ Defines the accounting classification for wallet identifiers, following standard
 ```csharp
 public enum AccountClassification
 {
-    ASSET = 1,
-    LIABILITY = 2,
-    EQUITY = 3,
-    REVENUE = 4,
-    EXPENSE = 5
+    None = 0,
+    Asset = 1,
+    Liability = 2,
+    Equity = 3,
+    Revenue = 4,
+    Expense = 5
 }
 ```
 
 | Value | Name | Description |
 |-------|------|-------------|
-| 1 | ASSET | Resources owned by the company |
-| 2 | LIABILITY | Obligations owed to others |
-| 3 | EQUITY | Owner's stake in the business |
-| 4 | REVENUE | Income from operations |
-| 5 | EXPENSE | Costs of operations |
+| 0 | None | Not specified |
+| 1 | Asset | Resources owned by the company |
+| 2 | Liability | Obligations owed to others |
+| 3 | Equity | Owner's stake in the business |
+| 4 | Revenue | Income from operations |
+| 5 | Expense | Costs of operations |
 
 #### Business Usage by Entity Type
 
 | Entity | Classification | Balance Meaning |
 |--------|---------------|-----------------|
-| **Bank** | ASSET | Positive = company HAS money |
-| **PokerManager** (PokerAssets) | ASSET | Positive = company HAS chips |
-| **PokerManager** (FiatAssets) | LIABILITY | Positive = company OWES PM |
-| **Client** | LIABILITY | Positive = company OWES client |
-| **Member** | LIABILITY | Positive = company OWES member |
+| **Bank** | Asset | Positive = company HAS money |
+| **PokerManager** (PokerAssets) | Asset | Positive = company HAS chips |
+| **PokerManager** (FiatAssets) | Liability | Positive = company OWES PM |
+| **Client** | Liability | Positive = company OWES client |
+| **Member** | Liability | Positive = company OWES member |
+| **System Wallet** (company-owned) | Liability | Represents company's internal accounting position |
+
+#### System Wallet AccountClassification
+
+System wallets are company-owned Flexible wallets (`AssetPool.BaseAssetHolderId = null`) used for internal accounting operations (expenses and income).
+
+**Classification Rule:** System wallets are created with `AccountClassification = Liability` (2).
+
+**Rationale:**
+
+In double-entry accounting, when a transaction involves an entity wallet (Asset) and a system wallet (Liability), the `HaveBothWalletsSameAccountClassification` rule triggers sign inversion for the Liability side. This ensures:
+
+- **Entity receives (income):** System wallet is sender → Entity balance increases (Asset goes up = company HAS more)
+- **Entity sends (expense):** System wallet is receiver → Entity balance decreases (Asset goes down = company spent)
+
+**Transaction Direction for System Operations:**
+
+| Operation Type | System Wallet Position | Entity Balance Impact |
+|----------------|----------------------|----------------------|
+| **Receita** (Income) | Sender | Entity receives → balance UP |
+| **Despesa** (Expense) | Receiver | Entity sends → balance DOWN |
+
+This ensures financial reports correctly show:
+- Income transactions increase entity (bank/manager) balances
+- Expense transactions decrease entity (bank/manager) balances
+
+See [TRANSACTION_BALANCE_IMPACT.md](../03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md) for detailed balance calculation formulas.
 
 #### Transaction Sign Behavior
 
@@ -236,6 +266,7 @@ Defines the Brazilian tax entity classification for asset holders.
 ```csharp
 public enum TaxEntityType
 {
+    None = 0,
     CPF = 1,
     CNPJ = 2,
     CNPJ_Not_Taxable = 3
@@ -244,6 +275,7 @@ public enum TaxEntityType
 
 | Value | Name | Description |
 |-------|------|-------------|
+| 0 | None | Not specified |
 | 1 | CPF | Individual (Cadastro de Pessoa Física) |
 | 2 | CNPJ | Business (Cadastro Nacional de Pessoa Jurídica) |
 | 3 | CNPJ_Not_Taxable | Non-taxable business entity |
@@ -267,6 +299,9 @@ Defines the types of files that can be imported to create transactions.
 ```csharp
 public enum ImportFileType
 {
+    [Display(Name = "None", Description = "Not specified")]
+    None = 0,
+
     [Display(Name = "OFX File", Description = "Open Financial Exchange file format")]
     Ofx = 1,
     
@@ -297,6 +332,7 @@ public enum ImportFileType
 
 | Value | Name | Status |
 |-------|------|--------|
+| 0 | None | Reserved/default value |
 | 1 | Ofx | Fully supported via `/import/ofx` |
 | 2 | Excel | Fully supported via `/import/excel/*` |
 | 3-8 | Others | Reserved for future implementation |
@@ -312,6 +348,9 @@ Defines the types of Excel imports supported for poker transactions.
 ```csharp
 public enum ExcelImportType
 {
+    [Display(Name = "None")]
+    None = 0,
+
     [Display(Name = "Buy Transactions")]
     BuyTransactions = 1,
     
@@ -325,6 +364,7 @@ public enum ExcelImportType
 
 | Value | Name | Description | Default Column Mapping |
 |-------|------|-------------|----------------------|
+| 0 | None | Not specified | N/A |
 | 1 | BuyTransactions | Purchase transactions from poker platforms | WalletIdentifier, Value, AssetPool, CreatedAt, Description |
 | 2 | SellTransactions | Sale transactions from poker platforms | WalletIdentifier, Value, AssetPool, CreatedAt, Description |
 | 3 | TransferTransactions | Transfer transactions between accounts | From, To, CreatedAt, Value, Description |
@@ -340,6 +380,7 @@ Tracks the lifecycle status of an imported transaction.
 ```csharp
 public enum ImportedTransactionStatus
 {
+    None = 0,
     Pending = 1,
     Processing = 2,
     Processed = 3,
@@ -363,6 +404,7 @@ Pending (1) → Processing (2) → Processed (3) → Reconciled (4)
 
 | Value | Name | Description |
 |-------|------|-------------|
+| 0 | None | Not specified |
 | 1 | Pending | Imported but not yet processed |
 | 2 | Processing | Currently being processed |
 | 3 | Processed | Successfully processed, awaiting reconciliation |
@@ -383,6 +425,7 @@ Identifies the type of base transaction that an imported transaction was reconci
 ```csharp
 public enum ReconciledTransactionType
 {
+    None = 0,
     Fiat = 1,
     Digital = 2,
     Settlement = 3
@@ -391,6 +434,7 @@ public enum ReconciledTransactionType
 
 | Value | Name | Reconciles With |
 |-------|------|-----------------|
+| 0 | None | Not reconciled |
 | 1 | Fiat | `FiatAssetTransaction` |
 | 2 | Digital | `DigitalAssetTransaction` |
 | 3 | Settlement | `SettlementTransaction` |
@@ -490,15 +534,17 @@ Defines how the **company** profits from a poker manager's operations.
 ```csharp
 public enum ManagerProfitType
 {
-    Spread = 0,
-    RakeOverrideCommission = 1
+    None = 0,
+    Spread = 1,
+    RakeOverrideCommission = 2
 }
 ```
 
 | Value | Name | Description | How Company Profits |
 |-------|------|-------------|---------------------|
-| 0 | Spread | Price spread between buy/sell rates | Different `ConversionRate` on buy vs sell transactions |
-| 1 | RakeOverrideCommission | Commission from poker site | `RakeCommission` % in SettlementTransaction |
+| 0 | None | Not specified | No configured profit strategy |
+| 1 | Spread | Price spread between buy/sell rates | Different `ConversionRate` on buy vs sell transactions |
+| 2 | RakeOverrideCommission | Commission from poker site | `RakeCommission` % in SettlementTransaction |
 
 #### Spread Example
 
@@ -519,7 +565,25 @@ SettlementTransaction:
 Company profit: 1000 × ((50 - 10) / 100) = 400 chips
 ```
 
+**Usage:** Set on `PokerManager.ManagerProfitType` (nullable). Affects AvgRate calculation, balance rules, and profit formulas.
+
 > **Note:** Implementation of company profit tracking is planned for the Finance Module (TBD).
+
+---
+
+## Finance DTOs
+
+Response types from the ProfitController (`/api/v1/finance/profit/*`):
+
+| DTO | Endpoint | Description |
+|-----|----------|-------------|
+| `ProfitSummary` | `/summary` | Aggregated profit with DirectIncome, RakeCommission, RateFees, SpreadProfit, TotalProfit |
+| `ProfitByManager` | `/by-manager` | Per-manager profit excluding DirectIncome |
+| `ProfitBySource` | `/by-source` | Profit grouped by source type |
+| `DirectIncomeDetailsResponse` | `/direct-income-details` | Itemized income/expense transactions |
+| `RateFeeDetailsResponse` | `/rate-fee-details` | Itemized rate fee transactions |
+| `RakeCommissionDetailsResponse` | `/rake-commission-details` | Itemized rake commission settlements |
+| `SpreadProfitDetailsResponse` | `/spread-details` | Itemized spread profit sales |
 
 ---
 
@@ -548,7 +612,7 @@ AssetGroup      → Required Metadata Enum
 FiatAssets      → BankWalletMetadata
 PokerAssets     → PokerWalletMetadata
 CryptoAssets    → CryptoWalletMetadata
-Internal        → No metadata required
+Flexible        → No metadata required
 Settlements     → No metadata required
 ```
 

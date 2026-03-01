@@ -24,12 +24,12 @@ public class WalletIdentifierController(
 {
     private readonly IMapper _mapper = mapper;
 
-    [HttpPost("internal-wallet")]
+    [HttpPost("flexible-wallet")]
     [RequirePermission(Auth0Permissions.CreateWallets)]
-    public async Task<IActionResult> AddInternalWallet([FromBody] WalletIdentifierRequest request)
+    public async Task<IActionResult> AddFlexibleWallet([FromBody] WalletIdentifierRequest request)
     {
         var walletIdentifier = _mapper.Map<WalletIdentifier>(request);
-        var result = await walletIdentifierService.AddWithAssetGroup(walletIdentifier, AssetGroup.Internal);
+        var result = await walletIdentifierService.AddWithAssetGroup(walletIdentifier, AssetGroup.Flexible);
         return Ok(result);
     }
 

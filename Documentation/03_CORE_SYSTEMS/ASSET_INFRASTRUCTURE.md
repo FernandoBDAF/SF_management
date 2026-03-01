@@ -6,7 +6,7 @@
 - [Core Domain Models](#core-domain-models)
   - [AssetPool](#assetpool)
   - [WalletIdentifier](#walletidentifier)
-- [Internal Wallets (Creation vs Participation)](#internal-wallets-creation-vs-participation)
+- [Flexible Wallets (Creation vs Participation)](#flexible-wallets-creation-vs-participation)
 - [Metadata System](#metadata-system)
   - [Bank Wallet Metadata](#bank-wallet-metadata-fiat-assets)
   - [Poker Wallet Metadata](#poker-wallet-metadata)
@@ -97,33 +97,33 @@ public class WalletIdentifier : BaseDomain
 
 ---
 
-## Internal Wallets (Creation vs Participation)
+## Flexible Wallets (Creation vs Participation)
 
-`AssetGroup.Internal` wallets are flexible wallets that bypass metadata validation. They are created explicitly and **participate** in transactions, but transaction modes never create them automatically.
+`AssetGroup.Flexible` wallets bypass metadata validation. They are created explicitly and **participate** in transactions, but transaction modes never create them automatically.
 
 ### Creation Use Cases
 
 | Use Case | Owner | Purpose | Creation Path |
 |----------|-------|---------|---------------|
-| **System Wallets** | Company (`BaseAssetHolderId = null`) | Financial operations and categorization | `POST /api/v1/WalletIdentifier/internal-wallet` |
-| **Conversion Wallets** | PokerManager | Self-conversion trigger (dual-balance impact) | `POST /api/v1/WalletIdentifier/internal-wallet` |
+| **System Wallets** | Company (`BaseAssetHolderId = null`) | Financial operations and categorization | `POST /api/v1/WalletIdentifier/flexible-wallet` |
+| **Conversion Wallets** | PokerManager | Self-conversion trigger (dual-balance impact) | `POST /api/v1/WalletIdentifier/flexible-wallet` |
 
 ### Participation vs Creation
 
-Transaction modes can **use** Internal wallets but do **not** create them:
+Transaction modes can **use** Flexible wallets but do **not** create them:
 
-- TRANSFER and INTERNAL modes may select existing Internal wallets
+- TRANSFER and INTERNAL modes may select existing Flexible wallets
 - Auto-created wallets use the **natural** `AssetGroup` based on `AssetType` mapping
 
 ### System Wallet Pairing
 
-System operations resolve the company-owned Internal wallet using:
+System operations resolve the company-owned Flexible wallet using:
 
 ```
 GET /api/v1/company/asset-pools/system-wallet-to-pair-with/{walletIdentifierId}
 ```
 
-This endpoint only returns **company-owned** Internal wallets (`BaseAssetHolderId = null`).
+This endpoint only returns **company-owned** Flexible wallets (`BaseAssetHolderId = null`).
 
 ---
 
@@ -305,7 +305,7 @@ var bankWallet = new WalletIdentifier
 {
     AssetPoolId = fiatPool.Id,
     AssetType = AssetType.BrazilianReal,
-    AccountClassification = AccountClassification.ASSET
+    AccountClassification = AccountClassification.Asset
 };
 bankWallet.SetMetadataFromFields(
     bankName: "Banco do Brasil",
@@ -330,7 +330,7 @@ var pokerWallet = new WalletIdentifier
 {
     AssetPoolId = pokerPool.Id,
     AssetType = AssetType.PokerStars,
-    AccountClassification = AccountClassification.ASSET
+    AccountClassification = AccountClassification.Asset
 };
 pokerWallet.SetMetadataFromFields(
     inputForTransactions: "player123@pokerstars.com",
@@ -372,7 +372,7 @@ var settlement = new SettlementTransaction
 
 The SF Management asset infrastructure provides:
 
-1. **Flexible Asset Organization** - `AssetPool` groups wallets by `AssetGroup` (Fiat, Poker, Crypto, Internal, Settlements)
+1. **Flexible Asset Organization** - `AssetPool` groups wallets by `AssetGroup` (Fiat, Poker, Crypto, Flexible, Settlements)
 2. **Extensible Wallet System** - `WalletIdentifier` with JSON-based metadata for wallet-specific details
 3. **Type-Safe Metadata** - Enum-based metadata keys with type-safe accessors
 4. **Company-Owned Pools** - Support for company assets via nullable `BaseAssetHolderId`

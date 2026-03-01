@@ -7,6 +7,9 @@ namespace SFManagement.Domain.Enums.ImportedFiles;
 /// </summary>
 public enum ImportFileType
 {
+    [Display(Name = "None", Description = "Not specified")]
+    None = 0,
+
     [Display(Name = "OFX File", Description = "Open Financial Exchange file format")]
     Ofx = 1,
     

@@ -62,8 +62,9 @@ Before understanding profit calculation, these domain concepts must be clear:
 ```csharp
 public enum ManagerProfitType
 {
-    Spread = 0,
-    RakeOverrideCommission = 1
+    None = 0,
+    Spread = 1,
+    RakeOverrideCommission = 2
 }
 ```
 
@@ -76,7 +77,7 @@ Each `PokerManager` has a `ManagerProfitType?` property. This determines which p
 
 ### System Wallets
 
-System wallets are wallet identifiers belonging to asset pools where `AssetGroup = Internal` and `BaseAssetHolderId = null`. They represent company-owned wallets. Their IDs are used to identify Direct Income transactions.
+System wallets are wallet identifiers belonging to asset pools where `AssetGroup = Flexible` and `BaseAssetHolderId = null`. They represent company-owned wallets. Their IDs are used to identify Direct Income transactions.
 
 **How they are resolved** (`ProfitCalculationService.GetSystemWalletIds`):
 
@@ -87,7 +88,7 @@ var walletIds = await (
         on wallet.AssetPoolId equals pool.Id
     where !wallet.DeletedAt.HasValue
           && !pool.DeletedAt.HasValue
-          && pool.AssetGroup == AssetGroup.Internal
+          && pool.AssetGroup == AssetGroup.Flexible
           && pool.BaseAssetHolderId == null
     select wallet.Id
 ).ToListAsync();
@@ -459,6 +460,10 @@ public interface IProfitCalculationService
     Task<List<ProfitByManager>> GetProfitByManager(DateTime startDate, DateTime endDate);
     Task<List<ProfitBySource>> GetProfitBySource(DateTime startDate, DateTime endDate);
     Task<DirectIncomeDetailsResponse> GetDirectIncomeDetails(DateTime startDate, DateTime endDate);
+    Task<RateFeeDetailsResponse> GetRateFeeDetails(DateTime startDate, DateTime endDate);
+    Task<RakeCommissionDetailsResponse> GetRakeCommissionDetails(DateTime startDate, DateTime endDate);
+    Task<SpreadProfitDetailsResponse> GetSpreadProfitDetails(DateTime startDate, DateTime endDate);
+    Task<Dictionary<Guid, decimal>> GetManagerAvgRates(DateTime asOfDate);
 }
 ```
 
@@ -470,7 +475,7 @@ public interface IProfitCalculationService
 public interface IAvgRateService
 {
     Task<decimal> GetAvgRateAtDate(Guid pokerManagerId, DateTime date);
-    Task<AvgRateSnapshot> GetAvgRateForMonth(Guid pokerManagerId, int year, int month);
+    Task<AvgRateSnapshotResponse> GetAvgRateForMonth(Guid pokerManagerId, int year, int month);
     Task InvalidateFromDate(Guid pokerManagerId, DateTime fromDate);
     void InvalidateManagerWalletCache(Guid pokerManagerId);
     Task<bool> RequiresAvgRateTracking(Guid assetHolderId);
@@ -493,13 +498,23 @@ public interface IAvgRateService
 | `SpreadProfit` | decimal | Spread profit for Spread managers |
 | `TotalProfit` | decimal | Computed: sum of all four sources |
 
-**`ProfitByManager`** — Same breakdown per manager, includes `ManagerName` and `ManagerProfitType?` (nullable — reflects actual DB value, not a default).
+**`ProfitByManager`** — Per-manager breakdown **excluding DirectIncome**. Includes `ManagerName` and `ManagerProfitType?` (nullable — reflects actual DB value, not a default). Direct Income is a system-level metric not attributable to individual managers and is available via `/direct-income-details` instead.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ManagerId` | Guid | Manager's BaseAssetHolderId |
+| `ManagerName` | string | Display name |
+| `ManagerProfitType` | int? | 0=Spread, 1=RakeOverrideCommission, null=not configured |
+| `RakeCommission` | decimal | Rake commission (RakeOverride managers only) |
+| `RateFees` | decimal | Rate fee revenue |
+| `SpreadProfit` | decimal | Spread profit (Spread managers only) |
+| `TotalProfit` | decimal | Computed: RakeCommission + RateFees + SpreadProfit |
 
 **`ProfitBySource`** — Simple `{Source, Amount}` pairs for chart-friendly output.
 
 **`DirectIncomeDetailsResponse`** — Itemized list of income and expense transactions with origin, category, and amounts.
 
-**`AvgRateSnapshot`** — Monthly state: `{PokerManagerId, Year, Month, AvgRate, TotalChips, TotalCost, CalculatedAt}`.
+**`AvgRateSnapshotResponse`** — Monthly state: `{PokerManagerId, Year, Month, AvgRate, TotalChips, TotalCost, CalculatedAt}`.
 
 ---
 
@@ -515,6 +530,10 @@ public interface IAvgRateService
 | `/by-manager` | GET | `List<ProfitByManager>` | Profit breakdown per manager (sorted by TotalProfit desc) |
 | `/by-source` | GET | `List<ProfitBySource>` | Profit breakdown by revenue source |
 | `/direct-income-details` | GET | `DirectIncomeDetailsResponse` | Itemized direct income/expense transactions |
+| `/rate-fee-details` | GET | `RateFeeDetailsResponse` | Itemized rate fee transactions |
+| `/rake-commission-details` | GET | `RakeCommissionDetailsResponse` | Itemized rake commission settlements |
+| `/spread-details` | GET | `SpreadProfitDetailsResponse` | Itemized spread profit sales |
+| `/avg-rates` | GET | `Dictionary<Guid, decimal>` | Manager AvgRates as of a specific date |
 
 ### Query Parameters
 
@@ -571,26 +590,45 @@ GET /api/v1/finance/profit/by-manager?startDate=2026-01-01&endDate=2026-01-31
     "managerId": "a1b2c3d4-...",
     "managerName": "Manager Alpha",
     "managerProfitType": 0,
-    "directIncome": 5000.00,
     "rakeCommission": 0.00,
     "rateFees": 600.00,
     "spreadProfit": 3500.00,
-    "totalProfit": 9100.00
+    "totalProfit": 4100.00
   },
   {
     "managerId": "e5f6g7h8-...",
     "managerName": "Manager Beta",
     "managerProfitType": 1,
-    "directIncome": 10000.00,
     "rakeCommission": 8500.00,
     "rateFees": 600.00,
     "spreadProfit": 0.00,
-    "totalProfit": 19100.00
+    "totalProfit": 9100.00
   }
 ]
 ```
 
-Note: `managerProfitType: 0` = Spread, `managerProfitType: 1` = RakeOverrideCommission, `null` = not configured.
+Note: `managerProfitType: 0` = Spread, `managerProfitType: 1` = RakeOverrideCommission, `null` = not configured. **DirectIncome is not included** — it's a system-level metric available via `/direct-income-details`.
+
+### Example: `/avg-rates`
+
+**Request:**
+
+```
+GET /api/v1/finance/profit/avg-rates?asOfDate=2026-01-31
+```
+
+**Response:**
+
+```json
+{
+  "a1b2c3d4-...": 5.25,
+  "e5f6g7h8-...": 1.00
+}
+```
+
+Returns a dictionary mapping each manager's `BaseAssetHolderId` to their AvgRate:
+- **Spread managers**: Actual calculated AvgRate
+- **RakeOverrideCommission managers**: Always `1` (chips valued at face value)
 
 ---
 
@@ -724,4 +762,4 @@ This is a known modeling limitation. The current implementation prioritizes cons
 ---
 
 *Created: February 20, 2026*
-*Last updated: February 23, 2026*
+*Last updated: February 27, 2026*

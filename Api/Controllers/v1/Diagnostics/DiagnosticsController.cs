@@ -22,7 +22,7 @@ public class DiagnosticsController : ControllerBase
     /// Returns cache hit/miss statistics grouped by category.
     /// </summary>
     [HttpGet("cache-stats")]
-    [ProducesResponseType(typeof(CacheStatistics), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CacheStatisticsResponse), StatusCodes.Status200OK)]
     public IActionResult GetCacheStatistics()
     {
         return Ok(_cacheMetrics.GetStatistics());

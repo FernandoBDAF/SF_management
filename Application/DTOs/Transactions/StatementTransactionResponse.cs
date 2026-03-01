@@ -33,6 +33,12 @@ public class StatementTransactionResponse
     
     public string? WalletIdentifierInput { get; set; }
 
+    public string? CounterPartyWalletIdentifierInput { get; set; }
+
+    public string? CounterPartyAssetHolderName { get; set; }
+
+    public string? CategoryName { get; set; }
+
     public AssetGroup AssetGroup { get; set; }
 
     public decimal? RakeAmount { get; set; }

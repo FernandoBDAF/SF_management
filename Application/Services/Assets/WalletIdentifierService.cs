@@ -182,7 +182,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             }
         }
 
-        if (assetPool.AssetGroup == AssetGroup.Internal && assetPool.BaseAssetHolderId == null)
+        if (assetPool.AssetGroup == AssetGroup.Flexible && assetPool.BaseAssetHolderId == null)
         {
             _cache.Remove(SystemWalletCacheKey);
         }
@@ -329,7 +329,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw!.BaseAssetHolder)
             .Include(wi => wi.Referrals)
-            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal && !wi.DeletedAt.HasValue)
+            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Flexible && !wi.DeletedAt.HasValue)
             .ToListAsync();
     }
 
@@ -342,7 +342,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         if (walletIdentifier == null) return null;
 
         // Internal wallets can only be paired with other internal wallets of the same asset type
-        if (walletIdentifier.AssetGroup == AssetGroup.Internal)
+        if (walletIdentifier.AssetGroup == AssetGroup.Flexible)
         {
             throw new ArgumentException("Wallet identifier is internal");
         }
@@ -351,7 +351,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
         return await context.WalletIdentifiers
             .Include(wi => wi.AssetPool)
             .ThenInclude(ap => ap!.BaseAssetHolder)
-            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal &&
+            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Flexible &&
                         wi.AssetPool!.BaseAssetHolderId == null &&
                         wi.AssetType == walletIdentifier.AssetType &&
                         !wi.DeletedAt.HasValue)
@@ -376,7 +376,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .Include(wi => wi.AssetPool)
                 .ThenInclude(ap => ap!.BaseAssetHolder)
             .Include(wi => wi.Referrals)
-            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal &&
+            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Flexible &&
                         wi.AssetPool!.BaseAssetHolderId == managerId &&
                         !wi.DeletedAt.HasValue)
             .OrderBy(wi => wi.CreatedAt)
@@ -389,7 +389,7 @@ public class WalletIdentifierService : BaseService<WalletIdentifier>
             .Include(wi => wi.AssetPool)
                 .ThenInclude(aw => aw!.BaseAssetHolder)
             .Include(wi => wi.Referrals)
-            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Internal && 
+            .Where(wi => wi.AssetPool!.AssetGroup == AssetGroup.Flexible && 
                         wi.MetadataJson.Contains($"\"{metadataKey}\":\"{metadataValue}\"") && 
                         !wi.DeletedAt.HasValue)
             .ToListAsync();

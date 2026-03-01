@@ -76,9 +76,9 @@ public abstract class BaseTransaction : BaseDomain
     public bool IsWalletIdentifierLiability(Guid walletIdentifierId)
     {
         if (SenderWalletIdentifierId == walletIdentifierId)
-            return SenderWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY;
+            return SenderWalletIdentifier!.AccountClassification == AccountClassification.Liability;
         
-        return ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY;
+        return ReceiverWalletIdentifier!.AccountClassification == AccountClassification.Liability;
     }
 
     [NotMapped]

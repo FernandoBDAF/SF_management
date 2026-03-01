@@ -131,7 +131,7 @@ public enum AssetGroup
     FiatAssets = 1,
     PokerAssets = 2,
     CryptoAssets = 3,
-    Internal = 4,
+    Flexible = 4,
     Settlements = 5
 }
 ```
@@ -141,11 +141,11 @@ public enum AssetGroup
 ```csharp
 public enum AccountClassification
 {
-    ASSET = 1,
-    LIABILITY = 2,
-    EQUITY = 3,
-    REVENUE = 4,
-    EXPENSE = 5
+    Asset = 1,
+    Liability = 2,
+    Equity = 3,
+    Revenue = 4,
+    Expense = 5
 }
 ```
 
@@ -227,9 +227,9 @@ public bool HaveBothWalletsSameAccountClassification()
 public bool IsWalletIdentifierLiability(Guid walletIdentifierId)
 {
     if (SenderWalletIdentifierId == walletIdentifierId)
-        return SenderWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY;
+        return SenderWalletIdentifier!.AccountClassification == AccountClassification.Liability;
     
-    return ReceiverWalletIdentifier!.AccountClassification == AccountClassification.LIABILITY;
+    return ReceiverWalletIdentifier!.AccountClassification == AccountClassification.Liability;
 }
 ```
 
@@ -258,12 +258,12 @@ balances[assetType] += signedAmount;
 balances[assetGroup] += signedAmount;
 ```
 
-### Internal AssetGroup Handling (Poker Managers Only)
+### Flexible AssetGroup Handling (Poker Managers Only)
 
-When processing transactions for poker managers, `Internal` asset group is remapped:
+When processing transactions for poker managers, `Flexible` asset group is remapped:
 
 ```csharp
-if (assetGroup == AssetGroup.Internal)
+if (assetGroup == AssetGroup.Flexible)
 {
     assetGroup = tx.ReceiverWalletIdentifier!.AssetType == AssetType.BrazilianReal 
         ? AssetGroup.FiatAssets 
@@ -275,7 +275,7 @@ if (assetGroup == AssetGroup.Internal)
 
 When a `DigitalAssetTransaction` meets all of the following conditions:
 - Both wallets belong to the same PokerManager
-- One wallet is `AssetGroup.Internal`
+- One wallet is `AssetGroup.Flexible`
 - The other wallet is `AssetGroup.PokerAssets`
 - `BalanceAs` is set
 - `ConversionRate` is set
@@ -288,7 +288,7 @@ This dual impact is required so the PokerManager reflects both the chips held an
 
 **Example:**
 ```
-Internal (PokerStars) → PokerAssets (PokerStars)
+Flexible (PokerStars) → PokerAssets (PokerStars)
 AssetAmount: 1000
 BalanceAs: BRL
 ConversionRate: 5.0
@@ -391,4 +391,4 @@ See `SF_management-front/documentation/03_CORE_SYSTEMS/BALANCE_DISPLAY_USAGE.md`
 
 ---
 
-*Last updated: January 23, 2026*
+*Last updated: February 27, 2026*

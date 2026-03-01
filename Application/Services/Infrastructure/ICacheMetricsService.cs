@@ -12,5 +12,5 @@ public interface ICacheMetricsService
 
     void Remove(string key, string category);
 
-    CacheStatistics GetStatistics();
+    CacheStatisticsResponse GetStatistics();
 }

@@ -427,7 +427,7 @@ public class TransferService
         var isBank = await _context.Banks.AnyAsync(b => b.BaseAssetHolderId == assetHolderId);
         if (isBank)
         {
-            return AccountClassification.ASSET;
+            return AccountClassification.Asset;
         }
         
         var isPokerManager = await _cachedLookupService.IsPokerManagerAsync(assetHolderId);
@@ -435,11 +435,11 @@ public class TransferService
         {
             var assetGroup = WalletIdentifierValidationService.GetAssetGroupForAssetType(assetType);
             return assetGroup == AssetGroup.FiatAssets
-                ? AccountClassification.LIABILITY
-                : AccountClassification.ASSET;
+                ? AccountClassification.Liability
+                : AccountClassification.Asset;
         }
         
-        return AccountClassification.LIABILITY;
+        return AccountClassification.Liability;
     }
 
     /// <summary>

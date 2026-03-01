@@ -156,8 +156,7 @@ builder.Services.AddDbContext<DataContext>(p =>
             .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
             .EnableRetryOnFailure(6, TimeSpan.FromSeconds(15), null)
         )
-        .LogTo(Console.WriteLine, [DbLoggerCategory.Database.Command.Name], LogLevel.Information)
-        .EnableSensitiveDataLogging());
+        .EnableSensitiveDataLogging(builder.Environment.IsDevelopment()));
 ```
 
 ### Configuration Options
@@ -166,7 +165,7 @@ builder.Services.AddDbContext<DataContext>(p =>
 |--------|-------|-------------|
 | **QuerySplittingBehavior** | `SplitQuery` | Splits queries with multiple includes to avoid cartesian explosion |
 | **EnableRetryOnFailure** | 6 retries, 15s delay | Automatic retry on transient failures |
-| **EnableSensitiveDataLogging** | `true` | Logs parameter values (disable in production if sensitive) |
+| **EnableSensitiveDataLogging** | `Development only` | Disabled in production for security |
 
 ### Connection String Format
 
@@ -265,6 +264,7 @@ Configure these settings in Azure Web App > **Configuration** > **Application se
 | `Auth0__ClientId` | Auth0 application client ID | `abc123...` |
 | `Auth0__ClientSecret` | Auth0 application secret | `xyz789...` |
 | `ASPNETCORE_ENVIRONMENT` | Environment name | `Production` or `Staging` |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | Application Insights telemetry | `InstrumentationKey=...` |
 
 ### Environment-Specific Settings
 
@@ -291,7 +291,7 @@ Azure Web App settings override `appsettings.json`:
 
 ### Application Insights Integration
 
-The application uses Serilog with multiple sinks including Seq. For Azure, consider adding the Application Insights sink:
+The application uses Serilog and should send production telemetry to Application Insights:
 
 ```csharp
 // In appsettings.json or via NuGet package
@@ -317,10 +317,9 @@ The application uses Serilog with multiple sinks including Seq. For Azure, consi
 
 ### Log Analytics
 
-Serilog writes to:
+Production logging writes to:
 - **Console** - Visible in Azure Log Stream
-- **File** - `logs/sf-management-{date}.log`
-- **Seq** - Log aggregation server (if configured)
+- **Application Insights** - Queryable telemetry and alerts
 
 ### Azure Log Stream
 

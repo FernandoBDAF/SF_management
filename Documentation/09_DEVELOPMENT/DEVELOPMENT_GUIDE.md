@@ -115,6 +115,44 @@ SF_management/
 6. **Register service** in `Api/Configuration/DependencyInjectionExtensions.cs`
 7. **Add AutoMapper mappings** in `Application/Mappings/AutoMapperProfile.cs`
 
+### Adding a New Controller with Authorization
+
+#### Using the Base Controller Pattern
+
+1. Create the controller extending `BaseApiController<TEntity, TRequest, TResponse>`
+2. Add class-level `[RequirePermission]` for read access
+3. Override write methods and add `[RequireRole(Auth0Roles.Admin)]` for admin-only operations
+
+```csharp
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadMyResource)]
+public class MyController : BaseApiController<MyEntity, MyRequest, MyResponse>
+{
+    public MyController(IMyService service, IMapper mapper) : base(service, mapper) { }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Post(MyRequest model) => base.Post(model);
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Put(Guid id, MyRequest model) => base.Put(id, model);
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Delete(Guid id) => base.Delete(id);
+}
+```
+
+### Adding a New Permission
+
+1. Add the constant to `Auth0Permissions` in `Infrastructure/Authorization/Auth0AuthorizationAttributes.cs`
+2. Register the policy in `DependencyInjectionExtensions.cs`:
+   ```csharp
+   .AddPolicy("Permission:read:myresource", policy => 
+       policy.Requirements.Add(new PermissionRequirement(Auth0Permissions.ReadMyResource)))
+   ```
+3. Assign the permission to roles in Auth0 Dashboard
+
 ### Adding a New Endpoint
 
 1. Add method to the appropriate controller
@@ -191,6 +229,14 @@ All transaction services extend `BaseTransactionService<T>`:
 1. Create `FluentValidation` validator for requests
 2. Add domain validation in `IAssetHolderDomainService`
 3. Add service-level validation as needed
+
+### DI Extension Methods
+
+`DependencyInjectionExtensions.cs` organizes service registration into named extension methods:
+
+- `AddStandardServices()` — registers singleton and transient services
+- `AddScopedServices()` — registers request-scoped services
+- `AddAuthServices()` — registers authorization handlers and policies
 
 ---
 

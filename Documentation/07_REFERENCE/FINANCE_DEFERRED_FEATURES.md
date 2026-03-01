@@ -1,16 +1,16 @@
-# Finance Module - Deferred Features
+# Finance Module - Deferred & Implemented Features
 
-> **Status:** Deferred  
+> **Status:** Partially Implemented  
 > **Created:** January 27, 2026  
-> **Last Updated:** January 27, 2026  
-> **Purpose:** Document planned finance features for future implementation  
-> **Revisit When:** After Phase 1, 2 & 3 are complete and stable
+> **Last Updated:** February 27, 2026  
+> **Purpose:** Track planned finance features — both implemented and still deferred  
+> **Revisit When:** After remaining deferred features are prioritized
 
 ---
 
 ## Overview
 
-This document captures finance features that were identified during planning but are **deferred** for future implementation. These features are valuable but not required for the initial usable version of the Finance Module.
+This document tracks finance features that were identified during planning. Some were originally deferred but have since been **implemented** (February 2026). The remaining features are **still deferred** for future implementation.
 
 ### Related Documentation
 
@@ -18,7 +18,47 @@ This document captures finance features that were identified during planning but
 |----------|---------|
 | [FINANCE_MODULE_VISION.md](../10_REFACTORING/FINANCE_MODULE_VISION.md) | Overall vision and design |
 | [FINANCE_MODULE_IMPLEMENTATION_PLAN_BACKEND.md](../10_REFACTORING/FINANCE_MODULE_IMPLEMENTATION_PLAN_BACKEND.md) | Backend implementation |
-| Frontend Implementation Plan | `SF_management-front/documentation/06_DEVELOPMENT/FINANCE_MODULE_IMPLEMENTATION_PLAN_FRONTEND.md` |
+| Frontend Implementation Plan | Documented independently in the frontend project |
+
+---
+
+## Implemented Features (Formerly Deferred)
+
+The following features were originally deferred but were **implemented in February 2026** as part of the Finance Module buildout.
+
+### Profit Detail Endpoints
+
+**Status:** ✅ Implemented (February 2026)
+
+The following detail endpoints were implemented in `ProfitCalculationService` and exposed via `ProfitController`:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/v1/profit/direct-income-details` | Itemized direct income transactions |
+| `GET /api/v1/profit/rate-fee-details` | Itemized rate fee calculations |
+| `GET /api/v1/profit/rake-commission-details` | Itemized rake commission calculations |
+| `GET /api/v1/profit/spread-details` | Itemized spread profit calculations |
+
+These endpoints support the `/financeiro/planilha` page and provide drill-down from summary totals to individual transaction-level detail.
+
+### AvgRate Endpoint
+
+**Status:** ✅ Implemented (February 2026)
+
+The `AvgRateService` and corresponding endpoint were implemented to provide weighted average rate (Cotação) calculations for poker managers. The service supports:
+- Point-in-time rate lookups
+- Monthly snapshots with caching (24h TTL for past months)
+- Cache invalidation on transaction changes
+
+### DirectIncome Exclusion from Per-Manager Breakdown
+
+**Status:** ✅ Implemented (February 2026)
+
+`GetProfitByManager` now excludes DirectIncome from the per-manager profit breakdown. DirectIncome is a company-level revenue source (system wallet transactions) and is not attributable to any specific poker manager. It is still included in the overall `GetProfitSummary` totals.
+
+---
+
+## Still Deferred Features
 
 ---
 
@@ -106,16 +146,11 @@ POST /api/v1/member/{id}/pay-salary
 
 ### Frontend Components (Planned)
 
-```
-src/app/(dashboard)/membros/[id]/financial/page.tsx
-src/features/members/components/ShareDistributionHistory.tsx
-src/features/members/components/SalaryPaymentHistory.tsx
-src/features/members/components/MemberFinancialDashboard.tsx
-```
+Frontend components for member financial views will be documented in the frontend project.
 
 ### Dependencies
 
-- **Requires:** ProfitCalculationService (Phase 2)
+- **Requires:** ~~ProfitCalculationService (Phase 2)~~ — now available
 - **Requires:** Business rules definition session with Product Owner
 
 ### Estimated Effort
@@ -187,10 +222,7 @@ PUT /api/v1/client/{id}/credit-limit
 
 ### Frontend Components (Planned)
 
-```
-src/features/clients/components/ClientCreditStatus.tsx
-src/features/clients/components/CreditLimitInput.tsx
-```
+Frontend components for client credit management will be documented in the frontend project.
 
 ### Business Questions
 
@@ -269,10 +301,7 @@ Generate financial reports in various formats for external use.
 
 ### Frontend Components (Planned)
 
-```
-src/features/finance/components/ExportButton.tsx
-src/features/finance/components/ReportScheduler.tsx
-```
+Frontend components for reporting and export will be documented in the frontend project.
 
 ### Dependencies
 
@@ -295,8 +324,9 @@ Clean up and clarify the `ManagerProfitType` enum and related logic.
 ```csharp
 public enum ManagerProfitType
 {
-    Spread = 0,
-    RakeOverrideCommission = 1
+    None = 0,
+    Spread = 1,
+    RakeOverrideCommission = 2
 }
 ```
 
@@ -308,7 +338,7 @@ public enum ManagerProfitType
 
 ### Dependencies
 
-- **Requires:** Phase 3 (Profit Calculation Service) complete
+- **Requires:** ~~Phase 3 (Profit Calculation Service) complete~~ — now available
 
 ### Estimated Effort
 
@@ -316,20 +346,20 @@ public enum ManagerProfitType
 
 ---
 
-## Implementation Priority (When Revisiting)
+## Implementation Priority (When Revisiting Deferred Features)
 
-| Feature | Priority | Dependencies |
-|---------|----------|--------------|
-| Client Credit Management | High | None |
-| Member Financial Module | Medium | ProfitCalculationService (Phase 3), Business Rules |
-| Referral Commission | Medium | Business Rules |
-| Advanced Reporting | Lower | All features stable |
-| ManagerProfitType Refactor | Lower | Phase 3 complete |
+| Feature | Priority | Dependencies | Status |
+|---------|----------|--------------|--------|
+| Client Credit Management | High | None | Still Deferred |
+| Member Financial Module | Medium | ProfitCalculationService (**now available**), Business Rules | Still Deferred |
+| Referral Commission | Medium | Business Rules | Still Deferred |
+| Advanced Reporting | Lower | All features stable | Still Deferred |
+| ManagerProfitType Refactor | Lower | ProfitCalculationService (**now available**) | Still Deferred |
+
+> **Note:** ProfitCalculationService and AvgRateService are now implemented, unblocking Member Financial Module and ManagerProfitType Refactor from a technical dependency perspective. Business rules definition is still required for Member Financial Module.
 
 ---
 
----
-
-*Document Version: 1.1*  
-*Last Updated: January 27, 2026*  
-*Status: Deferred - Will revisit after Phase 1, 2 & 3 complete*
+*Document Version: 2.0*  
+*Last Updated: February 27, 2026*  
+*Status: Partially Implemented — see Implemented Features section above*

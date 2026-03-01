@@ -12,10 +12,81 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Api/Configuration/DependencyInjectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Configuration/DependencyInjectionExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Assets/InitialBalanceController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Assets/InitialBalanceController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Support/CategoryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Support/CategoryController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Infrastructure/Authorization/Auth0AuthorizationAttributes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Authorization/Auth0AuthorizationAttributes.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/hmg_sfmanagement-api-hmg.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/hmg_sfmanagement-api-hmg.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/main_sfmanagement-api.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/main_sfmanagement-api.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Assets/WalletIdentifierController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Assets/WalletIdentifierController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/v1/Diagnostics/DiagnosticsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Controllers/v1/Diagnostics/DiagnosticsController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/DTOs/Finance/AvgRateSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/Finance/AvgRateSnapshot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/DTOs/Infrastructure/CacheStatistics.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/Infrastructure/CacheStatistics.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/DTOs/Transactions/StatementTransactionResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/DTOs/Transactions/StatementTransactionResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Mappings/AutoMapperProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Mappings/AutoMapperProfile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Assets/AssetPoolService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Assets/AssetPoolService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Assets/WalletIdentifierService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Assets/WalletIdentifierService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Base/BaseAssetHolderService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Finance/AvgRateService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Finance/AvgRateService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Finance/IAvgRateService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Finance/IAvgRateService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Finance/ProfitCalculationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Finance/ProfitCalculationService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Infrastructure/CacheMetricsService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Infrastructure/CacheMetricsService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Infrastructure/ICacheMetricsService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Infrastructure/ICacheMetricsService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Transactions/TransferService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Transactions/TransferService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Services/Validation/WalletIdentifierValidationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Services/Validation/WalletIdentifierValidationService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/00_DOCUMENTATION_INDEX.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/01_BUSINESS/BUSINESS_DOMAIN_OVERVIEW.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/01_BUSINESS/BUSINESS_DOMAIN_OVERVIEW.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/02_ARCHITECTURE/CONTROLLER_LAYER_ARCHITECTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/02_ARCHITECTURE/CONTROLLER_LAYER_ARCHITECTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/02_ARCHITECTURE/SERVICE_LAYER_ARCHITECTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/02_ARCHITECTURE/SERVICE_LAYER_ARCHITECTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/ENTITY_BUSINESS_BEHAVIOR.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/ENTITY_BUSINESS_BEHAVIOR.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/ENTITY_INFRASTRUCTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/FINANCE_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/FINANCE_SYSTEM.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/PROFIT_CALCULATION_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/PROFIT_CALCULATION_SYSTEM.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/SETTLEMENT_WORKFLOW.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/SETTLEMENT_WORKFLOW.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_BALANCE_IMPACT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/03_CORE_SYSTEMS/TRANSACTION_RESPONSE_VIEWMODELS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/04_SUPPORTING_SYSTEMS/CATEGORY_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/04_SUPPORTING_SYSTEMS/CATEGORY_SYSTEM.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/04_SUPPORTING_SYSTEMS/CONTACT_INFORMATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/04_SUPPORTING_SYSTEMS/CONTACT_INFORMATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/04_SUPPORTING_SYSTEMS/INITIAL_BALANCES.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/04_SUPPORTING_SYSTEMS/INITIAL_BALANCES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/05_INFRASTRUCTURE/AUTHENTICATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/05_INFRASTRUCTURE/AUTHENTICATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/05_INFRASTRUCTURE/CACHING_STRATEGY.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/05_INFRASTRUCTURE/CACHING_STRATEGY.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/05_INFRASTRUCTURE/RATE_LIMITING_AND_PERFORMANCE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/05_INFRASTRUCTURE/RATE_LIMITING_AND_PERFORMANCE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/05_INFRASTRUCTURE/VALIDATION_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/05_INFRASTRUCTURE/VALIDATION_SYSTEM.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/06_API/API_REFERENCE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/API_REFERENCE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/06_API/BALANCE_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/BALANCE_ENDPOINTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/06_API/COMPANY_ASSET_POOL_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/COMPANY_ASSET_POOL_ENDPOINTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/06_API/INTERNAL_WALLET_TYPE_IMPLEMENTATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/06_API/TRANSACTION_API_ENDPOINTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/06_API/TRANSACTION_API_ENDPOINTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/07_REFERENCE/ASSET_POOL_COMPANY_OWNERSHIP_ANALYSIS.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/07_REFERENCE/FINANCE_DEFERRED_FEATURES.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/07_REFERENCE/FINANCE_DEFERRED_FEATURES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/08_BUSINESS_RULES/ASSET_VALUATION_RULES.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/08_BUSINESS_RULES/ASSET_VALUATION_RULES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/09_DEVELOPMENT/DEVELOPMENT_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/09_DEVELOPMENT/DEVELOPMENT_GUIDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/10_DEPLOYMENT/AZURE_INFRASTRUCTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/10_DEPLOYMENT/AZURE_INFRASTRUCTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/10_DEPLOYMENT/CI_CD_PIPELINE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/10_DEPLOYMENT/CI_CD_PIPELINE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/ASSETGROUP_FLEXIBLE_RENAME_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/AVGRATE_CALCULATION_FIX_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/BALANCE_IMPROVEMENTS_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/CLEAN_ARCHITECTURE_IMPROVEMENT_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/CONTRACTS_IMPLEMENTATION_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/FINANCE_MODULE_UPGRADE_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/FINANCE_MODULE_VISION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/RATE_BALANCE_FIX_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/TESTING_STRATEGY_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/11_REFACTORING/TRANSACTION_BUGS_FIX_PLAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Entities/Assets/WalletIdentifier.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/Assets/WalletIdentifier.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Entities/Transactions/BaseTransaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Entities/Transactions/BaseTransaction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Enums/Assets/AccountClassification.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Enums/Assets/AccountClassification.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Enums/Assets/AssetGroup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Enums/Assets/AssetGroup.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Enums/ImportedFiles/ExcelImportType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Enums/ImportedFiles/ExcelImportType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Enums/ImportedFiles/ImportFileType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Enums/ImportedFiles/ImportFileType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Enums/ImportedFiles/ImportedTransactionStatus.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Enums/ImportedFiles/ImportedTransactionStatus.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Enums/ImportedFiles/ReconciledTransactionType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Enums/ImportedFiles/ReconciledTransactionType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Enums/ManagerProfitType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Enums/ManagerProfitType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Enums/TaxEntityType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Enums/TaxEntityType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SFManagement.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SFManagement.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +179,7 @@
       <workItem from="1751053067825" duration="713000" />
       <workItem from="1768587153210" duration="365000" />
       <workItem from="1769029479284" duration="37333000" />
-      <workItem from="1771607532737" duration="18089000" />
+      <workItem from="1771607532737" duration="25377000" />
     </task>
     <servers />
   </component>

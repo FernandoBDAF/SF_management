@@ -14,6 +14,8 @@
 4. [AvgRate Rules (Spread Managers Only)](#avgrate-rules-spread-managers-only)
 5. [Consolidation Assumptions](#consolidation-assumptions)
 6. [Examples](#examples)
+7. [Financial Report — Assets and Liabilities](#financial-report--assets-and-liabilities)
+8. [Cotação (Exchange Rate) Rules](#cotação-exchange-rate-rules)
 
 ---
 
@@ -190,6 +192,39 @@ Balance = 1,000 chips
 Result:
 - PokerStars balance tracked independently
 - No consolidation
+
+---
+
+## Financial Report — Assets and Liabilities
+
+### Ativos (Assets)
+- Positive bank balances
+- Devedores: clients and members with negative balance (absolute value)
+- Positive manager cash balance ("Saldo em Dinheiro")
+- Saldo em Fichas × Cotação for **Spread** managers only
+
+### Passivos (Liabilities)
+- Negative bank balances (absolute value)
+- Credores: clients and members with positive balance
+- Negative manager cash balance (absolute value)
+- Saldo em Fichas × Cotação for **RakeOverrideCommission** managers
+
+### Devedores and Credores
+- **Devedores** = Clients + Members with negative balance (they owe money)
+- **Credores** = Clients + Members with positive balance (money is owed to them)
+
+---
+
+## Cotação (Exchange Rate) Rules
+
+The Cotação displayed for each manager depends on their profit type:
+
+| Manager Profit Type | Cotação Value | Rationale |
+|-------------------|---------------|-----------|
+| RakeOverrideCommission | `1` (fixed) | Chips are BRL-quoted, no exchange rate applies |
+| Spread | Actual AvgRate from `AvgRateService` | Chips have a floating exchange rate |
+
+Cotação values are displayed with 3 decimal places.
 
 ---
 
