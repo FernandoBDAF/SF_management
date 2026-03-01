@@ -7,6 +7,9 @@ namespace SFManagement.Domain.Enums.ImportedFiles;
 /// </summary>
 public enum ImportedTransactionStatus
 {
+    [Display(Name = "None", Description = "Not specified")]
+    None = 0,
+
     [Display(Name = "Pending", Description = "Transaction imported but not yet processed")]
     Pending = 1,
     

@@ -88,7 +88,7 @@ GET /api/v1/company/asset-pools/{assetGroup}
 
 | Parameter | Type | Location | Description |
 |-----------|------|----------|-------------|
-| `assetGroup` | `AssetGroup` | Path | The asset group (FiatAssets, PokerAssets, CryptoAssets, Internal, Settlements) |
+| `assetGroup` | `AssetGroup` | Path | The asset group (FiatAssets, PokerAssets, CryptoAssets, Flexible, Settlements) |
 
 **Response: `200 OK`** - Same structure as single pool object above
 
@@ -273,7 +273,7 @@ GET /api/v1/company/asset-pools/system-wallet-to-pair-with/{walletIdentifierId}
 **Response: `200 OK`** - Returns a `WalletIdentifierResponse` for the matching system wallet
 
 **Rules:**
-- Only Internal wallets with `BaseAssetHolderId = null` are eligible (company-owned)
+- Only Flexible wallets with `BaseAssetHolderId = null` are eligible (company-owned)
 - Result is deterministic (ordered by creation date)
 
 **Use Case:** When creating transactions, this endpoint helps find the appropriate company wallet to use as the counterparty based on matching `AssetType`.
@@ -450,7 +450,7 @@ public Guid BaseAssetHolderId { get; set; }
 |-------|----------|
 | Asset Infrastructure | [ASSET_INFRASTRUCTURE.md](../03_CORE_SYSTEMS/ASSET_INFRASTRUCTURE.md) |
 | Company Ownership Model | [ASSET_POOL_COMPANY_OWNERSHIP_ANALYSIS.md](../07_REFERENCE/ASSET_POOL_COMPANY_OWNERSHIP_ANALYSIS.md) |
-| Internal Wallets | [INTERNAL_WALLET_TYPE_IMPLEMENTATION.md](INTERNAL_WALLET_TYPE_IMPLEMENTATION.md) |
+| Flexible Wallets | [FLEXIBLE_WALLET_IMPLEMENTATION.md](FLEXIBLE_WALLET_IMPLEMENTATION.md) |
 | Validation System | [VALIDATION_SYSTEM.md](../05_INFRASTRUCTURE/VALIDATION_SYSTEM.md) |
 | Transaction Infrastructure | [TRANSACTION_INFRASTRUCTURE.md](../03_CORE_SYSTEMS/TRANSACTION_INFRASTRUCTURE.md) |
 | Complete API Reference | [API_REFERENCE.md](API_REFERENCE.md) |

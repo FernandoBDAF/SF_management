@@ -23,6 +23,15 @@ jobs:
         with:
           dotnet-version: '9.x'
 
+      - name: Install dotnet-ef tool
+        run: dotnet tool install --global dotnet-ef --version 9.*
+
+      - name: Check vulnerable packages
+        run: dotnet list SFManagement.csproj package --vulnerable --include-transitive > vulnerability-report.txt
+
+      - name: Generate idempotent migration script
+        run: dotnet ef migrations script --project SFManagement.csproj --idempotent --output migration.sql
+
       - name: Build with dotnet
         run: dotnet build SFManagement.csproj --configuration Release
 
@@ -34,6 +43,18 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+
+      - name: Upload migration artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-script
+          path: migration.sql
+
+      - name: Upload vulnerability report
+        uses: actions/upload-artifact@v4
+        with:
+          name: vulnerability-report
+          path: vulnerability-report.txt
 
   deploy:
     runs-on: windows-latest

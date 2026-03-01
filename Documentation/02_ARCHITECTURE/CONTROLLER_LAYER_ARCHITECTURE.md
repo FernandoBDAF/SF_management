@@ -335,6 +335,65 @@ return Conflict(problemDetails);
 
 ---
 
+## Controller Authorization
+
+### Authorization Attributes
+
+The system uses two custom attributes for access control:
+
+| Attribute | Purpose |
+|-----------|---------|
+| `[RequireRole(roleName)]` | Requires the user to have a specific role (e.g., Admin) |
+| `[RequirePermission(permissionName)]` | Requires the user to have a specific permission |
+
+### Class-Level vs Method-Level Pattern
+
+The common pattern is to apply a permissive read permission at the class level and restrict write operations at the method level:
+
+```csharp
+[RequirePermission(Auth0Permissions.ReadCategories)]  // Class-level: read access
+public class CategoryController : BaseApiController<...>
+{
+    // GET endpoints inherit class-level permission
+
+    [RequireRole(Auth0Roles.Admin)]  // Method-level: restricts to admin
+    public override Task<IActionResult> Post(CategoryRequest model) { ... }
+    
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Put(Guid id, CategoryRequest model) { ... }
+    
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Delete(Guid id) { ... }
+}
+```
+
+### Admin Auto-Bypass
+
+The admin role automatically passes ALL permission checks. This is implemented in `PermissionAuthorizationHandler` — any user with the Admin role satisfies both `[RequireRole]` and `[RequirePermission]` requirements.
+
+### Non-Generic Controllers
+
+Controllers like `ProfitController` and `DiagnosticsController` do not extend `BaseApiController`. They use the same authorization attributes but define their own endpoints independently.
+
+### Controller Authorization Matrix
+
+| Controller | GET | POST/PUT/DELETE | Attribute |
+|-----------|-----|----------------|-----------|
+| ClientController | ReadClients | CreateClients etc. | Permission-based |
+| MemberController | ReadMembers | Admin-only | Mixed |
+| BankController | ReadBanks | Admin-only | Mixed |
+| PokerManagerController | ReadManagers | Admin-only | Mixed |
+| CategoryController | ReadCategories | Admin-only | Mixed |
+| InitialBalanceController | ReadBalances | Admin-only | Mixed |
+| ProfitController | ReadFinancialData | — | Permission |
+| DiagnosticsController | Admin-only | — | Role |
+
+### Related Documentation
+
+- [AUTHENTICATION.md](../04_SECURITY/AUTHENTICATION.md) — Authentication flow and token handling
+
+---
+
 ## Related Documentation
 
 - [SERVICE_LAYER_ARCHITECTURE.md](SERVICE_LAYER_ARCHITECTURE.md) - Service layer details

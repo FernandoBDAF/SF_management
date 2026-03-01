@@ -1,6 +1,9 @@
 # Authentication & Authorization
 
-This document describes the authentication and authorization system for the SF Management API. The system uses **Auth0** as the identity provider for secure, standards-based authentication.
+This document describes the authentication and authorization system for the SF Management API. The system uses **Auth0** as the identity provider for secure, standards-based authentication with **Role-Based Access Control (RBAC)**.
+
+> **Last Updated:** February 27, 2026
+> **Status:** Implemented — RBAC fully operational
 
 ## Table of Contents
 
@@ -8,7 +11,9 @@ This document describes the authentication and authorization system for the SF M
 - [Architecture](#architecture)
 - [Configuration](#configuration)
 - [Core Components](#core-components)
+- [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
 - [Authorization System](#authorization-system)
+- [Controller Authorization Matrix](#controller-authorization-matrix)
 - [Using Authentication in Code](#using-authentication-in-code)
 - [Database Integration](#database-integration)
 - [Frontend Integration](#frontend-integration)
@@ -218,27 +223,90 @@ builder.Services.AddAuthorizationBuilder()
 - `OPTIONS` requests (CORS preflight) are allowed without authentication
 - The `/health` endpoint is marked with `AllowAnonymous`
 
+---
+
+## Role-Based Access Control (RBAC)
+
+The system implements a comprehensive RBAC model with three active roles and fine-grained permissions.
+
 ### Roles
 
-The system defines four roles:
+| Role | Constant | Description | Scope |
+|------|----------|-------------|-------|
+| `admin` | `Auth0Roles.Admin` | Full system access | Everything — auto-bypasses all permission checks |
+| `manager` | `Auth0Roles.Manager` | Operational access | `/central/*`, `/entidades/*` with restrictions |
+| `partner` | `Auth0Roles.Partner` | Read-only financial view | `/financeiro/relatorio`, `/financeiro/consolidado` |
 
-| Role | Constant | Description |
-|------|----------|-------------|
-| `admin` | `Auth0Roles.Admin` | Full administrative access |
-| `manager` | `Auth0Roles.Manager` | Management-level access |
-| `user` | `Auth0Roles.User` | Standard user access |
-| `viewer` | `Auth0Roles.Viewer` | Read-only access |
+> **Note:** `user` and `viewer` roles exist in the codebase (`Auth0Roles.User`, `Auth0Roles.Viewer`) but are deferred for future implementation. No permissions or policies are currently assigned to these roles.
+
+### Admin Auto-Bypass
+
+The `admin` role automatically passes **all** permission checks. This is implemented in `PermissionAuthorizationHandler`:
+
+```csharp
+// Admin bypass - admin role auto-succeeds any permission requirement
+var roles = context.User.FindAll(ClaimTypes.Role)
+    .Concat(context.User.FindAll(RolesClaim))
+    .Select(c => c.Value)
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToList();
+
+if (roles.Contains(Auth0Roles.Admin, StringComparer.OrdinalIgnoreCase))
+{
+    context.Succeed(requirement);
+    return Task.CompletedTask;
+}
+```
+
+### Custom Roles Claim
+
+Roles are read from both the standard `ClaimTypes.Role` and a custom Auth0 namespace:
+
+```csharp
+private const string RolesClaim = "https://www.semprefichas.com.br/roles";
+```
+
+This namespace is set via an Auth0 Action that injects roles into the access token during login.
 
 ### Permissions
 
-Permissions follow a `action:resource` pattern:
+Permissions follow an `action:resource` pattern and are managed in Auth0 Dashboard.
 
 | Resource | Permissions |
 |----------|-------------|
 | Users | `read:users`, `create:users`, `update:users`, `delete:users` |
 | Clients | `read:clients`, `create:clients`, `update:clients`, `delete:clients` |
+| Members | `read:members`, `create:members`, `update:members`, `delete:members` |
+| Banks | `read:banks`, `create:banks`, `update:banks`, `delete:banks` |
+| Poker Managers | `read:managers`, `create:managers`, `update:managers`, `delete:managers` |
 | Transactions | `read:transactions`, `create:transactions`, `update:transactions`, `delete:transactions` |
-| Financial Data | `read:financial_data`, `create:financial_data`, `update:financial_data`, `delete:financial_data` |
+| Imports | `read:imports`, `create:imports`, `delete:imports` |
+| Categories | `read:categories`, `create:categories`, `update:categories`, `delete:categories` |
+| Wallets | `read:wallets`, `create:wallets`, `update:wallets`, `delete:wallets` |
+| Settlements | `read:settlements`, `create:settlements` |
+| Balances | `read:balances` |
+| Financial Data | `read:financial_data` |
+| Diagnostics | `read:diagnostics` |
+| Invoices *(planned)* | `read:invoices`, `create:invoices`, `update:invoices`, `delete:invoices` |
+| Expenses *(planned)* | `read:expenses`, `create:expenses`, `update:expenses`, `delete:expenses` |
+| Ledger *(planned)* | `read:ledger`, `create:ledger_entry`, `close:period` |
+
+### Role-to-Permission Mapping
+
+**Admin:** All permissions (plus auto-bypass)
+
+**Manager:**
+- `read:clients`, `create:clients`, `update:clients`, `delete:clients` (full CRUD on clients)
+- `read:members`, `read:banks`, `read:managers` (read-only on other entities)
+- `read:transactions`, `create:transactions`, `update:transactions`, `delete:transactions`
+- `read:wallets`, `create:wallets`
+- `read:settlements`, `create:settlements`
+- `read:categories`, `read:balances`
+
+**Partner:**
+- `read:financial_data`, `read:ledger`
+- `read:banks`, `read:clients`, `read:managers`, `read:members`
+- `read:balances`
 
 **Permission constants are available in `Auth0Permissions`:**
 
@@ -256,6 +324,24 @@ public static class Auth0Permissions
     public const string CreateClients = "create:clients";
     public const string UpdateClients = "update:clients";
     public const string DeleteClients = "delete:clients";
+
+    // Member management
+    public const string ReadMembers = "read:members";
+    public const string CreateMembers = "create:members";
+    public const string UpdateMembers = "update:members";
+    public const string DeleteMembers = "delete:members";
+
+    // Bank management
+    public const string ReadBanks = "read:banks";
+    public const string CreateBanks = "create:banks";
+    public const string UpdateBanks = "update:banks";
+    public const string DeleteBanks = "delete:banks";
+
+    // Poker manager management
+    public const string ReadManagers = "read:managers";
+    public const string CreateManagers = "create:managers";
+    public const string UpdateManagers = "update:managers";
+    public const string DeleteManagers = "delete:managers";
     
     // Transaction management
     public const string ReadTransactions = "read:transactions";
@@ -265,9 +351,36 @@ public static class Auth0Permissions
     
     // Financial data
     public const string ReadFinancialData = "read:financial_data";
-    public const string CreateFinancialData = "create:financial_data";
-    public const string UpdateFinancialData = "update:financial_data";
-    public const string DeleteFinancialData = "delete:financial_data";
+
+    // Categories
+    public const string ReadCategories = "read:categories";
+    public const string CreateCategories = "create:categories";
+    public const string UpdateCategories = "update:categories";
+    public const string DeleteCategories = "delete:categories";
+
+    // Wallets
+    public const string ReadWallets = "read:wallets";
+    public const string CreateWallets = "create:wallets";
+    public const string UpdateWallets = "update:wallets";
+    public const string DeleteWallets = "delete:wallets";
+
+    // Settlements
+    public const string ReadSettlements = "read:settlements";
+    public const string CreateSettlements = "create:settlements";
+
+    // Balances
+    public const string ReadBalances = "read:balances";
+
+    // Diagnostics
+    public const string ReadDiagnostics = "read:diagnostics";
+
+    // Ledger
+    public const string ReadLedger = "read:ledger";
+
+    // Imports
+    public const string ReadImports = "read:imports";
+    public const string CreateImports = "create:imports";
+    public const string DeleteImports = "delete:imports";
 }
 ```
 
@@ -322,6 +435,67 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
 Both handlers include comprehensive logging for security auditing.
 
 > **Note:** For details on authorization logging, see [LOGGING.md](LOGGING.md#authorization-event-logging).
+
+---
+
+## Controller Authorization Matrix
+
+This matrix shows the authorization requirements for each controller. Controllers use either `[RequirePermission]` (permission-based) or `[RequireRole]` (role-based) attributes.
+
+| Controller | Endpoints | Admin | Manager | Partner | Attribute |
+|------------|-----------|:-----:|:-------:|:-------:|-----------|
+| **ClientController** | GET | ✅ | ✅ | ✅ | `[RequirePermission(ReadClients)]` |
+| **ClientController** | POST, PUT, DELETE | ✅ | ✅ | ❌ | `[RequirePermission(CreateClients)]` etc. |
+| **MemberController** | GET | ✅ | ✅ | ✅ | `[RequirePermission(ReadMembers)]` |
+| **MemberController** | POST, PUT, DELETE | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+| **BankController** | GET | ✅ | ✅ | ✅ | `[RequirePermission(ReadBanks)]` |
+| **BankController** | POST, PUT, DELETE | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+| **PokerManagerController** | GET | ✅ | ✅ | ✅ | `[RequirePermission(ReadManagers)]` |
+| **PokerManagerController** | POST, PUT, DELETE | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+| **CategoryController** | GET | ✅ | ✅ | ❌ | `[RequirePermission(ReadCategories)]` |
+| **CategoryController** | POST, PUT, DELETE | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+| **InitialBalanceController** | GET | ✅ | ✅ | ✅ | `[RequirePermission(ReadBalances)]` |
+| **InitialBalanceController** | POST, DELETE | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+| **CompanyAssetPoolController** | GET | ✅ | ✅ | ❌ | `[RequirePermission(ReadWallets)]` |
+| **CompanyAssetPoolController** | POST, DELETE | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+| **FiatAssetTransactionController** | All | ✅ | ✅ | ❌ | `[RequirePermission(CreateTransactions)]` |
+| **DigitalAssetTransactionController** | All | ✅ | ✅ | ❌ | `[RequirePermission(CreateTransactions)]` |
+| **TransferController** | POST | ✅ | ✅ | ❌ | `[RequirePermission(CreateTransactions)]` |
+| **SettlementTransactionController** | All | ✅ | ✅ | ❌ | `[RequirePermission(CreateSettlements)]` |
+| **WalletIdentifierController** | GET, POST | ✅ | ✅ | ❌ | `[RequirePermission(ReadWallets)]` |
+| **WalletIdentifierController** | PUT, DELETE | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+| **ProfitController** | All | ✅ | ❌ | ✅ | `[RequirePermission(ReadFinancialData)]` |
+| **ImportedTransactionController** | All | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+| **DiagnosticsController** | All | ✅ | ❌ | ❌ | `[RequireRole(Admin)]` |
+
+### Authorization Pattern
+
+The system uses a split authorization pattern:
+
+1. **Class-level permission** for read access (e.g., `[RequirePermission(ReadCategories)]`)
+2. **Method-level admin restriction** for write operations (e.g., `[RequireRole(Admin)]` on POST/PUT/DELETE)
+
+Example from `CategoryController`:
+
+```csharp
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+[RequirePermission(Auth0Permissions.ReadCategories)]  // Class-level: read access
+public class CategoryController : BaseApiController<...>
+{
+    public override async Task<IActionResult> Get() { /* ... */ }
+
+    [RequireRole(Auth0Roles.Admin)]  // Method-level: admin only
+    public override Task<IActionResult> Post(CategoryRequest model) { /* ... */ }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Put(Guid id, CategoryRequest model) { /* ... */ }
+
+    [RequireRole(Auth0Roles.Admin)]
+    public override Task<IActionResult> Delete(Guid id) { /* ... */ }
+}
+```
 
 ---
 
@@ -600,6 +774,7 @@ Decode and inspect JWT tokens at [jwt.io](https://jwt.io) to verify:
 | Audit System | [AUDIT_SYSTEM.md](AUDIT_SYSTEM.md) |
 | Logging | [LOGGING.md](LOGGING.md) |
 | Error Handling | [ERROR_HANDLING.md](ERROR_HANDLING.md) |
+| Frontend RBAC | Frontend RBAC implementation is documented independently in the frontend project. |
 
 ### External References
 

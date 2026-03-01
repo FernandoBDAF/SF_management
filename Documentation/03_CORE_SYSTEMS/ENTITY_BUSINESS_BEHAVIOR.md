@@ -65,6 +65,21 @@ This distinction drives balance meaning, accounting classification, and transact
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
+│                    SYSTEM WALLETS (Company-Owned)               │
+│              (Internal Accounting Operations)                    │
+│                                                                 │
+│   ┌─────────────────────────────────────────────────────────┐  │
+│   │  Flexible Wallet with BaseAssetHolderId = NULL          │  │
+│   │  AccountClassification: LIABILITY                        │  │
+│   │  Purpose: Expenses and Income tracking                   │  │
+│   └─────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│   Used in transactions with Banks/Managers for:                 │
+│   - Receita (income): System wallet is SENDER                   │
+│   - Despesa (expense): System wallet is RECEIVER                │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
 │                    SPECIAL CASE: PokerManager FiatAssets        │
 │                                                                 │
 │   When PokerManager has FiatAssets wallet (from self-conversion │
@@ -93,7 +108,7 @@ These entities hold assets **for the company**. A positive balance means the com
 | Attribute | Value |
 |-----------|-------|
 | AssetGroups | FiatAssets only |
-| AccountClassification | ASSET |
+| AccountClassification | Asset |
 | Positive Balance | Company HAS money in this bank |
 | Negative Balance | Company borrowed from this bank (unlikely) |
 
@@ -122,7 +137,7 @@ These entities hold assets **for the company**. A positive balance means the com
 |-----------|-------|
 | Primary AssetGroup | PokerAssets |
 | Secondary AssetGroup | FiatAssets (when participating in FiatTransactions) |
-| AccountClassification | ASSET (for PokerAssets), LIABILITY (for FiatAssets) |
+| AccountClassification | Asset (for PokerAssets), Liability (for FiatAssets) |
 | Positive PokerAssets | Company HAS chips held by this manager |
 | Negative PokerAssets | Company borrowed chips (unlikely) |
 
@@ -151,6 +166,20 @@ When a PokerManager participates in FiatTransactions, they act **like a Client**
 - Positive FiatAssets = Company OWES the manager
 - This happens when the manager has personal funds involved
 
+### Manager Profit Type
+
+The `ManagerProfitType` property determines the manager's revenue model and affects multiple system behaviors:
+
+| Aspect | Spread | RakeOverrideCommission |
+|--------|--------|----------------------|
+| **Revenue Source** | Buy/sell rate difference | Percentage of poker room rake |
+| **AvgRate (Cotação)** | Weighted average from purchase history | Fixed at 1 (chips = BRL) |
+| **Balance Calculation** | Standard (PokerAssets + FiatAssets) | Includes SettlementTransaction.AssetAmount in both PokerAssets and FiatAssets |
+| **Profit Formula** | SaleAmount × (SaleRate - AvgRate) | RakeAmount × ((Commission% - RakeBack%) / 100) × AvgRate |
+| **Settlement Impact** | Standard rake/commission split | AssetAmount added to chip and fiat balances |
+
+This property is nullable — a manager without a configured profit type will not generate revenue calculations.
+
 ---
 
 ### CryptoManager (Future)
@@ -160,7 +189,7 @@ When a PokerManager participates in FiatTransactions, they act **like a Client**
 | Attribute | Value |
 |-----------|-------|
 | AssetGroups | CryptoAssets |
-| AccountClassification | ASSET |
+| AccountClassification | Asset |
 | Positive Balance | Company HAS crypto held by this manager |
 
 > **Note:** Not yet implemented. Will follow PokerManager pattern.
@@ -178,7 +207,7 @@ These entities do business **with the company**. A positive balance means the co
 | Attribute | Value |
 |-----------|-------|
 | AssetGroups | FiatAssets, PokerAssets, CryptoAssets |
-| AccountClassification | LIABILITY |
+| AccountClassification | Liability |
 | Positive Balance | Company OWES the client |
 | Negative Balance | Client OWES the company (credit) |
 
@@ -190,7 +219,7 @@ These entities do business **with the company**. A positive balance means the co
 | PURCHASE (sells chips) | Client → PM | FiatAssets increases (company owes) |
 | RECEIPT | Client → Bank | FiatAssets increases (pays debt) |
 | PAYMENT | Bank → Client | FiatAssets decreases (company pays) |
-| TRANSFER | Any → Any | Direct P2P (Internal wallets only) |
+| TRANSFER | Any → Any | Direct P2P (Flexible wallets only) |
 
 **Balance Scenarios:**
 
@@ -221,7 +250,7 @@ Scenario 3: Client pays 5000 BRL (RECEIPT)
 | Attribute | Value |
 |-----------|-------|
 | AssetGroups | FiatAssets, PokerAssets, CryptoAssets |
-| AccountClassification | LIABILITY |
+| AccountClassification | Liability |
 | Positive Balance | Company OWES the member |
 | Negative Balance | Member OWES the company |
 
@@ -249,6 +278,33 @@ Scenario 3: Client pays 5000 BRL (RECEIPT)
 | PokerManager | FiatAssets | Company OWES PM | PM OWES company |
 | Client | Any | Company OWES | Client OWES (credit) |
 | Member | Any | Company OWES | Member OWES (credit) |
+| System Wallet | Flexible | N/A (internal) | N/A (internal) |
+
+### System Wallet Classification
+
+System wallets are company-owned Flexible wallets used for internal accounting. They interact with entity wallets (Bank, PokerManager) to record company expenses and income.
+
+**Key Properties:**
+- `AssetPool.BaseAssetHolderId = null` (no owner entity)
+- `AccountClassification = Liability`
+- Statement counterparty displays as "Unknown" (use category name instead)
+
+**Transaction Direction Rules:**
+
+| Transaction Type | Entity Type | System Position | Entity Balance |
+|------------------|-------------|-----------------|----------------|
+| Compra (buy chips) | PokerManager | Sender | +Amount (income) |
+| Venda (sell chips) | PokerManager | Receiver | -Amount (expense) |
+| Recebimento (receive money) | Bank | Sender | +Amount (income) |
+| Pagamento (pay money) | Bank | Receiver | -Amount (expense) |
+
+**Why System Wallets are Liability:**
+
+The Liability classification ensures correct balance signs when transacting with Asset entities:
+- When system wallet is **sender** (income): Entity receives → Entity balance UP
+- When system wallet is **receiver** (expense): Entity sends → Entity balance DOWN
+
+This follows double-entry accounting: transactions between Asset and Liability accounts trigger sign inversion for the Liability side.
 
 ### AccountClassification Effect on Transactions
 
@@ -277,7 +333,7 @@ When sender and receiver have **different** classification:
 
 \* PokerManager acts like Client in FiatTransactions
 
-\*\* **TRANSFER mode restriction:** Only Internal wallets (AssetGroup 4) are allowed. For other asset groups, use the appropriate mode:
+\*\* **TRANSFER mode guardrail (application level):** UI limits TRANSFER mode to Flexible wallets (AssetGroup 4). Backend enforces bank restrictions and wallet validity.
 - FiatAssets → RECEIPT/PAYMENT with Bank
 - PokerAssets → SALE/PURCHASE with PokerManager
 
@@ -293,10 +349,10 @@ When sender and receiver have **different** classification:
 
 ### 1. PokerManager Self-Conversion
 
-When a PokerManager moves chips between Internal and PokerAssets wallets with `BalanceAs` set:
+When a PokerManager moves chips between Flexible and PokerAssets wallets with `BalanceAs` set:
 
 ```
-Internal → PokerAssets (manager deposits own chips)
+Flexible → PokerAssets (manager deposits own chips)
 ├─ PokerAssets: +1000 (company now holds)
 └─ FiatAssets: +5000 (company owes manager 5000 BRL)
 ```
@@ -305,7 +361,7 @@ This represents the manager putting personal chips into the managed system.
 
 **Trigger Conditions:**
 1. Both wallets belong to same PokerManager
-2. One is `AssetGroup.Internal`, other is `AssetGroup.PokerAssets`
+2. One is `AssetGroup.Flexible`, other is `AssetGroup.PokerAssets`
 3. `BalanceAs` is set
 4. `ConversionRate` is set
 
@@ -340,4 +396,4 @@ SettlementTransactions don't use `AssetAmount` for balance. Impacts are recorded
 
 ---
 
-*Last updated: January 24, 2026*
+*Last updated: February 23, 2026*

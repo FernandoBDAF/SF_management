@@ -38,6 +38,20 @@ Player wins chips → Contact Manager → Player sells chips → Manager pays
 
 ---
 
+## User Roles
+
+The system supports three active user roles with distinct access levels:
+
+| Role | Description | Access Scope |
+|------|-------------|-------------|
+| **Admin** | Full system access | All features, all entities, user management |
+| **Manager** | Operational access | Transaction creation, client management, entity viewing, settlements |
+| **Partner** | Financial view | Read-only access to financial reports and consolidated ledger |
+
+Admins can manage all aspects of the system including user creation and data imports. Managers handle day-to-day operations — creating transactions, managing clients, and processing settlements. Partners have a read-only view of financial data for oversight purposes.
+
+---
+
 ## Domain Entities
 
 ### Asset Holders
@@ -61,6 +75,17 @@ Entities that can hold assets and transact:
 **Business Partners** (transact WITH the company):
 - Client: External customers
 - Member: Internal team members
+
+### Poker Manager Profit Types
+
+Each poker manager operates under one of two profit models:
+
+| Profit Type | Description | Revenue Source |
+|------------|-------------|----------------|
+| **Spread** | Profits from the difference between buy and sell rates | SpreadProfit = SaleAmount × (SaleRate - AvgRate) |
+| **RakeOverrideCommission** | Profits from a percentage of the poker room's rake | RakeCommission = RakeAmount × ((Commission% - RakeBack%) / 100) × AvgRate |
+
+The profit type is set on the `ManagerProfitType` property and determines how the system calculates revenue, displays exchange rates (Cotação), and handles settlement balances.
 
 ### Assets
 
@@ -149,6 +174,28 @@ Manager has 10,000 chip liability
 3. **Automated Balance Calculation** - Real-time position tracking
 4. **Commission Management** - Referral and rake tracking
 5. **Import & Reconciliation** - External file integration
+
+---
+
+## Finance Module
+
+The system tracks company revenue from four sources:
+
+1. **Direct Income** — Income and expenses from system wallet transactions (e.g., consulting fees, operational costs)
+2. **Rake Commission** — Percentage of poker room rake from RakeOverrideCommission managers
+3. **Rate Fees** — Transaction fees extracted from currency exchange transactions
+4. **Spread Profit** — Profit from buy/sell rate differences on Spread managers
+
+The financial report aggregates these into a comprehensive overview with profit summaries, per-manager breakdowns, entity balances, and asset/liability calculations.
+
+### Planned Finance Modules
+
+| Module | Status | Description |
+|--------|--------|-------------|
+| Relatório (Report) | Active | Financial report with profit, balances, assets/liabilities |
+| Notas Fiscais (Invoices) | Planned | Invoice generation based on profits and tax obligations |
+| Despesas (Expenses) | Planned | Recurring expense registration |
+| Consolidado (Ledger) | Planned | Ledger-based document compliant with Brazilian law |
 
 ---
 

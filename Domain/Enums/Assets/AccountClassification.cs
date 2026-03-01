@@ -2,9 +2,10 @@ namespace SFManagement.Domain.Enums.Assets;
 
 public enum AccountClassification
 {
-    ASSET = 1,
-    LIABILITY = 2,
-    EQUITY = 3,
-    REVENUE = 4,
-    EXPENSE = 5
+    None = 0,
+    Asset = 1,
+    Liability = 2,
+    Equity = 3,
+    Revenue = 4,
+    Expense = 5
 }

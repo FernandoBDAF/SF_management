@@ -7,6 +7,9 @@ namespace SFManagement.Domain.Enums.ImportedFiles;
 /// </summary>
 public enum ReconciledTransactionType
 {
+    [Display(Name = "None", Description = "Not specified")]
+    None = 0,
+
     [Display(Name = "Fiat Transaction", Description = "Fiat asset transaction")]
     Fiat = 1,
     

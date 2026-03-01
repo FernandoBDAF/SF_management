@@ -417,7 +417,7 @@ public class SettlementClosingGroup
 | `TransactionCount` | int | Number of settlements on this date |
 | `TotalAssetAmount` | decimal | Sum of all `SignedAssetAmount` values |
 | `TotalRake` | decimal | Sum of all `RakeAmount` values |
-| `TotalRakeCommission` | decimal | Sum of all `EffectiveCommissionRate` values |
+| `TotalRakeCommission` | decimal | Sum of all `RakeCommission` values |
 | `TotalRakeBack` | decimal? | Sum of all `RakeBack` values (null coalesced to 0) |
 | `TotalNetSettlement` | decimal | Sum of all `NetSettlementAmount` values |
 
@@ -473,6 +473,54 @@ A "Closing" (Portuguese: **Fechamento**) represents a daily batch of settlement 
 3. **Last Settlement Tracking**: Used by `wallet-identifiers-connected` to show each wallet's most recent settlement
 
 For detailed information about the Closing concept and business workflow, see [SETTLEMENT_WORKFLOW.md](./SETTLEMENT_WORKFLOW.md#closings-fechamentos).
+
+---
+
+## Statement Transaction Response (Asset Holder Statements)
+
+Used by statement endpoints such as:
+
+- `GET /api/v1/client/{id}/transactions`
+- `GET /api/v1/member/{id}/transactions`
+- `GET /api/v1/bank/{id}/transactions`
+- `GET /api/v1/pokermanager/{id}/transactions`
+
+These endpoints return `StatementAssetHolderWithTransactions`, whose `transactions` array items are `StatementTransactionResponse`.
+
+### Definition
+
+```csharp
+public class StatementTransactionResponse
+{
+    public Guid Id { get; set; }
+    public DateTime Date { get; set; }
+    public string? Description { get; set; }
+    public decimal? AssetAmount { get; set; }
+    public AssetType? BalanceAs { get; set; }
+    public decimal? ConversionRate { get; set; }
+    public decimal? Rate { get; set; }
+    public decimal? RateFeeAmount { get; set; }
+    public AssetType AssetType { get; set; }
+    public string? CounterPartyName { get; set; }
+    public string? WalletIdentifierInput { get; set; }
+    public AssetGroup AssetGroup { get; set; }
+    public decimal? RakeAmount { get; set; }
+    public decimal? RakeCommission { get; set; }
+    public decimal? RakeBack { get; set; }
+    public decimal? RakeBackAmount { get; set; }
+}
+```
+
+### Notes
+
+- `AssetAmount` is already signed in statement context (`GetSignedAmountForWalletIdentifier` + account classification adjustment when applicable).
+- `RateFeeAmount` is populated for digital transactions where `BalanceAs == null` and `Rate > 0`.
+- Settlement transactions include rake fields:
+  - `RakeAmount`
+  - `RakeCommission`
+  - `RakeBack`
+  - `RakeBackAmount` (`RakeAmount * (RakeBack / 100)`)
+- Non-settlement transactions return rake fields as `null`.
 
 ---
 

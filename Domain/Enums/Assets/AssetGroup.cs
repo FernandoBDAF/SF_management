@@ -14,8 +14,8 @@ public enum AssetGroup
     // Crypto Assets
     CryptoAssets = 3,
     
-    // Internal Transactions (generic)
-    Internal = 4,
+    // Flexible wallets (system/conversion)
+    Flexible = 4,
 
     // Settlements
     Settlements = 5,

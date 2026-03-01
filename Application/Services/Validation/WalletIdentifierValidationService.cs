@@ -40,7 +40,7 @@ public class WalletIdentifierValidationService
                 case AssetGroup.CryptoAssets:
                     ValidateCryptoWalletSpecific(walletIdentifier, result);
                     break;
-                case AssetGroup.Internal:
+                case AssetGroup.Flexible:
                     ValidateInternalWalletSpecific(walletIdentifier, result);
                     break;
             }
@@ -58,7 +58,7 @@ public class WalletIdentifierValidationService
             return false;
             
         // Internal AssetGroup can accept any AssetType since it represents company-owned wallets
-        if (assetGroup.Value == AssetGroup.Internal || assetGroup.Value == AssetGroup.Settlements)
+        if (assetGroup.Value == AssetGroup.Flexible || assetGroup.Value == AssetGroup.Settlements)
             return true;
             
         var expectedAssetGroup = GetExpectedAssetGroup(assetType);
@@ -86,7 +86,7 @@ public class WalletIdentifierValidationService
             AssetType.Ripple or AssetType.BitcoinCash or AssetType.Stellar => AssetGroup.CryptoAssets,
             
             // Default/None - map to Internal as a fallback
-            AssetType.None or _ => AssetGroup.Internal,
+            AssetType.None or _ => AssetGroup.Flexible,
         };
     }
     

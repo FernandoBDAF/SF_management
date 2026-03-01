@@ -1,5 +1,7 @@
 # Transaction Infrastructure
 
+> **Last Updated:** March 2026
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -14,6 +16,7 @@
 - [PokerManager Self-Conversion](#pokermanager-self-conversion)
 - [Best Practices](#best-practices)
 - [Entity Summary](#entity-summary)
+- [Known Issues](#known-issues)
 - [Related Documentation](#related-documentation)
 
 ---
@@ -151,9 +154,9 @@ public bool HaveBothWalletsSameAccountClassification()
 public bool IsWalletIdentifierLiability(Guid walletIdentifierId)
 {
     if (SenderWalletIdentifierId == walletIdentifierId)
-        return SenderWalletIdentifier.AccountClassification == AccountClassification.LIABILITY;
+        return SenderWalletIdentifier.AccountClassification == AccountClassification.Liability;
     
-    return ReceiverWalletIdentifier.AccountClassification == AccountClassification.LIABILITY;
+    return ReceiverWalletIdentifier.AccountClassification == AccountClassification.Liability;
 }
 ```
 
@@ -310,6 +313,20 @@ Company Profit = RakeAmount × ((RakeCommission - RakeBack) / 100)
 - Rake and commission tracking
 - Rakeback distribution to clients
 
+#### Settlement Rakeback in Entity Statements
+
+When settlement transactions appear in client or member statements, the following fields are mapped from `SettlementTransaction` properties to the statement response:
+
+| Statement Field | Source | Description |
+|-----------------|--------|-------------|
+| `RakeAmount` | `SettlementTransaction.RakeAmount` | Total rake paid to poker site |
+| `RakeCommission` | `SettlementTransaction.RakeCommission` | % of rake paid to the company |
+| `RakeBack` | `SettlementTransaction.RakeBack` | % of rake returned to entity |
+| `RakeBackAmount` | Computed: `RakeAmount × (RakeBack / 100)` | Actual rakeback value in the statement |
+| `AssetAmount` | `SettlementTransaction.AssetAmount` | Chip flow amount (for reference) |
+
+> **Note:** In entity statements, the displayed **Valor** for settlement rows is the `RakeBackAmount` (not `AssetAmount`), since rakeback is the financially relevant impact for the client/member. The `AssetAmount` represents chip flow that was already recorded via `DigitalAssetTransaction`.
+
 ### ImportedTransaction
 
 Represents transactions imported from external files (OFX bank statements, Excel spreadsheets). This model is separate from the `BaseTransaction` hierarchy and serves as a staging area for external data.
@@ -360,7 +377,7 @@ public class ImportedTransaction : BaseDomain
 
 ## Transaction Modes and Business Flows
 
-The system supports 6 distinct transaction modes that represent different business operations:
+The system supports 7 distinct transaction modes that represent different business operations:
 
 ### Intermediary-Based Transactions
 
@@ -385,14 +402,14 @@ These transactions occur directly between parties without an intermediary:
 | **SELF_TRANSFER** | `INTERNAL` | Movement between wallets of the same asset holder | Wallet A → Wallet B (same holder) |
 | **CONVERSION** | `CONVERSION` | PokerManager self-conversion with dual-balance impact | Internal ↔ PokerAssets (same PokerManager) |
 
-> **Note:** The code `INTERNAL` refers to same-holder transfers (self-transfer). This is different from `AssetGroup.Internal` which is a wallet category. See [ENUMS_AND_TYPE_SYSTEM.md](../07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) for naming clarification.
+> **Note:** The code `INTERNAL` refers to same-holder transfers (self-transfer). This is different from `AssetGroup.Flexible` which is a wallet category. See [ENUMS_AND_TYPE_SYSTEM.md](../07_REFERENCE/ENUMS_AND_TYPE_SYSTEM.md) for naming clarification.
 
 ### CONVERSION Mode (Self-Conversion)
 
 The CONVERSION mode is specifically designed for PokerManager self-conversion transactions that trigger **dual-balance impact**.
 
 **Requirements:**
-- One wallet must be `AssetGroup.Internal` (conversion wallet)
+- One wallet must be `AssetGroup.Flexible` (conversion wallet)
 - Other wallet must be `AssetGroup.PokerAssets`
 - Both wallets belong to the same PokerManager
 - `ConversionRate` must be set
@@ -433,6 +450,19 @@ bool isInternalTransfer = SenderAssetHolderId == ReceiverAssetHolderId;
 | TRANSFER | **Either** | Based on asset type |
 | INTERNAL | **Either** | Based on asset type |
 
+### Sync Bank Transaction Direction
+
+When a digital transaction (SALE or PURCHASE) includes a sync bank transaction (counterpart fiat transaction), the fiat direction must be **mode-aware** to correctly reflect the BRL flow:
+
+| Mode | Chip Flow | BRL Flow | Sync Fiat Direction |
+|------|-----------|----------|---------------------|
+| SALE | PokerManager → Client | Client → Bank | Client is fiat sender, Bank is fiat receiver |
+| PURCHASE | Client → PokerManager | Bank → Client | Bank is fiat sender, Client is fiat receiver |
+
+In **SALE mode**, the sync bank transaction uses the same fiat direction as the original (bank receives BRL from the client, who is paying for chips). In **PURCHASE mode**, the sync bank transaction reverses direction (bank sends BRL to the client, who is being paid for chips sold).
+
+> **Note:** This mode-aware logic prevents the sync from creating incorrectly-directed counterpart fiat transactions. Without it, SALE mode would create a fiat transaction showing the client receiving BRL (RECEIPT) instead of paying BRL (PAYMENT).
+
 ---
 
 ## TransferService
@@ -457,7 +487,7 @@ Creates a transfer transaction between two asset holders.
 - Asset type validation
 - Balance validation (opt-in)
 - Bank restriction for TRANSFER mode
-- TRANSFER mode restricted to Internal wallets only (AssetGroup 4)
+- Explicit system-operation support (company wallets via null/Guid.Empty holder IDs)
 - Transaction atomicity with rollback on errors
 
 > **Note:** Automatic wallet creation via `CreateWalletsIfMissing` is **deprecated** as of January 2026. Wallets must be created explicitly before initiating a transfer.
@@ -613,6 +643,43 @@ if (isSenderSystem)
 - **System-level Adjustments:** Administrative balance corrections
 - **Company Treasury Operations:** Company-side receipts and payments
 
+### System Wallet Position by Transaction Mode
+
+When a system operation is created, the system wallet's position (sender or receiver) must be correctly set to ensure proper balance impact on entity wallets (Bank, PokerManager).
+
+> **Fixed (February 2026):** The frontend implementation in `SystemOperationCheck.tsx` was corrected to use the proper sender/receiver positions. The SQL migration `SYSTEM_WALLET_DIRECTION_MIGRATION.sql` was applied to fix existing data. The table below shows the current correct positions.
+
+**Correct System Wallet Positions:**
+
+The correct positions are determined by the accounting principle: transactions between Asset (entity) and Liability (system) wallets need the Liability side's sign to be inverted.
+
+| Mode | System Wallet Position | Entity Position | Entity Balance Impact | Rationale |
+|------|----------------------|-----------------|----------------------|-----------|
+| **SALE** | Receiver | Sender | -Amount (expense) | Company sells = entity sends chips |
+| **PURCHASE** | Sender | Receiver | +Amount (income) | Company buys = entity receives chips |
+| **RECEIPT** | Sender | Receiver | +Amount (income) | Company receives = entity receives money |
+| **PAYMENT** | Receiver | Sender | -Amount (expense) | Company pays = entity sends money |
+
+**Understanding the Accounting Logic:**
+
+1. **Entity wallets (Bank, PokerManager PokerAssets):** `AccountClassification = Asset`
+2. **System wallets (company-owned Flexible):** `AccountClassification = Liability`
+
+When sender and receiver have **different** AccountClassifications, the Liability wallet's sign is inverted:
+- **System as Sender (Liability):** Base sign is -Amount, inverted to +Amount → Entity receives (income)
+- **System as Receiver (Liability):** Base sign is +Amount, but Entity as sender keeps -Amount → Entity sends (expense)
+
+**TRANSFER Mode (depends on operation type + asset type):**
+
+| Operation | Asset Type | System Position | Entity Balance Impact |
+|-----------|------------|-----------------|----------------------|
+| Despesa (Expense) | Any | Receiver | -Amount |
+| Receita (Income) | Any | Sender | +Amount |
+
+**Fixed-Side Conflict Resolution:**
+
+When the system wallet's mode-determined side conflicts with a fixed-side entity (the transaction creator), the system resolves by automatically swapping the creator to the opposite side.
+
 ---
 
 ## Transaction Guardrails
@@ -693,7 +760,7 @@ Deprecated Flag Used:
 
 **Rules:**
 - **Bank Restriction:** Banks cannot participate in TRANSFER mode
-- **AssetGroup Restriction:** TRANSFER mode only allows **Internal wallets** (AssetGroup 4)
+- **AssetGroup Restriction (Frontend Guardrail):** UI limits TRANSFER mode to **Flexible wallets** (AssetGroup 4)
 - **INTERNAL mode** (same asset holder): No restrictions
 
 **AssetGroup Restriction (Frontend):**
@@ -703,7 +770,7 @@ Deprecated Flag Used:
 | FiatAssets (1) | ❌ Not allowed | RECEIPT/PAYMENT with Bank |
 | PokerAssets (2) | ❌ Not allowed | SALE/PURCHASE with PokerManager |
 | CryptoAssets (3) | ❌ Not allowed | Crypto flow (future) |
-| **Internal (4)** | ✅ Allowed | P2P transfers |
+| **Flexible (4)** | ✅ Allowed | P2P transfers |
 
 **Bank Restriction (Backend):**
 
@@ -782,6 +849,28 @@ Bank-to-bank not allowed:
 
 ---
 
+## Transaction Update (PATCH) Support
+
+Transactions support partial updates via PATCH endpoints, allowing modification of specific fields without replacing the entire resource.
+
+### How It Works
+
+1. **Update Validators** ensure only modifiable fields can be changed. Fields like `SenderWalletIdentifierId`, `ReceiverWalletIdentifierId`, and `AssetAmount` may have restrictions depending on the transaction type and its current state.
+2. **The Update Service** handles recalculation of affected balances after a transaction is modified. When a field that impacts balances is changed (e.g., `AssetAmount`, `ConversionRate`, `RakeAmount`), the service recalculates the relevant wallet balances to keep the system consistent.
+3. **Concurrency** is managed through standard EF Core optimistic concurrency, ensuring that simultaneous updates to the same transaction are detected and handled.
+
+### Update Flow
+
+```
+PATCH /api/v1/{transactionType}/{id}
+  → Validate modifiable fields
+  → Apply partial update
+  → Recalculate affected balances
+  → Save and return updated transaction
+```
+
+---
+
 ## Integration with Asset Infrastructure
 
 ### Relationship Diagram
@@ -827,6 +916,10 @@ WalletIdentifier ◄────────────────────
 
 PokerManager self-conversion transactions allow a PokerManager to move chips from a personal/external position into the managed system (or out of it) while impacting **both** PokerAssets and FiatAssets balances.
 
+### Self-Conversion via Transfer Endpoint
+
+Self-conversion allows a poker manager to convert between asset types within the same account. It is implemented via the **Transfer endpoint** (`POST /api/v1/transfer`) with the sender and receiver being the **same entity** (same `AssetHolderId`). This triggers `INTERNAL` mode detection, and when the wallet pair meets the conversion conditions (Flexible ↔ PokerAssets with `BalanceAs` and `ConversionRate` set), it is treated as a CONVERSION operation with dual-balance impact. This mechanism is commonly used for converting between different poker platform balances held by the same manager.
+
 ### Business Context
 
 The PokerManager acts as an **intermediary/bank** in the poker management business:
@@ -850,14 +943,14 @@ PokerManager deposits own 1000 chips:
 - PokerManager FiatAssets: +5000 (owed by company)
 ```
 
-The **Internal wallet** represents the manager's "external" or "personal" position that exists outside the managed system. When chips flow from Internal to PokerAssets, they are entering the managed system.
+The **Flexible wallet** represents the manager's "external" or "personal" position that exists outside the managed system. When chips flow from Flexible to PokerAssets, they are entering the managed system.
 
 ### Trigger Conditions
 
 A `DigitalAssetTransaction` is treated as self-conversion when **all** conditions are met:
 
 1. Both sender and receiver wallets belong to the same PokerManager
-2. One wallet is `AssetGroup.Internal` and the other is `AssetGroup.PokerAssets`
+2. One wallet is `AssetGroup.Flexible` and the other is `AssetGroup.PokerAssets`
 3. `BalanceAs` is set
 4. `ConversionRate` is set
 
@@ -865,8 +958,8 @@ A `DigitalAssetTransaction` is treated as self-conversion when **all** condition
 
 | Direction | PokerAssets | FiatAssets | Meaning |
 |----------|-------------|-----------|---------|
-| Internal → PokerAssets | +AssetAmount | +AssetAmount × ConversionRate | Chips entering the system |
-| PokerAssets → Internal | -AssetAmount | -AssetAmount × ConversionRate | Chips leaving the system |
+| Flexible → PokerAssets | +AssetAmount | +AssetAmount × ConversionRate | Chips entering the system |
+| PokerAssets → Flexible | -AssetAmount | -AssetAmount × ConversionRate | Chips leaving the system |
 
 ### Settlement
 
@@ -875,7 +968,7 @@ The FiatAssets balance created by self-conversion is settled through normal `Fia
 - Later: Company pays manager via `FiatAssetTransaction`
 - FiatAssets balance: 0 BRL (settled)
 
-> **Note:** The self-conversion logic is implemented in `BaseAssetHolderService.GetBalancesByAssetGroup` and is tied to the Internal wallet trigger.
+> **Note:** The self-conversion logic is implemented in `BaseAssetHolderService.GetBalancesByAssetGroup` and is tied to the Flexible wallet trigger.
 
 ---
 
@@ -912,6 +1005,16 @@ The FiatAssets balance created by self-conversion is settled through normal `Fia
 | `DigitalAssetTransaction` | Poker/crypto transactions | BalanceAs, ConversionRate, Rate |
 | `SettlementTransaction` | Poker settlements | RakeAmount, RakeCommission, RakeBack |
 | `ImportedTransaction` | External file imports | FileType, FileName, Status, Reconciliation |
+
+---
+
+## Known Issues
+
+### Settlement Rake Commission in Finance Report (Planilha)
+
+> **Status:** Deferred — requires investigation
+
+There is an outstanding investigation needed for how settlement rake commissions are reflected in the finance report (planilha) balance calculations. The closings page correctly displays rake totals and profit, but the poker manager's balance in the planilha may show zero commission impact. Suspected areas include settlement wallet ownership, `AssetPool.BaseAssetHolderId` resolution, and the wallet identifier matching logic in `GetBalancesByAssetGroup`.
 
 ---
 

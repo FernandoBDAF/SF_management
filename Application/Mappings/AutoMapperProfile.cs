@@ -109,8 +109,8 @@ public class AutoMapperProfile : Profile
                         dest.WalletCategory = src.GetCryptoMetadata(CryptoWalletMetadata.WalletCategory);
                         break;
                         
-                    case AssetGroup.Internal:
-                        // Internal wallets have no specific metadata fields to extract
+                    case AssetGroup.Flexible:
+                        // Flexible wallets have no specific metadata fields to extract
                         break;
                 }
             });
@@ -430,7 +430,7 @@ public class AutoMapperProfile : Profile
                 AssetGroup.FiatAssets => walletIdentifier.GetBankMetadata(BankWalletMetadata.PixKey),
                 AssetGroup.PokerAssets => walletIdentifier.GetPokerMetadata(PokerWalletMetadata.InputForTransactions),
                 AssetGroup.CryptoAssets => walletIdentifier.GetCryptoMetadata(CryptoWalletMetadata.WalletAddress),
-                AssetGroup.Internal => "Internal Wallet",
+                AssetGroup.Flexible => "Flexible Wallet",
                 _ => null
             };
         }

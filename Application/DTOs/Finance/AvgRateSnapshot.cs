@@ -4,7 +4,7 @@ namespace SFManagement.Application.DTOs.Finance;
 /// Represents the AvgRate state at the end of a month.
 /// Used for caching and profit calculations.
 /// </summary>
-public class AvgRateSnapshot
+public class AvgRateSnapshotResponse
 {
     public Guid PokerManagerId { get; set; }
     public int Year { get; set; }

@@ -7,6 +7,9 @@ namespace SFManagement.Domain.Enums.ImportedFiles;
 /// </summary>
 public enum ExcelImportType
 {
+    [Display(Name = "None", Description = "Not specified")]
+    None = 0,
+
     [Display(Name = "Buy Transactions", Description = "Purchase transactions from poker platforms")]
     BuyTransactions = 1,
     

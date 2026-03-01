@@ -19,6 +19,9 @@
 - [Transaction Mode Examples](#transaction-mode-examples)
 - [Sign Convention Reference](#sign-convention-reference)
 - [Implementation Reference](#implementation-reference)
+- [Settlement AssetAmount for RakeOverrideCommission Managers](#settlement-assetamount-for-rakeoverridecommission-managers)
+- [Rate Adjustment Impact on Client/Member Balances](#rate-adjustment-impact-on-clientmember-balances)
+- [System Wallet Transactions](#system-wallet-transactions)
 
 ---
 
@@ -185,12 +188,12 @@ Note: Client owes IN CHIPS, not in BRL
 
 ### Self-Conversion (CONVERSION Mode)
 
-When a PokerManager moves between Internal and PokerAssets wallets with BalanceAs.
+When a PokerManager moves between Flexible and PokerAssets wallets with BalanceAs.
 This is represented by the **CONVERSION** transaction mode in the frontend.
 
 **Trigger Conditions:**
 1. Both wallets belong to same PokerManager
-2. One is `AssetGroup.Internal` (conversion wallet), other is `AssetGroup.PokerAssets`
+2. One is `AssetGroup.Flexible` (conversion wallet), other is `AssetGroup.PokerAssets`
 3. `BalanceAs` is set (typically BRL)
 4. `ConversionRate` is set
 
@@ -220,7 +223,7 @@ Direction: PokerAssets → Internal (chips leaving system)
 ```
 Business: PokerManager deposits own 1000 chips
 
-Transaction: Internal → PokerAssets (PokerStars)
+Transaction: Flexible → PokerAssets (PokerStars)
 AssetAmount: 1000
 BalanceAs: BRL
 ConversionRate: 5.0
@@ -342,14 +345,14 @@ Balance Impacts:
 └─ Client FiatAssets: -5000 (company owes less)
 ```
 
-### TRANSFER (P2P between Internal Wallets)
+### TRANSFER (P2P between Flexible Wallets)
 
-> **Restriction (January 2026):** TRANSFER mode only allows **Internal wallets** (AssetGroup 4). For other asset groups, use the appropriate mode (SALE/PURCHASE for PokerAssets, RECEIPT/PAYMENT for FiatAssets).
+> **Application Guardrail (January 2026):** Frontend flow limits TRANSFER mode to **Flexible wallets** (AssetGroup 4). Backend hard validations in `TransferService` still focus on bank participation and wallet existence.
 
 ```
 Mode: TRANSFER
-Flow: Client A Internal Wallet → Client B Internal Wallet
-Asset: Internal wallet (AssetGroup 4)
+Flow: Client A Flexible Wallet → Client B Flexible Wallet
+Asset: Flexible wallet (AssetGroup 4)
 
 Balance Impacts:
 ├─ Client A: -Amount
@@ -357,7 +360,7 @@ Balance Impacts:
 
 Restrictions:
 ├─ Banks cannot participate
-└─ Only Internal wallets allowed (AssetGroup 4)
+└─ UI guardrail: Flexible wallets only (AssetGroup 4)
 ```
 
 ### SELF_TRANSFER (Same Holder)
@@ -403,10 +406,10 @@ if (!tx.HaveBothWalletsSameAccountClassification() &&
 
 | Sender Class | Receiver Class | Sender Sign | Receiver Sign |
 |--------------|----------------|-------------|---------------|
-| ASSET | ASSET | - | + |
-| LIABILITY | LIABILITY | - | + |
-| ASSET | LIABILITY | - | - |
-| LIABILITY | ASSET | + | + |
+| Asset | Asset | - | + |
+| Liability | Liability | - | + |
+| Asset | Liability | - | - |
+| Liability | Asset | + | + |
 
 ---
 
@@ -427,6 +430,144 @@ if (!tx.HaveBothWalletsSameAccountClassification() &&
 
 ---
 
+## Settlement AssetAmount for RakeOverrideCommission Managers
+
+For managers with `ManagerProfitType.RakeOverrideCommission`, the `SettlementTransaction.AssetAmount` field impacts balances in a special way. Unlike standard settlements where `AssetAmount` is excluded from balance calculations (to avoid double-counting), RakeOverrideCommission managers use it directly.
+
+### By AssetType Calculation
+
+```
+signedChipAmount = isReceiver ? AssetAmount : -AssetAmount
+
+balances[AssetType (e.g. PokerStars)] += signedChipAmount
+balances[AssetType.BrazilianReal]     += signedChipAmount
+```
+
+### By AssetGroup Calculation
+
+```
+balances[AssetGroup.PokerAssets] += signedChipAmount
+balances[AssetGroup.FiatAssets]  += signedChipAmount
+```
+
+### Sign Convention
+
+| Role | Chip Balance | Fiat (BRL) Balance |
+|------|-------------|-------------------|
+| Receiver | +AssetAmount | +AssetAmount |
+| Sender | −AssetAmount | −AssetAmount |
+
+**Rationale:** RakeOverrideCommission managers hold chips that are valued at a 1:1 rate with BRL. When a settlement occurs, the chip movement also represents a BRL movement of equal value.
+
+---
+
+## Rate Adjustment Impact on Client/Member Balances
+
+Rate adjustments from transactions (the `Rate` field) are included in the balance calculation for clients and members. This was a fix implemented to ensure that rate fees extracted from transactions are properly reflected in entity balances.
+
+### How It Works
+
+When a `DigitalAssetTransaction` has `Rate > 0` and `BalanceAs = null` (coin balance mode), the balance formula applies the rate adjustment:
+
+```
+signedAmount = GetSignedAmountForWallet()
+adjustedAmount = signedAmount * (100 / (100 + Rate))
+balances[AssetType] += adjustedAmount
+```
+
+The difference between the raw `AssetAmount` and the adjusted amount represents the rate fee. This fee is extracted from the client/member balance and accounted for separately in the finance/profit system as `RateFees`.
+
+### Example
+
+```
+Transaction: PokerManager → Client (PokerStars)
+AssetAmount: 1050 (raw transfer includes embedded fee)
+Rate: 5
+
+Client balance impact: 1050 × (100 / 105) = 1000 chips
+Rate fee portion: 50 chips (tracked in profit system)
+```
+
+Without this adjustment, the client balance would reflect the full 1050 chips, overstating the actual debt and understating the company's earned fee.
+
+---
+
+## System Wallet Transactions
+
+System wallets are company-owned Flexible wallets used for internal accounting. They have special balance impact rules due to their `AccountClassification = Liability`.
+
+### Key Concept: AccountClassification Interaction
+
+When a transaction involves wallets with **different** AccountClassifications, the LIABILITY wallet's sign is inverted. This is critical for system wallet transactions:
+
+- **Entity wallets (Bank, PokerManager PokerAssets):** `AccountClassification = Asset`
+- **System wallets (company-owned Flexible):** `AccountClassification = Liability`
+
+### Balance Impact Rules
+
+The correct sender/receiver positions for system operations:
+
+| Operation | Description | System Position | Entity Position | Entity Balance Impact |
+|-----------|-------------|-----------------|-----------------|----------------------|
+| **Compra** (Purchase) | Company buys chips from entity | Sender | Receiver | +AssetAmount (income) |
+| **Venda** (Sale) | Company sells chips to entity | Receiver | Sender | -AssetAmount (expense) |
+| **Recebimento** (Receipt) | Company receives money | Sender | Receiver | +AssetAmount (income) |
+| **Pagamento** (Payment) | Company pays money | Receiver | Sender | -AssetAmount (expense) |
+
+### Why This Works
+
+Using the sign calculation logic:
+
+**Income Example (Compra/Recebimento):**
+```
+System Wallet (LIABILITY) = Sender → Base sign: -AssetAmount
+Entity Wallet (ASSET) = Receiver → Base sign: +AssetAmount
+
+Different classifications → System sign inverted: +AssetAmount
+
+Result: Entity balance increases (company has more assets)
+```
+
+**Expense Example (Venda/Pagamento):**
+```
+System Wallet (LIABILITY) = Receiver → Base sign: +AssetAmount
+Entity Wallet (ASSET) = Sender → Base sign: -AssetAmount
+
+Different classifications → Entity keeps negative sign (not a liability)
+
+Result: Entity balance decreases (company spent assets)
+```
+
+### Statement Display
+
+In entity statements (Bank, PokerManager), system wallet transactions display:
+- **Category name** instead of counterparty name (since system wallets have no owner name)
+- **Correct direction labels** based on the signed amount
+
+### Example: Bank System Operation
+
+```
+Operation: Pagamento (expense)
+Amount: R$ 1,000.00
+
+Correct Setup:
+├─ System Wallet (Liability): Receiver
+└─ Bank Wallet (Asset): Sender
+
+Balance Impacts:
+├─ Bank FiatAssets: -1000 (company spent money)
+└─ System Wallet: Not tracked (for future accounting module)
+
+Statement Display:
+├─ Valor: -1000 (red, negative)
+├─ Origem: Category name (e.g., "Despesas Operacionais")
+└─ Descrição: User-provided description
+```
+
+> **Note:** System wallet balance tracking will be implemented in the future accounting module. Currently, only entity balances are affected.
+
+---
+
 ## Related Documentation
 
 | Topic | Document |
@@ -439,4 +580,4 @@ if (!tx.HaveBothWalletsSameAccountClassification() &&
 
 ---
 
-*Last updated: January 24, 2026*
+*Last updated: February 23, 2026*

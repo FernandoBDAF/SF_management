@@ -14,6 +14,8 @@ Request → FluentValidation → Service Validation → Domain Service → Datab
 
 ### 1. FluentValidation (Request Models)
 
+#### Entity Creation Validators
+
 **File**: `ViewModels/Validators/ClientRequestValidator.cs`
 
 ```csharp
@@ -38,6 +40,73 @@ public class ClientRequestValidator : AbstractValidator<ClientRequest>
 }
 ```
 
+#### Transaction Update Validators
+
+Transaction update requests use dedicated validators that support partial updates where all fields are optional.
+
+**File**: `Application/Validators/Transactions/UpdateFiatAssetTransactionValidator.cs`
+
+```csharp
+public class UpdateFiatAssetTransactionValidator : AbstractValidator<UpdateFiatAssetTransactionRequest>
+{
+    public UpdateFiatAssetTransactionValidator()
+    {
+        When(x => x.Date.HasValue, () =>
+        {
+            RuleFor(x => x.Date!.Value)
+                .LessThanOrEqualTo(DateTime.UtcNow)
+                .WithMessage("Transaction date cannot be in the future.");
+        });
+
+        When(x => x.AssetAmount.HasValue, () =>
+        {
+            RuleFor(x => x.AssetAmount!.Value)
+                .GreaterThan(0)
+                .WithMessage("Amount must be greater than zero.");
+        });
+
+        When(x => x.Description != null, () =>
+        {
+            RuleFor(x => x.Description!)
+                .MaximumLength(500)
+                .WithMessage("Description cannot exceed 500 characters.");
+        });
+    }
+}
+```
+
+**File**: `Application/Validators/Transactions/UpdateDigitalAssetTransactionValidator.cs`
+
+```csharp
+public class UpdateDigitalAssetTransactionValidator : AbstractValidator<UpdateDigitalAssetTransactionRequest>
+{
+    public UpdateDigitalAssetTransactionValidator()
+    {
+        // Inherits Date, AssetAmount, Description validation from Fiat pattern
+
+        When(x => x.ConversionRate.HasValue, () =>
+        {
+            RuleFor(x => x.ConversionRate!.Value)
+                .GreaterThan(0)
+                .WithMessage("Conversion rate must be greater than zero.");
+        });
+    }
+}
+```
+
+**Key Characteristics:**
+- All fields are nullable (optional) for partial updates
+- Validation rules only apply when a field is provided (`When(x => x.Field.HasValue, ...)`)
+- Validators are registered in DI container in `Program.cs`
+
+#### Validator Registration
+
+```csharp
+// Program.cs
+builder.Services.AddScoped<IValidator<UpdateFiatAssetTransactionRequest>, UpdateFiatAssetTransactionValidator>();
+builder.Services.AddScoped<IValidator<UpdateDigitalAssetTransactionRequest>, UpdateDigitalAssetTransactionValidator>();
+```
+
 ### 2. WalletIdentifierValidationService
 
 **File**: `Services/WalletIdentifierValidationService.cs`
@@ -49,8 +118,8 @@ public class WalletIdentifierValidationService
     {
         var errors = new List<ValidationError>();
 
-        // Skip validation for internal/settlement wallets
-        if (wallet.AssetGroup == AssetGroup.Internal || 
+        // Skip validation for flexible/settlement wallets
+        if (wallet.AssetGroup == AssetGroup.Flexible || 
             wallet.AssetGroup == AssetGroup.Settlements)
             return ValidationResult.Success();
 
@@ -151,7 +220,7 @@ public class AssetHolderDomainService : IAssetHolderDomainService
 | FiatAssets | BankName, AccountNumber, PixKey |
 | PokerAssets | PlayerNickname, PlayerPhone, InputForTransactions |
 | CryptoAssets | WalletAddress |
-| Internal | None |
+| Flexible | None |
 | Settlements | None |
 
 ---

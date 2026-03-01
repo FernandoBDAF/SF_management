@@ -70,6 +70,21 @@ Balance Impacts (BRL):
 - PokerManager FiatAssets (BRL): -500 (1000 × 50%)
 ```
 
+### Settlement AssetAmount (RakeOverrideCommission Exception)
+
+The `SettlementTransaction` has an `AssetAmount` field (inherited from `BaseTransaction`) representing the chip value of the settlement. For most managers, this value is tracking-only. However, for **RakeOverrideCommission** managers, `AssetAmount` impacts both PokerAssets and FiatAssets balances.
+
+**Why:** RakeOverride chips are valued at a 1:1 ratio with BRL, so the chip movement directly corresponds to a fiat value.
+
+**Signal Convention:**
+- **Receiver** of the settlement → `+AssetAmount` (positive)
+- **Sender** of the settlement → `-AssetAmount` (negative)
+
+| Manager Type | AssetAmount Balance Impact |
+|-------------|---------------------------|
+| Spread | None (tracking only, chips already flowed via DigitalAssetTransactions) |
+| RakeOverrideCommission | Impacts PokerAssets AND FiatAssets (1:1 BRL ratio) |
+
 ### Company Profit (Finance Module - TBD)
 
 The company profit from each settlement is calculated as:
@@ -109,6 +124,16 @@ Settlements use wallets in `AssetGroup.Settlements`:
 - Sender: Player's settlement wallet
 - Receiver: Manager's settlement wallet
 - Or vice versa depending on position
+
+### Settlement Wallet Identifier
+
+Settlements can create dedicated settlement wallet identifiers via:
+
+```http
+POST /api/v1/walletidentifier/settlement-wallet
+```
+
+Settlement wallets belong to `WalletGroup.Settlement` and are special-purpose wallets used exclusively for tracking settlement-specific transactions. They are distinct from regular PokerAssets or FiatAssets wallets and provide isolated tracking of settlement flows between poker managers and their players.
 
 ---
 
@@ -326,6 +351,59 @@ This allows the frontend to display when each player was last settled.
       │  2. Map to SettlementClosingsGroupedResponse                   │
       │  3. Each group computes aggregated metrics                     │
       └────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Statement Display (Extrato)
+
+Settlement transactions appear in asset holder statements (`GET /{entity}/{id}/transactions`) with special handling:
+
+### StatementTransactionResponse Fields
+
+For settlement transactions, the response includes additional rake-related fields:
+
+```csharp
+public class StatementTransactionResponse
+{
+    // ... standard fields ...
+    public decimal? RakeAmount { get; set; }
+    public decimal? RakeCommission { get; set; }
+    public decimal? RakeBack { get; set; }
+    public decimal? RakeBackAmount { get; set; }  // Computed: RakeAmount × (RakeBack / 100)
+}
+```
+
+### Computed Rakeback Amount
+
+The `RakeBackAmount` is computed in the service layer:
+
+```csharp
+RakeBackAmount = st.RakeAmount * ((st.RakeBack ?? 0m) / 100m);
+```
+
+This represents the actual BRL value a client receives as rakeback from a settlement.
+
+### Frontend Statement Value Logic
+
+In client/member statements, settlement transactions use `RakeBackAmount` as the displayed value (not `AssetAmount`):
+
+| Field | Non-Settlement | Settlement |
+|-------|----------------|------------|
+| **Valor** | `AssetAmount` (or converted) | `RakeBackAmount` with sign from `AssetAmount` |
+| **Origem** | "Venda" / "Compra" | "Fechamento +" / "Fechamento -" |
+
+**Example:**
+```
+Settlement Transaction:
+- RakeAmount: 400
+- RakeBack: 50%
+- AssetAmount: -200 (negative = client paid chips)
+
+Display:
+- Valor: -200 (sign from AssetAmount, value from RakeBackAmount)
+- Origem: "Fechamento -"
+- Details: "Rakeback Fechamento: R$ 200.00"
 ```
 
 ---
