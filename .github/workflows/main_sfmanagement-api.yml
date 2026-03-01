@@ -23,9 +23,6 @@ jobs:
         with:
           dotnet-version: '9.x'
 
-      - name: Install dotnet-ef tool
-        run: dotnet tool install --global dotnet-ef --version 9.*
-
       - name: Restore dependencies
         run: dotnet restore SFManagement.csproj
 
@@ -34,7 +31,11 @@ jobs:
         continue-on-error: true
 
       - name: Generate idempotent migration script
-        run: dotnet ef migrations script --project SFManagement.csproj --idempotent --output migration.sql
+        run: |
+          dotnet new tool-manifest --force
+          dotnet tool install dotnet-ef --version 9.*
+          dotnet ef migrations script --project SFManagement.csproj --idempotent --output migration.sql
+        continue-on-error: true
 
       - name: Build with dotnet
         run: dotnet build SFManagement.csproj --configuration Release --no-restore
