@@ -80,7 +80,7 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
             context.Succeed(requirement);
             return Task.CompletedTask;
         }
-        
+
         if (permissions.Contains(requirement.Permission))
         {
             _logger.LogInformation("Permission authorization granted: User {UserId} ({UserEmail}) has permission {RequiredPermission}", 

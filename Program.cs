@@ -38,7 +38,11 @@ try
     builder.Services.AddResponseCaching();
     builder.Services.AddMemoryCache();
     builder.AddRateLimitServices();
-    builder.Services.AddApplicationInsightsTelemetry();
+    
+    if (!builder.Environment.IsDevelopment())
+    {
+        builder.Services.AddApplicationInsightsTelemetry();
+    }
 
     builder.Services.AddDbContext<DataContext>(p =>
     {
@@ -188,6 +192,8 @@ try
 catch (Exception ex)
 {
     Log.Fatal(ex, "SF Management API failed to start");
+    Console.WriteLine($"FATAL: {ex}");
+    throw;
 }
 finally
 {

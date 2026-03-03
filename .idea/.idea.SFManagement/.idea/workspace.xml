@@ -12,8 +12,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b53628fe-6782-49a7-af19-ab2a00b252de" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Documentation/10_DEPLOYMENT/AZURE_VERCEL_SETUP_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/10_DEPLOYMENT/AZURE_VERCEL_SETUP_GUIDE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/10_DEPLOYMENT/PRODUCTION_MANAGEMENT_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/10_DEPLOYMENT/PRODUCTION_MANAGEMENT_GUIDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/hmg_sfmanagement-api-hmg.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/hmg_sfmanagement-api-hmg.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/main_sfmanagement-api.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/main_sfmanagement-api.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SFManagement/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Authorization/Auth0AuthorizationHandlers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Authorization/Auth0AuthorizationHandlers.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appsettings.Development.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.Development.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,21 +59,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.SFManagement: http.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.33114755&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;hmg&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Color Scheme Font&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.SFManagement: http.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "XThreadsFramesViewSplitterKey": "0.33114755",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Color Scheme Font",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="SFManagement: http" type="LaunchSettings" factoryName=".NET Launch Settings Profile" temporary="true">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/SFManagement.csproj" />
